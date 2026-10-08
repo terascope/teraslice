@@ -2,6 +2,7 @@ import 'jest-extended';
 import { FieldType, DataTypeConfig, DataTypeFields } from '@terascope/types';
 import { TealFrame, closeDuckDatabase } from '../../src/teal-frame/index.js';
 import { diffSchema } from '../../src/teal-frame/index.js';
+import { DataFrame } from '../../src/data-frame/index.js';
 
 /**
  * One sample value per FieldType, in the form the ES client would hand us.
@@ -58,7 +59,7 @@ const ALL_TYPES = Object.keys(SAMPLES) as FieldType[];
 
 async function roundTrip(
     type: FieldType, array: boolean
-): Promise<{ value: unknown; mismatches: unknown[] }> {
+): Promise<{ value: unknown; expected: unknown; mismatches: unknown[] }> {
     const children = CHILDREN[type] ?? {};
     const childFields = Object.fromEntries(
         Object.entries(children).map(([name, cfg]) => [`field.${name}`, cfg])
@@ -76,7 +77,12 @@ async function roundTrip(
     try {
         const rows: Record<string, unknown>[] = [];
         for await (const row of frame.rows()) rows.push(row);
-        return { value: rows[0]?.field, mismatches: await diffSchema(frame) };
+        const [expected] = DataFrame.fromJSON(config, [record]).toJSON();
+        return {
+            value: rows[0]?.field,
+            expected: (expected as Record<string, unknown>).field,
+            mismatches: await diffSchema(frame),
+        };
     } finally {
         await frame.destroy();
     }
@@ -112,6 +118,15 @@ describe('every FieldType round-trips through the frame', () => {
             assertPlain(value);
         });
 
+        /**
+         * Plain is not enough: an `Any` or untyped `Object` came back as its JSON TEXT, which is a
+         * plain string and passed the check above while every caller got `'{"x":1}'` for `{x: 1}`.
+        */
+        it('yields exactly what DataFrame yields', async () => {
+            const { value, expected } = await roundTrip(type, false);
+            expect(value).toEqual(expected);
+        });
+
         it('has a table schema matching its declared config', async () => {
             const { mismatches } = await roundTrip(type, false);
             expect(mismatches).toEqual([]);
@@ -125,6 +140,11 @@ describe('every FieldType round-trips through the frame', () => {
             assertPlain(value);
             // JSON.stringify is what the response path does - a wrapper shows up here
             expect(JSON.stringify(value)).toStartWith('[');
+        });
+
+        it('yields exactly what DataFrame yields as an array', async () => {
+            const { value, expected } = await roundTrip(type, true);
+            expect(value).toEqual(expected);
         });
 
         it('has a table schema matching its declared array config', async () => {

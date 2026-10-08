@@ -79,3 +79,12 @@ export function toPlainValue(value: unknown): unknown {
 
     return value;
 }
+
+/**
+ * A JSON column's text as the value it encodes. **Decoding the storage format, not undoing a step
+ * of our own:** `Any` and untyped `Object` are stored as JSON (VARIANT was measured and rejected,
+ * DF16), so text is what DuckDB holds and hands back.
+*/
+export function parseJSONText(value: unknown): unknown {
+    return typeof value === 'string' ? JSON.parse(value) : value;
+}
