@@ -773,30 +773,41 @@ Fixed by `adaptTypeChange`: where the type, array-ness or children change, a UDF
 Number and an Object with typed children in `udf-types-spec.ts`. Needed DF7 first, since `cast` to or
 from an Object, Any or GeoPoint has a STRUCT or JSON on one side.
 
-### DF22. A `DateTuple`'s display offset was dropped — FIXED 2026-10-08
+### DF22. A `DateTuple`'s display offset was dropped — FIXED 2026-10-09
 
 `setTimezone`, `toTimeZone` and `toTimeZoneUsingLocation` return `[epochMillis, offsetMinutes]`, and
-`DataFrame` keeps the offset in the vector: the output renders in local time
-(`2023-08-22T17:41:50.172+02:00`), and every later date function reads it - `getHours` answers in local
-hours, `isWednesday` decides by the local day, `formatDate` prints the local date, `addToDate` works on
-local wall time. TealFrame stored a TIMESTAMP, kept the instant and dropped the offset: **121 of 250**
-producer -> date-function chains differed; that sweep is now `test/teal-frame/timezone-offset-spec.ts`.
+`DataFrame` keeps the offset per VALUE: the output renders in local time
+(`2023-08-22T17:41:50.172+02:00`), and later date functions read it - `getHours` answers in local hours,
+`isWednesday` decides by the local day. TealFrame stored a TIMESTAMP, kept the instant and dropped the
+offset: **121 of 250** producer -> date-function chains differed.
 
-**The fix (`src/teal-frame/date-offset.ts`):** a column one of the three wrote is stored as
-`STRUCT(ts TIMESTAMP, tz_offset SMALLINT)`; every other `Date` stays a TIMESTAMP. The three configs
-declare `produces_date_offset`, and `tealFrameAdapter` sets `date_offset` on the
-`DataTypeFieldAndChildren` it returns - kept by a validation (which passes the column through) and by a
-`cast` that stays a Date, cleared by any function returning a plain date. On a flagged column every date
-SQL emission declines and the UDF runs, handed the real `DateTuple`; `rows()`, `ndjson()`,
-`writeNDJSON()` and `listValues()` render it exactly as `toISO8601` does (`Z` for an offset of 0). The
-struct survives `writeParquet` -> `fromParquet` and still renders, since output reads the column TYPE.
-All 316 checks equal `DataFrame`, including `Date[]` columns and a chain through a validation.
+**What `DataFrame` actually does with dates** (measured under TZ=UTC, New York and Kolkata): ingest is
+`toEpochMSOrThrow`, so an incoming `"...10:00:00+02:00"` is stored as epoch millis (`08:00Z`) - the
+offset in the string is NOT kept, in either engine. Only those three functions create a tuple.
+`setTimezone('Europe/Paris')` uses the zone's offset on the day the code RUNS (`timezoneToOffset`);
+`toTimeZone` uses the offset on the DATE. Zone-less strings, custom `formatDate` patterns and
+`isThursday`/`isFriday` depend on the host TZ - the test runner sets `TZ: 'utc'`, so CI never sees it.
 
-**What an offset column does NOT do**, deliberately left alone:
-- **A SQL predicate on it** - an xLucene filter or `filter('d > ...')` - fails to bind (`STRUCT` vs
-  `TIMESTAMP`). Filters run before directives in Spaces, so none is expected; if one is needed, compare
-  `d.ts`.
-- **The flag is not in the frame's config.** The adapter's caller threads it; after a Parquet hand-off
-  it is re-derived from the column type with `isDateOffsetType`.
-- **`ORDER BY` on it** orders by the instant, then the offset.
+**The fix: every `Date` column is `STRUCT(ms BIGINT, tz_offset SMALLINT)`** - `DataFrame`'s own pair,
+the offset NULL unless one of the three set it (`src/teal-frame/date-value.ts`; data-types' `toDuckDB`).
+One shape for every date, so nothing tracks whether a step attached an offset - each row says so.
+- **The date SQL emissions run on it, offset or not.** The adapter hands an emission the LOCAL wall
+  time, `epoch_ms(ms + coalesce(tz_offset, 0) * 60000)` - `getValidDateWithTimezone`, what `DataFrame`
+  reads from a tuple - and the bare `instant`. `getUTC*`, `setSeconds` and `setMilliseconds` read the
+  instant, because core-utils does (`getValidDateOrThrow`, not the WithTimezone variant). A date result
+  goes back with no offset, as `DataFrame` returns plain millis from those functions.
+- UDFs receive exactly what `DateVector` holds: millis, or the tuple. Nothing is parsed.
+- `rows()` and `ndjson()` render it as `toISO8601`: `...Z`, or local time and `+HH:MM`.
+- xLucene date filters compare `field.ms` against epoch millis (sql-builder's DuckDB dialect).
+- **Measured** (`docs/tools/bench/date-shape.mjs`, `PERFORMANCE.md` §DATE STORAGE): against a TIMESTAMP
+  at 100M rows, 32% smaller in Parquet, writes 21% and 50% range filters 23% faster; a date function
+  pays ~19% for the per-row offset branch.
 
+Pinned by `test/teal-frame/timezone-offset-spec.ts` (310 tests: 6 producers x every date function,
+`Date[]`, a chain through a validation, the Parquet round trip - all equal to `DataFrame`, on the SQL
+path). **Superseded design, 2026-10-08:** a TIMESTAMP for plain dates and a struct only after the three,
+marked by a `date_offset` flag the caller had to thread; it made a SQL filter on such a column fail and
+the flag had to be re-derived after a Parquet hand-off. Replaced the next day.
+
+**Not converted:** Parquet written BEFORE this change holds a TIMESTAMP and is read as it is; regenerate
+it. Nothing outside TealFrame produces these payloads yet.

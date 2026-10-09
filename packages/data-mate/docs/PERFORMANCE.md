@@ -7,6 +7,28 @@ every case was checked to produce the same row count, so "faster" cannot mean "d
 > **This file is `bench/comparison/run.js`'s default `OUT` target** — running that bench without `OUT=`
 > overwrites this curated document.
 
+
+## DATE STORAGE — measured 2026-10-09
+
+`docs/tools/bench/date-shape.mjs`, 100M rows over one Parquet+zstd file, warm, median of 5, workstation
+(14 cores). Ratios to a TIMESTAMP; every shape returned identical answers (the bench checks).
+
+| shape | MB | write | 1% range | 50% range | hour of day | by day | top 100 | ISO render |
+|---|---|---|---|---|---|---|---|---|
+| TIMESTAMP (before) | 395 | 359 ms | 3.5 ms | 46 ms | 128 ms | 152 ms | 108 ms | 718 ms |
+| BIGINT millis | 0.68 | 0.94 | 0.89 | 0.63 | 0.94 | 0.92 | 0.80 | 0.97 |
+| **`STRUCT(ms BIGINT, tz_offset)` - CHOSEN** | **0.68** | **0.79** | 1.23 | **0.77** | 1.19 | 0.93 | 1.07 | 1.04 |
+| packed BIGINT (ms * 4096 + offset) | 0.73 | 0.76 | 0.89 | 0.79 | 1.08 | 1.00 | 0.95 | 1.07 |
+| `STRUCT(ts TIMESTAMP, tz_offset)` | 1.00 | 0.97 | 1.46 | 1.17 | 1.46 | 1.03 | 1.31 | 1.09 |
+| chosen, EVERY row with an offset | 0.68 | 0.97 | 1.51 | 0.82 | 1.17 | 1.03 | 0.96 | 1.91 |
+
+- **Milliseconds compress far better than a TIMESTAMP's microseconds** - the whole size win.
+- **The per-row offset branch costs ~19% on a date function** (`hour of day`), nothing on filters or sorts.
+- **Rendering an offset costs ~2x** whatever the shape - local time plus `+HH:MM` per value - and only
+  queries using the three timezone functions pay it.
+- The packed integer matched the chosen struct and pruned slightly better, but is not epoch millis to
+  any other reader; the struct is `DataFrame`'s own pair, readable as is.
+
 ## READ FIRST — what is stale, and by how much
 
 | caveat | effect |

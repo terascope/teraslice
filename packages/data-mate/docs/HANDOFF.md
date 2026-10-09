@@ -41,8 +41,8 @@ If you read nothing else, read this and §0.
 `fromSQL`, `searchParams`)**, query
 (`select`/`filter`/`join`/`orderBy`/`limit`/`distinct`/`materialize`/`size`), output (`rows`,
 `ndjson`, `writeNDJSON`, `writeParquet`), and `tealFrameAdapter` driving the same
-`FunctionDefinitionConfig`s as `dataFrameAdapter`. **52 data-mate suites / 4,716 tests passing,
-verified 2026-10-08** (plus `data-types` 32 / 198 and `sql-builder` 2 / 66 as of 2026-09-28;
+`FunctionDefinitionConfig`s as `dataFrameAdapter`. **52 data-mate suites / 4,711 tests passing,
+verified 2026-10-09** (plus `data-types` 32 / 198 and `sql-builder` 2 / 66 as of 2026-09-28;
 `xlucene-translator`'s 174 failures are all OpenSearch-only suites with no cluster configured).
 
 **RENAMED: DuckFrame is now `TealFrame`** (`src/teal-frame/`, `tealFrameAdapter`), over trademark
@@ -61,7 +61,10 @@ validations included (`noUdfPath` and the compare-to-`create()` branch are gone)
 runs 148 of 205 end to end with zero adapter failures. Pinned against `DataFrame` in
 `test/teal-frame/udf-types-spec.ts`; `type-sweep-spec.ts` now requires every type to EQUAL `DataFrame`.
 
-**STORAGE TYPES CHANGED 2026-09-28 — read `known-defects.md` DF14-DF16 before touching a type mapping.**
+**STORAGE TYPES CHANGED 2026-09-28 and 2026-10-09 — read `known-defects.md` DF14-DF16 and DF22 before
+touching a type mapping.** Since 2026-10-09 a **`Date` is `STRUCT(ms BIGINT, tz_offset SMALLINT)`**, not a
+TIMESTAMP: epoch millis plus `DataFrame`'s optional display offset (`date-value.ts`). Every date SQL
+expression reads `epoch_ms(...)` of it; xLucene compares `field.ms`.
 - **`Long` is `BIGINT`, not `HUGEINT`.** Parquet has no 128-bit integer, so HUGEINT crossed the wire as
   a DOUBLE and every value past 2^53 changed (DF14). A value outside int64 is now a coercion failure; a
   COMPUTED wide Long (`ipToInt` on IPv6) keeps a wide type in the query, and `writeParquet` narrows it or
@@ -595,13 +598,12 @@ went 13-of-16 to 2, and those 2 are the offset-display question below.
   `maxTempDirectorySize`, `memoryLimit`, `threads` only), so `SET TimeZone='UTC'` becomes mandatory the
   moment timezone work moves into SQL.
 
-**RESOLVED 2026-10-08 - the offset now travels with the column (DF22).** An offset-carrying `Date`
-is stored as `STRUCT(ts TIMESTAMP, tz_offset SMALLINT)` - option 4 below, but ONLY for a column one
-of the three producers wrote, flagged `date_offset` on the adapter's `DataTypeFieldAndChildren`, so
-every other `Date` stays a TIMESTAMP and none of 4's objections apply to it. Date UDFs receive the
-real `DateTuple`, date emissions step aside for the UDF, and `rows()`/`ndjson()` render `+HH:MM`.
-Pinned against `DataFrame` for 6 producers x every date function in `timezone-offset-spec.ts`
-(316 tests; 121 of 250 chains differed before). The analysis below is kept as the record.
+**RESOLVED 2026-10-09 (DF22): every `Date` is `STRUCT(ms BIGINT, tz_offset SMALLINT)`** - `DataFrame`'s
+`[ms, offset]` pair, the offset NULL unless `setTimezone`/`toTimeZone`/`toTimeZoneUsingLocation` set one.
+Date SQL emissions read the row's local wall time (or the instant, for `getUTC*` and
+`setSeconds`/`setMilliseconds`), so offset dates run as SQL too; output renders `+HH:MM`. No flag, no
+per-step tracking. Measured cheaper than a TIMESTAMP - see `PERFORMANCE.md` §DATE STORAGE. The analysis
+below is kept as the record.
 
 **WAS OPEN: the offset question, separate from the defect.** `setTimezone`/`toTimeZone`/
 `toTimeZoneUsingLocation` return a `DateTuple [millis, offsetMinutes]` and `toTimestamp` keeps only
@@ -1171,10 +1173,7 @@ and sweep changes; docs. What is left, in order - **items 1-3 are what Spaces wi
 2. **Never emit `SELECT *`** from the planner - the one Parquet memory cliff. `rows()` itself still
    selects `*` from the frame, so the planner must hand it a frame that already projects only the
    referenced fields.
-3. ~~**The timezone offset design**~~ **DONE 2026-10-08 (DF22).** The planner must thread the
-   adapter's `outputConfig` - which now carries `date_offset` - into the next step, as it already
-   does for the type; after a Parquet hand-off it re-derives the flag with `isDateOffsetType` on the
-   column's type. See DF22 for what an offset column does NOT support (a SQL predicate on it).
+3. ~~**The timezone offset design**~~ **DONE 2026-10-09 (DF22)** - every Date is `{ ms, tz_offset }`.
 4. **IP -> INET storage** - VARCHAR today, `TRY_CAST(... AS INET)` per row per IP query. Measure, then
    decide.
 5. **Concurrency under one `memory_limit`** (NEXT STEPS item 1 below) - still the highest-value unrun
