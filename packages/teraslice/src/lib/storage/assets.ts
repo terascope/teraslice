@@ -154,17 +154,17 @@ export class AssetsStorage {
     private async _assetExistsAnywhere(id: string): Promise<boolean> {
         const NOT_FOUND = new Error('asset not found');
 
-        const rejectIfMissing = async (check: unknown) => {
-            if (!(await check)) throw NOT_FOUND;
+        const rejectIfMissing = async (check: () => Promise<unknown>): Promise<boolean> => {
+            if (!(await check())) throw NOT_FOUND;
             return true;
         };
 
         try {
             // resolves on the first check that finds the asset
             return await Promise.any([
-                rejectIfMissing(this._assetExistsInFS(id)),
-                rejectIfMissing(this.esBackend.get(id, undefined, ['id'])),
-                rejectIfMissing(this.s3Backend?.exists(id) ?? false)
+                rejectIfMissing(() => this._assetExistsInFS(id)),
+                rejectIfMissing(() => this.esBackend.get(id, undefined, ['id'])),
+                rejectIfMissing(async () => this.s3Backend?.exists(id) ?? false)
             ]);
         } catch (err) {
             // every check rejected. A 404 or NOT_FOUND mean the check
