@@ -4,21 +4,19 @@ import {
     getSQLDialect, groupByClause, quoteIdentifier,
     quoteLiteral, toSQLSort, wholeNumber, type SQLSortInput
 } from '@terascope/sql-builder';
-import { appendParquet, appendRecords, countQuietly } from './append.js';
+import { appendInTransaction } from './append.js';
 import { DuckContext } from './DuckContext.js';
 import { getContext } from './database.js';
 import { AppendError } from './errors.js';
 import { createTable, nextTableName } from './table.js';
 import { joinSQL, selectList } from './clauses.js';
-import { describeSource, readParquetSource } from './sources.js';
-import {
-    buildJsonExpression, buildJsonListElements, buildJsonRowFilter, JsonExportOptions,
-    resolveRules
-} from './export-json.js';
+import { readParquetSource } from './sources.js';
+import { assertOrderSafe } from './order-safety.js';
+import { JsonExportOptions, resolveRules } from './export-json.js';
+import * as output from './output.js';
 import { makeRowShapers } from './row-shape.js';
 import { expandValuesSQL, ExpandValuesOptions } from './expand-values.js';
 import { deepSelectSQL, emptySkippedObjects } from './deep-select.js';
-import { int64Column } from './parquet-columns.js';
 import { distinctLines, parseLines, writeLines } from './line-stream.js';
 import {
     AppendOptions, AppendSource, FrameConfig, FrameOptions,
@@ -45,15 +43,16 @@ const dialect = getSQLDialect(SQLDialectName.duckdb);
  *
  * ## THE API IS THREE GROUPS, NOT A LIST OF WAYS TO SEARCH
  *
- * **1. Compose a statement** - `filter` `select` `orderBy` `limit` `distinct` `join`.
- * Each appends ONE SQL clause to this frame and returns a new frame. Nothing runs.
+ * **1. Compose a statement** - `filter` `select` `orderBy` `limit` `distinct` `join`, and the
+ * QPL engine's own shapes `deepSelect` `pruneEmptyObjects` `expandValues` `removeEmptyRows`.
+ * Each returns a new frame over one more SQL step. Nothing runs.
  *
  * **2. Be handed a statement** - `query` (instance) and `fromSQL` (static). The statement
  * already exists; the frame runs it. Same instance/static pairing as
  * `append({records})` / `fromRecords`.
  *
- * **3. Consume** - `rows` `size` `ndjson` `writeNDJSON` `writeParquet`. Execute, and
- * produce output.
+ * **3. Consume** - `rows` `size` `ndjson` `writeNDJSON` `writeParquet` `listValues`
+ * `countEmptyRows`. Execute, and produce output.
  *
  * **`filter` and `select` are CLAUSE BUILDERS, not a search API.** `filter` is the `WHERE`
  * and `select` is the `SELECT` list, exactly as `orderBy` is the `ORDER BY` - six methods of
@@ -69,25 +68,7 @@ const dialect = getSQLDialect(SQLDialectName.duckdb);
  * `rawRows` is in none of these groups: it is inspection - a config-free hatch for catalog
  * queries and storage assertions. See its own note.
  *
- * **There is no JSON anywhere in this path.** Records arrive as JS objects (the
- * Elasticsearch client already parsed them), are coerced by `coerceToType` - the SAME
- * function the regular builder uses - and are appended as typed values. Coercion is
- * therefore parity by construction: there is no second implementation of any field
- * semantics to drift from.
- *
- * Measured, 1M rows x 7 fields:
- *
- * | | time |
- * |---|---|
- * | `coerceToType` + appender (this path) | **510 ms** |
- * | `DataFrame.fromJSON` (ends at a DataFrame) | 573 ms |
- * | `COPY TO` parquet zstd | 30 ms |
- * | `read_parquet` on the far side, no coercion | **12 ms** |
- *
- * An earlier design serialized records to ndjson and used `read_json` plus a
- * hand-written SQL coercion layer. It was the same speed, needed ~2,000 lines
- * reimplementing `coerceToType`, and carried 11 documented divergences. It was deleted.
- * See `docs/ingest-findings.md` - read the STOP block, not the chronology.
+ * **Ingest has no JSON anywhere** - see `append.ts`.
 */
 export class TealFrame {
     private constructor(
@@ -120,38 +101,19 @@ export class TealFrame {
         return this.source.kind === 'relation' && this.source.ordered === true;
     }
 
-    /**
-     * Refuses an operation that would silently discard an ordering.
-     *
-     * **Measured at 5M rows / 14 threads** (`docs/tools/probe/order-preservation.mjs`), counting
-     * out-of-order rows in the streamed output of a subquery that ends in `ORDER BY x`:
-     *
-     * | outer operator | out of order |
-     * |---|---|
-     * | projection, `WHERE`, `LIMIT`, `OFFSET` | **0** - order preserved |
-     * | `JOIN` | 303 |
-     * | `GROUP BY` | 2,104 |
-     *
-     * SQL promises nothing about a subquery's `ORDER BY`, and DuckDB's hash join and hash
-     * aggregate both reorder. **The same two queries come out perfectly ordered at 20 rows**,
-     * so this is a bug that appears only once the data is large enough to be parallelised -
-     * exactly the kind that reaches production. Hence a throw rather than a silent drop.
-     *
-     * Sorting last is the real shape anyway: QPL emits `orderBy` as a POST-aggregate node.
-     *
-     * **What this cannot catch:** a global aggregate written into `select`'s expressions with
-     * no `groupBy` (`{ total: 'sum(x)' }`) also reorders, but the expressions are raw SQL, so
-     * there is nothing to inspect. Its result is one row, which makes the ordering moot.
-    */
+    /** Refuses an operation that would silently discard an ordering - see `order-safety.ts`. */
     private assertOrderSafe(operation: string, other?: TealFrame): void {
-        if (!this.isOrdered && other?.isOrdered !== true) return;
+        assertOrderSafe(operation, this.isOrdered || other?.isOrdered === true);
+    }
 
-        throw new TypeError(
-            `${operation} reorders rows, so this frame's ORDER BY would be silently discarded`
-            + ' - measured: a subquery ORDER BY survives a projection or a filter, but comes'
-            + ' out of a join or a GROUP BY scrambled, and only once the data is big enough to'
-            + ' be parallelised. Sort the RESULT instead.'
-        );
+    /** A new relation-backed frame over `sql`, on the same database - every operation's result. */
+    private derive(
+        sql: string,
+        { config = this.config, columns = this.columns, ordered }: {
+            config?: FrameConfig; columns?: readonly string[]; ordered?: boolean;
+        } = {}
+    ): TealFrame {
+        return new TealFrame(this.ctx, config, { kind: 'relation', sql, ordered }, columns);
     }
 
     /**
@@ -195,12 +157,7 @@ export class TealFrame {
             throw new TypeError('query requires a SQL statement');
         }
 
-        return new TealFrame(
-            this.ctx,
-            config,
-            { kind: 'relation', sql },
-            columns ?? Object.keys(new DataType(config as DataTypeConfig).toDuckDB())
-        );
+        return this.derive(sql, { config, columns: columns ?? columnsOf(config) });
     }
 
     /**
@@ -213,11 +170,8 @@ export class TealFrame {
      *   query like `DESCRIBE` - six columns of DuckDB's own shape, nothing to do with the
      *   frame's fields - would have to invent one. `schema-check.ts` is the only caller in
      *   `src/` and this is why.
-     * - **It does not go through `toPlainValue`**, so it reports what DuckDB actually holds.
-     *   That matters while DEF-BIGINT is open: `toPlainValue` calls `bigIntToJSON`, which
-     *   subtracts 1 from every value above `MAX_SAFE_INTEGER`, so `rows()` currently
-     *   misreports a `Long` and `rawRows` does not. **That is a bug to FIX, not a contract**
-     *   - see `docs/known-defects.md` - and this method must not become the reason to keep it.
+     * - **It does not go through `toPlainValue`**, so it reports what DuckDB actually holds -
+     *   a `bigint`, a struct, a TIMESTAMP - rather than the output shape.
      *
      * **To READ data, use `query(sql).rows()`.** Deliberately narrow otherwise: it hands out
      * neither the connection nor the instance, so it cannot route frames between databases,
@@ -301,46 +255,8 @@ export class TealFrame {
     async append(source: AppendSource, options: AppendOptions = {}): Promise<number> {
         await this.ensureTable();
         const table = this.source.kind === 'table' ? this.source.table : '';
-
-        // ITS OWN CONNECTION, and this is a correctness requirement, not tuning. A DuckDB
-        // transaction belongs to a CONNECTION, and the shared one is shared process-wide -
-        // so on it, a second concurrent append's `BEGIN` throws `cannot start a transaction
-        // within a transaction`, its `ROLLBACK` then discards the FIRST append's rows, and
-        // every later statement on that connection fails with `Current transaction is
-        // aborted`. All three measured. Concurrent fetchers appending to one frame is the
-        // normal case, so each append is isolated.
-        //
-        // Concurrency is then genuinely safe AND fast, measured: 10 concurrent appends into
-        // the SAME table from 10 connections all succeeded, no write conflict, 500k rows in
-        // 25 ms. DuckDB's MVCC handles append-vs-append; there are no row conflicts to lose.
-        const connection = await this.ctx.instance.connect();
-
-        try {
-            await connection.run('BEGIN TRANSACTION');
-            try {
-                const added = source.records === undefined
-                    ? await appendParquet(connection, table, source.parquet)
-                    : await appendRecords(
-                        connection, this.config, table, source.records, options
-                    );
-
-                await connection.run('COMMIT');
-                return added;
-            } catch (err) {
-                await connection.run('ROLLBACK');
-
-                throw new AppendError({
-                    table,
-                    source: source.records === undefined ? 'parquet' : 'records',
-                    describedSource: describeSource(source),
-                    // counted AFTER the rollback, so it reports what actually survived - and
-                    // only here, so a successful append never pays for it
-                    rowsRemaining: await countQuietly(connection, table),
-                }, err);
-            }
-        } finally {
-            connection.disconnectSync();
-        }
+        // on its OWN connection, and in a transaction - see `appendInTransaction` for why
+        return appendInTransaction(this.ctx.instance, this.config, table, source, options);
     }
 
     /**
@@ -423,12 +339,7 @@ export class TealFrame {
         // copied until something asks for the rows. A LIST of paths, or a glob in one path,
         // reads as ONE relation - `materialize()` then makes it one table.
         const sql = `SELECT * FROM ${readParquetSource(path)}`;
-        return new TealFrame(
-            context,
-            config,
-            { kind: 'relation', sql },
-            Object.keys(new DataType(config as DataTypeConfig).toDuckDB())
-        );
+        return new TealFrame(context, config, { kind: 'relation', sql }, columnsOf(config));
     }
 
     /**
@@ -462,12 +373,7 @@ export class TealFrame {
 
         const context = await getContext(options.database);
 
-        return new TealFrame(
-            context,
-            config,
-            { kind: 'relation', sql },
-            Object.keys(new DataType(config as DataTypeConfig).toDuckDB())
-        );
+        return new TealFrame(context, config, { kind: 'relation', sql }, columnsOf(config));
     }
 
     /**
@@ -520,9 +426,7 @@ export class TealFrame {
             groupByClause(groupBy)
         );
 
-        return new TealFrame(
-            this.ctx, config, { kind: 'relation', sql, ordered: this.isOrdered }, names
-        );
+        return this.derive(sql, { config, columns: names, ordered: this.isOrdered });
     }
 
     /**
@@ -564,7 +468,7 @@ export class TealFrame {
             groupByClause(options.groupBy)
         );
 
-        return new TealFrame(this.ctx, options.config, { kind: 'relation', sql }, names);
+        return this.derive(sql, { config: options.config, columns: names });
     }
 
     /**
@@ -583,16 +487,9 @@ export class TealFrame {
      * stays sorted through it.
     */
     filter(predicate: string): TealFrame {
-        return new TealFrame(
-            this.ctx,
-            this.config,
-            {
-                kind: 'relation',
-                sql: `SELECT * FROM ${this.from} WHERE ${predicate}`,
-                ordered: this.isOrdered,
-            },
-            this.columns
-        );
+        return this.derive(`SELECT * FROM ${this.from} WHERE ${predicate}`, {
+            ordered: this.isOrdered,
+        });
     }
 
     /**
@@ -612,12 +509,7 @@ export class TealFrame {
     distinct(): TealFrame {
         this.assertOrderSafe('distinct');
 
-        return new TealFrame(
-            this.ctx,
-            this.config,
-            { kind: 'relation', sql: `SELECT DISTINCT * FROM ${this.from}` },
-            this.columns
-        );
+        return this.derive(`SELECT DISTINCT * FROM ${this.from}`);
     }
 
     /**
@@ -665,16 +557,7 @@ export class TealFrame {
 
         const terms = dialect.orderBy(sort.map(toSQLSort));
 
-        return new TealFrame(
-            this.ctx,
-            this.config,
-            {
-                kind: 'relation',
-                sql: `SELECT * FROM ${this.from} ORDER BY ${terms}`,
-                ordered: true,
-            },
-            this.columns
-        );
+        return this.derive(`SELECT * FROM ${this.from} ORDER BY ${terms}`, { ordered: true });
     }
 
     /**
@@ -708,18 +591,9 @@ export class TealFrame {
         if (count != null) wholeNumber(count, 'limit\'s count');
         if (offset != null) wholeNumber(offset, 'limit\'s offset');
 
-        return new TealFrame(
-            this.ctx,
-            this.config,
-            {
-                kind: 'relation',
-                sql: joinSQL(
-                    `SELECT * FROM ${this.from}`,
-                    dialect.limitOffset(count, offset)
-                ),
-                ordered: this.isOrdered,
-            },
-            this.columns
+        return this.derive(
+            joinSQL(`SELECT * FROM ${this.from}`, dialect.limitOffset(count, offset)),
+            { ordered: this.isOrdered }
         );
     }
 
@@ -734,20 +608,7 @@ export class TealFrame {
      * and produces a SMALLER payload than gzipping ndjson or dfjson, which cost ~1.4-1.9 s.
     */
     async writeParquet(path: string): Promise<void> {
-        const columns = await this.ctx.columnTypes(`SELECT * FROM ${this.from}`);
-        const declared = new DataType(this.config as DataTypeConfig).toDuckDB();
-        const list = columns
-            .map(({ name, type }) => int64Column(name, type, declared[name]))
-            .join(', ');
-
-        // GEOPARQUET_VERSION 'BOTH': Parquet's native GEOMETRY logical type, which - unlike the
-        // GeoParquet 1.0 default - survives NESTING, so a GeoJSON array or an object's GeoJSON
-        // member reads back as GEOMETRY rather than as BLOB (and BLOB -> GEOMETRY has no cast).
-        // The 1.0 metadata is still written, for readers that only know it.
-        await this.ctx.run(
-            `COPY (SELECT ${list} FROM ${this.from}) TO ${quoteLiteral(path)}`
-            + ' (FORMAT parquet, COMPRESSION zstd, GEOPARQUET_VERSION \'BOTH\')'
-        );
+        await output.writeParquet(this.ctx, this.from, this.config, path);
     }
 
     /**
@@ -776,7 +637,7 @@ export class TealFrame {
             return;
         }
         await this.ctx.run(
-            `COPY (${this.jsonLinesSQL(options)}) TO ${quoteLiteral(path)}`
+            `COPY (${output.jsonLinesSQL(this.from, this.config, options)}) TO ${quoteLiteral(path)}`
             + ' (FORMAT CSV, HEADER false, QUOTE \'\', ESCAPE \'\', DELIMITER \'\u0007\')'
         );
     }
@@ -792,19 +653,10 @@ export class TealFrame {
      * Byte-identical to `writeNDJSON` - both are the same projection.
     */
     ndjson(options: JsonExportOptions = {}): AsyncIterableIterator<string> {
-        const lines = this.ctx.streamColumnStrings(this.jsonLinesSQL(options));
+        const lines = this.ctx.streamColumnStrings(
+            output.jsonLinesSQL(this.from, this.config, options)
+        );
         return resolveRules(options).skipDuplicateObjects ? distinctLines(lines) : lines;
-    }
-
-    /**
-     * One JSON line per row, as `DataFrame.toJSON` renders it with the same options - minus the
-     * rows `skipEmptyObjects` drops, which render as NULL. See `export-json.ts`.
-    */
-    private jsonLinesSQL(options: JsonExportOptions): string {
-        const expression = buildJsonExpression(this.config, options);
-        const filter = buildJsonRowFilter(this.config, options);
-        return `SELECT ${expression} AS json FROM ${this.from}`
-            + (filter ? ` WHERE ${filter}` : '');
     }
 
     /**
@@ -844,37 +696,8 @@ export class TealFrame {
      * `skipNilObjectValues`. Like `DataFrame`: nothing under `skipEmptyArrays` when the column
      * holds no value at all, and `skipDuplicateObjects` is refused. Reads the first row.
     */
-    async* listValues(
-        column: string,
-        options: JsonExportOptions = {}
-    ): AsyncIterableIterator<unknown> {
-        const rules = resolveRules(options);
-        if (rules.skipDuplicateObjects) {
-            throw new Error('ListVector->getIterator is incompatible with skipDuplicateObjects');
-        }
-        const { sql, isObject } = buildJsonListElements(this.config, column, options);
-        const nilValue = rules.useNullForUndefined ? null : undefined;
-        const skipNil = rules.skipNilListValues || (isObject && rules.skipNilObjectValues);
-
-        if (rules.skipEmptyArrays) {
-            const values = await this.ctx.scalar(
-                `SELECT count(${quoteIdentifier(column)}) FROM ${this.from}`
-            );
-            if (Number(values) === 0) return;
-        }
-
-        const [row] = await this.ctx.rows(`SELECT ${sql} FROM ${this.from} LIMIT 1`);
-        if (row == null) return;
-
-        const elements = row[0] as (string | null)[] | null;
-        if (elements == null) {
-            if (!skipNil) yield nilValue;
-            return;
-        }
-        for (const element of elements) {
-            if (element != null) yield JSON.parse(element);
-            else if (!skipNil) yield nilValue;
-        }
+    listValues(column: string, options: JsonExportOptions = {}): AsyncIterableIterator<unknown> {
+        return output.listValues(this.ctx, this.from, this.config, column, options);
     }
 
     /**
@@ -885,9 +708,7 @@ export class TealFrame {
         const { sql, config, columns } = deepSelectSQL(
             this.from, this.columns, this.config, fields
         );
-        return new TealFrame(
-            this.ctx, config, { kind: 'relation', sql, ordered: this.isOrdered }, columns
-        );
+        return this.derive(sql, { config, columns, ordered: this.isOrdered });
     }
 
     /**
@@ -906,9 +727,7 @@ export class TealFrame {
             ? `SELECT ${columns.map(quoteIdentifier).join(', ')} FROM ${this.from}`
             : `SELECT * FROM ${this.from} LIMIT 0`;
 
-        return new TealFrame(
-            this.ctx, config, { kind: 'relation', sql, ordered: this.isOrdered }, columns
-        );
+        return this.derive(sql, { config, columns, ordered: this.isOrdered });
     }
 
     /**
@@ -919,9 +738,7 @@ export class TealFrame {
         const { sql, config } = expandValuesSQL(
             this.from, this.columns, this.config, fields, options
         );
-        return new TealFrame(
-            this.ctx, config, { kind: 'relation', sql, ordered: this.isOrdered }, this.columns
-        );
+        return this.derive(sql, { config, ordered: this.isOrdered });
     }
 
     /**
@@ -955,4 +772,9 @@ export class TealFrame {
             await this.ctx.run(`DROP TABLE IF EXISTS ${quoteIdentifier(this.source.table)}`);
         }
     }
+}
+
+/** A config's top-level columns, as `toDuckDB` lays them out. */
+function columnsOf(config: FrameConfig): string[] {
+    return Object.keys(new DataType(config as DataTypeConfig).toDuckDB());
 }

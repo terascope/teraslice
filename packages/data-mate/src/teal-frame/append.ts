@@ -1,16 +1,39 @@
-import { DuckDBConnection, DuckDBDataChunk } from '@duckdb/node-api';
+import { DuckDBConnection, DuckDBDataChunk, DuckDBInstance } from '@duckdb/node-api';
 import { quoteIdentifier } from '@terascope/sql-builder';
 import { MAX_CHUNK_ROWS } from './DuckContext.js';
-import { CoercionFailureError } from './errors.js';
-import { readParquetSource } from './sources.js';
+import { AppendError, CoercionFailureError } from './errors.js';
+import { describeSource, readParquetSource } from './sources.js';
 import { buildPlan } from './table.js';
-import { AppendOptions, CoercionFailure, FrameConfig } from './interfaces.js';
+import {
+    AppendOptions, AppendSource, CoercionFailure, FrameConfig
+} from './interfaces.js';
 
 /**
- * **The ingest path** - getting rows INTO a frame's table.
+ * **The ingest path** - getting rows INTO a frame's table: `TealFrame.append`, and so
+ * `fromRecords`.
+ *
+ * **There is no JSON anywhere in this path.** Records arrive as JS objects (the
+ * Elasticsearch client already parsed them), are coerced by `coerceToType` - the SAME
+ * function the regular builder uses - and are appended as typed values. Coercion is
+ * therefore parity by construction: there is no second implementation of any field
+ * semantics to drift from.
+ *
+ * Measured, 1M rows x 7 fields:
+ *
+ * | | time |
+ * |---|---|
+ * | `coerceToType` + appender (this path) | **510 ms** |
+ * | `DataFrame.fromJSON` (ends at a DataFrame) | 573 ms |
+ * | `COPY TO` parquet zstd | 30 ms |
+ * | `read_parquet` on the far side, no coercion | **12 ms** |
+ *
+ * An earlier design serialized records to ndjson and used `read_json` plus a
+ * hand-written SQL coercion layer. It was the same speed, needed ~2,000 lines
+ * reimplementing `coerceToType`, and carried 11 documented divergences. It was deleted.
+ * See `ingest-findings.md` in datamate-spaces - read the STOP block, not the chronology.
  *
  * Free functions rather than methods because none of them touches the frame: each takes the
- * connection the append owns (its own, for the transaction - see `TealFrame.append`), the
+ * connection the append owns (its own, for the transaction - see `appendInTransaction`), the
  * table, and what is going in. Separating them keeps `TealFrame.ts` about the frame.
 */
 
@@ -123,4 +146,53 @@ export async function appendRecords(
     }
 
     return records.length;
+}
+
+/**
+ * `TealFrame.append`'s transaction: ONE append, atomic, on its own connection.
+ *
+ * **Its own connection is a correctness requirement, not tuning.** A DuckDB transaction belongs to
+ * a CONNECTION, and the shared one is shared process-wide - so on it, a second concurrent append's
+ * `BEGIN` throws `cannot start a transaction within a transaction`, its `ROLLBACK` then discards
+ * the FIRST append's rows, and every later statement on that connection fails with `Current
+ * transaction is aborted`. All three measured. Concurrent fetchers appending to one frame is the
+ * normal case, so each append is isolated.
+ *
+ * Concurrency is then genuinely safe AND fast, measured: 10 concurrent appends into the SAME table
+ * from 10 connections all succeeded, no write conflict, 500k rows in 25 ms. DuckDB's MVCC handles
+ * append-vs-append; there are no row conflicts to lose.
+*/
+export async function appendInTransaction(
+    instance: DuckDBInstance,
+    config: FrameConfig,
+    table: string,
+    source: AppendSource,
+    options: AppendOptions
+): Promise<number> {
+    const connection = await instance.connect();
+
+    try {
+        await connection.run('BEGIN TRANSACTION');
+        try {
+            const added = source.records === undefined
+                ? await appendParquet(connection, table, source.parquet)
+                : await appendRecords(connection, config, table, source.records, options);
+
+            await connection.run('COMMIT');
+            return added;
+        } catch (err) {
+            await connection.run('ROLLBACK');
+
+            throw new AppendError({
+                table,
+                source: source.records === undefined ? 'parquet' : 'records',
+                describedSource: describeSource(source),
+                // counted AFTER the rollback, so it reports what actually survived - and only
+                // here, so a successful append never pays for it
+                rowsRemaining: await countQuietly(connection, table),
+            }, err);
+        }
+    } finally {
+        connection.disconnectSync();
+    }
 }
