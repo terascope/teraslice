@@ -41,7 +41,7 @@ If you read nothing else, read this and §0.
 `fromSQL`, `searchParams`)**, query
 (`select`/`filter`/`join`/`orderBy`/`limit`/`distinct`/`materialize`/`size`), output (`rows`,
 `ndjson`, `writeNDJSON`, `writeParquet`), and `tealFrameAdapter` driving the same
-`FunctionDefinitionConfig`s as `dataFrameAdapter`. **52 data-mate suites / 4,711 tests passing,
+`FunctionDefinitionConfig`s as `dataFrameAdapter`. **55 data-mate suites / 4,834 tests passing,
 verified 2026-10-09** (plus `data-types` 32 / 198 and `sql-builder` 2 / 66 as of 2026-09-28;
 `xlucene-translator`'s 174 failures are all OpenSearch-only suites with no cluster configured).
 
@@ -102,7 +102,7 @@ statement assembly moved out of `xlucene-translator` into it, and `data-mate` co
 translator and the frame render SQL with the same code without either package depending on the other.
 That is what fixed the null-placement divergence; see §DESIGN POINTS.
 
-**188 of the 205 field functions emit native SQL** instead of a JS UDF — 51 date, 50 numeric, 46
+**193 of the 205 field functions emit native SQL** (188 until 2026-10-09; see §SQL EMISSION) instead of a JS UDF — 51 date, 50 numeric, 46
 string, 21 IP, 13 geo, 3 boolean, 2 object, 2 json — gated both ways over a typed battery. **Read
 `sql-emission.md` before adding another.**
 
@@ -842,7 +842,19 @@ value**, dead linear from 1 to 6, and **parallelism collapses at the FIRST UDF**
   to a `TypedThreadSafeFunction` created with ONE thread and blocks the calling DuckDB worker, while
   Rust and Java genuinely parallelise — so this is a Node-binding property, not a DuckDB one.
 
-### SQL EMISSION — 188 of 205, and the remaining 17
+### SQL EMISSION — 193 of 205 (2026-10-09), and the remaining 12
+
+**2026-10-09: five more.** `setTimezone`, `toTimeZone`, `toTimeZoneUsingLocation` (a Date column: the
+instant plus an offset, `returns_date_value`; `toTimeZone`'s per-row offset is core-utils' own - the
+offset at the WALL TIME equal to the instant, 0 of 119 DST-edge cases differ), `lookup` (a `CASE` over
+the constant table with JavaScript's property-access rules; inherited names such as `toString` go to
+the UDF) and `isPostalCode` (validator's 71 patterns in RE2, ASCII only, lookaheads rewritten as
+AND NOT). **`parseJSON` stays a UDF, measured:** `JSON.stringify(JSON.parse(x))` normalises `1.0` to
+`1`, `1e2` to `100`, a 20-digit integer to a double and duplicate keys to the last - DuckDB's `json()`
+keeps all four (4 of 10 probes differ). The 12 left: `isURL`, `isISDN`, `toISDN`, `lookupTimezone`
+(library logic), `cast` (the Builder's coercion), `parseJSON` (above), `toGeoPoint`/`toGeoJSON`
+(parsing), `expm1`/`log1p` (precision), `random`, `timezoneToOffset` (non-deterministic). The
+table below is the 2026-08-21 record.
 
 **Full tables in `PERFORMANCE.md` §What the SQL promotions bought; the rules in `sql-emission.md`.**
 At 1M rows on the real corpus: **8.87x** `isIP`, **7.47x** array transform, **3.93x** `toUpperCase`,
@@ -1019,8 +1031,8 @@ Derived by asking what a query must PRODUCE (§0.1), not by mapping `TableAction
 Measured against the real API, `require`, nested-path/`deepSelect`, `_skip_if_empty` pruning and
 correlated `unnest` are **already expressible** with `filter()` and `select()` — they were never gaps.
 
-1. **`unnest` / expand-values** — the correlated shape already works as a `select` expression; the
-   **stacked** shape needs `UNION ALL`.
+1. ~~**`unnest` / expand-values**~~ — **DONE 2026-10-09**, `TealFrame.expandValues`: one SELECT that
+   unnests `{ field, position }` pairs per row, so order is kept without a `UNION ALL`.
 2. **`deepSelect` + `_skip_if_empty`** — decide how nested extraction and empty-object pruning are
    expressed, then confirm the engine can build it.
 3. **The date/timezone offset column** — unblocked; see the options table above.
@@ -1168,8 +1180,9 @@ green. The UDF work of 2026-10-07 (DF1/2/4/5/7/11/20/21) is **UNCOMMITTED**; com
 `udf-types.ts` + adapter (types, result coercion, `cast`, array validations); `rows()` JSON fix; the gate
 and sweep changes; docs. What is left, in order - **items 1-3 are what Spaces will hit first**:
 
-1. **Stacked `expand_values`** (`UNION ALL`, the row survives when every list is empty), then
-   `deepSelect`/`_skip_if_empty` - the two remaining CORE gaps (§THE REMAINING CORE GAPS).
+1. ~~**Stacked `expand_values`**~~ **DONE 2026-10-09:** `TealFrame.expandValues(fields, { correlate })`
+   (`expand-values.ts`), both modes, row for row equal to the QPL engine's own `expand-values.ts`
+   (ported into `expand-values-spec.ts` as the oracle). Left: `deepSelect`/`_skip_if_empty`.
 2. **Never emit `SELECT *`** from the planner - the one Parquet memory cliff. `rows()` itself still
    selects `*` from the frame, so the planner must hand it a frame that already projects only the
    referenced fields.
