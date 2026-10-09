@@ -433,7 +433,8 @@ function emitted<T extends Record<string, any>>(
         outputConfig,
         udf: date ? () => udf(raw) : udf,
     });
-    return transform && isDate(outputConfig) ? fromTimestampSQL(result) : result;
+    const timestamp = transform && isDate(outputConfig) && !emission.returns_date_value;
+    return timestamp ? fromTimestampSQL(result) : result;
 }
 
 /**

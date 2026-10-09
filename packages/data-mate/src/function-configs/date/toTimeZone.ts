@@ -4,6 +4,7 @@ import {
     FieldTransformConfig, ProcessMode, FunctionDefinitionType,
     FunctionDefinitionCategory
 } from '../interfaces.js';
+import { currentOffsetMinutes, dateWithOffset, timezoneOffsetMinutes } from './sql-utils.js';
 
 export interface TimeZoneArgs {
     timezone: string;
@@ -89,6 +90,19 @@ export const toTimeZoneConfig: FieldTransformConfig<TimeZoneArgs> = {
     ],
     create({ args: { timezone } }) {
         return (val) => toTimeZone(val, timezone);
+    },
+    /**
+     * The instant, with the zone's offset for that date attached - see `timezoneOffsetMinutes` for
+     * the exact offset core-utils computes. A zone core-utils cannot resolve keeps the UDF, which
+     * returns null as `DataFrame` does. A Date column only; a String or Number one is PARSED first.
+    */
+    sql: {
+        types: [FieldType.Date],
+        applies: (args) => currentOffsetMinutes(args.timezone) !== undefined,
+        returns_date_value: true,
+        expression: ({ value, instant, args }) => dateWithOffset(
+            instant ?? value, timezoneOffsetMinutes(instant ?? value, args.timezone)
+        ),
     },
     accepts: [
         FieldType.String,

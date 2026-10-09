@@ -1,4 +1,4 @@
-import { getValidDateWithTimezone } from '@terascope/core-utils';
+import { getValidDateWithTimezone, isNumber, timezoneToOffset } from '@terascope/core-utils';
 import { sqlLiteral } from '../sql-helpers.js';
 
 /**
@@ -168,6 +168,38 @@ export function timeBetween(value: string, args: TimeBetweenArgs): string {
  * The argument ORDER is the whole thing. Reversed, every non-UTC zone comes back with the wrong
  * sign - `America/New_York` in January is `-300`, not `300` - and UTC still matches, so a battery
  * without a real zone in it would not notice.
+*/
+/**
+ * A date value WITH a display offset, `{ ms, tz_offset }` - the TealFrame storage of a
+ * `DateTuple`, `[ms, offset]` (`teal-frame/date-value.ts`; the member names are spelled out here
+ * because function configs do not depend on TealFrame). `instant` is a TIMESTAMP; NULL gives NULL.
+*/
+export function dateWithOffset(instant: string, offsetMinutes: string): string {
+    return `CASE WHEN ${instant} IS NULL THEN NULL ELSE`
+        + ` {'ms': epoch_ms(${instant}), 'tz_offset': CAST(${offsetMinutes} AS SMALLINT)} END`;
+}
+
+/**
+ * A timezone name's offset in minutes, resolved in JavaScript, or undefined when core-utils cannot
+ * resolve it - in which case the function's own UDF runs and fails or returns null as it does in
+ * `DataFrame`. `timezoneToOffset` is the zone's offset NOW, which is what `setTimezone` uses.
+*/
+export function currentOffsetMinutes(timezone: unknown): number | undefined {
+    try {
+        const offset = isNumber(timezone) ? timezone : timezoneToOffset(timezone);
+        return Number.isInteger(offset) && Math.abs(offset) < 24 * 60 ? offset : undefined;
+    } catch {
+        return undefined;
+    }
+}
+
+/**
+ * The offset `toTimeZone` attaches, in minutes, per row.
+ *
+ * **It is the offset at the WALL TIME equal to the UTC instant**, not at the instant itself -
+ * what core-utils' `getTimezoneOffset` returns, measured: 0 of 119 DST-edge cases differ from
+ * this, where the instant-correct `timezone(zone, ts AT TIME ZONE 'UTC')` differs on 11 (within a
+ * few hours of a change, in New York, Sydney, Lord Howe and Paris). It does not depend on host TZ.
 */
 export function timezoneOffsetMinutes(value: string, zone: string): string {
     const local = `(${value} AT TIME ZONE ${sqlLiteral(zone)}) AT TIME ZONE 'UTC'`;

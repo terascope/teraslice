@@ -4,6 +4,7 @@ import {
     ProcessMode, FunctionDefinitionType, FunctionDefinitionCategory,
     FieldTransformConfig, DataTypeFieldAndChildren
 } from '../interfaces.js';
+import { lookupApplies, lookupSQL } from './sql-utils.js';
 
 export interface LookupArgs {
     readonly in: Record<string, unknown> | string | any[];
@@ -85,6 +86,15 @@ export const lookupConfig: FieldTransformConfig<LookupArgs> = {
     ],
     create({ args }) {
         return lookup(args.in);
+    },
+    sql: {
+        types: [FieldType.Number, FieldType.String],
+        applies: (args, inputConfig) => lookupApplies(args.in, inputConfig),
+        // only for an inherited property name - see `lookupSQL`
+        needs_udf_fallback: true,
+        expression: ({ value, args, inputConfig, udf }) => lookupSQL(
+            value, args.in, inputConfig, udf
+        ),
     },
     argument_schema: {
         in: {

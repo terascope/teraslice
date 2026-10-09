@@ -1,4 +1,5 @@
 import 'jest-extended';
+import validator from 'validator';
 import { FieldType, DataTypeConfig } from '@terascope/types';
 import { TealFrame, closeDuckDatabase } from '../../src/teal-frame/index.js';
 import { tealFrameAdapter } from '../../src/adapters/teal-frame-adapter/index.js';
@@ -355,6 +356,133 @@ const TYPE_PREFERENCE: readonly FieldType[] = [
  * the overflow defect, not the emission, so the battery is narrowed to what an `Integer` can
  * represent and the guard on those emissions keeps the UDF for everything outside it.
 */
+/**
+ * Postal codes: a sample for every locale's pattern, both cases, and every rewritten edge - the
+ * lookaheads (IE, IN, IR, NL), `\\s` as a vertical tab, a newline inside a code, and non-ASCII
+ * whitespace, which goes to the UDF.
+*/
+const POSTAL_BATTERY = [
+    '123',
+    '1234',
+    '12345',
+    '123456',
+    '1234567',
+    '12345678',
+    '',
+    ' ',
+    'abc',
+    'AD123',
+    'ad123',
+    'AZ1234',
+    'HT1234',
+    'LT-12345',
+    'LV-1234',
+    'LT12345',
+    'K1A 0B1',
+    'k1a0b1',
+    'K1A-0B1',
+    'D1A 0B1',
+    'K1A\u000b0B1',
+    'K1A\u00a00B1',
+    'SW1A 1AA',
+    'GIR 0AA',
+    'gir0aa',
+    'EC1A1BB',
+    'W1 1AA',
+    'D02 X285',
+    'A65 F4E2',
+    'A65 F4O2',
+    'O65 F4E2',
+    'A65\nwxyz',
+    'A65\nwoyz',
+    'A6W W123',
+    '110001',
+    '100001',
+    '290001',
+    '890001',
+    '011000',
+    '1234567890',
+    '1111567890',
+    '3333567890',
+    '1234067890',
+    '1234 AB',
+    '1234 SA',
+    '1234sa',
+    '1234 sd',
+    '1234ss',
+    '1234\tab',
+    '0234 AB',
+    '1234 S A',
+    '100-0001',
+    '00-950',
+    '1000-001',
+    '1000-',
+    '01001-000',
+    '01001000',
+    '110 00',
+    '11000',
+    '12345-6789',
+    '12345-678',
+    'VLT 1117',
+    'ABC1234',
+    'AB 1234',
+    '00901',
+    '00901-1234',
+    '00601 1234',
+    '100',
+    '10012',
+    '100123',
+    '100000',
+    '800000',
+    '050001',
+    '990001',
+    '060001',
+    '28001',
+    '53001',
+    '75001',
+    '97100',
+    '97500',
+    '97700',
+    '9490',
+    '9498',
+    '98000',
+    '977',
+    '44600',
+    '220000',
+    '250000',
+    '71000',
+    '61000',
+    '10000',
+    '60000',
+    '1000',
+    '9500',
+    '9600',
+    '113 51',
+    '01234',
+    '11351',
+    '123\u00a045',
+    null,
+];
+
+/** Instants either side of DST changes, for the functions that attach a timezone offset. */
+const TZ_EDGES = [
+    '2024-03-10T06:30:00.000Z',
+    '2024-03-10T06:59:59.999Z',
+    '2024-03-10T07:00:00.000Z',
+    '2024-11-03T05:30:00.000Z',
+    '2024-11-03T06:00:00.000Z',
+    '2024-11-03T06:30:00.000Z',
+    '2024-04-06T15:30:00.000Z',
+    '2024-04-06T16:00:00.000Z',
+    '2024-10-05T15:30:00.000Z',
+    '2024-03-31T00:59:00.000Z',
+    '2024-03-31T01:00:00.000Z',
+    '2024-10-27T01:00:00.000Z',
+    '1850-01-01T00:00:00.000Z',
+    '2099-07-01T12:00:00.000Z',
+    null,
+];
+
 const CASES: Record<string, {
     args?: readonly Record<string, unknown>[];
     /**
@@ -755,6 +883,58 @@ const CASES: Record<string, {
     isTomorrow: { type: FieldType.Date },
     isYesterday: { type: FieldType.Date },
     // real zones, not just UTC: a reversed date_diff still matches UTC and fails everywhere else
+    /**
+     * The three that ATTACH an offset (`returns_date_value`). The battery straddles DST changes in
+     * New York, Sydney, Lord Howe (a 30-minute DST) and Paris, where the offset core-utils computes
+     * - at the wall time equal to the instant - differs from the instant's own; see
+     * `timezoneOffsetMinutes`.
+    */
+    setTimezone: {
+        type: FieldType.Date,
+        battery: TZ_EDGES,
+        args: [{ timezone: 120 }, { timezone: -420 }, { timezone: 0 }, { timezone: 'Asia/Kolkata' }],
+        declines: [{ timezone: 'Not/AZone' }, { timezone: 2000 }],
+    },
+    toTimeZone: {
+        type: FieldType.Date,
+        battery: TZ_EDGES,
+        args: [
+            { timezone: 'America/New_York' },
+            { timezone: 'Australia/Sydney' },
+            { timezone: 'Australia/Lord_Howe' },
+            { timezone: 'Europe/Paris' },
+            { timezone: 'Asia/Calcutta' },
+        ],
+        declines: [{ timezone: 'Not/AZone' }],
+    },
+    toTimeZoneUsingLocation: {
+        type: FieldType.Date,
+        battery: TZ_EDGES,
+        args: [
+            { location: { lat: 40.7, lon: -74.0 } },
+            { location: '33.45, -112.07' },
+            { location: { lat: -31.55, lon: 159.08 } },
+        ],
+    },
+    isPostalCode: {
+        type: FieldType.Keyword,
+        battery: POSTAL_BATTERY,
+        // no locale is `any`; `'any'` itself is refused by `validate_arguments`
+        args: [{}, ...validator.isPostalCodeLocales.map((locale) => ({ locale }))],
+    },
+    /**
+     * Inherited property names go to the UDF - see `lookupSQL`; `lookup-sql-spec` covers the
+     * number and integer columns and array tables against `DataFrame`.
+    */
+    lookup: {
+        type: FieldType.Keyword,
+        battery: ['key1', 'key2', '8910', 'toString', 'constructor', '__proto__', 'missing', '', null],
+        args: [
+            { in: { key1: 'value1', key2: { nested: [1, 'two'] }, 8910: 1112, toString: 'own' } },
+            { in: { a: 1 } },
+        ],
+        declines: [{ in: '1:foo\n2:bar' }, { in: ['zero', 'one'] }],
+    },
     getTimezoneOffset: {
         type: FieldType.Date,
         args: [

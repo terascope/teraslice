@@ -5,6 +5,7 @@ import {
     FieldTransformConfig, ProcessMode, FunctionDefinitionType,
     FunctionDefinitionCategory
 } from '../interfaces.js';
+import { currentOffsetMinutes, dateWithOffset, timezoneOffsetMinutes } from './sql-utils.js';
 
 export interface TimeZoneUsingLocationArgs {
     location: GeoInput;
@@ -17,6 +18,16 @@ function toTimeZoneUsingLocationFP(location: unknown) {
     return function _toTimeZoneUsingLocation(val: unknown) {
         return toTimeZone(val, timezone);
     };
+}
+
+/** The zone for a constant location, or undefined when it does not resolve to a usable one. */
+function zoneForLocation(location: unknown): string | undefined {
+    try {
+        const zone = lookupTimezone(location);
+        return currentOffsetMinutes(zone) === undefined ? undefined : zone;
+    } catch {
+        return undefined;
+    }
 }
 
 export const toTimeZoneUsingLocationConfig: FieldTransformConfig<TimeZoneUsingLocationArgs> = {
@@ -116,6 +127,20 @@ export const toTimeZoneUsingLocationConfig: FieldTransformConfig<TimeZoneUsingLo
     ],
     create({ args: { location } }) {
         return toTimeZoneUsingLocationFP(location);
+    },
+    /**
+     * `toTimeZone` with the zone looked up ONCE from the constant `location`, as
+     * `toTimeZoneUsingLocationFP` does. A location that does not resolve keeps the UDF, which
+     * throws as `DataFrame` does. A Date column only.
+    */
+    sql: {
+        types: [FieldType.Date],
+        applies: (args) => zoneForLocation(args.location) !== undefined,
+        returns_date_value: true,
+        expression: ({ value, instant, args }) => dateWithOffset(
+            instant ?? value,
+            timezoneOffsetMinutes(instant ?? value, zoneForLocation(args.location) as string)
+        ),
     },
     accepts: [
         FieldType.String,

@@ -176,6 +176,14 @@ export interface SqlEmission<T extends Record<string, any>> {
     readonly expression: (ctx: SqlEmissionContext<T>) => string;
 
     /**
+     * Set when a `Date` result is already the stored date value, `{ ms, tz_offset }`, rather than a
+     * TIMESTAMP - so the adapter must not wrap it (which would set the offset to NULL). Only the
+     * functions that ATTACH an offset need it: `setTimezone`, `toTimeZone`,
+     * `toTimeZoneUsingLocation`. See `teal-frame/date-value.ts`.
+    */
+    readonly returns_date_value?: boolean;
+
+    /**
      * Field types this emission is valid for. Defaults to the function's `accepts`.
      *
      * Present because an emission is often only right for SOME accepted types - a function that

@@ -5,6 +5,7 @@ import {
     FieldValidateConfig, ProcessMode, FunctionDefinitionType,
     FunctionDefinitionCategory, FunctionDefinitionExample,
 } from '../interfaces.js';
+import { postalCodeSQL, postalLocaleApplies } from './postal-code-utils.js';
 
 export interface IsPostalCodeArgs {
     locale?: validator.PostalCodeLocale;
@@ -78,6 +79,16 @@ export const isPostalCodeConfig: FieldValidateConfig<IsPostalCodeArgs> = {
     examples,
     create({ args: { locale } }) {
         return (input: unknown) => isPostalCode(input, locale as validator.PostalCodeLocale);
+    },
+    /**
+     * Every locale's pattern in RE2, an ASCII value only - see `postal-code-utils.ts`. A String
+     * column only: a Number is formatted by `toString` first, which the UDF does.
+    */
+    sql: {
+        types: [FieldType.String],
+        applies: (args) => postalLocaleApplies(args.locale),
+        needs_udf_fallback: true,
+        expression: ({ value, args, udf }) => postalCodeSQL(value, args.locale as string, udf),
     },
     argument_schema: {
         locale: {
