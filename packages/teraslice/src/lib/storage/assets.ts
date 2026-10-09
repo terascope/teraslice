@@ -162,8 +162,8 @@ export class AssetsStorage {
         try {
             // resolves on the first check that finds the asset
             return await Promise.any([
-                rejectIfMissing(() => this._assetExistsInFS(id)),
-                rejectIfMissing(() => this.esBackend.get(id, undefined, ['id'])),
+                rejectIfMissing(async () => this._assetExistsInFS(id)),
+                rejectIfMissing(async () => this.esBackend.get(id, undefined, ['id'])),
                 rejectIfMissing(async () => this.s3Backend?.exists(id) ?? false)
             ]);
         } catch (err) {
