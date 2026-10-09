@@ -41,7 +41,7 @@ If you read nothing else, read this and §0.
 `fromSQL`, `searchParams`)**, query
 (`select`/`filter`/`join`/`orderBy`/`limit`/`distinct`/`materialize`/`size`), output (`rows`,
 `ndjson`, `writeNDJSON`, `writeParquet`), and `tealFrameAdapter` driving the same
-`FunctionDefinitionConfig`s as `dataFrameAdapter`. **55 data-mate suites / 4,834 tests passing,
+`FunctionDefinitionConfig`s as `dataFrameAdapter`. **56 data-mate suites / 4,848 tests passing,
 verified 2026-10-09** (plus `data-types` 32 / 198 and `sql-builder` 2 / 66 as of 2026-09-28;
 `xlucene-translator`'s 174 failures are all OpenSearch-only suites with no cluster configured).
 
@@ -1033,7 +1033,7 @@ correlated `unnest` are **already expressible** with `filter()` and `select()` �
 
 1. ~~**`unnest` / expand-values**~~ — **DONE 2026-10-09**, `TealFrame.expandValues`: one SELECT that
    unnests `{ field, position }` pairs per row, so order is kept without a `UNION ALL`.
-2. **`deepSelect` + `_skip_if_empty`** — decide how nested extraction and empty-object pruning are
+2. ~~**`deepSelect` + `_skip_if_empty`**~~ — **DONE 2026-10-09** (`deep-select.ts`); kept below as the record — decide how nested extraction and empty-object pruning are
    expressed, then confirm the engine can build it.
 3. **The date/timezone offset column** — unblocked; see the options table above.
 4. **The SQL-vs-UDF dispatch descriptor** for the 205 functions, declared ON the function config.
@@ -1182,7 +1182,10 @@ and sweep changes; docs. What is left, in order - **items 1-3 are what Spaces wi
 
 1. ~~**Stacked `expand_values`**~~ **DONE 2026-10-09:** `TealFrame.expandValues(fields, { correlate })`
    (`expand-values.ts`), both modes, row for row equal to the QPL engine's own `expand-values.ts`
-   (ported into `expand-values-spec.ts` as the oracle). Left: `deepSelect`/`_skip_if_empty`.
+   (ported into `expand-values-spec.ts` as the oracle). **`deepSelect` + `@skipIfEmpty` DONE 2026-10-09:**
+   `TealFrame.deepSelect(fields)` and `pruneEmptyObjects()` (`deep-select.ts`), equal to
+   `DataFrame.deepSelect` and the engine's SELECT node in `deep-select-spec.ts`. The join-level
+   `@skipIfEmpty` (no matches -> omit the field) waits for the planner's join design.
 2. **Never emit `SELECT *`** from the planner - the one Parquet memory cliff. `rows()` itself still
    selects `*` from the frame, so the planner must hand it a frame that already projects only the
    referenced fields.
