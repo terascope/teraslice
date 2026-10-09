@@ -247,7 +247,8 @@ jobs:
         uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
         with:
           path: ~/.duckdb/extensions
-          key: duckdb-extensions-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('packages/data-mate/package.json') }}
+          # the DuckDB version is pinned in the pnpm catalog, so that file is what changes on an upgrade
+          key: duckdb-extensions-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('pnpm-workspace.yaml') }}
 
       - name: Install DuckDB extensions
         run: node packages/data-mate/bin/duckdb-extensions.js install
