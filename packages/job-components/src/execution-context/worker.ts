@@ -247,7 +247,7 @@ export class WorkerExecutionContext
         if (this.processingSlice) {
             this.logger.info(`waiting until slice ${this._sliceId} is finished before flushing`, { position });
 
-            const workerShutdown = ts.get(this.context, 'sysconfig.teraslice.shutdown_timeout', 60000);
+            const workerShutdown = this.context.sysconfig.teraslice.shutdown_timeout;
             const timeoutMs = Math.round(workerShutdown * 0.8);
 
             await new Promise<void>((resolve) => {

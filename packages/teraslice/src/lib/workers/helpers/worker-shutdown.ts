@@ -1,13 +1,12 @@
 import {
-    get, pDelay, pRaceWithTimeout,
-    isError, logError
+    pDelay, pRaceWithTimeout, isError, logError
 } from '@terascope/core-utils';
 import type { Context } from '@terascope/job-components';
 import ms from 'ms';
 import { makeLogger } from './terafoundation.js';
 
 export function waitForWorkerShutdown(context: Context, eventName: string) {
-    const shutdownTimeout = get(context, 'sysconfig.teraslice.shutdown_timeout', 30000);
+    const shutdownTimeout = context.sysconfig.teraslice.shutdown_timeout;
     const events = context.apis.foundation.getSystemEvents();
 
     return new Promise((resolve, reject) => {
@@ -45,7 +44,7 @@ export function shutdownHandler(
         exit
     };
 
-    const shutdownTimeout = get(context, 'sysconfig.teraslice.shutdown_timeout', 20 * 1000);
+    const shutdownTimeout = context.sysconfig.teraslice.shutdown_timeout;
 
     const events = context.apis.foundation.getSystemEvents();
     const logger = makeLogger(context, `${assignment}:shutdown_handler`);
