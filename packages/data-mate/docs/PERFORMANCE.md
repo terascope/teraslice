@@ -8,6 +8,34 @@ every case was checked to produce the same row count, so "faster" cannot mean "d
 > overwrites this curated document.
 
 
+## IP STORAGE — measured 2026-10-09: keep it TEXT
+
+`docs/tools/bench/ip-shape.mjs`, 100M rows (85% IPv4, 15% IPv6) in DuckDB tables, warm, median of 5.
+A runs the exact SQL sql-builder emits today (`contains`, `'::ffff:' ||`, `TRY_CAST(... AS INET)` per
+row); B is the best INET design - the address stored already mapped into IPv6, so a filter compares
+the bare column. Both returned identical counts for every filter.
+
+| | text (today) | INET, mapped at ingest | per row |
+|---|---|---|---|
+| CIDR `10.0.0.0/8` | 1,145 ms | 343 ms | 8.0 ns saved |
+| equality | 903 ms | 44 ms | 8.6 ns saved |
+| range (two bounds) | 1,906 ms | 235 ms | 16.7 ns saved |
+| bare parse | 875 ms | 5 ms | 8.7 ns saved |
+| **render back to text, for output** | **35 ms** | **2,934 ms** | **29 ns LOST** |
+
+**The parse costs ~8.7 ns per row per IP predicate - real, but small**, and INET would lose more than
+it saves:
+- **INET does not survive Parquet.** It reads back as `STRUCT(ip_type, address DOUBLE, mask)`: the
+  128-bit address narrowed to a DOUBLE, DF14's trap - `2001:db8:1234:5678:9abc:def0:1234:5679` comes back
+  as `address: -1.276e+38`. The worker queries payloads as Parquet, so INET cannot be the stored type.
+- **Every output row pays 29 ns** to turn the address back into text - 3x what one filter saves.
+- **The text a caller sent is lost**: `2001:DB8::1` and the fully written-out form both come back as
+  `2001:db8::1`, where `DataFrame` returns an IP exactly as given; `fe80::1%eth0` does not cast at all.
+
+If IP filtering ever shows up hot in real queries, the Parquet-safe route is a SECOND column holding
+the mapped address as a 16-byte big-endian BLOB (byte order = numeric order, so CIDR and range are BLOB
+range comparisons that prune), with the text kept for output. Not worth it at ~9 ns/row.
+
 ## DATE STORAGE — measured 2026-10-09
 
 `docs/tools/bench/date-shape.mjs`, 100M rows over one Parquet+zstd file, warm, median of 5, workstation

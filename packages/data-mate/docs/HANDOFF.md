@@ -1190,8 +1190,9 @@ and sweep changes; docs. What is left, in order - **items 1-3 are what Spaces wi
    selects `*` from the frame, so the planner must hand it a frame that already projects only the
    referenced fields.
 3. ~~**The timezone offset design**~~ **DONE 2026-10-09 (DF22)** - every Date is `{ ms, tz_offset }`.
-4. **IP -> INET storage** - VARCHAR today, `TRY_CAST(... AS INET)` per row per IP query. Measure, then
-   decide.
+4. ~~**IP -> INET storage**~~ **MEASURED 2026-10-09, closed: keep IP as text.** The per-row parse is
+   ~8.7 ns per IP predicate; INET does not survive Parquet (its address becomes a DOUBLE), costs 29 ns
+   per output row to render, and loses the caller's spelling. `PERFORMANCE.md` §IP STORAGE.
 5. **Concurrency under one `memory_limit`** (NEXT STEPS item 1 below) - still the highest-value unrun
    measurement.
 6. `isPostalCode`, then `expm1`/`log1p`, then emissions for group D.
