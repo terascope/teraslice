@@ -105,7 +105,7 @@ export class ExecutionService {
         this.allocateInterval = setInterval(executionAllocator, 1000);
         this.reapInterval = setInterval(
             this.reapExecutions.bind(this),
-            this.context.sysconfig.teraslice.shutdown_timeout || 30000
+            this.context.sysconfig.teraslice.shutdown_timeout
         );
     }
 

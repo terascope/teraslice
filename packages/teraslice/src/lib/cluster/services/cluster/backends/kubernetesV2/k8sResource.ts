@@ -80,7 +80,7 @@ export abstract class K8sResource<T extends TSService | TSDeployment | TSJob> {
             .replace(/[^a-z0-9]$/, '0')
             .substring(0, 63);
         const name = `ts-${nameInfix}-${jobNameLabel.substring(0, 35)}-${this.execution.job_id.substring(0, 13)}`;
-        const shutdownTimeoutMs = get(this.terasliceConfig, 'shutdown_timeout', 60000);
+        const shutdownTimeoutMs = get(this.terasliceConfig, 'shutdown_timeout');
         const shutdownTimeoutSeconds = Math.round(shutdownTimeoutMs / 1000);
 
         const config: K8sConfig = {
