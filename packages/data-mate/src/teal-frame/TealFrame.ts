@@ -17,6 +17,7 @@ import {
 } from './export-json.js';
 import { makeRowShapers } from './row-shape.js';
 import { expandValuesSQL, ExpandValuesOptions } from './expand-values.js';
+import { deepSelectSQL, emptySkippedObjects } from './deep-select.js';
 import { int64Column } from './parquet-columns.js';
 import { distinctLines, parseLines, writeLines } from './line-stream.js';
 import {
@@ -874,6 +875,40 @@ export class TealFrame {
             if (element != null) yield JSON.parse(element);
             else if (!skipNil) yield nilValue;
         }
+    }
+
+    /**
+     * `DataFrame.deepSelect`: keep the selected fields - dotted paths into nested Objects
+     * included - in the shape selected, ignoring names that do not exist. See `deep-select.ts`.
+    */
+    deepSelect(fields: readonly string[]): TealFrame {
+        const { sql, config, columns } = deepSelectSQL(
+            this.from, this.columns, this.config, fields
+        );
+        return new TealFrame(
+            this.ctx, config, { kind: 'relation', sql, ordered: this.isOrdered }, columns
+        );
+    }
+
+    /**
+     * The SELECT node's `@skipIfEmpty` rule, applied after `deepSelect`: drop every
+     * `_skip_if_empty` Object column with no declared children left. Config-only - no row is read.
+    */
+    pruneEmptyObjects(): TealFrame {
+        const dropped = new Set(emptySkippedObjects(this.config));
+        if (dropped.size === 0) return this;
+
+        const columns = this.columns.filter((column) => !dropped.has(column));
+        const fields = Object.fromEntries(Object.entries(this.config.fields ?? {})
+            .filter(([name]) => !dropped.has(name.split('.', 1)[0])));
+        const config = { ...this.config, fields };
+        const sql = columns.length
+            ? `SELECT ${columns.map(quoteIdentifier).join(', ')} FROM ${this.from}`
+            : `SELECT * FROM ${this.from} LIMIT 0`;
+
+        return new TealFrame(
+            this.ctx, config, { kind: 'relation', sql, ordered: this.isOrdered }, columns
+        );
     }
 
     /**

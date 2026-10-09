@@ -8,6 +8,7 @@
 */
 export * from './clauses.js';
 export * from './date-value.js';
+export * from './deep-select.js';
 export * from './database.js';
 export * from './TealFrame.js';
 export * from './duck-values.js';
