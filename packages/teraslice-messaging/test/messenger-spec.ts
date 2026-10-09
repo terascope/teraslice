@@ -128,20 +128,6 @@ describe('Messenger', () => {
             });
         });
 
-        describe('when constructed without a valid clientDisconnectTimeout', () => {
-            it('should throw an error', () => {
-                expect(() => {
-                    // @ts-expect-error
-                    new Messenger.Server({
-                        actionTimeout: 1,
-                        networkLatencyBuffer: 0,
-                        port: 80,
-                        serverName: 'hello'
-                    });
-                }).toThrow('Messenger.Server requires a valid clientDisconnectTimeout');
-            });
-        });
-
         describe('when constructed without a valid serverName', () => {
             it('should throw an error', () => {
                 expect(() => {
@@ -150,7 +136,6 @@ describe('Messenger', () => {
                         actionTimeout: 1,
                         networkLatencyBuffer: 0,
                         port: 80,
-                        clientDisconnectTimeout: 1,
                     });
                 }).toThrow('Messenger.Server requires a valid serverName');
             });
@@ -176,7 +161,6 @@ describe('Messenger', () => {
                     actionTimeout: 1,
                     networkLatencyBuffer: 0,
                     port,
-                    clientDisconnectTimeout: 1,
                     serverName: 'hello'
                 });
                 const error = `Port ${port} is already in-use`;
@@ -216,7 +200,6 @@ describe('Messenger', () => {
                         networkLatencyBuffer: 0,
                         actionTimeout: 1000,
                         serverTimeout: 2000,
-                        clientDisconnectTimeout: 3000,
                         serverName: 'example'
                     });
 
@@ -233,7 +216,6 @@ describe('Messenger', () => {
                         clientId,
                         clientType: 'example',
                         hostUrl,
-                        clientDisconnectTimeout: 1000,
                         networkLatencyBuffer: 0,
                         actionTimeout: 1000,
                         connectTimeout: 5000,
@@ -445,6 +427,70 @@ describe('Messenger', () => {
             it('server should get an error back', () => {
                 expect(responseMsg).toBeNil();
                 expect(responseErr && responseErr.toString()).toEqual('Error: failure:message Message Response Failure: this should fail');
+            });
+        });
+
+        describe('when the client sends a non-volatile message and the server is not ready', () => {
+            afterEach(() => {
+                client.ready = true;
+                (client as any).serverShutdown = false;
+            });
+
+            it('should send the message once the ready event is emitted', async () => {
+                client.ready = false;
+
+                // @ts-expect-error
+                const sent = client.send('hello:ready', {}, {
+                    response: false,
+                    volatile: false,
+                    timeout: 500
+                });
+
+                await pDelay(100);
+                client.ready = true;
+                client.emit('ready');
+
+                await expect(sent).resolves.toBeNull();
+            });
+
+            it('should throw a retryable timeout error if the ready event never comes', async () => {
+                expect.hasAssertions();
+                client.ready = false;
+
+                try {
+                    // @ts-expect-error
+                    await client.send('hello:timeout', {}, {
+                        response: true,
+                        volatile: false,
+                        timeout: 100
+                    });
+                } catch (err) {
+                    expect(err.message).toEqual('Timed out after 100ms waiting for server example to be ready before sending "hello:timeout" message');
+                    expect(err.retryable).not.toBeFalse();
+                }
+            });
+
+            it('should throw a non-retryable error if the server shuts down while waiting', async () => {
+                expect.hasAssertions();
+                client.ready = false;
+
+                try {
+                    // @ts-expect-error
+                    const sent = client.send('hello:shutdown', {}, {
+                        response: true,
+                        volatile: false,
+                        timeout: 200
+                    });
+
+                    // simulate the server's shutdown event arriving during the ready wait
+                    await pDelay(50);
+                    (client as any).serverShutdown = true;
+
+                    await sent;
+                } catch (err) {
+                    expect(err.message).toEqual('Server example shut down before sending "hello:shutdown" message');
+                    expect(err.retryable).toBeFalse();
+                }
             });
         });
 

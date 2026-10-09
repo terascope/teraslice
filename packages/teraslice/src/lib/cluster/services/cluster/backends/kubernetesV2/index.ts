@@ -45,8 +45,7 @@ export class KubernetesClusterBackendV2 {
             this.logger,
             null,
             kubernetesNamespace,
-            context.sysconfig.teraslice.kubernetes_api_poll_delay,
-            context.sysconfig.teraslice.shutdown_timeout
+            context.sysconfig.teraslice.kubernetes_api_poll_delay
         );
 
         clusterMasterServer.onClientOnline((exId: string) => {

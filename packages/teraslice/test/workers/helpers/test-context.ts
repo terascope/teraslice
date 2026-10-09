@@ -157,16 +157,11 @@ export class TestContext {
             'sysconfig.teraslice.network_latency_buffer'
         );
         const actionTimeout = get(this.context, 'sysconfig.teraslice.action_timeout');
-        const nodeDisconnectTimeout = get(
-            this.context,
-            'sysconfig.teraslice.node_disconnect_timeout'
-        );
 
         this.clusterMaster = new ClusterMaster.Server({
             port,
             networkLatencyBuffer,
             actionTimeout,
-            nodeDisconnectTimeout
         });
 
         await this.clusterMaster.start();

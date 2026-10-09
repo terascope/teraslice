@@ -80,7 +80,7 @@ export class Core extends EventEmitter {
             if (sent.volatile || this.closed) {
                 return null;
             }
-            throw new Error(`Timed out after ${ms(remaining)}, waiting for message "${sent.eventName}"`);
+            throw new Error(`Timed out after ${ms(this.getTimeout(remaining))}, waiting for message "${sent.eventName}"`);
         }
 
         if (response.error) {

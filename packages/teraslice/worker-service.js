@@ -1,5 +1,5 @@
 import {
-    logError, get, isEmpty, isPlainObject
+    logError, isEmpty, isPlainObject
 } from '@terascope/core-utils';
 import { shutdownHandler } from './dist/src/lib/workers/helpers/worker-shutdown.js';
 import { safeDecode } from './dist/src/lib/utils/encoding_utils.js';
@@ -15,11 +15,6 @@ class Service {
         this.context = context;
 
         this.logger = this.context.logger;
-        this.shutdownTimeout = get(
-            this.context,
-            'sysconfig.teraslice.shutdown_timeout',
-            60 * 1000
-        );
     }
 
     async initialize() {

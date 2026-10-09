@@ -35,9 +35,9 @@ describe('ExecutionService', () => {
 
         it.each([
             // api timeout, master send, exc send, tap
-            [5 * 60_000, 255_000, 240_000, 255_000],
-            [10 * 60_000, 555_000, 540_000, 555_000],
-        ])('should stage the deadlines one buffer apart when api_response_timeout is %dms', async (
+            [5 * 60_000, 284_000, 269_000, 269_000],
+            [10 * 60_000, 584_000, 569_000, 569_000],
+        ])('should stage the messaging deadlines one buffer apart when api_response_timeout is %dms', async (
             apiTimeout, cmSendTimeout, ecSendTimeout, tapTimeout
         ) => {
             const { service, sendSliceTapRequest, warn } = setup(apiTimeout, 15_000);
@@ -58,26 +58,28 @@ describe('ExecutionService', () => {
 
             await service.getSliceTap('some-ex-id', { size: 10 });
 
-            // the layers stay one buffer apart once messenger adds 2 * buffer to each send:
+            // the layers stay one buffer apart once messenger adds the buffer to each send:
             // the tap ends at 30s, the execution controller gives up at 45s
             // and the cluster master at 60s
             expect(sendSliceTapRequest).toHaveBeenCalledWith(
                 'some-ex-id',
-                { size: 10, sendTimeout: 15_000, tapTimeout: 30_000 },
-                30_000
+                { size: 10, sendTimeout: 30_000, tapTimeout: 30_000 },
+                45_000
             );
             expect(warn).toHaveBeenCalledOnce();
         });
 
-        it('should keep the send timeouts positive when network_latency_buffer is larger than the minimum', async () => {
+        it('should keep the deadlines one buffer apart when network_latency_buffer is larger than the minimum', async () => {
             const { service, sendSliceTapRequest, warn } = setup(60_000, 45_000);
 
             await service.getSliceTap('some-ex-id', { size: 10 });
 
+            // the tap ends at 30s, the execution controller gives up at 75s
+            // and the cluster master at 120s
             expect(sendSliceTapRequest).toHaveBeenCalledWith(
                 'some-ex-id',
-                { size: 10, sendTimeout: 1000, tapTimeout: 46_000 },
-                46_000
+                { size: 10, sendTimeout: 30_000, tapTimeout: 30_000 },
+                75_000
             );
             expect(warn).toHaveBeenCalledOnce();
         });

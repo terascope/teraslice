@@ -6,7 +6,6 @@ import { Message, RequestListener } from '../messenger/interfaces.js';
 export interface ClientOptions {
     exId: string;
     clusterMasterUrl: string;
-    nodeDisconnectTimeout: number;
     socketOptions?: Partial<ManagerOptions & SocketOptions>;
     networkLatencyBuffer?: number;
     actionTimeout: number;
@@ -16,7 +15,6 @@ export interface ClientOptions {
 
 export interface ServerOptions {
     port: number;
-    nodeDisconnectTimeout: number;
     actionTimeout: number;
     serverTimeout?: number;
     networkLatencyBuffer?: number;

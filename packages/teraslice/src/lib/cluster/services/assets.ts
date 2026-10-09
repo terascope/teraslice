@@ -1,3 +1,4 @@
+import http from 'node:http';
 import express from 'express';
 import {
     TSError, parseErrorInfo, logError,
@@ -21,6 +22,7 @@ export class AssetsService {
     port: string;
     app: express.Express;
     running = false;
+    server: http.Server | null = null;
 
     constructor(context: Context) {
         this.context = context;
@@ -134,17 +136,16 @@ export class AssetsService {
             });
 
             await new Promise((resolve, reject) => {
-                // @ts-expect-error
-                this.app.listen(this.port, (err: Error) => {
-                    if (err) {
-                        reject(err);
+                this.server = this.app.listen(this.port, (error: Error | undefined) => {
+                    if (error) {
+                        reject(error);
                         return;
                     }
                     this.logger.info(`assets_service is listening on port ${this.port}`);
                     resolve(true);
                 });
-                // @ts-expect-error TODO: verify this
-                this.app.timeout = this.context.sysconfig.teraslice.api_response_timeout;
+
+                this.server.timeout = this.context.sysconfig.teraslice.api_response_timeout;
             });
 
             await this.assetsStorage.autoload();

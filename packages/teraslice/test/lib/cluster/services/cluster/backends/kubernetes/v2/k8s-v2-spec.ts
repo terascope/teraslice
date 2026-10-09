@@ -169,7 +169,7 @@ describe('k8s', () => {
             currentContext: 'context'
         };
 
-        k8s = new K8s(logger, clientConfig, null, 1, 1);
+        k8s = new K8s(logger, clientConfig, null, 1);
     });
 
     afterEach(() => {
@@ -272,7 +272,7 @@ describe('k8s', () => {
                 });
 
             await expect(k8s.nonEmptyJobList('app=teraslice'))
-                .rejects.toThrow('Teraslice job matching the following selector was not found: app=teraslice (retriable)');
+                .rejects.toThrow('Teraslice job matching the following selector was not found: app=teraslice (retryable)');
         });
     });
 

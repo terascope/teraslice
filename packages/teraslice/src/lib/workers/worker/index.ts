@@ -53,7 +53,6 @@ export class Worker {
         const config = context.sysconfig.teraslice;
         const networkLatencyBuffer = get(config, 'network_latency_buffer');
         const actionTimeout = get(config, 'action_timeout');
-        const workerDisconnectTimeout = get(config, 'worker_disconnect_timeout');
         const slicerTimeout = get(config, 'slicer_timeout');
         const shutdownTimeout = get(config, 'shutdown_timeout');
 
@@ -64,13 +63,12 @@ export class Worker {
             executionControllerUrl: formatURL(slicerHostname, slicerPort),
             workerId,
             networkLatencyBuffer,
-            workerDisconnectTimeout,
             // the connect timeout should be set to the same timeout that will
             // cause the execution fail if no Workers connect
             connectTimeout: slicerTimeout,
             actionTimeout,
             logger
-        } as any);
+        });
 
         this.executionContext = executionContext;
         this.shutdownTimeout = shutdownTimeout;

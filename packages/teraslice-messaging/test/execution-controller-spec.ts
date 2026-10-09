@@ -26,18 +26,6 @@ describe('ExecutionController', () => {
             });
         });
 
-        describe('when constructed without a workerDisconnectTimeout', () => {
-            it('should throw an error', () => {
-                expect(() => {
-                    // @ts-expect-error
-                    new ExecutionController.Client({
-                        executionControllerUrl: 'example.com',
-                        workerId: 'test'
-                    });
-                }).toThrow('ExecutionController.Client requires a valid workerDisconnectTimeout');
-            });
-        });
-
         describe('when constructed with an invalid executionControllerUrl', () => {
             let client: ExecutionController.Client;
 
@@ -45,7 +33,6 @@ describe('ExecutionController', () => {
                 client = new ExecutionController.Client({
                     executionControllerUrl: 'http://idk.example.com',
                     workerId: 'hello',
-                    workerDisconnectTimeout: 1000,
                     actionTimeout: 1000,
                     connectTimeout: 1000,
                     socketOptions: {
@@ -57,20 +44,6 @@ describe('ExecutionController', () => {
             it('start should throw an error', () => {
                 const errMsg = /^Unable to connect to ExecutionController/;
                 return expect(client.start()).rejects.toThrow(errMsg);
-            });
-        });
-    });
-
-    describe('->Server', () => {
-        describe('when constructed without a valid workerDisconnectTimeout', () => {
-            it('should throw an error', () => {
-                expect(() => {
-                    // @ts-expect-error
-                    new ExecutionController.Server({
-                        actionTimeout: 1,
-                        networkLatencyBuffer: 0,
-                    });
-                }).toThrow('ExecutionController.Server requires a valid workerDisconnectTimeout');
             });
         });
     });
@@ -90,7 +63,6 @@ describe('ExecutionController', () => {
                 port: slicerPort,
                 networkLatencyBuffer: 0,
                 actionTimeout: 1000,
-                workerDisconnectTimeout: 3000,
             });
 
             await server.start();
@@ -99,7 +71,6 @@ describe('ExecutionController', () => {
                 workerId,
                 executionControllerUrl,
                 networkLatencyBuffer: 0,
-                workerDisconnectTimeout: 1000,
                 actionTimeout: 1000,
                 connectTimeout: 1000,
                 socketOptions: {

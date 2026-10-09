@@ -18,8 +18,10 @@ import type {
 import { makeLogger } from '../../workers/helpers/terafoundation.js';
 import type { ClusterServiceType } from './cluster/index.js';
 import { SliceTapOptions, StopExecutionOptions } from './interfaces.js';
+import { HTTP_RESPONSE_MARGIN } from '../../utils/api_utils.js';
 
 const MIN_SLICE_TAP_TIMEOUT = 30 * 1000;
+
 /**
  * New execution result
  * @typedef NewExecutionResult
@@ -118,9 +120,11 @@ export class ExecutionService {
     }
 
     /**
-     * Stage the deadlines for a slice tap so each layer of the chain expires
-     * one network_latency_buffer before the one outside it, leaving that
-     * buffer for its response to travel back up the chain.
+     * Stage the deadlines for a slice tap so each messaging layer of the chain
+     * expires one network_latency_buffer before the one outside it, leaving that
+     * buffer for its response to travel back up the chain. The cluster master
+     * expires HTTP_RESPONSE_MARGIN before api_response_timeout, since its
+     * response to the HTTP request doesn't cross the messenger.
      *
      * When api_response_timeout is too short, the tap timeout is raised to
      * a minimum rather than failing every tap. The layers inside the cluster
@@ -136,22 +140,20 @@ export class ExecutionService {
             network_latency_buffer: latencyBuffer
         } = this.context.sysconfig.teraslice;
 
-        // Messenger.send() waits timeout + 2 * latencyBuffer before giving up
-        // (respondBy adds one buffer, onceWithTimeout adds another), so convert
-        // each deadline into the send timeout that expires at that deadline
-        const toSendTimeout = (deadline: number) => deadline - (latencyBuffer * 2);
-
-        // the execution controller's send timeout is tapTimeout - latencyBuffer,
-        // so the minimum must stay above the buffer to keep it positive
-        const minTapTimeout = Math.max(MIN_SLICE_TAP_TIMEOUT, latencyBuffer + 1000);
+        // Messenger.send() waits timeout + latencyBuffer before giving up, so
+        // convert each deadline into the send timeout that expires at that deadline
+        const toSendTimeout = (deadline: number) => deadline - latencyBuffer;
 
         // work outward from the tap so each layer gives up one buffer after
         // the layer below it, even when the tap timeout is raised to the minimum
-        const tapTimeout = Math.max(apiTimeout - (latencyBuffer * 3), minTapTimeout);
+        const tapTimeout = Math.max(
+            apiTimeout - (latencyBuffer * 2) - HTTP_RESPONSE_MARGIN,
+            MIN_SLICE_TAP_TIMEOUT
+        );
         const executionControllerDeadline = tapTimeout + latencyBuffer;
         const clusterMasterDeadline = executionControllerDeadline + latencyBuffer;
 
-        if (clusterMasterDeadline > apiTimeout - latencyBuffer) {
+        if (clusterMasterDeadline > apiTimeout - HTTP_RESPONSE_MARGIN) {
             this.logger.warn(`api_response_timeout (${apiTimeout}ms) is too short for a ${tapTimeout}ms slice tap, the request may close before the tap responds`);
         }
 

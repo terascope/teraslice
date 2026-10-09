@@ -13,7 +13,7 @@ catalog:
   '@swc/core': 1.16.13
   '@swc/jest': '~0.2.39'
   '@terascope/fetch-github-release': ~2.3.2
-  '@terascope/file-asset-apis': ~2.3.1
+  '@terascope/file-asset-apis': '~2.3.1'
   '@turf/bbox': '~7.4.0'
   '@turf/bbox-polygon': '~7.4.0'
   '@turf/boolean-contains': '~7.4.0'

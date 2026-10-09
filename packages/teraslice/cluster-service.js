@@ -1,4 +1,4 @@
-import { get, logError } from '@terascope/core-utils';
+import { logError } from '@terascope/core-utils';
 import { shutdownHandler } from './dist/src/lib/workers/helpers/worker-shutdown.js';
 import { makeTerafoundationContext } from './dist/src/lib/workers/context/terafoundation-context.js';
 import { ClusterMaster } from './dist/src/lib/cluster/cluster_master.js';
@@ -9,7 +9,6 @@ class Service {
     constructor(context) {
         this.context = context;
         this.logger = this.context.logger;
-        this.shutdownTimeout = get(this.context, 'sysconfig.teraslice.shutdown_timeout', 60 * 1000);
     }
 
     async initialize() {

@@ -3,7 +3,7 @@ import fse from 'fs-extra';
 import crypto from 'node:crypto';
 import {
     TSError, uniq, isString,
-    toString, filterObject, Logger, pDelay
+    filterObject, Logger, pDelay
 } from '@terascope/core-utils';
 import { Context } from '@terascope/job-components';
 import { ClientResponse, AssetRecord } from '@terascope/types';
@@ -15,6 +15,7 @@ import {
     findMatchingAsset, findSimilarAssets, toVersionQuery,
     getInCompatibilityReason
 } from '../utils/asset_utils.js';
+import { HTTP_RESPONSE_MARGIN } from '../utils/api_utils.js';
 
 function _metaIsUnique(backend: TerasliceElasticsearchStorage) {
     return async function checkMeta(meta: AssetMetadata): Promise<AssetMetadata> {
@@ -67,6 +68,7 @@ export class AssetsStorage {
     private readonly context: Context;
     logger: Logger;
     private s3Backend?: S3Store;
+    private readonly responseTimeout: number;
 
     constructor(context: Context) {
         const logger = makeLogger(context, 'assets_storage');
@@ -88,6 +90,8 @@ export class AssetsStorage {
         // TODO: verify this behavior of string vs string[] and undefined
         this.assetsPath = config.assets_directory as string;
         this.esBackend = new TerasliceElasticsearchStorage(esBackendConfig);
+        this.responseTimeout = this.context.sysconfig.teraslice.api_response_timeout
+            - HTTP_RESPONSE_MARGIN;
 
         const { assetConnectionType, s3BackendConfig } = getBackendConfig(context, logger);
         if (assetConnectionType === 's3' && s3BackendConfig.connection) {
@@ -121,6 +125,10 @@ export class AssetsStorage {
         }
     }
 
+    /**
+     * True if the asset's ES record exists and, when S3 is configured, its S3 object
+     * exists too. A 404 from either backend returns false; any other error is thrown.
+    */
     private async _assetExistsInStorage(id: string): Promise<boolean> {
         try {
             const inES = await this.esBackend.get(id, undefined, ['id', 'name']);
@@ -139,6 +147,41 @@ export class AssetsStorage {
         }
     }
 
+    /**
+     * True if any part of the asset (filesystem, ES record, or S3 object) remains.
+     * Used by remove() so a partially deleted asset can still be found and cleaned up.
+    */
+    private async _assetExistsAnywhere(id: string): Promise<boolean> {
+        const NOT_FOUND = new Error('asset not found');
+
+        const rejectIfMissing = async (check: () => Promise<unknown>): Promise<boolean> => {
+            if (!(await check())) throw NOT_FOUND;
+            return true;
+        };
+
+        try {
+            // resolves on the first check that finds the asset
+            return await Promise.any([
+                rejectIfMissing(async () => this._assetExistsInFS(id)),
+                rejectIfMissing(async () => this.esBackend.get(id, undefined, ['id'])),
+                rejectIfMissing(async () => this.s3Backend?.exists(id) ?? false)
+            ]);
+        } catch (err) {
+            // every check rejected. A 404 or NOT_FOUND mean the check
+            // was false. Throw all other errors.
+            const realError = (err as AggregateError).errors.find(
+                (e) => e !== NOT_FOUND && e.statusCode !== 404
+            );
+            if (realError) throw realError;
+            return false;
+        }
+    }
+
+    /**
+     * True only if every part of the asset (filesystem, ES record, and S3 object
+     * when configured) is present. Used by save() so a partially saved asset is
+     * treated as missing and gets saved again.
+    */
     private async _assetExists(id: string) {
         const [readable, exists] = await Promise.all([
             this._assetExistsInFS(id),
@@ -169,7 +212,6 @@ export class AssetsStorage {
     private async _saveAndUpload({
         id, data, esData, blocking
     }: { id: string; data: Buffer; esData: string; blocking: boolean }) {
-        const responseTimeout = this.context.sysconfig.teraslice.api_response_timeout as number;
         const startTime = Date.now();
 
         const metaData = await saveAsset(
@@ -185,24 +227,23 @@ export class AssetsStorage {
             _created: new Date().toISOString()
         }, metaData);
 
-        await this._saveToEs(id, assetRecord, blocking, responseTimeout, startTime);
+        await this._saveToEs(id, assetRecord, blocking, this.responseTimeout, startTime);
         this.logger.info(`assets: ${metaData.name}, id: ${id} has been saved to assets_directory and elasticsearch`);
     }
 
     private async _saveAndUploadS3({
         id, data, blocking
     }: { id: string; data: Buffer; blocking: boolean }) {
-        const responseTimeout = this.context.sysconfig.teraslice.api_response_timeout as number;
         const startTime = Date.now();
 
         try {
             if (this.s3Backend) {
                 if (blocking) {
                     const elapsed = Date.now() - startTime;
-                    const remaining = responseTimeout - elapsed;
+                    const remaining = this.responseTimeout - elapsed;
                     await this.s3Backend.save(id, data, remaining);
                 } else {
-                    await this.s3Backend.save(id, data, responseTimeout);
+                    await this.s3Backend.save(id, data, this.responseTimeout);
                 }
 
                 this.logger.info(`asset id: ${id} has been saved to s3 store`);
@@ -220,7 +261,7 @@ export class AssetsStorage {
                 _created: new Date().toISOString()
             }, metaData);
 
-            await this._saveToEs(id, assetRecord, blocking, responseTimeout, startTime);
+            await this._saveToEs(id, assetRecord, blocking, this.responseTimeout, startTime);
             this.logger.info(`assets: ${metaData.name}, id: ${id} has been saved to assets_directory and elasticsearch`);
         } catch (err) {
             // clean up s3 object or saved asset if a later step fails
@@ -383,44 +424,43 @@ export class AssetsStorage {
     }
 
     async remove(assetId: string) {
-        try {
-            await this.esBackend.get(assetId, undefined, ['name']);
-        } catch (err) {
-            if (toString(err).indexOf('Not Found')) {
-                const error = new TSError(`Unable to find asset ${assetId}`, {
-                    statusCode: 404
-                });
-
-                throw error;
-            }
-            throw err;
+        if (!await this._assetExistsAnywhere(assetId)) {
+            throw new TSError(`Unable to find asset ${assetId}`, {
+                statusCode: 404
+            });
         }
-        let inFS = true;
-        let inStorage = true;
         let delayMS = 100;
-        const responseTimeout = this.context.sysconfig.teraslice.api_response_timeout as number;
-        const timeoutID = setTimeout(() => {
-            throw new TSError(`Timeout deleting asset ${assetId}`);
-        }, responseTimeout);
-        while (inFS || inStorage) {
+        let lastError: unknown;
+        const deadline = Date.now() + this.responseTimeout;
+        while (true) {
             try {
-                await this.esBackend.remove(assetId);
                 if (this.s3Backend) {
                     await this.s3Backend.remove(assetId);
                 }
                 await fse.remove(path.join(this.assetsPath, assetId));
+                // ES record is removed last so a failed delete leaves the asset
+                // listed in the API and a retry can find it
+                try {
+                    await this.esBackend.remove(assetId);
+                } catch (err) {
+                    if (err.statusCode !== 404) throw err;
+                }
 
-                [inFS, inStorage] = await Promise.all([
-                    this._assetExistsInFS(assetId),
-                    this._assetExistsInStorage(assetId)
-                ]);
+                if (!await this._assetExistsAnywhere(assetId)) return;
             } catch (err) {
-                this.logger.error(err, `Failure deleting asset ${assetId} from S3: ${err}`);
-                await pDelay(delayMS);
-                if (delayMS < 300000) delayMS *= 2;
-            } finally {
-                clearTimeout(timeoutID);
+                lastError = err;
+                this.logger.error(err, `Failure deleting asset ${assetId}: ${err}`);
             }
+
+            const remaining = deadline - Date.now();
+            if (remaining <= 0) {
+                throw new TSError(lastError ?? `Asset ${assetId} still exists after delete`, {
+                    reason: `Timeout deleting asset ${assetId} after ${this.responseTimeout}ms`,
+                    statusCode: 504
+                });
+            }
+            await pDelay(Math.min(delayMS, remaining));
+            if (delayMS < 30000) delayMS *= 2;
         }
     }
 

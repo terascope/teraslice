@@ -72,7 +72,6 @@ export class ClusterMaster {
 
             this.messagingServer = new ClusterMasterMessaging.Server({
                 port: clusterConfig.port,
-                nodeDisconnectTimeout: clusterConfig.node_disconnect_timeout,
                 // setting request timeout to 5 minutes
                 serverTimeout: clusterConfig.api_response_timeout,
                 // we do this to override express final response handler

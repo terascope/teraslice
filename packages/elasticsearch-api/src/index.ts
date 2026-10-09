@@ -322,7 +322,7 @@ export default function elasticsearchApi(
         const retry = [];
         const { items } = result;
 
-        let nonRetriableError = false;
+        let nonRetryableError = false;
         let reason = '';
         let successful = 0;
 
@@ -353,7 +353,7 @@ export default function elasticsearchApi(
                     item.error.type !== 'document_already_exists_exception'
                     && item.error.type !== 'document_missing_exception'
                 ) {
-                    nonRetriableError = true;
+                    nonRetryableError = true;
                     reason = `${item.error.type}--${item.error.reason}`;
 
                     if (config._dead_letter_action === 'kafka_dead_letter') {
@@ -369,7 +369,7 @@ export default function elasticsearchApi(
             }
         }
 
-        if (nonRetriableError) {
+        if (nonRetryableError) {
             // if dlq active still attempt the retries
             const retryOnError = config._dead_letter_action === 'kafka_dead_letter' ? retry : [];
 
