@@ -5,6 +5,7 @@ import {
 } from '@terascope/core-utils';
 import type { Config, ExecutionConfig } from '@terascope/types';
 import { safeEncode } from '../../../../../utils/encoding_utils.js';
+import { POST_SHUTDOWN_BUFFER } from '../../../../../workers/helpers/worker-shutdown.js';
 import { setMaxOldSpaceViaEnv } from './utils.js';
 import {
     K8sConfig, NodeType, TSDeployment,
@@ -80,7 +81,8 @@ export abstract class K8sResource<T extends TSService | TSDeployment | TSJob> {
             .replace(/[^a-z0-9]$/, '0')
             .substring(0, 63);
         const name = `ts-${nameInfix}-${jobNameLabel.substring(0, 35)}-${this.execution.job_id.substring(0, 13)}`;
-        const shutdownTimeoutMs = get(this.terasliceConfig, 'shutdown_timeout');
+        // buffer allows logs to flush after shutdown timeout before forcing termination of pod
+        const shutdownTimeoutMs = get(this.terasliceConfig, 'shutdown_timeout') + POST_SHUTDOWN_BUFFER;
         const shutdownTimeoutSeconds = Math.round(shutdownTimeoutMs / 1000);
 
         const config: K8sConfig = {

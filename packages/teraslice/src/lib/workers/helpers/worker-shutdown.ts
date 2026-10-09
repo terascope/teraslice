@@ -5,6 +5,10 @@ import type { Context } from '@terascope/job-components';
 import ms from 'ms';
 import { makeLogger } from './terafoundation.js';
 
+// time in milliseconds to wait after shutdown_timeout before
+// killing stuck processes or performing cleanup tasks
+export const POST_SHUTDOWN_BUFFER = 3000;
+
 export function waitForWorkerShutdown(context: Context, eventName: string) {
     const shutdownTimeout = context.sysconfig.teraslice.shutdown_timeout;
     const events = context.apis.foundation.getSystemEvents();
@@ -173,3 +177,4 @@ export function shutdownHandler(
 
     return api;
 }
+
