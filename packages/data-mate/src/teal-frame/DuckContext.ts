@@ -57,6 +57,11 @@ export class DuckContext {
         this.functions.set(spec.name, fn);
     }
 
+    /** How many scalar functions are registered - they are permanent, so this must stay bounded. */
+    get functionCount(): number {
+        return this.functions.size;
+    }
+
     hasFunction(name: string): boolean {
         return this.functions.has(name);
     }

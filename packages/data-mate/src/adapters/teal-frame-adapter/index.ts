@@ -7,7 +7,8 @@ import {
     isFieldTransform, isFieldValidation, ProcessMode, DataTypeFieldAndChildren,
     SqlEmission,
 } from '../../function-configs/interfaces.js';
-import { quoteIdentifier } from '@terascope/sql-builder';
+import { inspect } from 'node:util';
+import { quoteIdentifier, quoteLiteral } from '@terascope/sql-builder';
 import { ScalarFunctionImpl } from '../../teal-frame/scalar-function.js';
 import { registerScalarFunction, makeBigIntInputNormaliser } from '../../teal-frame/index.js';
 import { coerceToType } from '../../builder/type-coercion.js';
@@ -136,23 +137,32 @@ async function adaptTransform<T extends Record<string, any>>(
         };
     }
 
-    const impl = fnDef.create({
-        args, inputConfig, outputConfig,
-    } as any) as ScalarFunctionImpl;
     const resultConfig = udfResult(fnDef, args, inputConfig, outputConfig, fullValues);
+    const parameter = udfParameter(inputConfig, fullValues);
+    /** One argument set's implementation, its result coerced as a `DataFrame` Builder would. */
+    const implFor = (a: T): ScalarFunctionImpl => {
+        const out = fnDef.output_type ? fnDef.output_type(inputConfig, a) : inputConfig;
+        return coercingResult(
+            fnDef.create({ args: a, inputConfig, outputConfig: out } as any) as ScalarFunctionImpl,
+            udfResult(fnDef, a, inputConfig, out, fullValues)
+        );
+    };
+    const argsText = argumentsText(args);
 
     const functionName = await registerScalarFunction({
-        name: udfName(fnDef.name, field, inputConfig, args),
-        parameter: udfParameter(inputConfig, fullValues),
+        name: udfName(fnDef.name, [
+            'transform', parameter, inputConfig.child_config, resultConfig, fullValues,
+        ], argsText === undefined ? args : undefined),
+        parameter,
         parameterChildren: inputConfig.child_config,
         returns: resultConfig.field_config as DataTypeFieldConfig,
         returnsChildren: resultConfig.child_config,
-        fn: coercingResult(impl, resultConfig),
+        ...implementation(args, argsText, implFor),
         callWithNull: fullValues,
         database: options.database,
     });
 
-    const callUdf = (value: string) => `${functionName}(${value})`;
+    const callUdf = udfCall(functionName, argsText);
     const build = emission
         ? (value: string) => emitted(emission, value, {
             args, inputConfig, outputConfig, udf: callUdf, transform: true,
@@ -192,8 +202,15 @@ async function adaptTypeChange<T extends Record<string, any>>(
     }
 
     const coerce = resultCoercion(outputConfig);
+    // the coercion depends on the two configs alone, so they - not the arguments - name it
     const functionName = await registerScalarFunction({
-        name: udfName(fnDef.name, field, inputConfig, args),
+        name: udfName(fnDef.name, [
+            'type change',
+            inputConfig.field_config,
+            inputConfig.child_config ?? null,
+            outputConfig.field_config,
+            outputConfig.child_config ?? null,
+        ]),
         parameter: inputConfig.field_config as DataTypeFieldConfig,
         parameterChildren: inputConfig.child_config,
         returns: outputConfig.field_config as DataTypeFieldConfig,
@@ -289,19 +306,25 @@ async function adaptValidation<T extends Record<string, any>>(
         };
     }
 
-    const predicate = fnDef.create({ args, inputConfig } as any) as ScalarFunctionImpl;
+    const parameter = udfParameter(inputConfig, fullValues);
+    const predicateFor = (a: T) => (
+        fnDef.create({ args: a, inputConfig } as any) as ScalarFunctionImpl
+    );
+    const argsText = argumentsText(args);
 
     const functionName = await registerScalarFunction({
-        name: udfName(fnDef.name, field, inputConfig, args),
-        parameter: udfParameter(inputConfig, fullValues),
+        name: udfName(fnDef.name, [
+            'validation', parameter, inputConfig.child_config,
+        ], argsText === undefined ? args : undefined),
+        parameter,
         parameterChildren: inputConfig.child_config,
         returns: { type: FieldType.Boolean },
-        fn: predicate,
+        ...implementation(args, argsText, predicateFor),
         callWithNull: fullValues,
         database: options.database,
     });
 
-    const callUdf = (value: string) => `${functionName}(${value})`;
+    const callUdf = udfCall(functionName, argsText);
     const build = emission
         ? (value: string) => emitted(emission, value, {
             args, inputConfig, outputConfig, udf: callUdf, transform: false,
@@ -544,35 +567,64 @@ function udfResult<T extends Record<string, any>>(
 }
 
 /**
- * A UDF name unique to this function, column type and argument set.
+ * A UDF name unique to this function and its TYPES - never its arguments, never the field.
  *
- * The implementation is specialised by `create({ args, inputConfig })`, so two different arg
- * sets are two different functions and must not share a name. Registration is idempotent for
- * the same name, so the same (function, args, type) reuses one registration.
+ * **DuckDB cannot unregister a scalar function**, so every name is permanent. A name that included
+ * the arguments made every new `lookup` table, regex or format a new function for the life of the
+ * process - measured, 300 tables made 300 registrations in a worker that could only grow. The
+ * arguments are a parameter instead (`udfCall`), so the count is bounded by the functions and data
+ * types in use.
  *
- * **The COLUMN TYPE is part of the name, and leaving it out was a real collision.** A registration
- * declares one parameter type, so `isBoolean` over a `Boolean` column and `isBoolean` over a
- * `Keyword` column are two different DuckDB functions; sharing a name meant the first one
- * registered won and the second query failed to bind -
- * `No function matches ... 'dm_isboolean_hk1m0p(VARCHAR)'`. The field name alone hid this whenever
- * two frames used the same column name for different types. The WHOLE config is hashed, not just
- * the type, because `Number` and `Number[]`, or two Objects with different members, are different
- * parameter types too.
- */
-function udfName(
-    name: string,
-    field: string,
-    inputConfig: DataTypeFieldAndChildren,
-    args: Record<string, unknown>
-): string {
-    const argPart = Object.keys(args).length ? JSON.stringify(args) : '';
-    const typePart = JSON.stringify([
-        inputConfig.field_config, inputConfig.child_config ?? null,
-    ]);
-    return `dm_${name}_${hash(`${name}|${field}|${typePart}|${argPart}`)}`.toLowerCase();
+ * **The types ARE part of it, and leaving the column type out was a real collision.** A
+ * registration declares its parameter and result types, so `isBoolean` over a `Boolean` column and
+ * over a `Keyword` column are two DuckDB functions; sharing a name meant the second query failed
+ * to bind - `No function matches ... 'dm_isboolean_hk1m0p(VARCHAR)'`. The WHOLE config is hashed,
+ * because `Number` and `Number[]`, or two Objects with different members, differ too.
+ *
+ * `specialisedArgs` is the one unbounded path: arguments JSON cannot carry (see `argumentsText`),
+ * which then specialise the UDF as before. None of the 767 example argument sets needs it.
+*/
+function udfName(name: string, types: readonly unknown[], specialisedArgs?: unknown): string {
+    const specialised = specialisedArgs === undefined
+        ? ''
+        : inspect(specialisedArgs, { depth: null, sorted: true });
+    return `dm_${name}_${hash(`${JSON.stringify(types)}|${specialised}`)}`.toLowerCase();
 }
 
-/** Small stable string hash - only needs to avoid collisions between arg sets. */
+/**
+ * The validated arguments as the JSON text a UDF receives as its second parameter, or undefined
+ * when JSON cannot carry them exactly - a non-finite number, a Date, a bigint. GraphQL arguments
+ * are JSON, so in practice they always can.
+*/
+function argumentsText(args: Record<string, unknown>): string | undefined {
+    return isJSON(args) ? JSON.stringify(args) : undefined;
+}
+
+function isJSON(value: unknown): boolean {
+    if (value == null || typeof value === 'string' || typeof value === 'boolean') return true;
+    if (typeof value === 'number') return Number.isFinite(value);
+    if (Array.isArray(value)) return value.every(isJSON);
+    return Object.getPrototypeOf(value) === Object.prototype && Object.values(value).every(isJSON);
+}
+
+/** The registration's implementation: per argument set when they travel as JSON, else fixed. */
+function implementation<T>(
+    args: T,
+    argsText: string | undefined,
+    implFor: (args: T) => ScalarFunctionImpl
+): { fn: ScalarFunctionImpl } | { fnForArgs: (text: string) => ScalarFunctionImpl } {
+    if (argsText === undefined) return { fn: implFor(args) };
+    return { fnForArgs: (text) => implFor(JSON.parse(text) as T) };
+}
+
+/** SQL calling the UDF on `value` - the arguments its second parameter, when it takes them. */
+function udfCall(functionName: string, argsText: string | undefined): (value: string) => string {
+    if (argsText === undefined) return (value) => `${functionName}(${value})`;
+    const argsLiteral = quoteLiteral(argsText);
+    return (value) => `${functionName}(${value}, ${argsLiteral})`;
+}
+
+/** Small stable string hash - only needs to avoid collisions between type signatures. */
 function hash(input: string): string {
     let h = 5381;
     for (let i = 0; i < input.length; i++) {

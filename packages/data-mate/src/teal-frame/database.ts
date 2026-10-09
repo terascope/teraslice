@@ -78,6 +78,15 @@ export async function registerScalarFunction(
 }
 
 /**
+ * How many scalar functions the database holds. DuckDB cannot unregister one, so this is bounded
+ * by the functions and data types in use, never by their arguments - see `scalar-function.ts`.
+ * Worth reporting as a metric from a long-running worker.
+*/
+export async function registeredFunctionCount(database?: string): Promise<number> {
+    return (await getContext(database)).functionCount;
+}
+
+/**
  * Closes a cached database and forgets it. For test teardown; a process that simply exits
  * does not need to call it.
 */
