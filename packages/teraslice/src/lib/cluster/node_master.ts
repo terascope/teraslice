@@ -14,6 +14,7 @@ import { safeEncode } from '../utils/encoding_utils.js';
 import { findPort, getPorts } from '../utils/port_utils.js';
 import { getPackageJSON } from '../utils/file_utils.js';
 import { ClusterMasterContext } from '../../interfaces.js';
+import { POST_SHUTDOWN_BUFFER } from '../workers/helpers/worker-shutdown.js';
 
 const nodeVersion = process.version;
 const terasliceVersion = getPackageJSON().version;
@@ -332,7 +333,7 @@ export async function nodeMaster(context: ClusterMasterContext) {
         const needsResponse = message.response && message.to;
 
         // give a little extra time to finish shutting down
-        let stopTime = config.shutdown_timeout + 3000;
+        let stopTime = config.shutdown_timeout + POST_SHUTDOWN_BUFFER;
 
         if (!onlySigKill) {
             shutdownWorkers('SIGTERM', filterFn);
