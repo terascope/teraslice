@@ -160,13 +160,14 @@ describe('TealFrame JSON export', () => {
     });
 
     describe('the three divergences from native to_json', () => {
-        it('should render a Date as ISO8601, not as DuckDB SQL text', async () => {
+        it('should render a Date as ISO8601, not as its stored { ms, tz_offset }', async () => {
             const [first] = await collectNdjson();
             const native = await frame.rawRows(`SELECT to_json(t)::VARCHAR FROM ${frame.from} AS t`);
 
             expect(JSON.parse(first).created).toBe('2026-08-14T01:02:03.456Z');
-            // what it would have been without the correction
-            expect(JSON.parse(String(native[0][0])).created).toBe('2026-08-14 01:02:03.456');
+            // what it would have been without the correction - see `date-value.ts`
+            expect(JSON.parse(String(native[0][0])).created)
+                .toEqual({ ms: 1786669323456, tz_offset: null });
         });
 
         it('should render Dates inside an array and inside an object', async () => {

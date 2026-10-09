@@ -180,6 +180,15 @@ export function toUTCTimestampText(value: unknown): string {
         .replace('Z', '');
 }
 
+/**
+ * A date as epoch milliseconds - the `ms` member of a DuckDB date column, which data-types maps to
+ * `STRUCT(ms BIGINT, tz_offset SMALLINT)`. An instant, so a literal's own zone is APPLIED, not
+ * dropped: `'2020-01-01T00:00:00+02:00'` is `1577829600000`.
+*/
+export function toEpochMillisText(value: unknown): string {
+    return String(getValidDateOrThrow(value).getTime());
+}
+
 /** A value as the text a SQL literal needs, or a thrown error for something that is not. */
 export function toLiteralString(value: unknown): string {
     if (isString(value)) return value;

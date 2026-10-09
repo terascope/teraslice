@@ -1,5 +1,5 @@
 import {
-    structValue, listValue, timestampValue, geometryValue
+    structValue, listValue, geometryValue
 } from '@duckdb/node-api';
 import {
     DataTypeFieldConfig, DataTypeFields, ReadonlyDataTypeFields,
@@ -7,7 +7,7 @@ import {
 } from '@terascope/types';
 import { getChildDataTypeConfig } from '../core/utils.js';
 import { geoShapeToWKB } from './wkb.js';
-import { toDateOffsetValue } from './date-offset.js';
+import { toDateValue } from './date-value.js';
 
 /**
  * `DataTypeFieldConfig.type` is the enum OR the deprecated string union, and real configs
@@ -146,15 +146,6 @@ function childNormaliser(
     };
 }
 
-/**
- * `toEpochMSOrThrow` yields epoch millis, or a DateTuple whose first element is the
- * millis. TIMESTAMP is microseconds.
-*/
-function toTimestamp(value: unknown): unknown {
-    const millis = Array.isArray(value) ? Number(value[0]) : Number(value);
-    return Number.isFinite(millis) ? timestampValue(BigInt(millis) * 1000n) : null;
-}
-
 function toGeoPoint(value: unknown): unknown {
     if (typeof value !== 'object' || value == null) return null;
     const point = value as { lat?: unknown; lon?: unknown };
@@ -169,11 +160,6 @@ export interface ValueConverterOptions {
      * 128-bit `Long`.
     */
     wideIntegers?: boolean;
-    /**
-     * A `Date` result carries a display offset, so it goes into `STRUCT(ts, tz_offset)` with the
-     * `DateTuple`'s offset kept - see `date-offset.ts`.
-    */
-    dateOffset?: boolean;
 }
 
 /**
@@ -238,8 +224,8 @@ export function makeValueConverter(
     if (BIG_INT_TYPES.has(type)) return (value) => (value == null ? null : toBigInt(value, int64));
     if (SMALL_INT_TYPES.has(type)) return (value) => (value == null ? null : Number(value));
     if (DOUBLE_TYPES.has(type)) return (value) => (value == null ? null : Number(value));
-    if (type === FieldType.Date && options.dateOffset) return toDateOffsetValue;
-    if (type === FieldType.Date) return (value) => (value == null ? null : toTimestamp(value));
+    // epoch millis, or a `DateTuple` whose offset is kept - see `date-value.ts`
+    if (type === FieldType.Date) return toDateValue;
 
     // GeoJSON is a GEOMETRY column, and the binding writes one only as WKB through a vector
     if (type === FieldType.GeoJSON) {

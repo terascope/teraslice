@@ -15,7 +15,8 @@ import {
  * `[epochMillis, offsetMinutes]` - and `DataFrame` keeps it: the output renders in local time
  * (`...17:41:50.172+02:00`), and every later date function reads the offset (`getHours` answers
  * 17, not 15). TealFrame stored a TIMESTAMP and dropped it, so 121 of 250 chains below differed.
- * The offset now travels with the column; see `date-offset.ts`.
+ * Every date is now `{ ms, tz_offset }` (`date-value.ts`), and the date SQL emissions read the
+ * row's own offset - so these chains run as SQL, not through the UDF.
 */
 
 const repo = functionConfigRepository as Record<string, FunctionDefinitionConfig<any>>;
@@ -84,14 +85,16 @@ describe('a DateTuple offset travels through TealFrame', () => {
     async function tealChain(steps: readonly [string, Record<string, unknown>][]) {
         let current = frame;
         let inputConfig: DataTypeFieldAndChildren = { field_config: CONFIG.fields.d };
+        let lastDispatch = '';
         for (const [name, args] of steps) {
             const result = await tealFrameAdapter(repo[name], { field: 'd', inputConfig, args });
+            lastDispatch = result.dispatch;
             current = current.select({ d: result.expression }, {
                 config: { version: 1, fields: { d: result.outputConfig.field_config } },
             });
             inputConfig = result.outputConfig;
         }
-        return { frame: current, inputConfig };
+        return { frame: current, inputConfig, dispatch: lastDispatch };
     }
 
     async function tealRows(steps: readonly [string, Record<string, unknown>][]) {
@@ -128,11 +131,6 @@ describe('a DateTuple offset travels through TealFrame', () => {
             expect(lines.map((line) => JSON.parse(line).d ?? null)).toEqual(plain(fromRows));
         });
 
-        it('marks its output as carrying an offset', async () => {
-            const { inputConfig } = await tealChain([[producer, producerArgs]]);
-            expect(inputConfig.date_offset).toBeTrue();
-        });
-
         it.each(CONSUMERS)('then %s %j matches DataFrame', async (consumer, consumerArgs) => {
             const steps: [string, Record<string, unknown>][] = [
                 [producer, producerArgs], [consumer, consumerArgs],
@@ -150,13 +148,6 @@ describe('a DateTuple offset travels through TealFrame', () => {
         ];
         expect(await outcome(() => tealRows(steps)))
             .toEqual(await outcome(() => dataFrameValues(steps)));
-    });
-
-    it('drops the mark once a function returns a plain date', async () => {
-        const { inputConfig } = await tealChain([
-            ['setTimezone', { timezone: 120 }], ['addToDate', { expr: '1h' }],
-        ]);
-        expect(inputConfig.date_offset).not.toBeTrue();
     });
 
     it('carries an offset per element of a Date[] column', async () => {
@@ -229,5 +220,12 @@ describe('a DateTuple offset travels through TealFrame', () => {
         } finally {
             await rm(dir, { recursive: true, force: true });
         }
+    });
+
+    it('runs a date function after a timezone one as SQL, not the UDF', async () => {
+        const { dispatch } = await tealChain([
+            ['toTimeZone', { timezone: 'America/New_York' }], ['getHours', {}],
+        ]);
+        expect(dispatch).toEqual('sql');
     });
 });

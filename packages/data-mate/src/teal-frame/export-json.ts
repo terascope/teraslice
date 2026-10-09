@@ -1,7 +1,7 @@
 import { DataTypeConfig, ReadonlyDataTypeConfig, DataTypeFields, FieldType } from '@terascope/types';
 import { quoteIdentifier, quoteLiteral } from '@terascope/sql-builder';
 import { SerializeOptions } from '../vector/interfaces.js';
-import { dateOffsetJson } from './date-offset.js';
+import { dateJson } from './date-value.js';
 
 /**
  * Builds the SQL that renders a frame's rows as JSON **byte-identical to what `DataFrame`
@@ -50,9 +50,6 @@ const MAX_SAFE = '9007199254740991';
 */
 const EXPONENTIAL_THRESHOLD = '1e21';
 
-/** `toISO8601`'s shape. `%g` is milliseconds; `strftime` returns NULL for NULL. */
-const ISO8601 = '%Y-%m-%dT%H:%M:%S.%gZ';
-
 /** Integer-ish types stored wide enough to exceed `MAX_SAFE_INTEGER`. */
 const BIG_INTEGER_TYPES: ReadonlySet<string> = new Set([
     FieldType.Long, FieldType.Integer,
@@ -90,8 +87,6 @@ interface FieldNode {
     name: string;
     type: string;
     isArray: boolean;
-    /** A `Date` stored as `STRUCT(ts, tz_offset)` - see `date-offset.ts`. */
-    dateOffset?: boolean;
     children?: Record<string, FieldNode>;
 }
 
@@ -102,10 +97,7 @@ interface FieldNode {
  * nested, and needs to recurse - a `Date` three levels down is still rendered SQL-shaped by
  * `to_json` and still has to be corrected.
 */
-function buildTree(
-    fields: DataTypeFields,
-    dateOffsetColumns: ReadonlySet<string> = new Set()
-): Record<string, FieldNode> {
+function buildTree(fields: DataTypeFields): Record<string, FieldNode> {
     const tree: Record<string, FieldNode> = {};
 
     for (const [path, config] of Object.entries(fields)) {
@@ -122,7 +114,6 @@ function buildTree(
         if (node) {
             node.type = String(config.type);
             node.isArray = config.array === true;
-            node.dateOffset = parts.length === 1 && dateOffsetColumns.has(path);
         }
     }
 
@@ -430,11 +421,8 @@ class Renderer {
 
     /** One scalar - or an undeclared object, `Any` or shape, written as it is stored. */
     private leaf(node: FieldNode, accessor: string): string {
-        if (node.type === FieldType.Date && node.dateOffset) return dateOffsetJson(accessor);
-        if (node.type === FieldType.Date) {
-            // toISO8601, not DuckDB's SQL rendering; strftime of NULL is NULL
-            return `to_json(strftime(${accessor}, ${quoteLiteral(ISO8601)}))::VARCHAR`;
-        }
+        // toISO8601 of `{ ms, tz_offset }` - see `date-value.ts`
+        if (node.type === FieldType.Date) return dateJson(accessor);
         // a Boundary is ITSELF `STRUCT(lat, lon)[]`, and `GeoBoundaryVector` writes it as it is -
         // none of the list rules apply to it
         if (node.type === FieldType.Boundary) {
@@ -472,10 +460,9 @@ class Renderer {
 export function buildJsonListElements(
     config: DataTypeConfig | ReadonlyDataTypeConfig,
     column: string,
-    options: JsonExportOptions = {},
-    dateOffsetColumns?: ReadonlySet<string>
+    options: JsonExportOptions = {}
 ): { sql: string; isObject: boolean } {
-    const node = buildTree((config.fields ?? {}) as DataTypeFields, dateOffsetColumns)[column];
+    const node = buildTree((config.fields ?? {}) as DataTypeFields)[column];
     if (node == null || !node.isArray) {
         throw new TypeError(`Column "${column}" is not a list in this frame's config`);
     }
@@ -499,10 +486,9 @@ export function buildJsonRowFilter(
 
 export function buildJsonExpression(
     config: DataTypeConfig | ReadonlyDataTypeConfig,
-    options: JsonExportOptions = {},
-    dateOffsetColumns?: ReadonlySet<string>
+    options: JsonExportOptions = {}
 ): string {
-    const tree = buildTree((config.fields ?? {}) as DataTypeFields, dateOffsetColumns);
+    const tree = buildTree((config.fields ?? {}) as DataTypeFields);
     if (Object.keys(tree).length === 0) {
         throw new TypeError('A DataType config must declare at least one field');
     }

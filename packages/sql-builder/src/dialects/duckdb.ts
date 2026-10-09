@@ -1,9 +1,11 @@
 import {
     GeoPoint, GeoShape, GeoShapeRelation,
-    SQLGeoPointColumn, SQLDialectName
+    SQLGeoPointColumn, SQLDialectName, xLuceneFieldType
 } from '@terascope/types';
 import { uniq } from '@terascope/core-utils';
-import { parens, quoteIdentifier, quoteNumber } from '../quoting.js';
+import {
+    parens, quoteIdentifier, quoteNumber, toEpochMillisText
+} from '../quoting.js';
 import { BaseSQLDialect, NOTHING_READABLE } from './base.js';
 
 /**
@@ -30,7 +32,7 @@ const RELATION_FUNCTIONS: Readonly<Record<GeoShapeRelation, string>> = Object.fr
  * | `geo-point`, `geo` | `STRUCT(lat DOUBLE, lon DOUBLE)` |
  * | `geo-json` | `GEOMETRY` |
  * | `ip`, `ip_range` | `VARCHAR` |
- * | `date` | `TIMESTAMP` |
+ * | `date` | `STRUCT(ms BIGINT, tz_offset SMALLINT)` - compared on `ms` |
  *
  * **Two extensions are needed and NEITHER is statically linked.** `inet` autoloads on first
  * use, so an IP query works on its own; `spatial` does NOT, and a geo query without it fails
@@ -58,6 +60,32 @@ export class DuckDBDialect extends BaseSQLDialect {
 
     toText(fieldExpr: string): string {
         return `CAST(${fieldExpr} AS VARCHAR)`;
+    }
+
+    /**
+     * A date is `{ ms, tz_offset }` - epoch millis plus an optional display offset, as data-mate's
+     * `DateTuple` - so it is compared on the instant, `ms`, against epoch millis. A plain integer
+     * comparison, which Parquet min/max statistics can prune on.
+    */
+    equals(fieldExpr: string, value: unknown, fieldType?: xLuceneFieldType): string {
+        if (fieldType === xLuceneFieldType.Date) {
+            return parens(`${fieldExpr}.ms = ${toEpochMillisText(value)}`);
+        }
+        return super.equals(fieldExpr, value, fieldType);
+    }
+
+    compare(
+        fieldExpr: string,
+        operator: 'gt' | 'gte' | 'lt' | 'lte',
+        value: unknown,
+        fieldType?: xLuceneFieldType
+    ): string {
+        if (fieldType === xLuceneFieldType.Date) {
+            return super.compare(
+                `${fieldExpr}.ms`, operator, Number(toEpochMillisText(value)), xLuceneFieldType.Integer
+            );
+        }
+        return super.compare(fieldExpr, operator, value, fieldType);
     }
 
     /**

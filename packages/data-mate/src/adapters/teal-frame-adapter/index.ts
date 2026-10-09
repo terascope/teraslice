@@ -11,6 +11,7 @@ import { quoteIdentifier } from '@terascope/sql-builder';
 import { ScalarFunctionImpl } from '../../teal-frame/scalar-function.js';
 import { registerScalarFunction, makeBigIntInputNormaliser } from '../../teal-frame/index.js';
 import { coerceToType } from '../../builder/type-coercion.js';
+import { instantSQL, localSQL, fromTimestampSQL } from '../../teal-frame/date-value.js';
 
 export interface TealFrameAdapterOptions<T extends Record<string, any>> {
     /** The column the function applies to. */
@@ -105,35 +106,27 @@ async function adaptTransform<T extends Record<string, any>>(
     const err = acceptsError(fnDef, inputConfig);
     if (err) throw err;
 
-    const declared = fnDef.output_type
+    const outputConfig = fnDef.output_type
         ? fnDef.output_type(inputConfig, args)
         : inputConfig;
 
     const column = quoteIdentifier(field);
 
     if (fnDef.process_mode === ProcessMode.NONE) {
-        return adaptTypeChange(fnDef, options, args, declared);
+        return adaptTypeChange(fnDef, options, args, outputConfig);
     }
 
-    // set ONLY by a function that returns a `DateTuple`; any other result is plain epoch millis,
-    // so a flag inherited from the input (no `output_type`) is cleared - see `date-offset.ts`
-    const resultOffset = fnDef.produces_date_offset === true && isDate(declared);
-    const outputConfig = withDateOffset(declared, resultOffset);
-
     const fullValues = fnDef.process_mode === ProcessMode.FULL_VALUES;
-    // an emission writes a TIMESTAMP, so one cannot produce an offset date either
-    const emission = resultOffset
-        ? undefined
-        : emissionFor(fnDef, inputConfig, options.preferSql, args);
+    const emission = emissionFor(fnDef, inputConfig, options.preferSql, args);
 
     // pure SQL: no UDF is registered at all, so the JS boundary - 178 ns per value, single
     // threaded - is not merely made cheaper, it is gone
     if (emission && !emission.needs_udf_fallback) {
         return {
             expression: applyToValues(
-                (value) => emission.expression(emissionContext(
-                    value, args, inputConfig, outputConfig, noUdf(fnDef.name)
-                )),
+                (value) => emitted(emission, value, {
+                    args, inputConfig, outputConfig, udf: noUdf(fnDef.name), transform: true,
+                }),
                 column,
                 inputConfig,
                 fullValues
@@ -152,10 +145,8 @@ async function adaptTransform<T extends Record<string, any>>(
         name: udfName(fnDef.name, field, inputConfig, args),
         parameter: udfParameter(inputConfig, fullValues),
         parameterChildren: inputConfig.child_config,
-        parameterDateOffset: carriesDateOffset(inputConfig),
         returns: resultConfig.field_config as DataTypeFieldConfig,
         returnsChildren: resultConfig.child_config,
-        returnsDateOffset: resultOffset,
         fn: coercingResult(impl, resultConfig),
         callWithNull: fullValues,
         database: options.database,
@@ -163,9 +154,9 @@ async function adaptTransform<T extends Record<string, any>>(
 
     const callUdf = (value: string) => `${functionName}(${value})`;
     const build = emission
-        ? (value: string) => emission.expression(emissionContext(
-            value, args, inputConfig, outputConfig, callUdf
-        ))
+        ? (value: string) => emitted(emission, value, {
+            args, inputConfig, outputConfig, udf: callUdf, transform: true,
+        })
         : callUdf;
 
     return {
@@ -192,15 +183,10 @@ async function adaptTypeChange<T extends Record<string, any>>(
     fnDef: FieldTransformConfig<T>,
     options: TealFrameAdapterOptions<T>,
     args: T,
-    declared: DataTypeFieldAndChildren
+    outputConfig: DataTypeFieldAndChildren
 ): Promise<TealFrameAdapterResult> {
     const { field, inputConfig } = options;
     const column = quoteIdentifier(field);
-    // coercing a `DateTuple` into a Date keeps it a tuple (`toEpochMSOrThrow`), so the offset
-    // survives a cast that stays a Date
-    const keepsOffset = carriesDateOffset(inputConfig) && isDate(declared);
-    const outputConfig = withDateOffset(declared, keepsOffset);
-
     if (typeShape(inputConfig) === typeShape(outputConfig)) {
         return { expression: column, outputConfig, dispatch: 'none' };
     }
@@ -210,10 +196,8 @@ async function adaptTypeChange<T extends Record<string, any>>(
         name: udfName(fnDef.name, field, inputConfig, args),
         parameter: inputConfig.field_config as DataTypeFieldConfig,
         parameterChildren: inputConfig.child_config,
-        parameterDateOffset: carriesDateOffset(inputConfig),
         returns: outputConfig.field_config as DataTypeFieldConfig,
         returnsChildren: outputConfig.child_config,
-        returnsDateOffset: keepsOffset,
         fn: (value) => coerce(value),
         database: options.database,
     });
@@ -294,9 +278,9 @@ async function adaptValidation<T extends Record<string, any>>(
     if (emission && !emission.needs_udf_fallback) {
         return {
             expression: nullUnlessValid(
-                (value) => emission.expression(emissionContext(
-                    value, args, inputConfig, inputConfig, noUdf(fnDef.name)
-                )),
+                (value) => emitted(emission, value, {
+                    args, inputConfig, outputConfig, udf: noUdf(fnDef.name), transform: false,
+                }),
                 column,
                 perElement(inputConfig, fullValues)
             ),
@@ -311,7 +295,6 @@ async function adaptValidation<T extends Record<string, any>>(
         name: udfName(fnDef.name, field, inputConfig, args),
         parameter: udfParameter(inputConfig, fullValues),
         parameterChildren: inputConfig.child_config,
-        parameterDateOffset: carriesDateOffset(inputConfig),
         returns: { type: FieldType.Boolean },
         fn: predicate,
         callWithNull: fullValues,
@@ -320,9 +303,9 @@ async function adaptValidation<T extends Record<string, any>>(
 
     const callUdf = (value: string) => `${functionName}(${value})`;
     const build = emission
-        ? (value: string) => emission.expression(emissionContext(
-            value, args, inputConfig, inputConfig, callUdf
-        ))
+        ? (value: string) => emitted(emission, value, {
+            args, inputConfig, outputConfig, udf: callUdf, transform: false,
+        })
         : callUdf;
 
     return {
@@ -401,9 +384,6 @@ function emissionFor<T extends Record<string, any>>(
     args: T
 ): SqlEmission<T> | undefined {
     if (preferSql === false || !fnDef.sql) return undefined;
-    // every emission reads a TIMESTAMP; an offset date is a STRUCT, and its offset changes the
-    // answer (`getHours` is LOCAL hours), so the UDF - handed the real `DateTuple` - runs instead
-    if (carriesDateOffset(inputConfig)) return undefined;
 
     const { types, applies } = fnDef.sql;
     if (types?.length && typesError(types, inputConfig)) return undefined;
@@ -413,16 +393,47 @@ function emissionFor<T extends Record<string, any>>(
     return fnDef.sql;
 }
 
-function emissionContext<T extends Record<string, any>>(
-    value: string,
-    args: T,
-    inputConfig: DataTypeFieldAndChildren,
-    outputConfig: DataTypeFieldAndChildren,
-    udf: (value: string) => string
-) {
-    return {
-        value, args, inputConfig, outputConfig, udf
-    };
+interface EmittedOptions<T extends Record<string, any>> {
+    args: T;
+    inputConfig: DataTypeFieldAndChildren;
+    outputConfig: DataTypeFieldAndChildren;
+    udf: (value: string) => string;
+    /** A transform's result is the new value; a validation's is a predicate. */
+    transform: boolean;
+}
+
+/**
+ * One value through an emission.
+ *
+ * **A `Date` is `{ ms, tz_offset }`** (`date-value.ts`), and every date emission is written over a
+ * TIMESTAMP. So the emission is handed the LOCAL wall time as `value` - the instant shifted by the
+ * row's offset, or the instant itself when there is none, which is what `DataFrame`'s date
+ * functions read from a `DateTuple` - and the bare instant as `instant`, for a function that
+ * ignores the offset. A per-row "is this a tuple?" check costs one `coalesce`, and no step has to
+ * know whether an earlier one attached an offset. A transform's TIMESTAMP result goes back into a
+ * date value with NO offset, as `DataFrame` returns plain millis from those functions too.
+ *
+ * The emission's `udf` is called with the RAW value: the UDF takes the date value, not the
+ * TIMESTAMP the emission works over.
+*/
+function emitted<T extends Record<string, any>>(
+    emission: SqlEmission<T>,
+    raw: string,
+    options: EmittedOptions<T>
+): string {
+    const {
+        args, inputConfig, outputConfig, udf, transform,
+    } = options;
+    const date = isDate(inputConfig);
+    const result = emission.expression({
+        value: date ? localSQL(raw) : raw,
+        instant: date ? instantSQL(raw) : undefined,
+        args,
+        inputConfig,
+        outputConfig,
+        udf: date ? () => udf(raw) : udf,
+    });
+    return transform && isDate(outputConfig) ? fromTimestampSQL(result) : result;
 }
 
 /**
@@ -475,20 +486,6 @@ function typesError(
 
 function isDate(config: DataTypeFieldAndChildren): boolean {
     return config.field_config.type === FieldType.Date;
-}
-
-/** Whether the column is an offset date - `STRUCT(ts, tz_offset)`; see `date-offset.ts`. */
-function carriesDateOffset(config: DataTypeFieldAndChildren): boolean {
-    return config.date_offset === true && isDate(config);
-}
-
-/** The config with `date_offset` set or removed; a new object, never mutated. */
-function withDateOffset(
-    config: DataTypeFieldAndChildren,
-    dateOffset: boolean
-): DataTypeFieldAndChildren {
-    const { date_offset: _previous, ...rest } = config;
-    return dateOffset ? { ...rest, date_offset: true } : rest;
 }
 
 /** The field config without `array`. */
@@ -569,7 +566,7 @@ function udfName(
 ): string {
     const argPart = Object.keys(args).length ? JSON.stringify(args) : '';
     const typePart = JSON.stringify([
-        inputConfig.field_config, inputConfig.child_config ?? null, carriesDateOffset(inputConfig),
+        inputConfig.field_config, inputConfig.child_config ?? null,
     ]);
     return `dm_${name}_${hash(`${name}|${field}|${typePart}|${argPart}`)}`.toLowerCase();
 }

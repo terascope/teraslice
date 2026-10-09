@@ -1,5 +1,5 @@
 import 'jest-extended';
-import { timestampValue } from '@duckdb/node-api';
+import { timestampValue, structValue } from '@duckdb/node-api';
 import { FieldType, DataTypeConfig } from '@terascope/types';
 import {
     TealFrame, closeDuckDatabase, registerScalarFunction
@@ -13,6 +13,10 @@ const repo = functionConfigRepository as Record<string, FunctionDefinitionConfig
 
 /**
  * **What a date UDF receives, and why it cannot be a `DuckDBTimestampValue`.**
+ *
+ * A date is now stored as `{ ms, tz_offset }` (`date-value.ts`), so a UDF receives epoch millis
+ * or a `[ms, offset]` DateTuple - exactly what `DateVector` holds - and nothing is ever parsed.
+ * The history below is why that matters; the old-defect test keeps the identity it obeyed.
  *
  * `createScalarFunction` used to hand DuckDB's value straight to the JS function. A `Date` column
  * arrives as a `DuckDBTimestampValue`, whose `toString()` is `'2026-08-14 01:02:03.456'` -
@@ -32,18 +36,27 @@ const repo = functionConfigRepository as Record<string, FunctionDefinitionConfig
 const MILLIS = 1786669323456;
 const MICROS = BigInt(MILLIS) * 1000n;
 
+/** A stored date, as DuckDB hands it to a UDF. */
+function storedDate(offset: number | null = null) {
+    return structValue({ ms: BigInt(MILLIS), tz_offset: offset });
+}
+
 describe('date values crossing the UDF boundary', () => {
     describe('makeInputConverter', () => {
-        it('should convert a DuckDB TIMESTAMP to exact epoch millis', () => {
+        it('should convert a stored date to exact epoch millis', () => {
             const convert = makeInputConverter(FieldType.Date);
 
-            expect(convert(timestampValue(MICROS))).toBe(MILLIS);
+            expect(convert(storedDate())).toBe(MILLIS);
         });
 
         it('should return a plain number, which is what DateVector holds', () => {
-            const converted = makeInputConverter(FieldType.Date)(timestampValue(MICROS));
+            const converted = makeInputConverter(FieldType.Date)(storedDate());
 
             expect(typeof converted).toBe('number');
+        });
+
+        it('should return a DateTuple when the date carries an offset', () => {
+            expect(makeInputConverter(FieldType.Date)(storedDate(120))).toEqual([MILLIS, 120]);
         });
 
         it('should describe the old defect exactly, for any host timezone', () => {
@@ -59,7 +72,7 @@ describe('date values crossing the UDF boundary', () => {
             expect(new Date(String(value)).getTime()).toBe(MILLIS - (offsetMinutes * 60_000));
 
             // the converter never goes near a string
-            expect(makeInputConverter(FieldType.Date)(value)).toBe(MILLIS);
+            expect(makeInputConverter(FieldType.Date)(storedDate())).toBe(MILLIS);
         });
 
         it('should pass every other type through untouched', () => {

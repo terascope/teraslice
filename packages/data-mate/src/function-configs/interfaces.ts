@@ -223,8 +223,19 @@ export interface SqlEmission<T extends Record<string, any>> {
 }
 
 export interface SqlEmissionContext<T extends Record<string, any>> {
-    /** SQL for ONE already-typed value: the quoted column, or a lambda variable. */
+    /**
+     * SQL for ONE already-typed value: the quoted column, or a lambda variable.
+     *
+     * **For a `Date` it is a TIMESTAMP of the LOCAL wall time** - the instant shifted by the row's
+     * offset, or the instant when there is none - which is what `DataFrame`'s date functions read
+     * from a `DateTuple`. A date is stored as `{ ms, tz_offset }`; see `teal-frame/date-value.ts`.
+    */
     readonly value: string;
+    /**
+     * For a `Date` only: a TIMESTAMP of the INSTANT, ignoring any offset - for a function that
+     * reads UTC (`getUTCHours`) or compares instants.
+    */
+    readonly instant?: string;
     readonly args: T;
     readonly inputConfig: DataTypeFieldAndChildren;
     readonly outputConfig: DataTypeFieldAndChildren;
@@ -289,13 +300,6 @@ export interface FieldTransformConfig<
         args: T
     ) => DataTypeFieldAndChildren;
     readonly create: (config: FunctionContext<T>) => (value: unknown, index: number) => unknown;
-    /**
-     * Set when the function returns a `DateTuple` - `[epochMillis, offsetMinutes]` - rather than
-     * plain epoch millis: `setTimezone`, `toTimeZone`, `toTimeZoneUsingLocation`. `DataFrame` keeps
-     * the offset in the vector; TealFrame has to know in advance, because the column it writes is
-     * then `STRUCT(ts, tz_offset)` instead of a TIMESTAMP. See `teal-frame/date-offset.ts`.
-    */
-    readonly produces_date_offset?: boolean;
 }
 
 export interface FieldMetaTransform<
@@ -341,13 +345,6 @@ export interface OutputType<T> {
 export interface DataTypeFieldAndChildren {
     readonly field_config: Readonly<DataTypeFieldConfig>;
     readonly child_config?: ReadonlyDataTypeFields;
-    /**
-     * TealFrame only: the `Date` column's values carry a display offset, so it is stored as
-     * `STRUCT(ts, tz_offset)` - see `teal-frame/date-offset.ts`. `tealFrameAdapter` sets it on the
-     * config it returns, and the caller passes that config on as the next step's input, as it
-     * already does. `DataFrame` needs no flag: its vector holds the `DateTuple` itself.
-    */
-    readonly date_offset?: boolean;
 }
 
 // TODO: verify this type

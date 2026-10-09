@@ -41,7 +41,7 @@ describe('DataType -> DuckDB', () => {
             [FieldType.Hostname, 'VARCHAR'],
             [FieldType.IP, 'VARCHAR'],
             [FieldType.IPRange, 'VARCHAR'],
-            [FieldType.Date, 'TIMESTAMP'],
+            [FieldType.Date, 'STRUCT(ms BIGINT, tz_offset SMALLINT)'],
             [FieldType.Binary, 'VARCHAR'],
             [FieldType.GeoPoint, 'STRUCT(lat DOUBLE, lon DOUBLE)'],
             [FieldType.Geo, 'STRUCT(lat DOUBLE, lon DOUBLE)'],

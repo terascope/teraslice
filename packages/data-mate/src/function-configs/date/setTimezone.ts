@@ -16,7 +16,6 @@ export const setTimezoneConfig: FieldTransformConfig<SetTimezoneArgs> = {
     name: 'setTimezone',
     type: FunctionDefinitionType.FIELD_TRANSFORM,
     process_mode: ProcessMode.INDIVIDUAL_VALUES,
-    produces_date_offset: true,
     category: FunctionDefinitionCategory.DATE,
     description: 'Returns the input date with the timezone set to the args value.',
     examples: [

@@ -81,7 +81,8 @@ export const getUTCDateConfig: FieldTransformConfig = {
     */
     sql: {
         types: [FieldType.Date],
-        expression: ({ value }) => `date_part('day', ${value})`,
+        // the INSTANT: core-utils' `getUTCDate` ignores a DateTuple's offset
+        expression: ({ value, instant }) => `date_part('day', ${instant ?? value})`,
     },
     accepts: [
         FieldType.Date,

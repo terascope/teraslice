@@ -43,7 +43,7 @@ describe('schema-check', () => {
             expect(await describeColumns(frame)).toEqual({
                 name: 'VARCHAR',
                 bytes: 'BIGINT',
-                created: 'TIMESTAMP',
+                created: 'STRUCT(ms BIGINT, tz_offset SMALLINT)',
                 loc: 'STRUCT(lat DOUBLE, lon DOUBLE)',
                 tags: 'VARCHAR[]',
             });

@@ -1,6 +1,6 @@
 import {
-    DuckDBType, DuckDBTimestampValue, DuckDBGeometryValue, DuckDBVarCharType,
-    BOOLEAN, TINYINT, SMALLINT, BIGINT, HUGEINT, DOUBLE, VARCHAR, TIMESTAMP, GEOMETRY,
+    DuckDBType, DuckDBGeometryValue, DuckDBVarCharType,
+    BOOLEAN, TINYINT, SMALLINT, BIGINT, HUGEINT, DOUBLE, VARCHAR, GEOMETRY,
     LIST, STRUCT,
 } from '@duckdb/node-api';
 import {
@@ -10,7 +10,7 @@ import { getChildDataTypeConfig } from '../core/utils.js';
 import { wkbToGeoShape } from './wkb.js';
 import { parseJSONText } from './plain-values.js';
 import { isJSONColumn } from './row-shape.js';
-import { DATE_OFFSET_TYPE, fromDateOffsetValue } from './date-offset.js';
+import { DATE_TYPE, fromDateValue } from './date-value.js';
 
 /**
  * The DuckDB type OBJECTS a scalar function is registered with, and the conversion of what DuckDB
@@ -66,7 +66,7 @@ const SCALAR_TYPES: Readonly<Record<string, DuckDBType | undefined>> = {
     [FieldType.IP]: VARCHAR,
     [FieldType.IPRange]: VARCHAR,
     [FieldType.Binary]: VARCHAR,
-    [FieldType.Date]: TIMESTAMP,
+    [FieldType.Date]: DATE_TYPE,
     [FieldType.GeoPoint]: GEO_POINT_TYPE,
     [FieldType.Geo]: GEO_POINT_TYPE,
     [FieldType.Boundary]: LIST(GEO_POINT_TYPE),
@@ -81,11 +81,6 @@ export interface UdfTypeOptions {
      * a stored column, which is a BIGINT.
     */
     wide?: boolean;
-    /**
-     * The `Date` carries a display offset, so it is `STRUCT(ts, tz_offset)` rather than a
-     * TIMESTAMP - see `date-offset.ts`. Applies to the field and its array elements.
-    */
-    dateOffset?: boolean;
 }
 
 /** The members of an Object or Tuple, by name; dotted descendants are folded into their parent. */
@@ -120,7 +115,6 @@ export function udfTypeFor(
     }
 
     if (options.wide && (type === FieldType.Long || type === FieldType.Integer)) return HUGEINT;
-    if (options.dateOffset && type === FieldType.Date) return DATE_OFFSET_TYPE;
 
     const mapped = SCALAR_TYPES[type];
     if (mapped == null) {
@@ -186,11 +180,10 @@ function structConverter(
  * The INVERSE of `makeValueConverter`: what DuckDB hands a scalar function, turned into the value
  * `DataFrame` would have handed the same function.
  *
- * **`Date` is why this exists.** A TIMESTAMP arrives as a `DuckDBTimestampValue` whose `toString()`
- * is zone-less, and the date primitives coerce an object by stringifying it - so every date UDF's
- * input drifted by the host's UTC offset (13 of 16 date functions diverged under New York). Epoch
- * millis as a plain `number` is what `DateVector` itself holds for an offset-0 date, and costs no
- * format-then-parse per row.
+ * **`Date` is why this exists.** When a date was a TIMESTAMP it arrived as a `DuckDBTimestampValue`
+ * whose zone-less `toString()` the date primitives re-parsed as machine-local, drifting 13 of 16
+ * date functions by the host's UTC offset. A date is now `{ ms, tz_offset }`, handed over as what
+ * `DateVector` holds - epoch millis, or the `[ms, offset]` tuple - with no parse at all.
  *
  * The rest are the encodings `udfTypeFor` chose, undone: a LIST is a JS array, a STRUCT the object
  * (or, for a Tuple, the array) it was built from, a GEOMETRY the GeoShape its WKB encodes, and a
@@ -201,8 +194,7 @@ function structConverter(
 */
 export function makeInputConverter(
     field: FieldTypeLike | DataTypeFieldConfig,
-    childConfig?: Children,
-    options: Pick<UdfTypeOptions, 'dateOffset'> = {}
+    childConfig?: Children
 ): InputConverter {
     const fieldConfig: DataTypeFieldConfig = typeof field === 'string'
         ? { type: field as FieldType }
@@ -210,7 +202,7 @@ export function makeInputConverter(
     const type = fieldConfig.type as FieldTypeLike;
 
     if (fieldConfig.array) {
-        const element = makeInputConverter({ ...fieldConfig, array: false }, childConfig, options);
+        const element = makeInputConverter({ ...fieldConfig, array: false }, childConfig);
         return (value) => {
             const items = listItems(value);
             if (items == null) return value;
@@ -218,14 +210,8 @@ export function makeInputConverter(
         };
     }
 
-    // the `DateTuple` itself, so the date primitives read the offset as they do in `DataFrame`
-    if (type === FieldType.Date && options.dateOffset) return fromDateOffsetValue;
-
-    if (type === FieldType.Date) {
-        return (value) => (value instanceof DuckDBTimestampValue
-            ? Number(value.micros / 1000n)
-            : value);
-    }
+    // epoch millis, or the `DateTuple` - exactly the value `DataFrame` hands the same function
+    if (type === FieldType.Date) return fromDateValue;
 
     if (type === FieldType.GeoJSON) {
         return (value) => (value instanceof DuckDBGeometryValue

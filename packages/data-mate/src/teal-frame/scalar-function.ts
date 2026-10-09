@@ -21,8 +21,6 @@ export interface ScalarFunctionSpec {
     parameter: FieldType | DataTypeFieldConfig;
     /** Children of the parameter, for an Object/Tuple parameter. */
     parameterChildren?: DataTypeFields | ReadonlyDataTypeFields;
-    /** The `Date` parameter carries a display offset - see `date-offset.ts`. */
-    parameterDateOffset?: boolean;
     /**
      * The result's FIELD CONFIG, not just its type.
      *
@@ -34,8 +32,6 @@ export interface ScalarFunctionSpec {
     returns: DataTypeFieldConfig;
     /** Children of the result type, for Object/Tuple results. */
     returnsChildren?: DataTypeFields | ReadonlyDataTypeFields;
-    /** The `Date` result carries a display offset - see `date-offset.ts`. */
-    returnsDateOffset?: boolean;
     /**
      * The implementation, called once per row.
      *
@@ -65,9 +61,7 @@ export interface ScalarFunctionSpec {
 export function createScalarFunction(spec: ScalarFunctionSpec): DuckDBScalarFunction {
     const callWithNull = spec.callWithNull ?? false;
     // a result is COMPUTED, so it may be wider than a stored Long - see `wideIntegers`
-    const convert = makeValueConverter(spec.returns, spec.returnsChildren, {
-        wideIntegers: true, dateOffset: spec.returnsDateOffset,
-    });
+    const convert = makeValueConverter(spec.returns, spec.returnsChildren, { wideIntegers: true });
     const parameter: DataTypeFieldConfig = typeof spec.parameter === 'string'
         ? { type: spec.parameter }
         : spec.parameter;
@@ -77,18 +71,12 @@ export function createScalarFunction(spec: ScalarFunctionSpec): DuckDBScalarFunc
      * re-parsed as machine-local, drifting every date function by the host's UTC offset. See
      * `makeInputConverter`.
     */
-    const toInput = makeInputConverter(parameter, spec.parameterChildren, {
-        dateOffset: spec.parameterDateOffset,
-    });
+    const toInput = makeInputConverter(parameter, spec.parameterChildren);
 
     return DuckDBScalarFunction.create({
         name: spec.name,
-        parameterTypes: [udfTypeFor(parameter, spec.parameterChildren, {
-            dateOffset: spec.parameterDateOffset,
-        })],
-        returnType: udfTypeFor(spec.returns, spec.returnsChildren, {
-            wide: true, dateOffset: spec.returnsDateOffset,
-        }),
+        parameterTypes: [udfTypeFor(parameter, spec.parameterChildren)],
+        returnType: udfTypeFor(spec.returns, spec.returnsChildren, { wide: true }),
         mainFunction: (_info, chunk, output) => {
             const values = chunk.getColumnValues(0) as unknown[];
 

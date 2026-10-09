@@ -71,7 +71,8 @@ export const getUTCMinutesConfig: FieldTransformConfig = {
     */
     sql: {
         types: [FieldType.Date],
-        expression: ({ value }) => `date_part('minute', ${value})`,
+        // the INSTANT: core-utils' `getUTCMinutes` ignores a DateTuple's offset
+        expression: ({ value, instant }) => `date_part('minute', ${instant ?? value})`,
     },
     accepts: [
         FieldType.Date,

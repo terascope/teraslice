@@ -83,7 +83,8 @@ export const getUTCMonthConfig: FieldTransformConfig = {
     */
     sql: {
         types: [FieldType.Date],
-        expression: ({ value }) => `date_part('month', ${value})`,
+        // the INSTANT: core-utils' `getUTCMonth` ignores a DateTuple's offset
+        expression: ({ value, instant }) => `date_part('month', ${instant ?? value})`,
     },
     accepts: [
         FieldType.Date,

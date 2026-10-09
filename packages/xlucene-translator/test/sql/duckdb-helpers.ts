@@ -128,6 +128,10 @@ function quoteIdentifier(name: string): string {
 */
 function columnValue(type: string, value: unknown): string {
     if (value != null && type === 'GEOMETRY') return `ST_GeomFromGeoJSON(${toSQLValue(value)})`;
+    // a date is `{ ms, tz_offset }` - epoch millis and no display offset
+    if (value != null && type.startsWith('STRUCT(ms BIGINT')) {
+        return `{'ms': ${new Date(value as string).getTime()}, 'tz_offset': NULL::SMALLINT}`;
+    }
     return toSQLValue(value);
 }
 
@@ -170,6 +174,10 @@ function toJSValue(value: unknown): unknown {
     const duck = value as { entries?: Record<string, unknown>; micros?: bigint };
 
     if (duck.micros != null) return new Date(Number(duck.micros / 1000n)).toISOString();
+    // a date, `{ ms, tz_offset }`, as the ISO string Elasticsearch returns
+    if (duck.entries != null && 'tz_offset' in duck.entries && 'ms' in duck.entries) {
+        return new Date(Number(duck.entries.ms)).toISOString();
+    }
 
     // a STRUCT keeps its members under `entries`; a row is already a plain object, and both
     // need every member converted, so the only difference is where the members are
