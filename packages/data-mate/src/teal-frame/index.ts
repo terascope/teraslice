@@ -12,6 +12,7 @@ export * from './database.js';
 export * from './TealFrame.js';
 export * from './duck-values.js';
 export * from './errors.js';
+export * from './expand-values.js';
 export * from './export-json.js';
 export * from './extension-tools.js';
 export * from './extensions.js';

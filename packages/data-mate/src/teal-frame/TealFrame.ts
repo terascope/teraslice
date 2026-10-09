@@ -16,6 +16,7 @@ import {
     resolveRules
 } from './export-json.js';
 import { makeRowShapers } from './row-shape.js';
+import { expandValuesSQL, ExpandValuesOptions } from './expand-values.js';
 import { int64Column } from './parquet-columns.js';
 import { distinctLines, parseLines, writeLines } from './line-stream.js';
 import {
@@ -873,6 +874,19 @@ export class TealFrame {
             if (element != null) yield JSON.parse(element);
             else if (!skipNil) yield nilValue;
         }
+    }
+
+    /**
+     * `@expandValues`: one row per array element - see `expand-values.ts` for both modes. Keeps the
+     * rows' order, and a row with nothing to expand. The expanded fields become `array: false`.
+    */
+    expandValues(fields: readonly string[], options: ExpandValuesOptions): TealFrame {
+        const { sql, config } = expandValuesSQL(
+            this.from, this.columns, this.config, fields, options
+        );
+        return new TealFrame(
+            this.ctx, config, { kind: 'relation', sql, ordered: this.isOrdered }, this.columns
+        );
     }
 
     /**
