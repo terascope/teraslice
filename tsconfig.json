@@ -70,13 +70,13 @@
             "path": "packages/xlucene-parser"
         },
         {
-            "path": "packages/data-mate"
-        },
-        {
             "path": "packages/opensearch-client"
         },
         {
             "path": "packages/xlucene-translator"
+        },
+        {
+            "path": "packages/data-mate"
         },
          {
             "path": "packages/elasticsearch-api"
