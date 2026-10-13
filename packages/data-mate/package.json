@@ -14,12 +14,12 @@
     "type": "module",
     "main": "dist/src/index.js",
     "typings": "dist/src/index.d.ts",
+    "bin": {
+        "duckdb-extensions": "./bin/duckdb-extensions.js"
+    },
     "directories": {
         "lib": "dist/src",
         "test": "test"
-    },
-    "bin": {
-        "duckdb-extensions": "./bin/duckdb-extensions.js"
     },
     "files": [
         "dist/src/**/*",
