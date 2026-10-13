@@ -87,6 +87,7 @@ export {
 
 export * from './adapters/index.js';
 export * from './function-configs/index.js';
+export * from './teal-frame/index.js';
 
 export { makeRandomDataSet } from './random-DT-data-generator/make-dt-data-set.js';
 export { makeRandomDataFunctionForField } from './random-DT-data-generator/make-dt-field-fn.js';

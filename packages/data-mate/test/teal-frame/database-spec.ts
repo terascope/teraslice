@@ -5,9 +5,7 @@ import {
     existsSync, rmSync, mkdtempSync, readdirSync
 } from 'node:fs';
 import { FieldType, DataTypeConfig } from '@terascope/types';
-import {
-    TealFrame, configureDuckDatabase, closeDuckDatabase
-} from '../../src/teal-frame/index.js';
+import { TealFrame, configureDuckDatabase, closeDuckDatabase } from '../../src/index.js';
 
 const CONFIG: DataTypeConfig = {
     version: 1,

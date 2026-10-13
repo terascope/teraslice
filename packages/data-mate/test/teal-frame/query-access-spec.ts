@@ -2,7 +2,7 @@ import 'jest-extended';
 import { DataTypeConfig, FieldType } from '@terascope/types';
 import { DataType, LATEST_VERSION } from '@terascope/data-types';
 import { QueryAccess } from 'xlucene-translator';
-import { TealFrame, closeDuckDatabase } from '../../src/teal-frame/index.js';
+import { TealFrame, closeDuckDatabase } from '../../src/index.js';
 
 /**
  * **A `QueryAccess` statement, RUN on a frame.**

@@ -1,9 +1,8 @@
 import 'jest-extended';
 import { FieldType, DataTypeConfig, TypedArray } from '@terascope/types';
 import {
-    Builder, Column, DataFrame, getPointerArray, WritableData
+    Builder, Column, DataFrame, getPointerArray, WritableData, TealFrame, closeDuckDatabase
 } from '../../src/index.js';
-import { TealFrame, closeDuckDatabase } from '../../src/teal-frame/index.js';
 
 /**
  * `TealFrame.expandValues` against the QPL engine's own implementation.

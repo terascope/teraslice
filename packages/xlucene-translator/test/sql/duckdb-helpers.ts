@@ -1,7 +1,7 @@
 import { DuckDBConnection, DuckDBInstance } from '@duckdb/node-api';
 import { DataType } from '@terascope/data-types';
 import { SQLSort } from '@terascope/types';
-import { getSQLDialect } from '../../src/translator/sql/index.js';
+import { getSQLDialect } from '../../src/index.js';
 
 /**
  * A real DuckDB database for the SQL translation tests.

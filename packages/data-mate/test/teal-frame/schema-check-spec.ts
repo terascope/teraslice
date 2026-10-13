@@ -1,7 +1,6 @@
 import 'jest-extended';
 import { FieldType, DataTypeConfig } from '@terascope/types';
-import { TealFrame, closeDuckDatabase } from '../../src/teal-frame/index.js';
-import { describeColumns, diffSchema } from '../../src/teal-frame/index.js';
+import { TealFrame, closeDuckDatabase, describeColumns, diffSchema } from '../../src/index.js';
 
 const CONFIG: DataTypeConfig = {
     version: 1,

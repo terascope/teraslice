@@ -1,7 +1,9 @@
 import 'jest-extended';
+import { mkdtempSync, readFileSync, rmSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
 import { FieldType, DataTypeConfig } from '@terascope/types';
-import { DataFrame, SerializeOptions } from '../../src/index.js';
-import { TealFrame } from '../../src/teal-frame/index.js';
+import { DataFrame, SerializeOptions, TealFrame } from '../../src/index.js';
 
 /**
  * TealFrame's JSON output follows `DataFrame`'s `SerializeOptions` - ALL seven of them, in every
@@ -197,9 +199,6 @@ describe('TealFrame JSON output follows DataFrame SerializeOptions', () => {
     });
 
     it('should write the same bytes from writeNDJSON as ndjson() yields', async () => {
-        const { mkdtempSync, readFileSync, rmSync } = await import('node:fs');
-        const { join } = await import('node:path');
-        const { tmpdir } = await import('node:os');
         const dir = mkdtempSync(join(tmpdir(), 'serialize-options-'));
         try {
             for (const options of COMBINATIONS) {

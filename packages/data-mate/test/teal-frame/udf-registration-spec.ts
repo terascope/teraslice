@@ -1,11 +1,9 @@
 import 'jest-extended';
 import { FieldType, DataTypeConfig } from '@terascope/types';
 import {
-    TealFrame, closeDuckDatabase, registeredFunctionCount
-} from '../../src/teal-frame/index.js';
-import { tealFrameAdapter } from '../../src/adapters/teal-frame-adapter/index.js';
-import { functionConfigRepository } from '../../src/function-configs/index.js';
-import { FunctionDefinitionConfig, DataTypeFieldAndChildren } from '../../src/function-configs/interfaces.js';
+    TealFrame, closeDuckDatabase, registeredFunctionCount, tealFrameAdapter,
+    functionConfigRepository, FunctionDefinitionConfig, DataTypeFieldAndChildren
+} from '../../src/index.js';
 
 /**
  * **A UDF registration is permanent** - DuckDB cannot unregister a scalar function - so the number

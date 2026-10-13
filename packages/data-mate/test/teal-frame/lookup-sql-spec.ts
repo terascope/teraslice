@@ -1,11 +1,9 @@
 import 'jest-extended';
 import { FieldType, DataTypeConfig } from '@terascope/types';
-import { TealFrame, closeDuckDatabase } from '../../src/teal-frame/index.js';
-import { tealFrameAdapter } from '../../src/adapters/teal-frame-adapter/index.js';
-import { dataFrameAdapter } from '../../src/adapters/index.js';
-import { DataFrame } from '../../src/data-frame/index.js';
-import { functionConfigRepository } from '../../src/function-configs/index.js';
-import { FunctionDefinitionConfig } from '../../src/function-configs/interfaces.js';
+import {
+    TealFrame, closeDuckDatabase, tealFrameAdapter, dataFrameAdapter, DataFrame,
+    functionConfigRepository, FunctionDefinitionConfig
+} from '../../src/index.js';
 
 /**
  * `lookup`'s SQL emission against `DataFrame`, on every column kind it claims.

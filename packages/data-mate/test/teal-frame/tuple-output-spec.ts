@@ -1,7 +1,6 @@
 import 'jest-extended';
 import { FieldType, DataTypeConfig } from '@terascope/types';
-import { DataFrame } from '../../src/index.js';
-import { TealFrame } from '../../src/teal-frame/index.js';
+import { DataFrame, TealFrame } from '../../src/index.js';
 
 /**
  * A `Tuple` field is output as an ARRAY, as `DataFrame` outputs it.

@@ -1,8 +1,6 @@
 import 'jest-extended';
 import { FieldType, DataTypeConfig, DataTypeFields } from '@terascope/types';
-import { TealFrame, closeDuckDatabase } from '../../src/teal-frame/index.js';
-import { diffSchema } from '../../src/teal-frame/index.js';
-import { DataFrame } from '../../src/data-frame/index.js';
+import { TealFrame, closeDuckDatabase, diffSchema, DataFrame } from '../../src/index.js';
 
 /**
  * One sample value per FieldType, in the form the ES client would hand us.

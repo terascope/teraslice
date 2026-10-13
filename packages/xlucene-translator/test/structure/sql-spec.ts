@@ -3,15 +3,13 @@ import {
     SortOrder, SQLDialectName, xLuceneFieldType, xLuceneTypeConfig
 } from '@terascope/types';
 import { Parser } from 'xlucene-parser';
-import { Translator } from '../../src/index.js';
 import {
-    DuckDBDialect, getSQLDialect, getAvailableSQLDialects,
-    translateSQLQuery, buildSQLStatement
-} from '../../src/translator/sql/index.js';
+    Translator, DuckDBDialect, getSQLDialect, getAvailableSQLDialects, translateSQLQuery,
+    buildSQLStatement, getProjectablePaths
+} from '../../src/index.js';
 
 /** The dialect renders the sort now, so the tests ask it rather than a free function. */
 const duckdb = getSQLDialect();
-import { getProjectablePaths } from '../../src/query-access/source-fields.js';
 import allTestCases, { typeConfig } from './cases/sql/index.js';
 
 /**

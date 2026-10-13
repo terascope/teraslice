@@ -3,9 +3,9 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { rmSync, mkdtempSync } from 'node:fs';
 import { FieldType, DataTypeConfig } from '@terascope/types';
-import { DataFrame } from '../../src/index.js';
-import { TealFrame, CoercionFailureError } from '../../src/teal-frame/index.js';
-import { describeColumns, diffSchema } from '../../src/teal-frame/schema-check.js';
+import {
+    DataFrame, TealFrame, CoercionFailureError, describeColumns, diffSchema
+} from '../../src/index.js';
 
 /**
  * A `GeoJSON` field is stored as a DuckDB `GEOMETRY`, not as JSON text.

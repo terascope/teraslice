@@ -1,14 +1,13 @@
 import 'jest-extended';
+import { mkdtemp, rm } from 'node:fs/promises';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
 import { FieldType, DataTypeConfig } from '@terascope/types';
-import { TealFrame, closeDuckDatabase } from '../../src/teal-frame/index.js';
-import { tealFrameAdapter } from '../../src/adapters/teal-frame-adapter/index.js';
-import { dataFrameAdapter } from '../../src/adapters/index.js';
-import { DataFrame } from '../../src/data-frame/index.js';
-import { Column } from '../../src/column/index.js';
-import { functionConfigRepository } from '../../src/function-configs/index.js';
 import {
-    FunctionDefinitionConfig, FunctionDefinitionCategory, DataTypeFieldAndChildren
-} from '../../src/function-configs/interfaces.js';
+    TealFrame, closeDuckDatabase, tealFrameAdapter, dataFrameAdapter, DataFrame, Column,
+    functionConfigRepository, FunctionDefinitionConfig, FunctionDefinitionCategory,
+    DataTypeFieldAndChildren
+} from '../../src/index.js';
 
 /**
  * `setTimezone`, `toTimeZone` and `toTimeZoneUsingLocation` return a `DateTuple` -
@@ -196,9 +195,6 @@ describe('a DateTuple offset travels through TealFrame', () => {
      * reader renders it from the column TYPE - its config says `Date` either way.
     */
     it('survives writeParquet -> fromParquet with the offset intact', async () => {
-        const { mkdtemp, rm } = await import('node:fs/promises');
-        const { tmpdir } = await import('node:os');
-        const { join } = await import('node:path');
         const dir = await mkdtemp(join(tmpdir(), 'tz-offset-'));
         try {
             const steps: [string, Record<string, unknown>][] = [['setTimezone', { timezone: 330 }]];

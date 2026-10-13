@@ -1,4 +1,4 @@
-import { TranslatorOptions } from '../../../../src/translator/interfaces.js';
+import { TranslatorOptions } from '../../../../src/index.js';
 
 /**
  * One set of variables for every emission case that uses them.

@@ -4,7 +4,7 @@ import os from 'node:os';
 import path from 'node:path';
 import { FieldType, SortOrder } from '@terascope/types';
 import { DataType, LATEST_VERSION } from '@terascope/data-types';
-import { QueryAccess } from '../../src/query-access/index.js';
+import { QueryAccess } from '../../src/index.js';
 import { DuckTestDB } from './duckdb-helpers.js';
 
 /**

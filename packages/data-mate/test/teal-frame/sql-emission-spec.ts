@@ -1,12 +1,10 @@
 import 'jest-extended';
 import validator from 'validator';
 import { FieldType, DataTypeConfig } from '@terascope/types';
-import { TealFrame, closeDuckDatabase } from '../../src/teal-frame/index.js';
-import { tealFrameAdapter } from '../../src/adapters/teal-frame-adapter/index.js';
-import { functionConfigRepository } from '../../src/function-configs/index.js';
 import {
-    FunctionDefinitionConfig, isFieldTransform, isFieldValidation,
-} from '../../src/function-configs/interfaces.js';
+    TealFrame, closeDuckDatabase, tealFrameAdapter, functionConfigRepository,
+    FunctionDefinitionConfig, isFieldTransform, isFieldValidation
+} from '../../src/index.js';
 
 /**
  * **The promotion gate for `sql` emissions.**

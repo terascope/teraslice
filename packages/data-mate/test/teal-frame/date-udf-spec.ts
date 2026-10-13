@@ -2,12 +2,9 @@ import 'jest-extended';
 import { timestampValue, structValue } from '@duckdb/node-api';
 import { FieldType, DataTypeConfig } from '@terascope/types';
 import {
-    TealFrame, closeDuckDatabase, registerScalarFunction
-} from '../../src/teal-frame/index.js';
-import { makeInputConverter } from '../../src/teal-frame/index.js';
-import { tealFrameAdapter } from '../../src/adapters/teal-frame-adapter/index.js';
-import { functionConfigRepository } from '../../src/function-configs/index.js';
-import { FunctionDefinitionConfig } from '../../src/function-configs/interfaces.js';
+    TealFrame, closeDuckDatabase, registerScalarFunction, makeInputConverter, tealFrameAdapter,
+    functionConfigRepository, FunctionDefinitionConfig
+} from '../../src/index.js';
 
 const repo = functionConfigRepository as Record<string, FunctionDefinitionConfig<any>>;
 

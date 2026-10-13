@@ -1,7 +1,7 @@
 import { type Client, ElasticsearchTestHelpers, getClientMetadata } from '@terascope/opensearch-client';
 import type { ClientMetadata } from '@terascope/types';
 import type { DataType } from '@terascope/data-types';
-import type { QueryAccess } from '../../src/query-access/index.js';
+import type { QueryAccess } from '../../src/index.js';
 import { DuckTestDB } from '../sql/duckdb-helpers.js';
 
 const { makeClient, populateIndex, cleanupIndex } = ElasticsearchTestHelpers;

@@ -1,11 +1,9 @@
 import 'jest-extended';
 import { FieldType, DataTypeConfig, DataTypeFieldConfig } from '@terascope/types';
-import { TealFrame, closeDuckDatabase } from '../../src/teal-frame/index.js';
-import { tealFrameAdapter } from '../../src/adapters/teal-frame-adapter/index.js';
-import { dataFrameAdapter } from '../../src/adapters/index.js';
-import { DataFrame } from '../../src/data-frame/index.js';
-import { functionConfigRepository } from '../../src/function-configs/index.js';
-import { FunctionDefinitionConfig } from '../../src/function-configs/interfaces.js';
+import {
+    TealFrame, closeDuckDatabase, tealFrameAdapter, dataFrameAdapter, DataFrame,
+    functionConfigRepository, FunctionDefinitionConfig
+} from '../../src/index.js';
 
 /**
  * DF7 and DF4: the UDF layer could not bind a LIST, STRUCT, JSON or GEOMETRY parameter or a LIST

@@ -1,6 +1,6 @@
 import 'jest-extended';
 import { FieldType, DataTypeConfig } from '@terascope/types';
-import { TealFrame, closeDuckDatabase } from '../../src/teal-frame/index.js';
+import { TealFrame, closeDuckDatabase } from '../../src/index.js';
 
 /**
  * Arrays and objects are in here on purpose: these configs routinely carry them, and a dedup

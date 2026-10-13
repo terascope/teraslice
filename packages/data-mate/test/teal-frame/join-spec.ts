@@ -1,6 +1,6 @@
 import 'jest-extended';
 import { FieldType, DataTypeConfig } from '@terascope/types';
-import { TealFrame, closeDuckDatabase } from '../../src/teal-frame/index.js';
+import { TealFrame, closeDuckDatabase } from '../../src/index.js';
 
 const PARENT: DataTypeConfig = {
     version: 1,

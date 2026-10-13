@@ -1,4 +1,4 @@
-import { TranslatorOptions } from '../../../../src/translator/interfaces.js';
+import { TranslatorOptions } from '../../../../src/index.js';
 
 export type SQLTestCase = [
     // when given %s

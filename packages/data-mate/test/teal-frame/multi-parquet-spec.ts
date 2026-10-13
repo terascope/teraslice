@@ -5,7 +5,7 @@ import { unlinkSync, existsSync } from 'node:fs';
 import { FieldType, DataTypeConfig } from '@terascope/types';
 import {
     TealFrame, AppendError, CoercionFailureError, closeDuckDatabase
-} from '../../src/teal-frame/index.js';
+} from '../../src/index.js';
 
 /**
  * The worker's ingest path: qpl-search-api turns Elasticsearch records into a frame and sends

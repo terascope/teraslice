@@ -1,6 +1,6 @@
 import 'jest-extended';
 import { FieldType, DataTypeConfig } from '@terascope/types';
-import { DataType } from '../src/data-type.js';
+import { DataType } from '../src/index.js';
 
 /** The DuckDB type a single-field DataType produces. */
 function duckTypeOf(

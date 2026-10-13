@@ -1,9 +1,9 @@
 import 'jest-extended';
 import { FieldType, DataTypeConfig } from '@terascope/types';
-import { TealFrame, closeDuckDatabase } from '../../src/teal-frame/index.js';
-import { tealFrameAdapter } from '../../src/adapters/teal-frame-adapter/index.js';
-import { functionConfigRepository } from '../../src/function-configs/index.js';
-import { FunctionDefinitionConfig } from '../../src/function-configs/interfaces.js';
+import {
+    TealFrame, closeDuckDatabase, tealFrameAdapter, functionConfigRepository,
+    FunctionDefinitionConfig
+} from '../../src/index.js';
 
 const repo = functionConfigRepository as Record<string, FunctionDefinitionConfig<any>>;
 

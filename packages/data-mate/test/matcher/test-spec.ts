@@ -7,7 +7,7 @@ import {
     GeoShapeMultiPolygon,
     GeoShapeRelation,
 } from '@terascope/types';
-import { VariableState, toXluceneQuery, CreateJoinQueryOptions } from '../../src/transforms/helpers.js';
+import { VariableState, toXluceneQuery, CreateJoinQueryOptions } from '../../src/index.js';
 
 describe('Utils', () => {
     describe('VariableState', () => {

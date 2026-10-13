@@ -3,8 +3,7 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { readFileSync, existsSync, unlinkSync } from 'node:fs';
 import { FieldType, DataTypeConfig } from '@terascope/types';
-import { TealFrame, closeDuckDatabase } from '../../src/teal-frame/index.js';
-import { DataFrame } from '../../src/data-frame/index.js';
+import { TealFrame, closeDuckDatabase, DataFrame } from '../../src/index.js';
 
 /**
  * **The export must match `DataFrame` byte for byte.** The output format is a public contract,

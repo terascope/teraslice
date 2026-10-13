@@ -3,7 +3,7 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { unlinkSync, existsSync } from 'node:fs';
 import { FieldType, DataTypeConfig } from '@terascope/types';
-import { TealFrame, CoercionFailureError, closeDuckDatabase } from '../../src/teal-frame/index.js';
+import { TealFrame, CoercionFailureError, closeDuckDatabase } from '../../src/index.js';
 
 const CONFIG: DataTypeConfig = {
     version: 1,

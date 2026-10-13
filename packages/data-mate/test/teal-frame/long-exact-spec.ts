@@ -3,8 +3,7 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { rmSync, mkdtempSync } from 'node:fs';
 import { FieldType, DataTypeConfig } from '@terascope/types';
-import { TealFrame, CoercionFailureError } from '../../src/teal-frame/index.js';
-import { describeColumns } from '../../src/teal-frame/schema-check.js';
+import { TealFrame, CoercionFailureError, describeColumns } from '../../src/index.js';
 
 /**
  * A `Long` must arrive, be stored, be read back and cross the Parquet wire EXACTLY.

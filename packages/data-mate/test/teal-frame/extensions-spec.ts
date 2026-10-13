@@ -5,9 +5,9 @@ import { mkdtempSync, rmSync } from 'node:fs';
 import { FieldType, DataTypeConfig } from '@terascope/types';
 import {
     TealFrame, DuckExtensionError, configureDuckDatabase, closeDuckDatabase,
-    extensionSettingsFromEnv, verifyExtensions, REQUIRED_EXTENSIONS,
-    EXTENSION_DIRECTORY_ENV, AUTOINSTALL_EXTENSIONS_ENV
-} from '../../src/teal-frame/index.js';
+    extensionSettingsFromEnv, verifyExtensions, REQUIRED_EXTENSIONS, EXTENSION_DIRECTORY_ENV,
+    AUTOINSTALL_EXTENSIONS_ENV
+} from '../../src/index.js';
 
 const CONFIG: DataTypeConfig = {
     version: 1,

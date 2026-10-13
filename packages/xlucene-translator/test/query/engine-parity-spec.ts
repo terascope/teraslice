@@ -1,5 +1,5 @@
 import 'jest-extended';
-import { QueryAccess } from '../../src/query-access/index.js';
+import { QueryAccess } from '../../src/index.js';
 import { dataType, records, typeConfig } from '../cases/corpus.js';
 import type { QueryCase } from '../cases/interfaces.js';
 import { multiStatementCases, negationCases } from '../cases/logic.js';

@@ -1,7 +1,7 @@
 import 'jest-extended';
 import { FieldType } from '@terascope/types';
 import { DataType, LATEST_VERSION } from '@terascope/data-types';
-import { QueryAccess, QueryAccessConfig } from '../../src/query-access/index.js';
+import { QueryAccess, QueryAccessConfig } from '../../src/index.js';
 import { DuckTestDB } from './duckdb-helpers.js';
 
 /**

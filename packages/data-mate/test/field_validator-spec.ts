@@ -1,5 +1,5 @@
 import * as i from '@terascope/types';
-import { FieldValidator } from '../src/validations/index.js';
+import { FieldValidator } from '../src/index.js';
 
 const multiPolygon: i.GeoShapeMultiPolygon = {
     type: i.GeoShapeType.MultiPolygon,

@@ -1,7 +1,6 @@
 import 'jest-extended';
 import { FieldType, DataTypeConfig } from '@terascope/types';
-import { DataFrame, ListVector, SerializeOptions } from '../../src/index.js';
-import { TealFrame } from '../../src/teal-frame/index.js';
+import { DataFrame, ListVector, SerializeOptions, TealFrame } from '../../src/index.js';
 
 /**
  * The two engine paths besides `rows(true, options)` that decide what a response contains

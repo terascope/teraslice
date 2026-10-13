@@ -2,7 +2,7 @@ import 'jest-extended';
 import { type Client, ElasticsearchTestHelpers, getClientMetadata } from '@terascope/opensearch-client';
 import { FieldType, type ClientMetadata } from '@terascope/types';
 import { DataType, LATEST_VERSION } from '@terascope/data-types';
-import { QueryAccess, QueryAccessConfig } from '../../src/query-access/index.js';
+import { QueryAccess, QueryAccessConfig } from '../../src/index.js';
 import { DuckTestDB } from '../sql/duckdb-helpers.js';
 
 const { makeClient, populateIndex, cleanupIndex } = ElasticsearchTestHelpers;

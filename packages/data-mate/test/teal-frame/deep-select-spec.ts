@@ -1,8 +1,7 @@
 import 'jest-extended';
 import { FieldType, DataTypeConfig, DataTypeFields } from '@terascope/types';
 import { isEmpty } from '@terascope/core-utils';
-import { Column, DataFrame } from '../../src/index.js';
-import { TealFrame, closeDuckDatabase } from '../../src/teal-frame/index.js';
+import { Column, DataFrame, TealFrame, closeDuckDatabase } from '../../src/index.js';
 
 /**
  * `TealFrame.deepSelect` and `pruneEmptyObjects` against `DataFrame.deepSelect` and the QPL
