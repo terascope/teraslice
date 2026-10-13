@@ -9,7 +9,7 @@ const dirname = path.dirname(fileURLToPath(import.meta.url));
 const dfJSON = fs.readFileSync(path.join(dirname, '../../fixtures/data.dfjson'));
 
 const run = async () => {
-    const suite = Suite(`${fileName}`);
+    const suite = Suite('DataFrame->rows');
     const df = await DataFrame.deserialize(dfJSON);
 
     const options = {

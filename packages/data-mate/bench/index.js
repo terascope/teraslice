@@ -79,6 +79,7 @@ function start(name, dir) {
                 });
             } catch (err) {
                 console.error(`FAILED ${label}: ${err.message}`);
+                process.exitCode = 1;
             }
         }
 

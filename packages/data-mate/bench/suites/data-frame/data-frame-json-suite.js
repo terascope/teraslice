@@ -6,7 +6,7 @@ import { DataFrame } from '../../../dist/src/index.js';
 const { config, data } = json;
 
 const run = async () => {
-    const suite = Suite(`${fileName}`);
+    const suite = Suite('DataFrame JSON');
 
     const stringVersion = JSON.stringify(data);
 
