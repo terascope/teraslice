@@ -132,15 +132,14 @@ export async function force(frame, how = 'table') {
  * `CHECKPOINT=1` compresses the TealFrame side's tables before a case is timed.
  *
  * **A measured DIMENSION of the comparison, not a tweak.** An in-memory DuckDB table stays
- * `Uncompressed` until a checkpoint, and every number in `docs/PERFORMANCE.md` was taken in that
- * state. Compressing changes what a scan has to read, and how often a UDF is called - once per
+ * `Uncompressed` until a checkpoint, and every number in the published comparison was taken in
+ * that state. Compressing changes what a scan has to read, and how often a UDF is called - once per
  * dictionary entry per row group instead of once per row - so the same case can move by two orders
  * of magnitude. Running the sweep twice, `CHECKPOINT=0` and `CHECKPOINT=1` into separate `RESULTS`
  * files, is how the payback is established PER OPERATION, which is what a policy needs.
  *
  * The checkpoint is taken in SETUP, so it never lands inside a timing. Its cost belongs to the
- * ingest side of the ledger and is measured on its own, per size, by
- * `docs/tools/bench/checkpoint-cost.mjs`.
+ * ingest side of the ledger and is measured on its own, per size.
 */
 export const CHECKPOINT = ['1', 'true', 'yes'].includes(String(process.env.CHECKPOINT));
 
@@ -151,9 +150,9 @@ export const CHECKPOINT = ['1', 'true', 'yes'].includes(String(process.env.CHECK
  * 188 of the 205 function configs now carry a `sql` emission, so `tealFrameAdapter` returns native
  * SQL and registers no UDF at all; before that work every function ran as a vectorized JavaScript
  * UDF at a measured ~171 ns per value, single-threaded, because the node binding blocks DuckDB's
- * worker thread until JS returns. Every transform number in `docs/PERFORMANCE.md` was taken on the
- * UDF path and is therefore a lower bound by an unknown margin - which is what this flag exists to
- * quantify.
+ * worker thread until JS returns. Every transform number in the published comparison was taken on
+ * the UDF path and is therefore a lower bound by an unknown margin - which is what this flag exists
+ * to quantify.
  *
  * `preferSql: false` on the adapter forces the UDF path for a function that HAS an emission, so the
  * two runs measure the same work through the two paths:
@@ -188,7 +187,7 @@ export const PREFER_SQL = process.env.PREFER_SQL == null
  * to compress before the work being timed has created it.
  *
  * **Arming and verifying are not belt-and-braces; without them this function measures nothing at
- * some sizes.** Measured (`docs/tools/bench/checkpoint-cost.mjs`, `probe/checkpoint-noop.mjs`):
+ * some sizes.** Measured:
  * after 20 Parquet appends at 1M and 2M rows, `CHECKPOINT` returns in 0 ms with every segment still
  * `Uncompressed`, and `FORCE CHECKPOINT` does the same. No error either way. A real WRITE since the
  * last checkpoint is what arms it - another append, a one-row insert, or a throwaway `CREATE TABLE`

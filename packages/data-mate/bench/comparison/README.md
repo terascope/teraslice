@@ -1,6 +1,7 @@
 # `bench/comparison/` — DataFrame vs TealFrame
 
-Produces `docs/PERFORMANCE.md`: the same work asked of both engines, across nine scales.
+Produces a report, `bench/comparison/PERFORMANCE.md` by default (git-ignored): the same work asked of both
+engines, across nine scales.
 
 ```bash
 cd packages/data-mate && pnpm build
@@ -22,7 +23,7 @@ RESULTS=bench/comparison/.ckpt.json   ENGINES=tealframe CHECKPOINT=1 node bench/
 ```
 
 The checkpoint is taken in each case's SETUP, so it is never inside a timing - what it COSTS is a
-one-off measured by `docs/tools/bench/checkpoint-cost.mjs`, and what it BUYS is the difference
+one-off measured separately, and what it BUYS is the difference
 between those two files. It is also **armed and verified**: after the ingest path a plain
 `CHECKPOINT` can return in 0 ms having compressed nothing, so the harness does a throwaway write
 first and then checks `pragma_storage_info`, failing the cell rather than reporting an uncompressed
@@ -81,8 +82,7 @@ Two columns are deliberately sparse, both of redundant types so nothing loses co
 | `expires` | Date | **null in half the records** — neither engine can take an all-or-nothing shortcut, so per-value branching shows up |
 
 Values stay inside their type's range on purpose. `Byte`/`Short` bounds and `Long` above
-`MAX_SAFE_INTEGER` are known divergences between the engines (the shelved defect list in
-`docs/HANDOFF.md`); feeding those here would measure error paths, and would make one engine fail
+`MAX_SAFE_INTEGER` are known divergences between the engines; feeding those here would measure error paths, and would make one engine fail
 where the other does not.
 
 ## Layout

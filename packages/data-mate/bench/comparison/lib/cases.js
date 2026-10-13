@@ -251,7 +251,7 @@ export const GROUPS = [
                     return force(
                         duck.select(
                             passthrough({ category: expression }),
-                            outputConfig(config, 'category', output)
+                            { config: outputConfig(config, 'category', output) }
                         ),
                         'table'
                     );
@@ -283,7 +283,7 @@ export const GROUPS = [
                     return force(
                         duck.select(
                             passthrough({ ip: expression }),
-                            outputConfig(config, 'ip', output)
+                            { config: outputConfig(config, 'ip', output) }
                         ),
                         'table'
                     );
@@ -319,7 +319,7 @@ export const GROUPS = [
                     return force(
                         duck.select(
                             passthrough({ tags: expression }),
-                            outputConfig(config, 'tags', output)
+                            { config: outputConfig(config, 'tags', output) }
                         ),
                         'table'
                     );
@@ -372,7 +372,7 @@ export const GROUPS = [
                 },
                 async tealFrame(ctx, { duck, expressions, outConfig }) {
                     return force(
-                        duck.select(passthrough(expressions), outConfig)
+                        duck.select(passthrough(expressions), { config: outConfig })
                             .filter('"active" = true'),
                         'table'
                     );
@@ -413,7 +413,7 @@ export const GROUPS = [
                 },
                 async tealFrame(ctx, { duck }) {
                     return force(
-                        duck.orderBy(['"category"', { expression: '"count"', direction: 'desc' }]),
+                        duck.orderBy([{ expression: '"category"' }, { expression: '"count"', order: 'desc' }]),
                         'table'
                     );
                 },
@@ -434,7 +434,7 @@ export const GROUPS = [
                 },
                 async tealFrame(ctx, { duck }) {
                     return force(
-                        duck.orderBy(['"category"', { expression: '"count"', direction: 'desc' }])
+                        duck.orderBy([{ expression: '"category"' }, { expression: '"count"', order: 'desc' }])
                             .limit(1000),
                         'table'
                     );
@@ -613,7 +613,7 @@ export const GROUPS = [
                     const projected = duck
                         .select(
                             passthrough({ category: expression }),
-                            outputConfig(config, 'category', output)
+                            { config: outputConfig(config, 'category', output) }
                         )
                         .filter('"active" = true');
 
@@ -652,10 +652,12 @@ export const GROUPS = [
                     return force(duck.select(
                         { category: '"category"', total: 'sum("count")' },
                         {
-                            version: 1,
-                            fields: { category: { type: 'Keyword' }, total: { type: 'Long' } },
-                        },
-                        ['"category"']
+                            config: {
+                                version: 1,
+                                fields: { category: { type: 'Keyword' }, total: { type: 'Long' } },
+                            },
+                            groupBy: ['"category"'],
+                        }
                     ), 'rows');
                 },
                 teardownTealFrame: destroyDuck,
@@ -684,16 +686,18 @@ export const GROUPS = [
                             oldest: 'max("age")',
                         },
                         {
-                            version: 1,
-                            fields: {
-                                category: { type: 'Keyword' },
-                                status: { type: 'Keyword' },
-                                total: { type: 'Long' },
-                                mean: { type: 'Double' },
-                                oldest: { type: 'Short' },
+                            config: {
+                                version: 1,
+                                fields: {
+                                    category: { type: 'Keyword' },
+                                    status: { type: 'Keyword' },
+                                    total: { type: 'Long' },
+                                    mean: { type: 'Double' },
+                                    oldest: { type: 'Short' },
+                                },
                             },
-                        },
-                        ['"category"', '"status"']
+                            groupBy: ['"category"', '"status"'],
+                        }
                     ), 'rows');
                 },
                 teardownTealFrame: destroyDuck,

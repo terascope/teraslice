@@ -6,7 +6,7 @@
  *
  *     SCALES=1000,10000 node bench/comparison/run.js        # a quick pass
  *     RUNS=5 node ...                                        # more samples per case
- *     OUT=docs/PERFORMANCE.md node ...                       # where the report goes
+ *     OUT=bench/comparison/PERFORMANCE.md node ...        # where the report goes
  *
  * The heap flag is not optional at the larger scales: `DataFrame` holds every value in JS, and
  * with Node's default heap it will OOM well before `TealFrame` breaks a sweat. Giving it room is
@@ -19,8 +19,6 @@
 import os from 'node:os';
 import path from 'node:path';
 import fs from 'node:fs';
-import { createRequire } from 'node:module';
-import { pathToFileURL } from 'node:url';
 import {
     measure, line, heading, progress, progressHeader, runsFor, heapLimitMB, classify,
     CHECKPOINT, checkpointTables, PREFER_SQL,
@@ -34,17 +32,13 @@ import {
     loadResults, saveResults, indexRows, rowFor, withMismatch, keyOf,
     markInflight, clearInflight, RESULTS_FILE,
 } from './lib/results.js';
+import { writeReport } from './lib/report.js';
+import {
+    DataFrame, dataFrameAdapter, TealFrame, closeDuckDatabase, tealFrameAdapter,
+    functionConfigRepository
+} from '../../dist/src/index.js';
 
-const require = createRequire(import.meta.url);
-const dist = (rel) => pathToFileURL(require.resolve(`../../dist/src/${rel}`)).href;
-
-const { DataFrame } = await import(dist('index.js'));
-const { dataFrameAdapter } = await import(dist('adapters/data-frame-adapter/index.js'));
-const { TealFrame, closeDuckDatabase } = await import(dist('teal-frame/TealFrame.js'));
-const { tealFrameAdapter } = await import(dist('adapters/teal-frame-adapter/index.js'));
-const { functionConfigRepository } = await import(dist('function-configs/index.js'));
-
-const OUT = process.env.OUT || 'docs/PERFORMANCE.md';
+const OUT = process.env.OUT || 'bench/comparison/PERFORMANCE.md';
 
 /**
  * Which engine this process measures. Unset means both, which is what the small scales use.
@@ -126,8 +120,8 @@ async function runHalf(half, testCase, ctx) {
      * Deliberately part of SETUP and not of the measurement: a checkpoint is a one-off cost paid
      * once per frame when ingest is quiesced, while the case below is a per-query cost paid every
      * time a question is asked. Charging the one to the other would answer neither. What a
-     * checkpoint COSTS is measured per size by `docs/tools/bench/checkpoint-cost.mjs`; what it
-     * BUYS is this run, compared against the same sweep with the flag off.
+     * checkpoint COSTS is a separate per-size measurement; what it BUYS is this run, compared
+     * against the same sweep with the flag off.
     */
     let checkpointMs = 0;
     if (half === 'duck') {
@@ -254,7 +248,6 @@ state.lifecycleRows = lifecycleRows;
 saveResults(state);
 
 // ---------------------------------------------------------------- the report
-const { writeReport } = await import('./lib/report.js');
 const report = writeReport({
     rows: [...index.values()], lifecycleRows, groups: GROUPS, scales: SCALES,
     meta: {
@@ -287,7 +280,7 @@ await closeDuckDatabase();
  *
  * A process that has REGISTERED A SCALAR FUNCTION does not exit when its work is done, even though
  * `closeDuckDatabase()` calls `instance.closeSync()` - a known node-neo defect (their PR #457), and
- * the same reason every script in `docs/tools/` ends this way and the test runner uses
+ * the same reason the test runner uses
  * `--forceExit`. Every transform and validation case here registers a UDF, so every run hits it.
  *
  * It cost about 30 MINUTES PER SCALE before it was found: the child printed its whole report, went

@@ -21,7 +21,8 @@ const run = async () => {
     const dataFrame = DataFrame.fromJSON(config, data);
     for (const column of dataFrame.columns) {
         const fieldInfo = `${column.name} (${column.config.type}${column.config.array ? '[]' : ''})`;
-        if (isNumberLike(column.config.type)) {
+        // `isNumberLike` counts IP, but the value aggregations throw on an IP string
+        if (isNumberLike(column.config.type) && column.config.type !== FieldType.IP) {
             for (const agg of Object.values(ValueAggregation)) {
                 const aggregateFrame = dataFrame.select(column.name).aggregate();
 

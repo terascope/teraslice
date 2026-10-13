@@ -2,7 +2,7 @@
  * The spaces query lifecycle, end to end, as it runs today versus on TealFrame.
  *
  * This is the only section that measures the SYSTEM rather than an operation, and it is the one
- * that answers "what would change if we switched". The flow is docs/HANDOFF.md §0.0:
+ * that answers "what would change if we switched". The flow:
  *
  *   qpl-search-api   Elasticsearch -> RECORDS -> a frame -> something on the wire
  *   qpl-worker       many payloads -> ONE table -> filter, transform, aggregate, sort -> output
@@ -128,17 +128,19 @@ export async function lifecycle(ctx) {
                         mean: 'avg("score")',
                     },
                     {
-                        version: 1,
-                        fields: {
-                            category: { type: 'Keyword' },
-                            status: { type: 'Keyword' },
-                            total: { type: 'Long' },
-                            mean: { type: 'Double' },
+                        config: {
+                            version: 1,
+                            fields: {
+                                category: { type: 'Keyword' },
+                                status: { type: 'Keyword' },
+                                total: { type: 'Long' },
+                                mean: { type: 'Double' },
+                            },
                         },
-                    },
-                    ['"category"', '"status"']
+                        groupBy: ['"category"', '"status"'],
+                    }
                 )
-                .orderBy(['"category"']);
+                .orderBy([{ expression: '"category"' }]);
 
             let seen = 0;
 

@@ -18,7 +18,7 @@ import { CONFIG, COLUMNS, SCALES } from './lib/generate.js';
 import { writeReport } from './lib/report.js';
 
 const RESULTS = process.env.RESULTS || 'bench/comparison/.results.json';
-const OUT = process.env.OUT || 'docs/PERFORMANCE.md';
+const OUT = process.env.OUT || 'bench/comparison/PERFORMANCE.md';
 
 const state = JSON.parse(fs.readFileSync(RESULTS, 'utf8'));
 const scales = [...new Set(state.rows.map((row) => row.scale))].sort((a, b) => a - b);

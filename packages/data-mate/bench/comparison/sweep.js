@@ -39,7 +39,7 @@ import { SCALES, label } from './lib/generate.js';
 const HEAP = Number(process.env.HEAP || 24576);
 const CASE_TIMEOUT = Number(process.env.CASE_TIMEOUT || 1800) * 1000;
 const ENGINES = (process.env.ENGINES || 'tealframe,dataframe').split(',');
-const OUT = process.env.OUT || 'docs/PERFORMANCE.md';
+const OUT = process.env.OUT || 'bench/comparison/PERFORMANCE.md';
 
 /**
  * The runner this supervises. Overridable ONLY so the restart-after-death path can be tested with

@@ -6,9 +6,9 @@
  * number recorded today has to mean the same thing tomorrow.
  *
  * **Values stay inside their type's range on purpose too.** `Byte` and `Short` bounds, and
- * `Long` above `MAX_SAFE_INTEGER`, are known divergences between the two engines (the shelved
- * defect list in docs/HANDOFF.md). Feeding those here would measure error paths instead of
- * throughput, and would make one engine fail where the other does not.
+ * `Long` above `MAX_SAFE_INTEGER`, are known divergences between the two engines. Feeding those
+ * here would measure error paths instead of throughput, and would make one engine fail where the
+ * other does not.
 */
 
 /** 30 fields, spread across the type system rather than 30 keywords. */
