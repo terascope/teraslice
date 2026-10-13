@@ -106,8 +106,7 @@ export const toNumberConfig: FieldTransformConfig = {
          *
          * **A String column keeps the UDF, deliberately.** `convertToNumber` is `Number(input)`,
          * and `Number('')` is `0`, `Number('0x10')` is `16` and `Number(' 12 ')` is `12` -
-         * measured, no DuckDB cast reproduces that set
-         * (`docs/tools/probe/group-a-candidates.mjs`), and the failure mode is a wrong number
+         * measured, no DuckDB cast reproduces that set, and the failure mode is a wrong number
          * rather than an error.
         */
         needs_udf_fallback: true,

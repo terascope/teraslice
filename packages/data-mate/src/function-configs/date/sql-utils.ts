@@ -75,7 +75,9 @@ export function replaceField(
  *
  * So the calendar units are process-timezone dependent and are left on the UDF - the answer is not
  * one SQL could reproduce without knowing the server's zone, and reproducing a timezone-dependent
- * answer is not obviously the right goal anyway (see `docs/known-defects.md` DF6).
+ * answer is not obviously the right goal anyway: `addToDate('1900-03-01T00:00:00Z', { months: 1 })`
+ * is `1900-04-01` under UTC and `1900-03-29` under `America/New_York`, because `date-fns`' `add`
+ * and `sub` work on local wall-clock time while the pipeline treats the value as naive UTC.
  *
  * Hours, minutes and seconds are exact epoch arithmetic on both sides and always agree.
  * **`milliseconds` is silently IGNORED** by both, because `date-fns`' `Duration` has no such key -

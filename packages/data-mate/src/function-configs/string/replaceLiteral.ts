@@ -41,13 +41,13 @@ export const replaceLiteralConfig: FieldTransformConfig<ReplaceLiteralArgs> = {
     /**
      * FIRST occurrence only - `replace()` would be wrong.
      *
-     * `replaceFn` is `input.replace(search, newVal)` with a STRING needle, and that replaces only the
-     * first match; SQL's `replace()` replaces every match. The gate caught it immediately: with
+     * `replaceFn` is `input.replace(search, newVal)` with a STRING needle, and that replaces only
+     * the first match; SQL's `replace()` replaces every match. The gate caught it immediately: with
      * `search: 'e'`, `'Hey There'` became `'HEy ThErE'` in SQL and `'HEy There'` in JavaScript.
      *
      * Built from `position` and `substring` rather than `regexp_replace`, which also stops at the
-     * first match: a literal needle would have to be regex-escaped, and the replacement would have to
-     * be escaped against backreference syntax. `position` returns 0 when the needle is absent.
+     * first match: a literal needle would have to be regex-escaped, and the replacement would have
+     * to be escaped against backreference syntax. `position` returns 0 when the needle is absent.
     */
     sql: {
         expression: ({ value, args }) => {

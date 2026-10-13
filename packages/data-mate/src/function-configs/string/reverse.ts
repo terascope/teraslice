@@ -97,11 +97,11 @@ export const reverseConfig: FieldTransformConfig = {
      * `reverse()` for the strings that do not need grapheme segmentation, the UDF for the ones that
      * do - and NULL for the empty string, which is what `_reverse` returns.
      *
-     * The guard is the same set as `NEEDS_SEGMENTATION` above, as an RE2 class: an astral code point,
-     * a zero-width joiner or a combining mark. Verified that RE2 supports `\p{M}` and `\x{...}` and
-     * matches the same strings the JavaScript regex does. So the 11x-slower segmentation path runs
-     * only where it is needed, exactly as it does in JavaScript - and everything else, which is
-     * essentially all real data, never leaves SQL.
+     * The guard is the same set as `NEEDS_SEGMENTATION` above, as an RE2 class: an astral code
+     * point, a zero-width joiner or a combining mark. Verified that RE2 supports `\p{M}` and
+     * `\x{...}` and matches the same strings the JavaScript regex does. So the 11x-slower
+     * segmentation path runs only where it is needed, exactly as it does in JavaScript - and
+     * everything else, which is essentially all real data, never leaves SQL.
     */
     sql: {
         needs_udf_fallback: true,

@@ -72,8 +72,8 @@ export function finiteOrNull(expression: string): string {
  * A DOUBLE that an `Integer` output can hold.
  *
  * The guard that lets `ceil`/`floor`/`round` be promoted. Their `output_type` is `Integer`, and
- * past that range the UDF path returns a wrapped BIGINT rendered as a STRING (see
- * `docs/known-defects.md` DF2) while the SQL expression returns the true value - so inside the
+ * past that range the UDF path returns a wrapped BIGINT rendered as a STRING while the SQL
+ * expression returns the true value - so inside the
  * range SQL is used, and outside it the UDF is, which keeps the answer bit-identical to today at
  * magnitudes no real dataset holds.
  *

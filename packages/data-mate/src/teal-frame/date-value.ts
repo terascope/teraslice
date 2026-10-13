@@ -17,7 +17,7 @@ import { quoteLiteral } from '@terascope/sql-builder';
  * to know whether some earlier step attached an offset; each row says so itself. A plain date
  * renders `...Z`, exactly as before.
  *
- * Measured against a TIMESTAMP at 100M rows (`docs/tools/bench/date-shape.mjs`): the file is 32%
+ * Measured against a TIMESTAMP at 100M rows: the file is 32%
  * SMALLER (milliseconds compress better than a TIMESTAMP's microseconds), a 50% range filter is
  * 23% faster and a write 21% faster; a date function pays ~19% for the per-row offset branch.
  *

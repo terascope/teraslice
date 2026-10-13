@@ -2,7 +2,7 @@
  * Refuses an operation that would silently discard an ordering - `TealFrame`'s `join`, `distinct`
  * and an aggregating `select`.
  *
- * **Measured at 5M rows / 14 threads** (`docs/tools/probe/order-preservation.mjs`), counting
+ * **Measured at 5M rows / 14 threads**, counting
  * out-of-order rows in the streamed output of a subquery that ends in `ORDER BY x`:
  *
  * | outer operator | out of order |

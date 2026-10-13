@@ -165,8 +165,9 @@ export function upperFirstSql(word: string): string {
  * ```
  *
  * This deliberately does NOT reproduce `core-utils`' `isBase64`, which is broken: it wraps
- * `validator` in a lossy UTF-8 round trip and so **rejects 99.3% of valid base64-encoded binary**.
- * See `docs/known-defects.md` DF9 for the measurement and the reproduction.
+ * `validator` in a lossy UTF-8 round trip and so **rejects 99.3% of valid base64-encoded binary**:
+ * `toString('utf8')` replaces every non-UTF-8 byte with U+FFFD, which cannot re-encode to the
+ * original, so it only accepts base64 of UTF-8 text.
 */
 export function isBase64Sql(value: string): string {
     return `(${value} = '' OR (length(${value}) % 4 = 0`
@@ -208,8 +209,7 @@ export function isFQDNSql(value: string, udf: (v: string) => string): string {
  *
  * Returns null for a combination DuckDB cannot express, which is how the callers' `applies` decide.
  * Measured against `node:crypto` and `Buffer` over a 12-input battery covering empty, non-ASCII,
- * astral, combining-mark and 500-character input - all 60 comparisons byte-equal
- * (`docs/tools/probe/group-a-candidates.mjs`):
+ * astral, combining-mark and 500-character input - all 60 comparisons byte-equal:
  *
  * - `md5`, `sha1` and `sha256` exist and return a **lowercase hex** digest, matching
  *   `createHash(...).digest('hex')`. There is no `sha512` and no `sha384`.
@@ -255,8 +255,7 @@ export function isOneCodePoint(value: unknown): boolean {
  * **This mirrors a state machine, not a regex.** `_subSlice` scans for `start`, then collects every
  * character until `end` - so a second `start` before the `end` is CONTENT (`'<a<b>'` extracts
  * `'a<b'`), an unterminated run yields nothing, and `'a|b|c'` with `|` for both markers extracts
- * `'b'`. All nine shapes agree, including newlines and `'<>'` extracting the empty string
- * (`docs/tools/probe/group-a-candidates.mjs`).
+ * `'b'`. All nine shapes agree, including newlines and `'<>'` extracting the empty string.
 */
 export function extractMarkerSql(value: string, start: string, end: string): string {
     const s = sqlLiteral(start);

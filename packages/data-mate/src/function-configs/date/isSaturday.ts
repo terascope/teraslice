@@ -38,8 +38,8 @@ export const isSaturdayConfig: FieldValidateConfig = {
     /**
      * `dayofweek(x) = 6`.
      *
-     * DuckDB's `dayofweek` is 0-for-Sunday, the same convention as JavaScript's `getUTCDay` - verified:
-     * 2026-01-02 is a Friday and returns 5, 2026-01-04 is a Sunday and returns 0.
+     * DuckDB's `dayofweek` is 0-for-Sunday, the same convention as JavaScript's `getUTCDay` -
+     * verified: 2026-01-02 is a Friday and returns 5, 2026-01-04 is a Sunday and returns 0.
      *
      * `types: [Date]` because this also accepts `String` and `Number`, which the UDF parses.
     */

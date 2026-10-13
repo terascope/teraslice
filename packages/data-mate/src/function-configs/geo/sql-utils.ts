@@ -15,7 +15,6 @@ import { sqlLiteral } from '../sql-helpers.js';
  * `geoRelation`, `inGeoBoundingBox`, `geoPointWithinRange` - are NOT here, and deliberately. They
  * go through turf's `booleanPointInPolygon`, whose boundary handling and antimeridian treatment are
  * its own; `ST_Contains` is a different implementation and would silently disagree at the edges.
- * See `docs/sql-emission.md`.
 */
 
 export function isGeoJSONColumn(inputConfig: DataTypeFieldAndChildren | undefined): boolean {
@@ -96,13 +95,12 @@ export function inBoundingBoxSql(
  * merely TOUCHES a hole's edge is treated as being INSIDE the hole and reported as not contained.
  * `ST_Contains` applies OGC semantics and answers true, which is geometrically right.
  *
- * Measured over the full matrix in `docs/tools/probe/geo-predicates.mjs`: `geoIntersects` and
+ * Measured over the full matrix: `geoIntersects` and
  * `geoDisjoint` agree on all 324 pairs; `geoContains` diverges on 1 of 256, `geoWithin` on its
- * mirror, `geoRelation` on 3 of 324 - every one of them a hole-touching case. The exact inputs and
- * the `geo-utils` code responsible are in `docs/known-defects.md` DF8, for the turf/geo-utils
- * ticket.
+ * mirror, `geoRelation` on 3 of 324 - every one of them a hole-touching case, and a `geo-utils`
+ * defect rather than a SQL one.
  *
- * **Requires the `spatial` extension**, which does NOT autoload - see `docs/HANDOFF.md`.
+ * **Requires the `spatial` extension**, which does NOT autoload; `TealFrame` loads it at open.
 */
 
 /**
@@ -215,7 +213,7 @@ export function rangeInMetres(distance: unknown, unit: unknown): number | null {
  * Documented and confirmed: "The input is expected to be in WGS84 (EPSG:4326) coordinates, using a
  * [latitude, longitude] axis order." That is the opposite of `ST_Point`'s (x, y) order used by
  * `asGeometry`, and getting it backwards yields a plausible wrong number rather than an error -
- * which is exactly the trap `docs/HANDOFF.md` lists.
+ * which is exactly the trap to watch for.
 */
 export function distanceSphere(
     value: string,

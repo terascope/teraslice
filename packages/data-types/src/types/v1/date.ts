@@ -75,8 +75,7 @@ export default class DateType extends BaseType {
      * The DuckDB column type for this field: data-mate's own date value, epoch milliseconds plus
      * an optional display offset in minutes - `[ms, offset]`, the `DateTuple` - with the offset
      * NULL unless `setTimezone`/`toTimeZone`/`toTimeZoneUsingLocation` set one. Milliseconds as a
-     * BIGINT are 32% smaller in Parquet than a TIMESTAMP's microseconds, and faster to filter
-     * (`docs/tools/bench/date-shape.mjs` in data-mate).
+     * BIGINT are 32% smaller in Parquet than a TIMESTAMP's microseconds, and faster to filter.
      */
     toDuckDB(): DuckDBTypeConfig {
         return this._formatDuckDB('STRUCT(ms BIGINT, tz_offset SMALLINT)');

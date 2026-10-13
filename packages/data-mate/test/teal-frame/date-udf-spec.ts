@@ -23,10 +23,9 @@ const repo = functionConfigRepository as Record<string, FunctionDefinitionConfig
  *
  * **These tests have to work on a UTC machine, where the bug is invisible.** Under `TZ=UTC` the
  * drift is zero, so an end-to-end "is the answer right" assertion passes either way - and jest
- * caches `TZ` in the VM context at startup, so a test cannot switch it (see docs/HANDOFF.md,
- * Appendix B). So the guards here are: the converter's exact numeric result, the arithmetic
- * identity that describes the old bug for ANY host offset, and - the real wiring guard - an
- * assertion about the JS TYPE the function is handed.
+ * caches `TZ` in the VM context at startup, so a test cannot switch it. So the guards here are: the
+ * converter's exact numeric result, the arithmetic identity that describes the old bug for ANY host
+ * offset, and - the real wiring guard - an assertion about the JS TYPE the function is handed.
 */
 
 /** 2026-08-14T01:02:03.456Z */

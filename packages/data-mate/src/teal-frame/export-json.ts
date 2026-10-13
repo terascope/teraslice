@@ -192,7 +192,7 @@ export function resolveRules(options: JsonExportOptions = {}): Rules {
  * `JSON.stringify`'s rendering of a JS number, in SQL.
  *
  * DuckDB's `to_json` already prints the SHORTEST digits that round-trip, as JavaScript does
- * (`docs/tools/probe/double-exponent-format.mjs`); four corrections make the text the same:
+ * (measured across the exponent boundary); four corrections make the text the same:
  *
  * - **non-finite becomes `null` - and is NOT nil.** `FloatVector` has no `toJSONCompatibleValue`,
  *   so `DataFrame` keeps a `NaN` as a value (its key survives null removal) and `JSON.stringify`

@@ -106,7 +106,7 @@ export class DuckContext {
      *
      * `memory_limit` MUST be set below the container's cap. If DuckDB believes it has more
      * than the container allows it never spills and the kernel kills the process - that is
-     * exactly what produced the bogus "OOMs and does not spill" finding in docs/HANDOFF.md.
+     * exactly what once produced a bogus "DuckDB OOMs and does not spill" finding.
     */
     async applySettings(settings: DuckDatabaseSettings): Promise<void> {
         // Refused rather than applied: extensions already loaded from the old directory stay
@@ -176,7 +176,7 @@ export class DuckContext {
      * is the shape that path already expects.
      *
      * **Each stream gets its OWN connection and closes it when the stream ends.**
-     * MEASURED (`docs/tools/conn-isolation.mjs`): any query run on a connection holding an
+     * MEASURED: any query run on a connection holding an
      * open streaming result silently truncates that stream - one interleaved query took
      * 500,000 rows down to 100,352, with NO error. DuckDB concurrency itself is fine; the
      * limit is per-connection. On the shared connection, any other frame's `size()` - or

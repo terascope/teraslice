@@ -535,8 +535,6 @@ describe('TealFrame JSON export', () => {
          * - an INTEGRAL double between 2^53 and 1e21 was written as its exact binary value
          *   through a HUGEINT cast, where JavaScript writes the SHORTEST digits that round-trip:
          *   `99999999999999980000`, not `99999999999999991611392`.
-         *
-         * `docs/tools/probe/double-exponent-format.mjs` measured the whole boundary.
         */
         const DOUBLES = [
             1e21,

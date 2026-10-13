@@ -290,9 +290,8 @@ export class TealFrame {
      * `strict` mode the collected set is then raised as a `CoercionFailureError` naming
      * each field and an offending value; in `lenient` mode the nulls simply stand.
      *
-     * That flag-and-continue contract is a decision Jared took provisionally and wants
-     * revisited - possibly making whole-batch rejection configurable. See the DEFERRED
-     * section of docs/ingest-findings.md.
+     * That flag-and-continue contract is provisional and due to be revisited - possibly
+     * making whole-batch rejection configurable.
     */
     static async fromRecords(
         config: FrameConfig,
@@ -540,7 +539,7 @@ export class TealFrame {
      * `orderByClause`.
      *
      * **A TIE-HEAVY SORT IS NOT DETERMINISTIC, AND PAGING OVER ONE LOSES ROWS.** Measured
-     * (`docs/tools/probe/tie-stability.mjs`, 2M rows / 14 threads, 20 distinct sort values):
+     * (2M rows / 14 threads, 20 distinct sort values):
      * the same `ORDER BY bucket LIMIT 10` returned **2 different pages** across 20 runs, and
      * across 10 runs `LIMIT 1000` yielded 4,410 distinct ids where 1,000 were expected while
      * **1,305 rows appeared in BOTH page 1 and page 2**. Appending a unique tiebreaker

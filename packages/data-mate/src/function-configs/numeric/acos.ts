@@ -32,7 +32,8 @@ export const acosConfig: FieldTransformConfig = {
     /**
      * `acos`, with its domain checked first.
      *
-     * `Math.acos` outside [-1, 1] is NaN -> null; DuckDB raises instead, so the domain is checked first.
+     * `Math.acos` outside [-1, 1] is NaN -> null; DuckDB raises instead, so the domain is checked
+     * first.
     */
     sql: {
         // transcendental: DuckDB's libm and V8 differ in the last bit, which IEEE 754

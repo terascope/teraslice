@@ -218,8 +218,8 @@ describe('every field function through tealFrameAdapter', () => {
         // The `rejected_input` cases prove real field semantics run inside SQL - including the
         // throw. Nothing catches it, so one bad value kills the whole query. That MATCHES
         // DataFrame (transforms throw there too and `mapVectorEachValue` has no try/catch), so
-        // parity holds - but it is the failure policy recorded as DEFERRED in docs/HANDOFF.md:
-        // flag-and-continue versus failing the batch.
+        // parity holds - but the failure policy is still deferred: flag-and-continue versus
+        // failing the batch.
         const rejected = [...outcomes.entries()]
             .filter(([, o]) => o.kind === 'rejected_input')
             .map(([name]) => name);

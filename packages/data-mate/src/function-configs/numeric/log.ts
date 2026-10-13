@@ -53,8 +53,8 @@ export const logConfig: FieldTransformConfig = {
      * `ln`, with its domain checked first.
      *
      * **`ln`, not `log`** - `Math.log` is the NATURAL logarithm and DuckDB's `log()` is base-10, so
-     * `log(${value})` would silently return a different number. `ln(0)` and `ln(-1)` both THROW, so the
-     * domain guard is required rather than cosmetic.
+     * `log(${value})` would silently return a different number. `ln(0)` and `ln(-1)` both THROW, so
+     * the domain guard is required rather than cosmetic.
     */
     sql: {
         // transcendental: DuckDB's libm and V8 differ in the last bit, which IEEE 754

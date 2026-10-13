@@ -4,10 +4,10 @@
  * **These require the `inet` extension, which is NOT statically linked into `@duckdb/node-api`.**
  * It autoloads on first use, which means a download from the DuckDB repository unless it is already
  * in the extension directory - so a worker image without it, and without network, gets a query
- * error rather than a slow path. See `docs/sql-emission.md`.
+ * error rather than a slow path; `TealFrame` loads it at open, and the image bakes it in.
  *
- * Every expression here was differenced against `@terascope/ip-utils` over a 78-input battery by
- * `docs/tools/probe/ip-semantics.mjs`, and `test/teal-frame/sql-emission-spec.ts` is the gate. The
+ * Every expression here was differenced against `@terascope/ip-utils` over a 78-input battery,
+ * and `test/teal-frame/sql-emission-spec.ts` is the gate. The
  * three places the two disagree, and what each guard does about it, are stated on the guard itself.
 */
 
@@ -161,7 +161,7 @@ export function isRoutableSql(value: string): string {
  * ## The throw contract for the IP TRANSFORMS
  *
  * A validation returns null for a bad value; a transform THROWS, and per the failure contract
- * (`docs/HANDOFF.md`) that aborts the whole query, exactly as it does in `DataFrame`. SQL has
+ * that aborts the whole query, exactly as it does in `DataFrame`. SQL has
  * `error()`, which also aborts - but with DuckDB's message rather than the function's own.
  *
  * So none of these emissions raise. Each is
@@ -171,7 +171,7 @@ export function isRoutableSql(value: string): string {
  * on failing input is therefore automatic rather than approximated, and the fast path is untouched
  * for everything else.
  *
- * `docs/tools/probe/ip-transforms.mjs` differenced every native branch below against `ip-utils`.
+ * Every native branch below was differenced against `ip-utils`.
 */
 
 /** The network address of a CIDR block, as a bare `INET` with the prefix dropped. */
@@ -241,8 +241,7 @@ export function ipv4ToIntSql(value: string): string {
  * An integer as a dotted-quad IPv4 address.
  *
  * The inverse arithmetic, and exact: verified against `ip-utils`' `intToIP` at 0, 1, 255, 256,
- * 127.0.0.1, 10.16.32.210, 192.168.1.1 and 255.255.255.255
- * (`docs/tools/probe/group-a-candidates.mjs`).
+ * 127.0.0.1, 10.16.32.210, 192.168.1.1 and 255.255.255.255.
 */
 export function intToIPv4Sql(value: string): string {
     const octet = (expression: string) => `CAST(${expression} AS VARCHAR)`;
@@ -254,8 +253,8 @@ export function intToIPv4Sql(value: string): string {
  * An integer input that `intToIP` will read the same way SQL does, as a HUGEINT, or null.
  *
  * **The guard is a digit regex, and it is narrower than a cast on purpose.** `intToIP` calls
- * `BigInt(input)`, and measured against `TRY_CAST(x AS HUGEINT)` the two disagree eight ways
- * (`docs/tools/probe/group-a-candidates.mjs`): SQL accepts `'12.0'`, `'12.5'`, `'1e3'` and
+ * `BigInt(input)`, and measured against `TRY_CAST(x AS HUGEINT)` the two disagree eight ways:
+ * SQL accepts `'12.0'`, `'12.5'`, `'1e3'` and
  * `'1_000'` where `BigInt` THROWS, and `BigInt` accepts `'0x10'`, `'0b11'` and `''` where the cast
  * is null. `^[0-9]+$` is inside both, so every one of those eight keeps the UDF and today's answer.
 */

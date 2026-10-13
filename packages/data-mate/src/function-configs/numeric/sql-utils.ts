@@ -53,7 +53,7 @@ export const FRACTIONAL_FIELD_TYPES: readonly string[] = [
 /**
  * `parseFloat(value.toFixed(digits))`, in SQL - and **`round()` is not it**.
  *
- * Measured over 84 value/digit pairs (`docs/tools/probe/group-a-candidates.mjs`):
+ * Measured over 84 value/digit pairs:
  *
  * - **`round(2.675, 2)` is `2.68` and `toFixed(2)` is `'2.67'`.** `toFixed` rounds the value's
  *   EXACT binary expansion, which is 2.67499999999999982..., while `round` rounds the decimal it

@@ -463,7 +463,7 @@ describe('TealFrame', () => {
     describe('stream isolation', () => {
         // REGRESSION: streams used to share the process-wide connection, and DuckDB silently
         // truncates an open streaming result when another query runs on that connection -
-        // measured at 500,000 rows down to 100,352 with no error (docs/tools/conn-isolation.mjs).
+        // measured at 500,000 rows down to 100,352 with no error.
         // Each stream now gets its own connection.
         const MANY = Array.from({ length: 5000 }, (_, i) => ({ _key: `k${i}` }));
         const KEY_ONLY = { version: 1, fields: { _key: { type: FieldType.Keyword } } };

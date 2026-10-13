@@ -7,7 +7,7 @@ import { FieldType } from '@terascope/types';
 /**
  * The column types where `to_json` renders exactly what `JSON.stringify` renders.
  *
- * Measured, not assumed (`docs/tools/probe/remaining-26.mjs`). What is absent is as deliberate as
+ * Measured, not assumed. What is absent is as deliberate as
  * what is present:
  *
  * - **no floating point.** `to_json(2.0)` is `'2.0'` and `JSON.stringify(2)` is `'2'`; `to_json`

@@ -72,8 +72,7 @@ export const isBase64Config: FieldValidateConfig = {
      * purpose.
      *
      * The emission is RFC 4648 with padding, which is `validator`'s default and the right answer.
-     * Every divergence is listed in the gate with the correct value; the write-up is
-     * `docs/known-defects.md` DF9.
+     * Every divergence is listed in the gate with the correct value.
     */
     sql: {
         expression: ({ value }) => isBase64Sql(value),

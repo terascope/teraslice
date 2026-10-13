@@ -36,8 +36,8 @@ export const encodeBase64Config: FieldTransformConfig = {
     /**
      * `to_base64(encode(x))` - `encode`, NOT `x::BLOB`.
      *
-     * A `VARCHAR -> BLOB` cast REFUSES non-ASCII input: "All non-ascii characters must be escaped with
-     * hex codes". `encode()` is the UTF-8 conversion, and with it the output matches
+     * A `VARCHAR -> BLOB` cast REFUSES non-ASCII input: "All non-ascii characters must be escaped
+     * with hex codes". `encode()` is the UTF-8 conversion, and with it the output matches
      * `Buffer.from(input, 'utf8').toString('base64')` exactly, including for astral characters.
     */
     sql: {

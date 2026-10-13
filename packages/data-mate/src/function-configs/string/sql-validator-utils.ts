@@ -8,7 +8,7 @@ import { sqlLiteral } from '../sql-helpers.js';
  * `isMACAddress` never reach `validator`, and both were written off as walls on the strength of
  * `validator`'s implementation - `isEmail` for being 173 procedural lines, `isMACAddress` for a
  * separator backreference RE2 cannot compile. The versions this codebase calls are one regex and
- * five fixed regexes. That is `docs/known-defects.md` DF9's lesson, four more times.
+ * five fixed regexes: read the wrapper this codebase calls, not the library underneath it.
 */
 /**
  * `core-utils`' own `isEmail`, transliterated - and it is NOT `validator.isEmail`.

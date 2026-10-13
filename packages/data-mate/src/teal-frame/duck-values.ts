@@ -22,7 +22,7 @@ type FieldTypeLike = FieldType | DeprecatedFieldType;
  *
  * This is the ONLY new logic the ingest path needs. Coercion itself is `coerceToType`
  * from the regular builder, so there is no second implementation of any field
- * semantics - see docs/ingest-findings.md, the STOP block.
+ * semantics.
  *
  * The conversions are driven by the field config, matching `type-map.ts` exactly: get
  * one wrong and DuckDB rejects the append rather than silently storing something else.

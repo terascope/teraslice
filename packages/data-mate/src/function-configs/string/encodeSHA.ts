@@ -60,13 +60,13 @@ export const encodeSHAConfig: FieldTransformConfig<EncodeSHAArgs> = {
     /**
      * `sha256` / `md5`, for a hex digest only.
      *
-     * DuckDB has `md5`, `sha1` and `sha256` and **no `sha512`**, and its digests are hex - so `applies`
-     * admits exactly the combinations that exist and everything else stays on the UDF. `sha256` is the
-     * default hash, so the common case is native.
+     * DuckDB has `md5`, `sha1` and `sha256` and **no `sha512`**, and its digests are hex - so
+     * `applies` admits exactly the combinations that exist and everything else stays on the UDF.
+     * `sha256` is the default hash, so the common case is native.
     */
     sql: {
-        // `sha256` only: this function's own `validate_arguments` REJECTS anything not starting with
-        // `sha` (so `md5` can never be an argument), and DuckDB has no `sha512`
+        // `sha256` only: this function's own `validate_arguments` REJECTS anything not starting
+        // with `sha` (so `md5` can never be an argument), and DuckDB has no `sha512`
         applies: (args) => (args.digest ?? 'hex') === 'hex' && (args.hash ?? 'sha256') === 'sha256',
         expression: ({ value }) => `sha256(${value})`,
     },

@@ -75,8 +75,8 @@ export const replaceRegexConfig: FieldTransformConfig<ReplaceRegexArgs> = {
     sql: {
         /**
          * **`isRe2Safe` alone was not enough, and the gap was silent.** It rejects what RE2 cannot
-         * COMPILE; a pattern both engines compile can still MATCH different characters. Measured
-         * (`docs/tools/probe/re2-vs-js-regex.mjs`): JavaScript's `\s` accepts VERTICAL TAB, NBSP,
+         * COMPILE; a pattern both engines compile can still MATCH different characters. Measured:
+         * JavaScript's `\s` accepts VERTICAL TAB, NBSP,
          * every `Zs` space, U+2028, U+2029 and the BOM - 20 characters - where RE2's is exactly
          * `[\t\n\f\r ]`, `\S` inverts on the same 20, and `.` differs on CR, U+2028 and U+2029.
          * So a pattern containing `.`, `\s` or `\S` returned different TEXT for any value holding

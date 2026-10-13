@@ -4,8 +4,9 @@ import { HAS_ASTRAL, JS_WHITESPACE, sqlLiteral } from '../sql-helpers.js';
  * Where DuckDB's RE2 and JavaScript's regex engine part company.
  *
  * Split out of `sql-utils.ts` because it is a subject in its own right, and because getting it
- * half-right cost an already-promoted function a silent wrong answer - `docs/known-defects.md`
- * DF10. **Compiling is not matching:** RE2 refusing a construct is loud, RE2 accepting one and
+ * half-right cost an already-promoted function a silent wrong answer: `replaceRegex` returned
+ * different text for `.`, `\s`, `\S` and `[^`. **Compiling is not matching:** RE2 refusing a
+ * construct is loud, RE2 accepting one and
  * meaning something else is not.
 */
 /**
@@ -41,7 +42,7 @@ export function isLiteralReplacement(replace: string): boolean {
  * rejects the constructs RE2 cannot COMPILE. A pattern both engines compile can still match
  * different characters, and that failure is silent - a different answer, not an error.
  *
- * Measured by `docs/tools/probe/re2-vs-js-regex.mjs` over all 28 characters that could differ:
+ * Measured over all 28 characters that could differ:
  *
  * - **`\s` diverges on 20 of them.** JavaScript's `\s` is `WhiteSpace` + `LineTerminator`, so it
  *   accepts VERTICAL TAB, NBSP, the whole `Zs` category, U+2028, U+2029 and the BOM. RE2's `\s` is

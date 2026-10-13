@@ -32,7 +32,8 @@ export const asinConfig: FieldTransformConfig = {
     /**
      * `asin`, with its domain checked first.
      *
-     * `Math.asin` outside [-1, 1] is NaN -> null; DuckDB raises instead, so the domain is checked first.
+     * `Math.asin` outside [-1, 1] is NaN -> null; DuckDB raises instead, so the domain is checked
+     * first.
     */
     sql: {
         // transcendental: DuckDB's libm and V8 differ in the last bit, which IEEE 754

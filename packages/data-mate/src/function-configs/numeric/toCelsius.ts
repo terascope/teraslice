@@ -42,11 +42,11 @@ export const toCelsiusConfig: FieldTransformConfig = {
         return toCelsius;
     },
     /**
-     * F to C, **rounded to two decimals**, which the implementation does and the formula alone does not:
-     * `toCelsius(100)` is `37.78`, not `37.777777777777779`.
+     * F to C, **rounded to two decimals**, which the implementation does and the formula alone does
+     * not: `toCelsius(100)` is `37.78`, not `37.777777777777779`.
      *
-     * `floor(v * 100 + 0.5) / 100` rather than `round(v, 2)`, because `Math.round` breaks ties toward
-     * +infinity and SQL's `round` breaks them away from zero.
+     * `floor(v * 100 + 0.5) / 100` rather than `round(v, 2)`, because `Math.round` breaks ties
+     * toward +infinity and SQL's `round` breaks them away from zero.
     */
     sql: {
         expression: ({ value }) => {

@@ -22,7 +22,7 @@ import {
  *   JavaScript applies full case mapping and DuckDB applies simple mapping.
  *
  * A function that fails here does not get a workaround - it stays a UDF, and the reason is recorded
- * in `docs/HANDOFF.md` so the next person does not re-litigate it.
+ * on its `sql` config so the next person does not re-litigate it.
 */
 
 const repo = functionConfigRepository as unknown as Record<
@@ -61,7 +61,7 @@ const BATTERIES: Partial<Record<FieldType, readonly unknown[]>> = {
         ' nbsp ',
         '　ideographic　',
         // a LEADING U+FEFF is stripped on ingest and again when a UDF returns one, so a value
-        // carrying it cannot round-trip through the engine - see docs/known-defects.md DF3.
+        // carrying it cannot round-trip through the engine, where `DataFrame` keeps it.
         // A trailing one survives, and stays here.
         'zwnbsp﻿',
         'ß',
@@ -171,7 +171,7 @@ const BATTERIES: Partial<Record<FieldType, readonly unknown[]>> = {
  * **The one input where a GEOMETRY and `DataFrame` must disagree.** `DataFrame` stores a `GeoJSON`
  * value as the object that arrived, so `{ type: 'POINT' }` keeps a spelling `geo-utils` compares
  * case-exactly: the same point is "disjoint" spelled `'Point'` or `'point'` and NOT disjoint
- * spelled `'POINT'` (`docs/tools/probe/point-spelling.mjs`). A GEOMETRY stores the shape, not the
+ * spelled `'POINT'`. A GEOMETRY stores the shape, not the
  * spelling, so SQL answers for the point - consistently, whatever it was called.
 */
 const POINT_SPELLING = 'a GEOMETRY stores the shape, not the type spelling; JS answers differently for POINT than for Point';
@@ -184,8 +184,8 @@ const POINT_SPELLING = 'a GEOMETRY stores the shape, not the type spelling; JS a
  * the function ever sees it, so an `IP`-typed battery can only contain values every predicate
  * answers the same way about. Everything below is a shape where `ip-utils` and the `inet` extension
  * could disagree - leading zeros, a prefix on an address, a scope ID, both IPv4-in-IPv6 spellings,
- * and one member of every reserved range - and they are here because
- * `docs/tools/probe/ip-semantics.mjs` found the first three of them disagreeing.
+ * and one member of every reserved range - and they are here because differencing the two
+ * implementations found the first three of them disagreeing.
 */
 const IP_BATTERY: readonly unknown[] = [
     // ordinary, and one from each family
@@ -280,7 +280,7 @@ const IP_CASE = { type: FieldType.Keyword, battery: IP_BATTERY };
 /**
  * **A TRANSFORM cannot be given the predicate battery, because a transform THROWS.**
  *
- * The failure contract (`docs/HANDOFF.md`) is that a throwing transform aborts the whole query, as
+ * The failure contract is that a throwing transform aborts the whole query, as
  * it does in `DataFrame`. So a battery with one bad value in it kills the query on BOTH paths and
  * there is nothing left to compare - the run fails for the right reason, which is useless as a
  * parity check.
@@ -349,7 +349,7 @@ const TYPE_PREFERENCE: readonly FieldType[] = [
  * itself where the shared one contains values the function's DECLARED OUTPUT TYPE cannot hold.
  *
  * That last case is `ceil`/`floor`/`round`: their `output_type` is `Integer`, so at `1e21`
- * both paths produce a wrapped BIGINT (`docs/known-defects.md` DF2) and differ only in how the
+ * both paths produce a wrapped BIGINT and differ only in how the
  * garbage renders - a string on one side, a double on the other. Comparing them there measures
  * the overflow defect, not the emission, so the battery is narrowed to what an `Integer` can
  * represent and the guard on those emissions keeps the UDF for everything outside it.
