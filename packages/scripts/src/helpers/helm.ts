@@ -204,6 +204,9 @@ function generateHelmValuesFromServices(
 
     let stateCluster: string | undefined;
     let stateConnection: string | undefined;
+    // Name of the s3 connector in the teraslice template, which depends on the
+    // enabled backend (minio-dev or ceph-dev).
+    let s3Connection: string | undefined;
     let caCert: string | undefined;
 
     // disable chart's OS2 default
@@ -218,6 +221,7 @@ function generateHelmValuesFromServices(
         const version = versionMap[service];
 
         if (service === Service.Ceph) {
+            s3Connection = 'ceph-dev';
             // Ceph needs a second version (the Rook operator chart/image) and the
             // static S3 creds, beyond the enabled/version set for every service
             // below. All from config so the images match what CI caches.
@@ -302,6 +306,7 @@ function generateHelmValuesFromServices(
         }
 
         if (service === Service.Minio) {
+            s3Connection = 'minio-dev';
             if (config.ENCRYPT_MINIO) {
                 if (!caCert) {
                     caCert = readCertFromPath(path.join(config.CERT_PATH, 'CAs/rootCA.pem')).replace(/\n/g, '\\n');
@@ -336,13 +341,18 @@ function generateHelmValuesFromServices(
     values.setIn(['teraslice', 'stateCluster'], stateCluster);
     values.setIn(['teraslice', 'stateConnection'], stateConnection);
 
-    // When assets are stored in elasticsearch-next they live on the state cluster, so
-    // point the asset connection at that named connector rather than the removed "default".
-    // Any other asset storage type (e.g. s3) keeps its own configured connection name.
-    const assetStorageConnection = config.ASSET_STORAGE_CONNECTION_TYPE === 'elasticsearch-next'
-        && config.ASSET_STORAGE_CONNECTION === 'default'
-        ? stateConnection
-        : config.ASSET_STORAGE_CONNECTION;
+    // Point the asset connection at the named connector for its storage type rather
+    // than the removed "default": elasticsearch-next assets live on the state cluster,
+    // s3 assets on the enabled s3 backend. A connection set to something other than
+    // "default" is respected as-is.
+    let assetStorageConnection = config.ASSET_STORAGE_CONNECTION;
+    if (config.ASSET_STORAGE_CONNECTION === 'default') {
+        if (config.ASSET_STORAGE_CONNECTION_TYPE === 'elasticsearch-next') {
+            assetStorageConnection = stateConnection as string;
+        } else if (config.ASSET_STORAGE_CONNECTION_TYPE === 's3') {
+            assetStorageConnection = s3Connection as string;
+        }
+    }
 
     values.setIn(['teraslice', 'image', 'tag'], `e2e-nodev${config.NODE_VERSION}`);
     values.setIn(['teraslice', 'asset_storage_connection_type'], config.ASSET_STORAGE_CONNECTION_TYPE);

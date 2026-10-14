@@ -10,7 +10,7 @@ export default {
     apis: [
         {
             _name: 'kafka_reader_api',
-            _connection: 'default',
+            _connection: config.KAFKA_CONNECTION,
             topic: 'replace-me-1000',
             group: 'example-kafka-group',
             size: 300,

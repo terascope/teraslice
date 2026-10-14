@@ -17,7 +17,7 @@ export default {
         },
         {
             _name: 'kafka_sender_api',
-            _connection: 'default',
+            _connection: config.KAFKA_CONNECTION,
             topic: 'replace-me-1000',
             size: 100,
             timestamp_field: 'created',

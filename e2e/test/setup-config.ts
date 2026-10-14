@@ -11,15 +11,19 @@ const {
     CEPH_ACCESS_KEY, CEPH_SECRET_KEY,
     ENCRYPT_CEPH, ROOT_CERT_PATH, FILE_LOGGING,
     ENCRYPT_KAFKA, DEBUG_LOG_LEVEL, ENCRYPT_OPENSEARCH,
-    OS_CONNECTION
+    OS_CONNECTION, KAFKA_CONNECTION, S3_CONNECTION
 } = config;
 
-// When assets are stored in elasticsearch-next they live on the state cluster, so
-// point the asset connection at the named connector rather than the removed "default".
-const ASSET_CONNECTION = ASSET_STORAGE_CONNECTION_TYPE === 'elasticsearch-next'
-    && ASSET_STORAGE_CONNECTION === 'default'
-    ? OS_CONNECTION
-    : ASSET_STORAGE_CONNECTION;
+// Point the asset connection at the named connector for its storage type rather than
+// the removed "default": elasticsearch-next assets live on the state cluster, s3 assets
+// on the s3 backend (ceph in the e2e harness).
+function resolveAssetConnection() {
+    if (ASSET_STORAGE_CONNECTION !== 'default') return ASSET_STORAGE_CONNECTION;
+    if (ASSET_STORAGE_CONNECTION_TYPE === 'elasticsearch-next') return OS_CONNECTION;
+    if (ASSET_STORAGE_CONNECTION_TYPE === 's3') return S3_CONNECTION;
+    return ASSET_STORAGE_CONNECTION;
+}
+const ASSET_CONNECTION = resolveAssetConnection();
 
 export const baseConfig = {
     terafoundation: {
@@ -45,14 +49,14 @@ export const baseConfig = {
                 }
             },
             kafka: {
-                default: {
+                [KAFKA_CONNECTION]: {
                     brokers: [KAFKA_BROKER],
                     security_protocol: 'plaintext',
                     caCertificate: ''
                 }
             },
             s3: {
-                default: {
+                [S3_CONNECTION]: {
                     endpoint: CEPH_HOST,
                     accessKeyId: CEPH_ACCESS_KEY,
                     secretAccessKey: CEPH_SECRET_KEY,
@@ -122,14 +126,14 @@ async function writeMasterConfig() {
     masterConfig.teraslice.master = true;
     if (ENCRYPT_CEPH === true) {
         const rootCA = fse.readFileSync(ROOT_CERT_PATH, 'utf8');
-        masterConfig.terafoundation.connectors.s3.default.sslEnabled = true;
-        masterConfig.terafoundation.connectors.s3.default.caCertificate = rootCA;
+        masterConfig.terafoundation.connectors.s3[S3_CONNECTION].sslEnabled = true;
+        masterConfig.terafoundation.connectors.s3[S3_CONNECTION].caCertificate = rootCA;
     }
 
     if (ENCRYPT_KAFKA === true) {
         const rootCA = fse.readFileSync(ROOT_CERT_PATH, 'utf8');
-        masterConfig.terafoundation.connectors.kafka.default.security_protocol = 'ssl';
-        masterConfig.terafoundation.connectors.kafka.default.caCertificate = rootCA;
+        masterConfig.terafoundation.connectors.kafka[KAFKA_CONNECTION].security_protocol = 'ssl';
+        masterConfig.terafoundation.connectors.kafka[KAFKA_CONNECTION].caCertificate = rootCA;
     }
 
     if (ENCRYPT_OPENSEARCH === true) {
@@ -150,14 +154,14 @@ async function writeWorkerConfig() {
     workerConfig.teraslice.master = false;
     if (ENCRYPT_CEPH === true) {
         const rootCA = fse.readFileSync(ROOT_CERT_PATH, 'utf8');
-        workerConfig.terafoundation.connectors.s3.default.sslEnabled = true;
-        workerConfig.terafoundation.connectors.s3.default.caCertificate = rootCA;
+        workerConfig.terafoundation.connectors.s3[S3_CONNECTION].sslEnabled = true;
+        workerConfig.terafoundation.connectors.s3[S3_CONNECTION].caCertificate = rootCA;
     }
 
     if (ENCRYPT_KAFKA === true) {
         const rootCA = fse.readFileSync(ROOT_CERT_PATH, 'utf8');
-        workerConfig.terafoundation.connectors.kafka.default.security_protocol = 'ssl';
-        workerConfig.terafoundation.connectors.kafka.default.caCertificate = rootCA;
+        workerConfig.terafoundation.connectors.kafka[KAFKA_CONNECTION].security_protocol = 'ssl';
+        workerConfig.terafoundation.connectors.kafka[KAFKA_CONNECTION].caCertificate = rootCA;
     }
 
     if (ENCRYPT_OPENSEARCH === true) {
