@@ -1,4 +1,6 @@
-import { inGeoBoundingBoxFP, isGeoPoint } from '@terascope/geo-utils';
+import {
+    inGeoBoundingBoxFP, isGeoPoint, parseGeoPoint, validateBoundingBox
+} from '@terascope/geo-utils';
 import { FieldType, GeoPointInput } from '@terascope/types';
 import {
     FieldValidateConfig,
@@ -6,7 +8,6 @@ import {
     FunctionDefinitionType,
     FunctionDefinitionCategory,
 } from '../interfaces.js';
-import { parseGeoPoint } from '@terascope/geo-utils';
 import { isGeoPointColumn, inBoundingBoxSql } from './sql-utils.js';
 
 export interface InGeoBoundingBoxArgs {
@@ -48,19 +49,18 @@ export const inGeoBoundingBoxConfig: FieldValidateConfig<InGeoBoundingBoxArgs> =
         return inGeoBoundingBoxFP(top_left, bottom_right);
     },
     /**
-     * Two inclusive range checks on the point struct - no `spatial` extension, and no
-     * `ST_Contains`, which would get the boundary wrong. See `inBoundingBoxSql`.
+     * Two inclusive range checks on the point's `lat` and `lon`, with no `spatial` extension.
+     * See `inBoundingBoxSql`.
      *
-     * `applies` re-validates the box because a pure-SQL emission never calls `create()`, and
-     * `createValidGeoBox` is where an inverted or antimeridian-crossing box is rejected. Returning
-     * false there sends the call to the UDF, which throws exactly as it does today.
+     * The SQL path never calls `create()`, so `applies` validates the box itself. If a corner
+     * fails to parse, or the box is inverted or crosses the antimeridian, the call goes to the
+     * UDF, which throws the function's own error.
     */
     sql: {
         applies: (args, inputConfig) => {
             if (!isGeoPointColumn(inputConfig)) return false;
             try {
-                parseGeoPoint(args.top_left as any);
-                parseGeoPoint(args.bottom_right as any);
+                validateBoundingBox(args.top_left as any, args.bottom_right as any);
                 return true;
             } catch {
                 return false;
