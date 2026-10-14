@@ -174,6 +174,10 @@ export const config: E2ETestEnv & E2EConstants & E2EConfig = {
     EXAMPLE_INDEX_SIZES,
     LOG_PATH,
     newId,
+    // Name of the elasticsearch-next connector, derived from the opensearch major
+    // version (os1/os2/os3) to match the helm templates. This is the connection
+    // teraslice ops target now that the "default" connector has been removed.
+    OS_CONNECTION: `os${envConfig.OPENSEARCH_VERSION.charAt(0)}`,
     ROOT_CERT_PATH: path.join(envConfig.CERT_PATH, 'CAs/rootCA.pem'),
     SPEC_INDEX_PREFIX: `${envConfig.TEST_INDEX_PREFIX}spec`,
     TEST_HOST: toBoolean(envConfig.ENCRYPT_OPENSEARCH)
@@ -185,6 +189,7 @@ export const config: E2ETestEnv & E2EConstants & E2EConfig = {
 
 interface E2EConfig {
     EXAMPLE_INDEX_PREFIX: string;
+    OS_CONNECTION: string;
     ROOT_CERT_PATH: string;
     SPEC_INDEX_PREFIX: string;
     TEST_HOST: string;

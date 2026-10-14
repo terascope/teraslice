@@ -1,3 +1,5 @@
+import { config } from '../../config.js';
+
 export default {
     name: 'generator',
     slicers: 1,
@@ -9,6 +11,7 @@ export default {
     apis: [
         {
             _name: 'elasticsearch_sender_api',
+            _connection: config.OS_CONNECTION,
             index: 'replace-me-1000',
             size: 1000
         }

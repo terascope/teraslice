@@ -203,6 +203,7 @@ function generateHelmValuesFromServices(
     };
 
     let stateCluster: string | undefined;
+    let stateConnection: string | undefined;
     let caCert: string | undefined;
 
     // disable chart's OS2 default
@@ -246,6 +247,9 @@ function generateHelmValuesFromServices(
             // This assumes there is only one search service enabled. If both ES and OS services
             // are present the state cluster will be set to elasticsearch below.
             stateCluster = serviceString;
+            // The connector name in the teraslice template is "os<major>" (os1/os2/os3),
+            // which is what teraslice's state + asset storage connections point at.
+            stateConnection = `os${major}`;
 
             if (config.ENCRYPT_OPENSEARCH) {
                 if (major === '1') {
@@ -326,13 +330,23 @@ function generateHelmValuesFromServices(
     // If no search service specified then default to OS2
     if (!stateCluster) {
         stateCluster = 'opensearch2';
+        stateConnection = 'os2';
         values.setIn(['opensearch2', 'enabled'], true);
     }
     values.setIn(['teraslice', 'stateCluster'], stateCluster);
+    values.setIn(['teraslice', 'stateConnection'], stateConnection);
+
+    // When assets are stored in elasticsearch-next they live on the state cluster, so
+    // point the asset connection at that named connector rather than the removed "default".
+    // Any other asset storage type (e.g. s3) keeps its own configured connection name.
+    const assetStorageConnection = config.ASSET_STORAGE_CONNECTION_TYPE === 'elasticsearch-next'
+        && config.ASSET_STORAGE_CONNECTION === 'default'
+        ? stateConnection
+        : config.ASSET_STORAGE_CONNECTION;
 
     values.setIn(['teraslice', 'image', 'tag'], `e2e-nodev${config.NODE_VERSION}`);
     values.setIn(['teraslice', 'asset_storage_connection_type'], config.ASSET_STORAGE_CONNECTION_TYPE);
-    values.setIn(['teraslice', 'asset_storage_connection'], config.ASSET_STORAGE_CONNECTION);
+    values.setIn(['teraslice', 'asset_storage_connection'], assetStorageConnection);
     values.setIn(['teraslice', 'cluster_manager_type'], clusteringType);
     values.setIn(['teraslice', 'name'], config.CLUSTER_NAME);
     values.setIn(['teraslice', 'assets_directory'], e2e ? '/app/e2e-assets' : '/app/assets');

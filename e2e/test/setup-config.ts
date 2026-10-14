@@ -10,8 +10,16 @@ const {
     ASSET_STORAGE_CONNECTION_TYPE, CEPH_HOST,
     CEPH_ACCESS_KEY, CEPH_SECRET_KEY,
     ENCRYPT_CEPH, ROOT_CERT_PATH, FILE_LOGGING,
-    ENCRYPT_KAFKA, DEBUG_LOG_LEVEL, ENCRYPT_OPENSEARCH
+    ENCRYPT_KAFKA, DEBUG_LOG_LEVEL, ENCRYPT_OPENSEARCH,
+    OS_CONNECTION
 } = config;
+
+// When assets are stored in elasticsearch-next they live on the state cluster, so
+// point the asset connection at the named connector rather than the removed "default".
+const ASSET_CONNECTION = ASSET_STORAGE_CONNECTION_TYPE === 'elasticsearch-next'
+    && ASSET_STORAGE_CONNECTION === 'default'
+    ? OS_CONNECTION
+    : ASSET_STORAGE_CONNECTION;
 
 export const baseConfig = {
     terafoundation: {
@@ -26,7 +34,7 @@ export const baseConfig = {
         log_path: '/app/logs',
         connectors: {
             'elasticsearch-next': {
-                default: {
+                [OS_CONNECTION]: {
                     node: [TEST_HOST],
                     requestTimeout: '1 minute',
                     sniffOnStart: false,
@@ -72,8 +80,11 @@ export const baseConfig = {
         name: CLUSTER_NAME,
         master: true,
         master_hostname: HOST_IP,
+        state: {
+            connection: OS_CONNECTION
+        },
         asset_storage_connection_type: ASSET_STORAGE_CONNECTION_TYPE,
-        asset_storage_connection: ASSET_STORAGE_CONNECTION,
+        asset_storage_connection: ASSET_CONNECTION,
         index_settings: {
             analytics: {
                 number_of_shards: 1,
@@ -123,9 +134,9 @@ async function writeMasterConfig() {
 
     if (ENCRYPT_OPENSEARCH === true) {
         const rootCA = fse.readFileSync(ROOT_CERT_PATH, 'utf8');
-        masterConfig.terafoundation.connectors['elasticsearch-next'].default.username = 'admin';
-        masterConfig.terafoundation.connectors['elasticsearch-next'].default.password = 'passwordsufhbivbU123%$';
-        masterConfig.terafoundation.connectors['elasticsearch-next'].default.caCertificate = rootCA;
+        masterConfig.terafoundation.connectors['elasticsearch-next'][OS_CONNECTION].username = 'admin';
+        masterConfig.terafoundation.connectors['elasticsearch-next'][OS_CONNECTION].password = 'passwordsufhbivbU123%$';
+        masterConfig.terafoundation.connectors['elasticsearch-next'][OS_CONNECTION].caCertificate = rootCA;
     }
 
     const masterConfigPath = path.join(CONFIG_PATH, 'teraslice-master.json');
@@ -151,9 +162,9 @@ async function writeWorkerConfig() {
 
     if (ENCRYPT_OPENSEARCH === true) {
         const rootCA = fse.readFileSync(ROOT_CERT_PATH, 'utf8');
-        workerConfig.terafoundation.connectors['elasticsearch-next'].default.username = 'admin';
-        workerConfig.terafoundation.connectors['elasticsearch-next'].default.password = 'passwordsufhbivbU123%$';
-        workerConfig.terafoundation.connectors['elasticsearch-next'].default.caCertificate = rootCA;
+        workerConfig.terafoundation.connectors['elasticsearch-next'][OS_CONNECTION].username = 'admin';
+        workerConfig.terafoundation.connectors['elasticsearch-next'][OS_CONNECTION].password = 'passwordsufhbivbU123%$';
+        workerConfig.terafoundation.connectors['elasticsearch-next'][OS_CONNECTION].caCertificate = rootCA;
     }
 
     const workerConfigPath = path.join(CONFIG_PATH, 'teraslice-worker.json');

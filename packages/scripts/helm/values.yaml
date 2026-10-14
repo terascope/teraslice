@@ -248,8 +248,11 @@ teraslice:
     # WILL be overwritten if build is true
     tag: e2e-nodev24
   stateCluster: opensearch2
+  # Name of the elasticsearch-next connector for the stateCluster (os1/os2/os3).
+  # This is what teraslice uses for its state store and, by default, asset storage.
+  stateConnection: os2
   asset_storage_connection_type: elasticsearch-next
-  asset_storage_connection: default
+  asset_storage_connection: os2
   env: {}
   extraVolumes: []
   extraVolumeMounts: []

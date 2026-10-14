@@ -1,3 +1,5 @@
+import { config } from '../../config.js';
+
 export default {
     name: 'ID_Reindex',
     lifecycle: 'once',
@@ -8,12 +10,14 @@ export default {
     apis: [
         {
             _name: 'elasticsearch_reader_api',
+            _connection: config.OS_CONNECTION,
             index: 'replace-me-1000',
             size: 500,
             key_type: 'base64url'
         },
         {
             _name: 'elasticsearch_sender_api',
+            _connection: config.OS_CONNECTION,
             index: 'test-id_reindex-1000',
             size: 200
         }

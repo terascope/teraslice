@@ -28,68 +28,6 @@ terafoundation:
     workers: 1
     connectors:
         elasticsearch-next:
-            # Set the first OS/ES that is enabled as our default
-            default:
-                node:
-                    ##@ In the case the "stateCluster" is opensearch3
-                    {{- if eq (.Values | get "teraslice.stateCluster" "none") "opensearch3" }}
-
-                    ##@ In the case the "stateCluster" is opensearch3 and ssl is enabled
-                    {{- if eq (.Values | get "opensearch3.ssl.enabled" false) true}}
-                    - "https://opensearch3.services-dev1:9200"
-                    {{- else}}
-                    - "http://opensearch3.services-dev1:9200"
-                    {{- end }}
-
-                    ##@ In the case the "stateCluster" is opensearch2
-                    {{- else if eq (.Values | get "teraslice.stateCluster" "none") "opensearch2" }}
-
-                    ##@ In the case the "stateCluster" is opensearch2 and ssl is enabled
-                    {{- if eq (.Values | get "opensearch2.ssl.enabled" false) true}}
-                    - "https://opensearch2.services-dev1:9200"
-                    {{- else}}
-                    - "http://opensearch2.services-dev1:9200"
-                    {{- end }}
-
-                    ##@ In the case the "stateCluster" is opensearch1
-                    {{- else if eq (.Values | get "teraslice.stateCluster" "none") "opensearch1" }}
-                    - "http://opensearch1.services-dev1:9200"
-
-
-                    {{- end }}
-
-
-                {{- if eq (.Values | get "opensearch3.ssl.enabled" false) true}}
-
-                username: admin
-                password: "passwordsufhbivbU123%$"
-                caCertificate: "{{- if .Values.opensearch3.ssl.caCert -}}
-
-                {{ .Values.opensearch3.ssl.caCert }}
-
-                {{- else -}}
-
-                {{ fail "opensearch3.ssl.caCert MUST be provided so teraslice can get the rootCA" }}
-
-                {{- end }}"
-
-                {{- end }}
-
-                {{- if eq (.Values | get "opensearch2.ssl.enabled" false) true}}
-
-                username: admin
-                password: "passwordsufhbivbU123%$"
-                caCertificate: "{{- if .Values.opensearch2.ssl.caCert -}}
-
-                {{ .Values.opensearch2.ssl.caCert }}
-
-                {{- else -}}
-
-                {{ fail "opensearch2.ssl.caCert MUST be provided so teraslice can get the rootCA" }}
-
-                {{- end }}"
-
-                {{- end }}
 
             ##@ /////////
             ##@ elasticsearch-next Opensearch1 connector
@@ -284,8 +222,10 @@ master:
     teraslice:
         kubernetes_namespace: ts-dev1
         cluster_manager_type: {{ .Values | get "teraslice.cluster_manager_type" "kubernetesV2" }}
+        state:
+            connection: {{ .Values | get "teraslice.stateConnection" "os2" }}
         asset_storage_connection_type: {{ .Values | get "teraslice.asset_storage_connection_type" "elasticsearch-next" }}
-        asset_storage_connection: {{ .Values | get "teraslice.asset_storage_connection" "default" }}
+        asset_storage_connection: {{ .Values | get "teraslice.asset_storage_connection" "os2" }}
         name: {{ .Values | get "teraslice.name" "ts-dev1" }}
         assets_directory: {{ .Values | get "teraslice.assets_directory" "/app/assets" }}
         autoload_directory: /app/autoload
@@ -305,8 +245,10 @@ worker:
     teraslice:
         kubernetes_namespace: ts-dev1
         cluster_manager_type: {{ .Values | get "teraslice.cluster_manager_type" "kubernetesV2" }}
+        state:
+            connection: {{ .Values | get "teraslice.stateConnection" "os2" }}
         asset_storage_connection_type: {{ .Values | get "teraslice.asset_storage_connection_type" "elasticsearch-next" }}
-        asset_storage_connection: {{ .Values | get "teraslice.asset_storage_connection" "default" }}
+        asset_storage_connection: {{ .Values | get "teraslice.asset_storage_connection" "os2" }}
         name: {{ .Values | get "teraslice.name" "ts-dev1" }}
         assets_directory: {{ .Values | get "teraslice.assets_directory" "/app/assets" }}
         autoload_directory: /app/autoload
