@@ -42,23 +42,22 @@ export const intToIPConfig: FieldTransformConfig<IntToIPArgs> = {
     },
     sql: {
         /**
-         * **IPv4 only, and only for an input SQL reads the same way `BigInt` does.**
+         * IPv4 only, and only for input that SQL and `BigInt` read the same way.
          *
-         * Version 6 needs 128 unsigned bits and `HUGEINT` is signed, so it keeps the UDF - the same
-         * wall `ipToInt` hit from the other direction. For version 4 the arithmetic is exact; the
-         * work is in the guard, which is `plainIntegerSql`'s digit regex plus the range check
-         * `intToIP` does itself (`bigInt > 2n ** 32n - 1n` THROWS). Everything the guard declines -
-         * a float string, `'0x10'`, an empty string, a value out of range - reaches the UDF and
-         * gets today's answer, whether that is a value or the function's own error.
+         * Version 6 needs 128 unsigned bits and `HUGEINT` is signed, so it keeps the UDF. For
+         * version 4 the arithmetic is exact. The guard is `plainIntegerSql`'s digit check plus the
+         * range check `intToIP` does itself (it throws above `2n ** 32n - 1n`). Anything the guard
+         * declines (a float string, `'0x10'`, an empty string, an out-of-range value) goes to the
+         * UDF and gets the function's own result or error.
         */
         needs_udf_fallback: true,
         applies: ({ version }) => toString(version) === '4',
         expression: ({ value, inputConfig, udf }) => {
-            // the string FAMILY, not `FieldType.String`: a `Keyword` column holds strings too,
-            // and `floor()` on a VARCHAR is a binder error rather than a slow path
+            // any string type, not only `FieldType.String`: a `Keyword` column holds strings
+            // too, and `floor()` on a VARCHAR is a binder error
             const asInt = STRING_FIELD_TYPES.includes(inputConfig.field_config.type as FieldType)
                 ? plainIntegerSql(value)
-                // a numeric column: `BigInt(10.5)` THROWS, so a non-integer keeps the UDF
+                // a numeric column: `BigInt(10.5)` throws, so a non-integer keeps the UDF
                 : `CASE WHEN ${value} = floor(${value}) THEN CAST(${value} AS HUGEINT) ELSE NULL END`;
             return `CASE WHEN (${asInt}) BETWEEN 0 AND 4294967295`
                 + ` THEN ${intToIPv4Sql(`(${asInt})`)} ELSE ${udf(value)} END`;

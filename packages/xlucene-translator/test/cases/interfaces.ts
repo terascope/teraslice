@@ -1,9 +1,8 @@
 /**
  * One query and the records it must return, as a tuple a `describe.each` can name.
  *
- * The ids are the ANSWER, not one engine's answer: every case here is run against both
- * OpenSearch and DuckDB and each is compared to this list rather than to the other. Two
- * engines agreeing on a wrong answer is a thing that happens, and asserting them against
- * each other alone would not catch it.
+ * The ids are the expected answer. Each case runs against both OpenSearch and DuckDB, and
+ * each engine is checked against this list, not against the other engine, so two engines
+ * agreeing on a wrong answer still fails.
 */
 export type QueryCase = readonly [name: string, query: string, ids: readonly string[]];

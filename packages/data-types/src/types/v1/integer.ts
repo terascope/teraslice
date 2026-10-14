@@ -48,8 +48,8 @@ export default class Integer extends BaseType {
 
     /**
      * The DuckDB column type for this field.
-     * BIGINT, not INTEGER: data-mate bounds Integer by Number.MAX_SAFE_INTEGER
-     * (2^53-1), which overflows int32.
+     * BIGINT, not INTEGER, because data-mate allows an Integer up to
+     * Number.MAX_SAFE_INTEGER (2^53-1), which does not fit in 32 bits.
      */
     toDuckDB(): DuckDBTypeConfig {
         return this._formatDuckDB('BIGINT');

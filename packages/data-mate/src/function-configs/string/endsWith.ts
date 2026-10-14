@@ -55,7 +55,7 @@ export const endsWithConfig: FieldValidateConfig<EndsWithArgs> = {
             description: 'The value compared to the end of the input string '
         }
     },
-    /** `ends_with` is native; an empty needle is true for both, which the battery checks. */
+    /** `ends_with` is native. An empty search value returns true, as it does in JavaScript. */
     sql: {
         expression: ({ value, args }) => `ends_with(${value}, ${sqlLiteral(args.value)})`,
     },

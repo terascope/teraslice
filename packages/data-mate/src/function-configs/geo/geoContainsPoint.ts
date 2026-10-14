@@ -120,11 +120,10 @@ export const geoContainsPointConfig: FieldValidateConfig<GeoContainsPointArgs> =
         return geoContainsFP(point);
     },
     /**
-     * `ST_Contains(shape, point)` - the column is the shape and the argument is the point.
+     * `ST_Contains(shape, point)`: the column is the shape and the argument is the point.
      *
-     * Diverges from `geoContains` for a point exactly ON a hole's edge: `geo-utils` calls it
-     * contained, `ST_Contains` does not, because such a point is on the polygon's boundary. SQL is
-     * right. See known-defects DF8.
+     * For a point exactly on a hole's edge, `geo-utils` reports it as contained and `ST_Contains`
+     * does not, because the point is on the polygon's boundary. The SQL answer is the correct one.
     */
     sql: {
         applies: (args, inputConfig) => isGeoColumn(inputConfig) && isGeoArg(args.point),

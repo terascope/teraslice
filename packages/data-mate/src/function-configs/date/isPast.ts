@@ -37,10 +37,10 @@ export const isPastConfig: FieldValidateConfig = {
     ],
     description: 'Returns the input if it is in the past, otherwise returns null',
     /**
-     * Strictly before the plan-time instant.
+     * True when the date is strictly before now.
      *
-     * **"now" is resolved ONCE, at plan time**, where the UDF reads it per row - the accepted
-     * behaviour change recorded in `sql-utils.ts`.
+     * "Now" is read once when the query is planned, not per row as the UDF does; see
+     * `sql-utils.ts`.
     */
     sql: {
         types: [FieldType.Date],

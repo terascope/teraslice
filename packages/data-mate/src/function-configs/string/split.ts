@@ -52,12 +52,11 @@ export const splitConfig: FieldTransformConfig<SplitArgs> = {
         return splitFn(delimiter);
     },
     /**
-     * `string_split`, for a NON-EMPTY delimiter only.
+     * `string_split`, for a non-empty delimiter only.
      *
-     * The default delimiter is `''`, and `String(x).split('')` splits into UTF-16 CODE UNITS - it
-     * can return a lone surrogate for astral input, the same problem `truncate` has. `string_split`
-     * with an empty delimiter is not that, so the empty case keeps the UDF. Verified over four
-     * delimiters and twelve strings, including absent delimiters and empty inputs: identical.
+     * The default delimiter is `''`, and `String(x).split('')` splits into UTF-16 code units, which
+     * can produce lone surrogates for astral input. `string_split` with an empty delimiter does
+     * not, so that case keeps the UDF.
     */
     sql: {
         applies: (args) => typeof args.delimiter === 'string' && args.delimiter !== '',

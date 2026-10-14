@@ -1,14 +1,11 @@
 /**
- * The SQL half of the translator.
+ * The SQL translator.
  *
- * Only the xLucene-specific walk lives here. Everything that renders SQL TEXT - the dialects,
- * quoting, clauses and statement assembly - moved to `@terascope/sql-builder`, so that
- * `data-mate`'s DuckDB frame can emit sorts and projections that agree with a translated
- * statement without either package depending on the other.
+ * Only the xLucene AST walk lives here. The dialects, quoting, clauses and statement
+ * assembly live in `@terascope/sql-builder`, which `data-mate` also uses, so both generate
+ * the same sorts and projections.
  *
- * It is re-exported rather than merely used, because callers reach these through
- * `@terascope/xlucene-translator` today and a translated query is not much use without the
- * dialect that rendered it.
+ * `@terascope/sql-builder` is re-exported so callers can get the dialects from this package.
 */
 export * from '@terascope/sql-builder';
 export * from './interfaces.js';

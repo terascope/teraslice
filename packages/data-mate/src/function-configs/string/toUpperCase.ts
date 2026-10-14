@@ -45,12 +45,11 @@ export const toUpperCaseConfig: FieldTransformConfig = {
     },
     accepts: [FieldType.String],
     /**
-     * `upper()` for ASCII, JavaScript for everything else.
+     * `upper()` for ASCII values, the UDF for everything else.
      *
-     * A plain `upper(x)` is NOT equal to JavaScript's: JavaScript applies full Unicode case
-     * mapping and DuckDB applies simple mapping, so they diverge on inputs like `'ß'` and `'ﬁ'`.
-     * Inside ASCII they agree on all 127 code points, so the guard picks the native path for the
-     * data that is almost always ASCII and pays for a UDF call only on the values that need it.
+     * JavaScript applies full Unicode case mapping and DuckDB applies simple mapping, so they
+     * differ on inputs like `'ß'` and `'ﬁ'`. They agree on every ASCII character, so only non-ASCII
+     * values pay for a UDF call.
     */
     sql: {
         needs_udf_fallback: true,

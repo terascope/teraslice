@@ -1,6 +1,6 @@
 import { xLuceneFieldType, xLuceneTypeConfig } from '@terascope/types';
 
-/** One type config for every emission case, so a case only has to name its query. */
+/** One type config shared by every SQL case, so a case only has to name its query. */
 export const typeConfig: xLuceneTypeConfig = {
     bar: xLuceneFieldType.String,
     baz: xLuceneFieldType.String,

@@ -47,10 +47,8 @@ export const isCIDRConfig: FieldValidateConfig = {
         return isCIDR;
     },
     /**
-     * A prefix must be present - which is the whole difference between this and `isIP`.
-     *
-     * `TRY_CAST` accepts a bare address as an implicit `/32`, so without the `contains` test this
-     * would call every IP a CIDR.
+     * A prefix must be present; that is the difference from `isIP`. `TRY_CAST` accepts a bare
+     * address as an implicit `/32`, so without the `contains` test every IP would count as a CIDR.
     */
     sql: {
         expression: ({ value }) => isCIDRSql(value),

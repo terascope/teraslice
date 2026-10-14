@@ -2,8 +2,8 @@ import { DuckDBType, DuckDBTypeId } from '@duckdb/node-api';
 import { quoteIdentifier } from '@terascope/sql-builder';
 
 /**
- * The column list `writeParquet` projects, so that nothing crosses the wire as a type Parquet
- * cannot carry exactly - see `int64Column`.
+ * Builds the column list `writeParquet` selects, so every column is written as a type Parquet
+ * can hold exactly. See `int64Column`.
 */
 
 /** DuckDB's 128-bit integers, which Parquet has no type for. */
@@ -11,7 +11,7 @@ const WIDE_INTEGER_IDS: ReadonlySet<DuckDBTypeId> = new Set([
     DuckDBTypeId.HUGEINT, DuckDBTypeId.UHUGEINT,
 ]);
 
-/** True when a 128-bit integer appears anywhere in a type - a struct member or list element too. */
+/** True when a 128-bit integer appears anywhere in a type, including nested members. */
 function hasWideInteger(type: DuckDBType): boolean {
     if (WIDE_INTEGER_IDS.has(type.typeId)) return true;
     const nested = type as {
@@ -29,17 +29,16 @@ function hasWideInteger(type: DuckDBType): boolean {
 }
 
 /**
- * One column of the Parquet projection, with every 128-bit integer narrowed.
+ * Returns one column of the Parquet projection, with any 128-bit integer narrowed.
  *
- * **Parquet has no 128-bit integer, and DuckDB writes one as a DOUBLE** - silently, so every value
- * past 2^53 changes on the wire. A stored Long is already a BIGINT; this catches a COMPUTED one
- * (`n::HUGEINT + 1`, a UDF's result, `ipToInt` on IPv6).
+ * **Parquet has no 128-bit integer, and DuckDB silently writes one as a DOUBLE**, which changes
+ * every value past 2^53. A stored Long is already a BIGINT; this handles computed values
+ * (`n::HUGEINT + 1`, a UDF result, `ipToInt` on IPv6).
  *
- * **It casts to the DECLARED type, built from the config** - never to DuckDB's rendered type with
- * the word replaced, which renamed a struct member called `HUGEINT` and nulled it. The cast is
- * exact for a value that fits and fails the write with DuckDB's out-of-range error for one that
- * does not; a wide column the config does not declare is refused, because there is no correct
- * type to guess. A wrong number must never reach the worker.
+ * The column is cast to the type declared in the config. Editing DuckDB's rendered type string
+ * instead would also rewrite a struct member named `HUGEINT`. The cast is exact for values that
+ * fit and fails the write with DuckDB's out-of-range error for values that do not. A wide column
+ * the config does not declare is rejected, because there is no correct type to choose.
 */
 export function int64Column(name: string, type: DuckDBType, declared: string | undefined): string {
     const column = quoteIdentifier(name);

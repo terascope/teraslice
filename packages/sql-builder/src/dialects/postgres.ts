@@ -16,11 +16,9 @@ const RELATION_FUNCTIONS: Readonly<Record<GeoShapeRelation, string>> = Object.fr
 const WGS84 = 4326;
 
 /**
- * SQL for PostgreSQL with PostGIS.
+ * The PostgreSQL dialect, using PostGIS for geo queries.
  *
- * **Read the storage assumptions before using it** - PostgreSQL has no equivalent of
- * `data-types`' `toDuckDB`, so unlike the DuckDB dialect there is no single mapping this can
- * derive the column shapes from. What it assumes:
+ * There is no `toDuckDB` equivalent for PostgreSQL, so this dialect assumes these column types:
  *
  * | xLucene type | column |
  * |---|---|
@@ -28,27 +26,22 @@ const WGS84 = 4326;
  * | `geo-json` | text or `json`/`jsonb`, cast through `ST_GeomFromGeoJSON` |
  * | `ip`, `ip_range` | text, cast to `inet` |
  * | `date` | `timestamp` holding UTC |
- * | a dotted field | ONE column whose name contains a dot |
+ * | a dotted field | one column whose name contains a dot |
  *
- * A deployment that stores any of those differently subclasses this and overrides the two or
- * three methods concerned, which is what the dialect split is for.
+ * Storage that differs can be supported by subclassing and overriding the affected methods.
  *
- * **It is emitted but not exercised.** The DuckDB dialect is verified by running its output
- * through DuckDB; there is no PostGIS in this repo's test services, so this one is covered by
- * its emitted SQL only. What it inherits is the part that matters most for that: the IP
- * emissions live in {@link BaseSQLDialect} because PostgreSQL orders an `inet` by (family,
- * address) exactly as DuckDB does, and would answer an address range over mixed IPv4 and
- * IPv6 data differently from Elasticsearch without the same mapping.
+ * The generated SQL is tested as text only; it is not run against a PostgreSQL server in
+ * this repo's tests. The IP helpers come from {@link BaseSQLDialect}, because PostgreSQL
+ * orders `inet` by family first just as DuckDB does.
 */
 export class PostgresDialect extends BaseSQLDialect {
     readonly name = SQLDialectName.postgres;
 
     /**
-     * A dotted xLucene field is ONE column name.
+     * A dotted xLucene field is one column name.
      *
-     * Unquoted, `foo.bar` in PostgreSQL means column `bar` of table `foo`, which is a
-     * different claim than the query made; and unlike DuckDB, quoting here pins the case, so
-     * this matches a column created with that exact spelling.
+     * Unquoted, `foo.bar` would mean column `bar` of table `foo`. Quoting in PostgreSQL is
+     * also case-sensitive, so this matches a column created with that exact spelling.
     */
     fieldRef(field: string): string {
         return quoteIdentifier(field);
@@ -65,7 +58,7 @@ export class PostgresDialect extends BaseSQLDialect {
         };
     }
 
-    /** `geography` rather than `geometry`, so the distance comes back in metres. */
+    /** `geography` rather than `geometry`, so the distance comes back in meters. */
     geoPointDistance(fieldExpr: string, point: GeoPoint): string {
         return `ST_Distance(${this.asGeography(fieldExpr)}, ${this.pointGeography(point)})`;
     }
@@ -74,9 +67,9 @@ export class PostgresDialect extends BaseSQLDialect {
      * `ST_DWithin` rather than a comparison against `ST_Distance`, because it is the form
      * PostGIS can answer from a spatial index.
     */
-    geoPointWithinDistance(fieldExpr: string, point: GeoPoint, metres: number): string {
+    geoPointWithinDistance(fieldExpr: string, point: GeoPoint, meters: number): string {
         return parens(
-            `ST_DWithin(${this.asGeography(fieldExpr)}, ${this.pointGeography(point)}, ${quoteNumber(metres)})`
+            `ST_DWithin(${this.asGeography(fieldExpr)}, ${this.pointGeography(point)}, ${quoteNumber(meters)})`
         );
     }
 
@@ -116,9 +109,8 @@ export class PostgresDialect extends BaseSQLDialect {
     }
 
     /**
-     * **PostgreSQL has no `TRY_CAST`**, so a row whose text is not an address aborts the
-     * query rather than failing the predicate. A column that can hold junk wants a
-     * `CHECK` constraint or a real `inet` column, not a wider cast here.
+     * PostgreSQL has no `TRY_CAST`, so a row whose text is not an address fails the whole
+     * query. Use an `inet` column or a `CHECK` constraint if the column may hold invalid values.
     */
     protected toInet(fieldExpr: string): string {
         return `CAST(${fieldExpr} AS inet)`;
@@ -128,15 +120,15 @@ export class PostgresDialect extends BaseSQLDialect {
         return `CAST(${this.stringLiteral(value)} AS inet)`;
     }
 
-    /** **PostgreSQL has no `contains`**; `strpos` is the portable spelling of the same test. */
+    /** PostgreSQL has no `contains`, so this uses `strpos`. */
     protected textContains(expr: string, substring: string): string {
         return `strpos(${expr}, ${this.stringLiteral(substring)}) > 0`;
     }
 
     /**
-     * `~` is a SEARCH, not a full match, so the pattern is anchored to match Elasticsearch's
-     * `regexp` query. The non-capturing group keeps an alternation inside the pattern from
-     * escaping the anchors - `a|b` anchored bare would mean `^a` or `b$`.
+     * `~` searches rather than matching the whole string, so the pattern is anchored to match
+     * Elasticsearch's `regexp` query. The non-capturing group keeps an alternation inside
+     * the anchors: `^a|b$` would mean `^a` or `b$`.
     */
     protected regexpMatch(expr: string, value: string): string {
         return parens(`${expr} ~ ${this.stringLiteral(`^(?:${value})$`)}`);

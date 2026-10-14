@@ -43,11 +43,11 @@ export const toCIDRConfig: FieldTransformConfig<ToCIDRArgs> = {
     ],
     description: 'Returns a CIDR address based on the provided IP and suffix',
     /**
-     * The block the address falls in, at the given suffix - `network/prefix`.
+     * The block containing the address at the given suffix, as `network/prefix`.
      *
-     * `validate_arguments` has already checked the suffix is a number in range for the FAMILY it
-     * will meet, so the emission only has to build the block. `applies` keeps a non-numeric suffix
-     * on the UDF; anything that is not an IP goes there too and throws.
+     * `validate_arguments` has already checked that the suffix is in range for the address
+     * family. `applies` sends a non-integer suffix to the UDF. A value that is not an IP also goes
+     * to the UDF and throws.
     */
     sql: {
         needs_udf_fallback: true,

@@ -52,12 +52,9 @@ export const roundConfig: FieldTransformConfig = {
     /**
      * `floor(x + 0.5)` inside the `Integer` range, the UDF outside it.
      *
-     * TWO things had to be right here. `Math.round` breaks ties toward +infinity where SQL's
-     * `round` breaks them away from zero, so `round(-2.5)` is `-3` in SQL and `-2` in JavaScript -
-     * `floor(x + 0.5)` reproduces the JavaScript rule. And past the `Integer` range the UDF path
-     * returns a wrapped BIGINT as a STRING, while `x + 0.5` also
-     * stops being representable, so the guard hands those values to the UDF and nothing changes for
-     * them.
+     * `Math.round` breaks ties toward +infinity, while SQL's `round` breaks them away from zero
+     * (`round(-2.5)` is `-2` in JavaScript and `-3` in SQL); `floor(x + 0.5)` follows the
+     * JavaScript rule. Values outside the `Integer` range keep the UDF, as in `floor`.
     */
     sql: {
         needs_udf_fallback: true,

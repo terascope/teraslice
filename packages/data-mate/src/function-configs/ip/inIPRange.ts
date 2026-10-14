@@ -54,13 +54,12 @@ export const inIPRangeConfig: FieldValidateConfig = {
         return (input: unknown) => inIPRange(input, args);
     },
     /**
-     * The `cidr` form only - `applies` declines the rest, and that is a correctness boundary.
+     * Only the `cidr` form runs as SQL; `applies` sends `min`/`max` to the UDF.
      *
-     * `min`/`max` compare the raw integers in data-mate, so `::1` sits inside
-     * `0.0.0.0`-`255.255.255.255`; `INET` ordering puts every IPv4 address before every
-     * IPv6 one and answers false. That divergence is not fixable by a guard, so those arguments
-     * keep the UDF. `validate_arguments` has already rejected a malformed `cidr` by the time this
-     * runs.
+     * data-mate compares `min`/`max` as raw integers, so `::1` falls inside
+     * `0.0.0.0`-`255.255.255.255`. `INET` orders every IPv4 address before every IPv6 one and
+     * would answer false, and no guard can fix that. `validate_arguments` has already rejected a
+     * malformed `cidr` by the time this runs.
     */
     sql: {
         applies: (args) => args.cidr != null && args.min == null && args.max == null,

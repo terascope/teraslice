@@ -93,13 +93,11 @@ export const isPhoneNumberLikeConfig: FieldValidateConfig = {
     },
     sql: {
         /**
-         * **Not libphonenumber.** `isPhoneNumberLike` strips every non-digit and asks whether 7 to
-         * 20 remain - see `phoneNumberLikeSql`. It shares a file with `isISDN`/`toISDN`, which are
-         * the two that really do call `awesome-phonenumber`, and that is the whole reason this was
-         * grouped with them.
+         * Strips every non-digit and checks that 7 to 20 digits remain; see `phoneNumberLikeSql`.
+         * This does not use libphonenumber.
          *
-         * A string column only: for a numeric one the digits come from `toString(input)`, and
-         * JavaScript renders 1e21 as `'1e+21'` (three digits) where DuckDB renders
+         * String columns only: for a number the digits come from `toString(input)`, and JavaScript
+         * renders 1e21 as `'1e+21'` (three digits) where DuckDB renders
          * `'1000000000000000000000.0'` (22).
         */
         types: STRING_FIELD_TYPES,

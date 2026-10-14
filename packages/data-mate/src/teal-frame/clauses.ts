@@ -2,21 +2,19 @@ import { quoteIdentifier } from '@terascope/sql-builder';
 import { SelectList } from './interfaces.js';
 
 /**
- * Clause fragments that are the FRAME's own, not shared SQL.
+ * SQL clause helpers specific to the frame.
  *
- * `ORDER BY`, `GROUP BY` and `LIMIT`/`OFFSET` all come from `@terascope/sql-builder`, because
- * a translated statement has to render them identically. What is left here is the projection,
- * which the frame builds from a shape only it accepts.
+ * `ORDER BY`, `GROUP BY` and `LIMIT`/`OFFSET` come from `@terascope/sql-builder` so that
+ * translated statements render them the same way. Only the projection is built here.
 */
 
 /**
- * A `SELECT` list and the columns it produces, from either shape a caller holds.
+ * Builds a `SELECT` list and the column names it produces.
  *
- * A map supplies both - its keys ARE the column names, and each expression is aliased to one.
- * A verbatim string supplies neither, because a `SELECT` list cannot be parsed back into
- * names without parsing SQL: `struct_pack(...) AS "nested"` and `a.*` are both legal and
- * neither yields its columns to a regular expression. So a verbatim list must be given
- * `columns` - which `QueryAccess.restrictSQLParts` returns beside it, as `columns`.
+ * With a map, the keys are the column names and each expression is aliased to its key.
+ * A verbatim string cannot be turned back into column names without parsing SQL
+ * (`struct_pack(...) AS "nested"` and `a.*` are both valid), so it must come with
+ * `columns`. `QueryAccess.restrictSQLParts` returns both.
 */
 export function selectList(
     select: SelectList,

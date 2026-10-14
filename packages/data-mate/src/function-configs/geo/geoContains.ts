@@ -114,8 +114,9 @@ export const geoContainsConfig: FieldValidateConfig<GeoContainsArgs> = {
         return geoContainsFP(value);
     },
     /**
-     * `ST_Contains`, which differs from `geoContains` for a shape TOUCHING a hole's edge - and is
-     * right where `geo-utils` is wrong. See `sql-utils.ts` and known-defects DF8.
+     * `ST_Contains`. For a shape that touches a hole's edge, `geo-utils` reports it as not
+     * contained and `ST_Contains` reports it as contained; the SQL answer is the correct one.
+     * See `sql-utils.ts`.
     */
     sql: {
         applies: (args, inputConfig) => isScalarColumn(inputConfig)

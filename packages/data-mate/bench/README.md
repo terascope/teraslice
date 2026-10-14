@@ -20,39 +20,16 @@ slowest case in each suite.
 | `lib/helpers.js` | the `Suite()` wrapper and its reporting |
 | `lib/generate-data.js` | regenerates `fixtures/` |
 | `fixtures/` | `data.json` (2,000 records) and `data.dfjson`, shared by every suite |
-| `scripts/` | one-off `*-perf-test.js` probes. **Not** run by `index.js` — they execute on import |
+| `scripts/` | standalone `*-perf-test.js` scripts. Not run by `index.js`; they execute on import |
 
-`fixtures/data.json` is the shared corpus, and its config is deliberately awkward: `Short`, `IP`,
-`Keyword[]`, `Date`, `GeoPoint`, nested `Object`s, and an **array of objects** (`results`). Using
-it everywhere is what makes numbers comparable between suites.
-
-## It was broken, and this is what was wrong
-
-`pnpm benchmark` ran **zero** benchmarks before 2026-08-14. Five separate faults:
-
-1. **`index.js` called the module namespace, not its default export** — `await initSuite()` where
-   `initSuite` was the result of `import()`. Every run died with `TypeError: initSuite is not a
-   function` before a single benchmark started.
-2. **One bad import killed the whole run.** Loading was a single `pMap` over every suite, so the
-   first rejection aborted all of them. Now each suite loads independently and a broken one is
-   named and skipped.
-3. `aggregrate-suite.js` (also a typo — now `aggregate-suite.js`) read its fixture through
-   `path.join('.', './fixtures/data.json')`, i.e. **relative to the cwd**, so it only loaded if
-   you happened to run it from inside `bench/`. That was the import that aborted the run.
-4. `data-frame-iteration-suite.js` and `data-frame-serialize-suite.js` used `path`,
-   `fileURLToPath` and `fs` **without importing them**. The serialize suite also named itself
-   after an undefined `fileName`.
-5. `data-frame-has-empty-rows-suite.js` matched `-suite.js`, so it was discovered, but had **no
-   `export default`** — so it could only ever have thrown.
-
-`scripts/serialize-perf-test.js` also imported `mnemonist/multi-map`, a subpath that is
-`require`-only in that package's `exports` map and cannot resolve under ESM at all; it now takes
-`MultiMap` off the package root.
+`fixtures/data.json` is the shared corpus. Its config covers awkward types on purpose: `Short`,
+`IP`, `Keyword[]`, `Date`, `GeoPoint`, nested `Object`s, and an array of objects (`results`).
+Every suite uses it so that numbers are comparable between suites.
 
 ## Adding a suite
 
-Put it in the right `suites/<group>/` directory, name it `*-suite.js`, and **`export default`** a
-function returning `suite.run(...)`:
+Put it in the right `suites/<group>/` directory, name it `*-suite.js`, and `export default` a
+function that returns `suite.run(...)`:
 
 ```js
 import { isExecutedFile } from '@terascope/core-utils';
@@ -85,8 +62,8 @@ if (isExecutedFile(import.meta.url)) {
 }
 ```
 
-**Asynchronous work needs `defer: true`**, or benchmark.js times only how long it took to create
-the promise:
+Asynchronous work needs `defer: true`. Without it, benchmark.js times only how long it takes to
+create the promise:
 
 ```js
 suite.add('an async case', {
@@ -97,18 +74,14 @@ suite.add('an async case', {
 });
 ```
 
-Anything measuring `TealFrame` needs this, since every one of its operations is async — and note
-that its query operations are **lazy relations**, so a benchmark must force execution (drain
-`rows()`, or `size()`) or it measures SQL string building.
+Every `TealFrame` operation is async, so any benchmark of it needs `defer: true`. Its query
+operations are also lazy: they only build SQL. A benchmark must force execution, by draining
+`rows()` or calling `size()`, or it measures string building.
 
-Import `TealFrame` from `../../../dist/src/teal-frame/TealFrame.js`, **not** from
-`dist/src/index.js`: `teal-frame` is deliberately not re-exported there, so the package-root
-import yields `undefined` rather than an error.
+## Things to watch for
 
-## Two traps worth knowing
-
-- **`pnpm benchmark` builds first; running a suite directly does not.** A suite reads
-  `dist/`, so after changing `src` run `pnpm build` or you are measuring the previous build.
-- **Do not benchmark through jest.** Measured: the same ingest workload reports ~4× worse under
-  `ts-scripts test` than as a standalone script, thanks to swc transpilation, the per-file module
+- `pnpm benchmark` builds first; running a suite directly does not. Suites read `dist/`, so after
+  changing `src`, run `pnpm build` or you will measure the previous build.
+- Do not benchmark through jest. The same ingest workload runs about 4x slower under
+  `ts-scripts test` than as a standalone script, because of swc transpilation, the per-file module
   registry, and coverage instrumentation.

@@ -40,7 +40,7 @@ export const getCIDRMinConfig: FieldTransformConfig = {
     create() {
         return getCIDRMin;
     },
-    /** The deprecated alias for `getFirstUsableIPInCIDR`, and the same emission. */
+    /** The deprecated alias for `getFirstUsableIPInCIDR`, with the same SQL. */
     sql: {
         needs_udf_fallback: true,
         expression: ({ value, udf }) => `CASE WHEN NOT ${isCIDRSql(value)}`

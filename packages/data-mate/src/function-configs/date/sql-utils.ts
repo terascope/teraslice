@@ -2,27 +2,22 @@ import { getValidDateWithTimezone, isNumber, timezoneToOffset } from '@terascope
 import { sqlLiteral } from '../sql-helpers.js';
 
 /**
- * Helpers shared by the `sql` emissions on the date function configs.
+ * Helpers shared by the SQL expressions on the date function configs.
  *
- * The stored value is a **naive UTC `TIMESTAMP`** - established by the first date batch, and
- * verified under `TZ=America/New_York`: `getHours('2026-01-02T03:04:05.678Z')` is `3`, the UTC
- * hour. So none of this does timezone handling, and none of it should start.
+ * A `Date` column is stored as a naive UTC `TIMESTAMP`, so these helpers do no timezone handling.
  *
- * **Why every setter narrows `applies` to the argument's VALID RANGE.** These functions validate in
- * `create()` and THROW - `setHours(25)` is `hours value must be an integer between 0 and 23`. A
- * pure SQL emission never calls `create()`, so a bare `Number.isInteger` guard would let `25`
- * through and quietly return the next day at 01:00 where the UDF path raises. The range in each
- * `applies` is the range that function's own error message names.
+ * Every setter limits `applies` to the argument's valid range. The functions validate in
+ * `create()` and throw (`setHours(25)` fails with `hours value must be an integer between 0 and
+ * 23`), but a SQL expression never calls `create()`, so `25` would quietly roll over to 01:00
+ * the next day. Out-of-range arguments use the UDF instead, which throws.
 */
 
 /**
- * A `TIMESTAMP` literal for an argument that is a date, resolved at PLAN time.
+ * A `TIMESTAMP` literal for a date argument, resolved when the query is planned.
  *
- * The argument may be a string, a number of epoch millis, a `Date` or a `DateTuple`, and the UDF
- * puts every one of them through `getValidDateWithTimezone` - so the emission calls the same
- * converter rather than reimplementing the accepted forms. `validate_arguments` has already
- * rejected anything invalid by the time this runs; the `false` branch is there because the
- * converter's type says it can, not because it is reachable.
+ * It uses the UDF's own converter, `getValidDateWithTimezone`, so it accepts the same forms: a
+ * string, epoch millis, a `Date` or a `DateTuple`. `validate_arguments` has already rejected
+ * invalid input; the null return exists only because the converter's type allows it.
 */
 export function timestampLiteral(value: unknown): string | null {
     const date = getValidDateWithTimezone(value, false);
@@ -31,27 +26,24 @@ export function timestampLiteral(value: unknown): string | null {
         .replace('T', ' ')}'`;
 }
 
-/** True when the argument resolves to a date, so the emission can be built for it. */
+/** True when the argument resolves to a date, so a SQL expression can be built for it. */
 export function isDateArg(value: unknown): boolean {
     return timestampLiteral(value) != null;
 }
 
 /**
- * Replaces ONE field of a timestamp, keeping everything finer than it and **rolling over** the way
+ * Replaces one field of a timestamp, keeping the finer fields and rolling over the way
  * JavaScript does.
  *
- * `setUTCDate(31)` on a February date is March 3 in JavaScript, not an error and not February 28 -
- * `Date` overflows into the next month. DuckDB's `+ INTERVAL n MONTH` CLAMPS instead (Jan 31 plus a
- * month is Feb 28), so an emission built by adding to the original timestamp would silently
- * disagree on exactly the inputs that matter.
+ * In JavaScript, `setUTCDate(31)` on a February date gives March 3. DuckDB's
+ * `+ INTERVAL n MONTH` clamps instead (Jan 31 plus a month is Feb 28), so adding to the original
+ * timestamp would give a different answer. Starting from the enclosing unit's boundary avoids
+ * the clamp: the day-of-month is then 1, and the offsets added after it are plain day and time
+ * arithmetic that overflows the same way in both. Feb 1 + 30 days is March 3 in both.
  *
- * Rebuilding from the PARENT boundary avoids that: truncating to the start of the enclosing unit
- * makes the day-of-month 1, where no clamping can happen, and the offsets added after it are plain
- * day and time arithmetic that overflows naturally. Feb 1 + 30 days is March 3 in both languages.
- *
- * @param parent the unit that ENCLOSES the field being set - `'month'` for a day-of-month
+ * @param parent the unit that encloses the field being set, e.g. `'month'` for a day-of-month
  * @param unit the field being set
- * @param offset how far past the parent boundary the new value sits, already SQL
+ * @param offset how far past the parent boundary the new value sits, as SQL
 */
 export function replaceField(
     value: string,
@@ -64,24 +56,17 @@ export function replaceField(
 }
 
 /**
- * The units of `addToDate`/`subtractFromDate` that SQL can reproduce, and why the rest cannot.
+ * The `addToDate`/`subtractFromDate` units that SQL reproduces exactly.
  *
- * **`date-fns` `add`/`sub` operate on LOCAL WALL-CLOCK time**, while the stored column is naive
- * UTC. Measured: under `TZ=America/New_York`, `addToDate('1900-03-01T00:00:00Z', { months: 1 })` is
- * `1900-03-29`, not `1900-04-01` - midnight UTC is the PREVIOUS DAY locally, so the month is added
- * to February. Under `TZ=UTC` and `TZ=Asia/Kolkata` every case in the probe matched. Day and week
- * units break the same way across a DST transition: `+ { days: 1 }` over 2026-03-08 adds 23 hours,
- * where `INTERVAL 1 DAY` on a naive timestamp adds 24.
+ * `date-fns`' `add` and `sub` work on local wall-clock time, while the column is naive UTC. Under
+ * `TZ=America/New_York`, `addToDate('1900-03-01T00:00:00Z', { months: 1 })` is `1900-03-29`,
+ * because midnight UTC is still February locally; under `TZ=UTC` it is `1900-04-01`. Days and
+ * weeks differ the same way across DST: `{ days: 1 }` over 2026-03-08 adds 23 hours, while
+ * `INTERVAL 1 DAY` adds 24. So years, months, weeks and days depend on the host timezone and
+ * keep the UDF.
  *
- * So the calendar units are process-timezone dependent and are left on the UDF - the answer is not
- * one SQL could reproduce without knowing the server's zone, and reproducing a timezone-dependent
- * answer is not obviously the right goal anyway: `addToDate('1900-03-01T00:00:00Z', { months: 1 })`
- * is `1900-04-01` under UTC and `1900-03-29` under `America/New_York`, because `date-fns`' `add`
- * and `sub` work on local wall-clock time while the pipeline treats the value as naive UTC.
- *
- * Hours, minutes and seconds are exact epoch arithmetic on both sides and always agree.
- * **`milliseconds` is silently IGNORED** by both, because `date-fns`' `Duration` has no such key -
- * verified, `add(d, { milliseconds: 500 })` returns `d` unchanged.
+ * Hours, minutes and seconds are exact epoch arithmetic on both sides. `milliseconds` is ignored
+ * by both, because `date-fns`' `Duration` has no such key.
 */
 const TIME_UNITS: Record<string, string> = {
     hours: 'HOUR', minutes: 'MINUTE', seconds: 'SECOND',
@@ -109,31 +94,31 @@ export function timeInterval(args: Record<string, any>): string | null {
 }
 
 /**
- * The `getTimeBetween` intervals SQL reproduces, as seconds-per-unit.
+ * The `getTimeBetween` intervals SQL reproduces, as seconds per unit.
  *
- * **These are TRUNCATED differences, not boundary counts.** `date_diff('hour', ...)` counts hour
- * boundaries crossed, where `differenceInHours` truncates the elapsed time - `00:59` to `01:00` is
- * one boundary and zero full hours. So the emission divides an elapsed-seconds value and truncates,
- * which is what `date-fns` does.
+ * The result is the elapsed time divided by the unit and truncated, as `date-fns` does.
+ * `date_diff('hour', ...)` would count hour boundaries crossed instead: `00:59` to `01:00`
+ * crosses one boundary but is zero full hours.
  *
- * Only the epoch-based intervals are here. The `calendar*` variants, `months`, `quarters`, `years`,
- * `businessDays`, the ISO-week family and the `ISO8601` duration string are all calendar
- * arithmetic
- * on LOCAL wall-clock time - the same timezone dependency that limits `addToDate` - and stay
- * on the UDF. Verified: these six agree under `TZ=UTC` and `TZ=America/New_York` alike, because
- * `differenceInDays` and `differenceInWeeks` are epoch-based despite their names.
+ * The `calendar*` variants, `months`, `quarters`, `years`, `businessDays`, the ISO-week family
+ * and the `ISO8601` duration string work on local wall-clock time, like `addToDate`'s calendar
+ * units, and keep the UDF.
+ *
+ * `days` and `weeks` match only when the host timezone has no DST change between the two
+ * dates: `differenceInDays` counts local days, so 23 hours across a spring-forward change is
+ * 1 day there and 0 here.
 */
 const INTERVAL_SECONDS: Record<string, number> = {
     seconds: 1, minutes: 60, hours: 3600, days: 86400, weeks: 604800,
 };
 
-/** True when `getTimeBetween` can be emitted for these arguments. */
 interface TimeBetweenArgs {
     interval?: unknown;
     start?: unknown;
     end?: unknown;
 }
 
+/** True when `getTimeBetween` can run as SQL for these arguments. */
 export function isEpochInterval(args: TimeBetweenArgs): boolean {
     const interval = args.interval as string;
     const known = interval === 'milliseconds' || INTERVAL_SECONDS[interval] != null;
@@ -144,8 +129,8 @@ export function isEpochInterval(args: TimeBetweenArgs): boolean {
 /**
  * The elapsed time between the column and the fixed end, truncated to the interval.
  *
- * The sign follows `_getStartEndTime`: a `start` makes the column the LATER value, an `end` makes
- * it the earlier one.
+ * The sign follows `_getStartEndTime`: with `start` the column is the later value, with `end`
+ * it is the earlier one.
 */
 export function timeBetween(value: string, args: TimeBetweenArgs): string {
     const fixed = timestampLiteral(args.start ?? args.end);
@@ -160,21 +145,9 @@ export function timeBetween(value: string, args: TimeBetweenArgs): string {
 }
 
 /**
- * The offset of `zone` from UTC, in minutes, AT the instant in `value`.
- *
- * There is no one-call offset function - `date_part('timezone', ts)` only answers for the SESSION
- * zone - but this idiom is per-row and DST-aware, and it is the one the coverage research found.
- * Verified against `getTimezoneOffset` over six zones and six instants, including both US DST
- * transitions and the half-hour zones: 36 of 36.
- *
- * The argument ORDER is the whole thing. Reversed, every non-UTC zone comes back with the wrong
- * sign - `America/New_York` in January is `-300`, not `300` - and UTC still matches, so a battery
- * without a real zone in it would not notice.
-*/
-/**
- * A date value WITH a display offset, `{ ms, tz_offset }` - the TealFrame storage of a
- * `DateTuple`, `[ms, offset]` (`teal-frame/date-value.ts`; the member names are spelled out here
- * because function configs do not depend on TealFrame). `instant` is a TIMESTAMP; NULL gives NULL.
+ * A date value with a display offset, `{ ms, tz_offset }`: how TealFrame stores a `DateTuple`
+ * (`[ms, offset]`, see `teal-frame/date-value.ts`). The member names are written out here
+ * because function configs do not depend on TealFrame. `instant` is a TIMESTAMP; NULL gives NULL.
 */
 export function dateWithOffset(instant: string, offsetMinutes: string): string {
     return `CASE WHEN ${instant} IS NULL THEN NULL ELSE`
@@ -182,9 +155,9 @@ export function dateWithOffset(instant: string, offsetMinutes: string): string {
 }
 
 /**
- * A timezone name's offset in minutes, resolved in JavaScript, or undefined when core-utils cannot
- * resolve it - in which case the function's own UDF runs and fails or returns null as it does in
- * `DataFrame`. `timezoneToOffset` is the zone's offset NOW, which is what `setTimezone` uses.
+ * A timezone's current offset in minutes, resolved in JavaScript with `timezoneToOffset` as
+ * `setTimezone` does. Returns undefined when core-utils cannot resolve the zone, so the UDF runs
+ * and fails or returns null as it does in `DataFrame`.
 */
 export function currentOffsetMinutes(timezone: unknown): number | undefined {
     try {
@@ -196,12 +169,14 @@ export function currentOffsetMinutes(timezone: unknown): number | undefined {
 }
 
 /**
- * The offset `toTimeZone` attaches, in minutes, per row.
+ * The offset of `zone` from UTC in minutes, per row, as `toTimeZone` attaches it.
  *
- * **It is the offset at the WALL TIME equal to the UTC instant**, not at the instant itself -
- * what core-utils' `getTimezoneOffset` returns, measured: 0 of 119 DST-edge cases differ from
- * this, where the instant-correct `timezone(zone, ts AT TIME ZONE 'UTC')` differs on 11 (within a
- * few hours of a change, in New York, Sydney, Lord Howe and Paris). It does not depend on host TZ.
+ * It is the zone's offset at the local wall time equal to the UTC instant, not at the instant
+ * itself, because that is what core-utils' `getTimezoneOffset` returns. The two differ only
+ * within a few hours of a DST change. The result does not depend on the host timezone.
+ *
+ * The order of the two `AT TIME ZONE` steps matters: reversed, every non-UTC zone gets the wrong
+ * sign (`America/New_York` in January would be `300` instead of `-300`).
 */
 export function timezoneOffsetMinutes(value: string, zone: string): string {
     const local = `(${value} AT TIME ZONE ${sqlLiteral(zone)}) AT TIME ZONE 'UTC'`;
@@ -209,19 +184,16 @@ export function timezoneOffsetMinutes(value: string, zone: string): string {
 }
 
 /**
- * ## The `now`-relative date predicates, as SQL over a PLAN-TIME instant.
+ * ## The date predicates relative to "now"
  *
- * **This is the one accepted behaviour change in the date group.** `isFuture`, `isPast`,
- * `isToday`, `isTomorrow` and `isYesterday` each read `Date.now()` **per row** through `date-fns`.
- * The emission resolves the instant ONCE, when the query is planned, and compares every row
- * against that. For a query that straddles midnight the two differ - and the plan-time answer is
- * the more defensible of the two, because every row in one result then agrees about when "now"
- * was, which the per-row version cannot promise.
+ * `isFuture`, `isPast`, `isToday`, `isTomorrow` and `isYesterday` read `Date.now()` per row in
+ * the UDF. The SQL form reads it once, when the query is planned, and compares every row against
+ * that. The results differ only for a query that runs across midnight, and then the SQL form is
+ * the more consistent one: every row in a result agrees about when "now" was.
  *
- * **The day boundaries are computed in JavaScript, deliberately.** `_isToday` and friends are
- * LOCAL-day predicates, and DuckDB's `current_date` would use the session's timezone rather than
- * the Node process's. Building the boundary with `Date` in this process and splicing it in as a
- * UTC `TIMESTAMP` literal reproduces `date-fns` exactly instead of approximating it.
+ * The day boundaries are computed in JavaScript because `date-fns` uses the Node process's local
+ * timezone, while DuckDB's `current_date` would use the session timezone. Each boundary is
+ * inserted as a UTC `TIMESTAMP` literal.
 */
 
 /** A naive-UTC `TIMESTAMP` literal for an instant. */

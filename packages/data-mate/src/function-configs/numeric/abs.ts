@@ -29,7 +29,7 @@ export const absConfig: FieldTransformConfig = {
     create() {
         return runMathFn(Math.abs);
     },
-    /** `abs` is native, and `runMathFn`'s non-finite-to-null guard is kept. */
+    /** Native `abs`, keeping `runMathFn`'s rule that a non-finite result is null. */
     sql: {
         expression: ({ value }) => finiteOrNull(`abs(${value})`),
     },

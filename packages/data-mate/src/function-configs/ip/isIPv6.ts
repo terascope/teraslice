@@ -54,10 +54,10 @@ export const isIPv6Config: FieldValidateConfig = {
         return isIPv6;
     },
     /**
-     * A colon, no prefix, and a cast that survives - with the scope ID stripped first.
+     * A colon, no prefix, and a successful cast once any scope ID is stripped.
      *
-     * `IPAddress.isIPv6` requires a colon before it parses at all, and it truncates at `%`, so
-     * `fe80::1%eth0` is valid to data-mate while `INET` rejects it outright.
+     * `IPAddress.isIPv6` requires a colon and ignores everything from `%`, so `fe80::1%eth0` is
+     * valid to data-mate while `INET` rejects it.
     */
     sql: {
         expression: ({ value }) => isIPv6Sql(value),

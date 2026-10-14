@@ -99,11 +99,11 @@ export const encodeConfig: FieldTransformConfig<EncodeArgs> = {
     },
     sql: {
         /**
-         * Every algorithm/digest pair DuckDB can express, which is most of them.
+         * Every algorithm and digest pair DuckDB can express.
          *
-         * `encodeAny` has three branches - `url`, the two `Buffer` encodings, and `createHash` -
-         * and all three have a native form. Anything else (`sha512`, a `latin1` digest) keeps the
-         * UDF. Measured byte-equal over a 12-input battery: see `hashSql`.
+         * `encodeAny` handles `url`, the two `Buffer` encodings and `createHash`, and each has a
+         * native form. Anything else, such as `sha512` or a `latin1` digest, keeps the UDF. See
+         * `hashSql`.
         */
         applies: ({ algo, digest }) => algo === 'url' || hasHashSql(algo, digest),
         expression: ({ value, args: { algo, digest } }) => (algo === 'url'

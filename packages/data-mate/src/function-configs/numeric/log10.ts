@@ -53,12 +53,12 @@ export const log10Config: FieldTransformConfig = {
     /**
      * `log10`, with its domain checked first.
      *
-     * `log10(0)` and a negative argument THROW in DuckDB where JavaScript returns -Infinity and
-     * NaN, both of which `runMathFn` turns into null.
+     * `log10(0)` and negative arguments raise an error in DuckDB, while JavaScript returns
+     * -Infinity and NaN, which `runMathFn` turns into null.
     */
     sql: {
-        // transcendental: DuckDB's libm and V8 differ in the last bit, which IEEE 754
-        // permits. The gate compares these to a few ULP - see `approximate`.
+        // DuckDB and V8 can differ in the last bit of a transcendental result, which
+        // IEEE 754 allows, so `approximate` compares results to within a few ULP
         approximate: true,
         expression: ({ value }) => finiteOrNull(inDomain(`${value} > 0`, `log10(${value})`)),
     },

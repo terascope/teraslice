@@ -148,12 +148,9 @@ export const isEmailConfig: FieldValidateConfig = {
     },
     sql: {
         /**
-         * **One regex, and not `validator`'s.** `core-utils`' `isEmail` is a single pattern with no
-         * lookaround and no backreference, which RE2 compiles as written - see
-         * `EMAIL_SQL_PATTERN`, where the `i` flag is expanded by hand rather than handed to DuckDB.
-         *
-         * The 173 procedural lines this was declined for are `validator.isEmail`, which nothing in
-         * this codebase calls.
+         * One regex: `core-utils`' own `isEmail` pattern, not `validator.isEmail`. It has no
+         * lookaround or backreference, so RE2 compiles it. See `EMAIL_SQL_PATTERN`, where the `i`
+         * flag is expanded by hand.
         */
         expression: ({ value }) => `regexp_matches(${value}, ${sqlLiteral(EMAIL_SQL_PATTERN)})`,
     },

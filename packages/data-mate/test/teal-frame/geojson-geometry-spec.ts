@@ -10,12 +10,11 @@ import {
 /**
  * A `GeoJSON` field is stored as a DuckDB `GEOMETRY`, not as JSON text.
  *
- * As JSON text every spatial query re-parsed every row (`ST_GeomFromGeoJSON(col::VARCHAR)`), and a
- * UDF would have had to `JSON.parse` what ingest had just `JSON.stringify`d. As a `GEOMETRY` the
- * shape is parsed once, at ingest, and crosses the Parquet wire as GeoParquet (WKB).
+ * Stored as text, every spatial query would re-parse every row. As a `GEOMETRY` the shape is
+ * parsed once at ingest and is written to Parquet as GeoParquet (WKB).
  *
- * **Integral coordinates render as `1.0`** where `DataFrame` writes `1` - the same number, and real
- * coordinates are not integral - so output is compared as parsed JSON, not as bytes.
+ * Integral coordinates render as `1.0` where `DataFrame` writes `1`, which is the same number, so
+ * output is compared as parsed JSON rather than as bytes.
 */
 const CONFIG: DataTypeConfig = {
     version: 1,
@@ -148,11 +147,11 @@ describe('TealFrame GeoJSON stored as GEOMETRY', () => {
     });
 
     /**
-     * **Two deliberate divergences** - a GEOMETRY holds the geometry and nothing else:
+     * Two deliberate differences from `DataFrame`, because a GEOMETRY holds only the geometry:
      *
-     * - a non-canonical `type` spelling comes back canonical. `toGeoJSON` maps Elasticsearch's
-     *   `'polygon'` to `'Polygon'` but leaves `'POLYGON'` as written, so `DataFrame` keeps it;
-     * - keys beside `type` and `coordinates` (a `bbox`, `properties`) are not stored.
+     * - A non-canonical `type` spelling comes back canonical. `toGeoJSON` maps Elasticsearch's
+     *   `'polygon'` to `'Polygon'` but leaves `'POLYGON'` as written, so `DataFrame` keeps it.
+     * - Keys beside `type` and `coordinates` (a `bbox`, `properties`) are not stored.
     */
     describe('what a GEOMETRY does not keep', () => {
         it('should return a non-canonical type spelling canonically', async () => {

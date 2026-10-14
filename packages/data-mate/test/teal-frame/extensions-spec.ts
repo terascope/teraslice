@@ -15,9 +15,9 @@ const CONFIG: DataTypeConfig = {
 };
 
 /**
- * These run with the DEFAULT extension directory and autoinstall on, as local development and
+ * These run with the default extension directory and autoinstall on, as local development and
  * CI do, so the first run on a machine downloads the extensions. The "missing" cases point at
- * an empty directory with autoinstall off, which is exactly an image built without them.
+ * an empty directory with autoinstall off, which matches an image built without them.
 */
 describe('duck extensions', () => {
     let scratch: string;
@@ -113,8 +113,8 @@ describe('duck extensions', () => {
     });
 
     describe('a failed open is not cached', () => {
-        // MEASURED before the fix: one bad setting made every later frame, configure and close
-        // on that database rethrow the same error for the life of the process.
+        // A failed open must not be cached; otherwise one bad setting would make every later
+        // frame, configure and close on that database rethrow the same error.
         it('lets a frame open the database after a bad configure', async () => {
             const database = join(scratch, 'poisoned.db');
 
@@ -147,7 +147,7 @@ describe('duck extensions', () => {
 
     describe('configuring an open database', () => {
         it('accepts the SAME directory again, so configure stays idempotent', async () => {
-            // DuckDB's default location, named explicitly - populated by the opens above
+            // DuckDB's default location, named explicitly and populated by the opens above
             const directory = join(homedir(), '.duckdb', 'extensions');
             const database = join(scratch, 'same-dir.db');
             await configureDuckDatabase({ database, extensionDirectory: directory });

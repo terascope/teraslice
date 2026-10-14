@@ -106,9 +106,9 @@ export const geoRelationConfig: FieldValidateConfig<GeoRelationArgs> = {
         return geoRelationFP(value, relation);
     },
     /**
-     * Dispatches to the same `ST_*` function the corresponding predicate uses, so it inherits
-     * their verdicts: `intersects` and `disjoint` are identical to `geo-utils`, `within` and
-     * `contains` differ on hole-touching cases and are right to. See known-defects DF8.
+     * Uses the same `ST_*` function as the matching predicate, so it gives the same answers:
+     * `intersects` and `disjoint` match `geo-utils`, while `within` and `contains` differ for
+     * shapes that touch a hole's edge. See `geoContains`.
     */
     sql: {
         applies: (args, inputConfig) => isScalarColumn(inputConfig)

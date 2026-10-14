@@ -139,7 +139,7 @@ export const geoWithinConfig: FieldValidateConfig<GeoWithinArgs> = {
     create({ args: { value } }) {
         return geoWithinFP(value);
     },
-    /** `ST_Within`, the mirror of `geoContains` including the hole divergence. */
+    /** `ST_Within`, the mirror of `geoContains`, with the same difference at hole edges. */
     sql: {
         applies: (args, inputConfig) => isScalarColumn(inputConfig)
             && isGeoColumn(inputConfig) && isGeoArg(args.value),

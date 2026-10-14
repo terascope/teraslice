@@ -9,20 +9,20 @@ import {
 } from './extensions.js';
 
 /**
- * Installing and verifying the extensions at IMAGE BUILD time - the DuckDB counterpart of the
- * kafka client's `node-pre-gyp install`, which fetches its native binary during `pnpm install`.
+ * Installs and verifies the DuckDB extensions while a Docker image is built, much as
+ * `node-pre-gyp install` fetches the kafka client's native binary during `pnpm install`.
  *
- * Both run inside the target platform's build container, so DuckDB picks the right platform
- * (`linux_amd64_musl` in the teraslice image) the same way node-pre-gyp picks its libc. Both
- * use THIS package's `@duckdb/node-api`, so the extension version cannot drift from the binding.
+ * Running inside the target platform's build container lets DuckDB pick the right platform
+ * (`linux_amd64_musl` in the teraslice image). Using this package's `@duckdb/node-api` keeps
+ * the extension version in step with the binding.
 */
 
 export interface ExtensionReport {
     version: string;
     platform: string;
-    /** Resolved, never empty: DuckDB's default when nothing was set. */
+    /** Always set; DuckDB's default when nothing was configured. */
     directory: string;
-    /** One line per extension. Empty from `install`; `verify` fails when it is not. */
+    /** One line per failed extension. Always empty from `install`; `verify` fails if not. */
     failures: string[];
 }
 
@@ -37,11 +37,11 @@ export interface InstallOptions {
 }
 
 /**
- * Downloads the required extensions into `directory`. Throws on the first one that fails, so
- * the image build stops there.
+ * Downloads the required extensions into `directory`. Throws on the first failure, so the
+ * image build stops there.
  *
- * Asserts `STATIC_EXTENSIONS` are still compiled in FIRST, so a DuckDB upgrade that unlinks one
- * fails this build instead of the air-gapped box.
+ * It first checks that `STATIC_EXTENSIONS` are still compiled in, so a DuckDB upgrade that
+ * drops one fails the build rather than a machine without network access.
 */
 export async function installExtensions(options: InstallOptions = {}): Promise<ExtensionReport> {
     await assertStaticExtensions();
@@ -66,9 +66,9 @@ export async function installExtensions(options: InstallOptions = {}): Promise<E
 }
 
 /**
- * Proves the extensions work with NO network: opens a database exactly as production does,
- * autoinstall off, then runs each extension's check. Run it in the RUNTIME stage of the image,
- * so it tests the files that ship, owned and permissioned as they ship.
+ * Checks that the extensions work without network access. Opens a database as production does,
+ * with autoinstall off, and runs each extension's check. Run it in the image's runtime stage so
+ * it tests the shipped files with their real ownership and permissions.
 */
 export async function verifyExtensions(
     options: Pick<InstallOptions, 'directory'> = {}
@@ -100,8 +100,9 @@ export async function verifyExtensions(
 }
 
 /**
- * Checked against an EMPTY directory: a directory holding a downloaded copy shadows the
- * built-in one and `duckdb_extensions()` then reports it as a repository install.
+ * Throws if any `STATIC_EXTENSIONS` entry is no longer compiled in. Uses an empty extension
+ * directory, because a downloaded copy would shadow the built-in one and
+ * `duckdb_extensions()` would report it as a repository install.
 */
 async function assertStaticExtensions(): Promise<void> {
     const empty = mkdtempSync(join(tmpdir(), 'duckdb-static-'));
@@ -141,7 +142,7 @@ async function describe(
     return { version, platform, directory: directory || '~/.duckdb/extensions' };
 }
 
-/** For a report when the configured database could not even open. */
+/** Describes DuckDB for a report when the configured database could not open. */
 async function describeDefaults(
     directory: string | undefined
 ): Promise<Omit<ExtensionReport, 'failures'>> {

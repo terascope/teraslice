@@ -6,12 +6,12 @@ import {
 } from '../../src/index.js';
 
 /**
- * `lookup`'s SQL emission against `DataFrame`, on every column kind it claims.
+ * Compares the SQL expression for `lookup` with `DataFrame`, on every column kind it supports.
  *
- * core-utils' `lookup` is `table[key]`, so the cases are JavaScript's property-access rules: a
+ * core-utils' `lookup` is `table[key]`, so the cases follow JavaScript's property-access rules: a
  * number key is its `String()`, a non-canonical key (`"01"`, `"1.50"`) never matches, an integer
- * column matches past 2^53, and an INHERITED name (`toString`, `constructor`, `__proto__`) is found
- * on every object - which the emission hands to the UDF.
+ * column matches past 2^53, and an inherited name (`toString`, `constructor`, `__proto__`) is found
+ * on every object. The SQL expression hands inherited names to the UDF.
 */
 
 const repo = functionConfigRepository as Record<string, FunctionDefinitionConfig<any>>;
@@ -41,7 +41,7 @@ const COLUMNS: readonly [string, FieldType, readonly unknown[]][] = [
     ['long', FieldType.Long, ['9007199254740993', '8910', '1', null]],
 ];
 
-/** `DataFrame`'s answer, except where DEF-BIGINT makes it wrong - see the test below. */
+/** `DataFrame`'s answer, except past 2^53 where `DataFrame` is wrong (see the test below). */
 function expectedFor(type: FieldType, table: unknown, expected: readonly unknown[]): unknown[] {
     if (type !== FieldType.Long || table !== OBJECT_TABLE) return [...expected];
     return expected.map((value, index) => (index === 0 ? 'past 2^53' : value));
@@ -91,10 +91,10 @@ describe('lookup as SQL', () => {
     });
 
     /**
-     * Past 2^53 TealFrame is EXACT and `DataFrame` is not: `DataFrame` stores the Long
-     * `9007199254740993` as `...994` (DEF-BIGINT, #4555 - its parser adds 1, only its output path
-     * takes it back), so its `lookup` misses the key. TealFrame stores the value exactly (DF15) and
-     * finds it - on the SQL path and the UDF path alike.
+     * Past 2^53 TealFrame is exact and `DataFrame` is not. `DataFrame` stores the Long
+     * `9007199254740993` as `...994` (#4555: its parser adds 1 and only its output path removes
+     * it), so its `lookup` misses the key. TealFrame stores the value exactly and finds it on both
+     * the SQL and the UDF path.
     */
     it('finds a Long key past 2^53 exactly, on both paths', async () => {
         const config: DataTypeConfig = { version: 1, fields: { v: { type: FieldType.Long } } };

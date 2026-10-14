@@ -54,7 +54,7 @@ export const signConfig: FieldTransformConfig = {
     create() {
         return runMathFn(Math.sign);
     },
-    /** `sign` is native; -0 is the case to watch, and the battery has it. */
+    /** Native `sign`. */
     sql: {
         expression: ({ value }) => finiteOrNull(`sign(${value})`),
     },

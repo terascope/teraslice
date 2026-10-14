@@ -3,16 +3,15 @@ import { FieldType, DataTypeConfig } from '@terascope/types';
 import { DataFrame, ListVector, SerializeOptions, TealFrame } from '../../src/index.js';
 
 /**
- * The two engine paths besides `rows(true, options)` that decide what a response contains
- * (`spaces/packages/qpl-engine/src/v3/execute`):
+ * Two output paths besides `rows(true, options)` that decide what a response contains:
  *
- * - **`serializeObject`** answers an object-shaped query from a ONE-row frame: its `results` list
- *   column is streamed element by element with `ListVector.getRowIterator(0, true, options)`.
- *   `TealFrame.listValues` is that.
- * - **`finish-scope`** calls `removeEmptyRows()` under `remove_null_fields`, otherwise
- *   `countEmptyRows()`, and reports the count as a metric. A row is empty when EVERY column's
- *   stored value is nil (`isEmptyRow` -> `vector.has`) - storage, not rendering, so `{}` and `[]`
- *   are values.
+ * - An object-shaped response comes from a one-row frame whose `results` list column is streamed
+ *   element by element with `ListVector.getRowIterator(0, true, options)`. `TealFrame.listValues`
+ *   does the same.
+ * - Empty rows are removed with `removeEmptyRows()` when null fields are removed, and otherwise
+ *   counted with `countEmptyRows()`. A row is empty when every column's stored value is nil
+ *   (`isEmptyRow` -> `vector.has`). That checks storage, not rendering, so `{}` and `[]` count
+ *   as values.
 */
 const FLAGS = [
     'useNullForUndefined',
@@ -46,7 +45,7 @@ const CONFIG: DataTypeConfig = {
     },
 };
 
-/** One-row frames, as `serializeObject` requires, covering each element case. */
+/** One-row frames, as an object-shaped response requires, covering each element case. */
 const ROWS: Record<string, Record<string, unknown>> = {
     'objects with a nil, an empty and a partial element': {
         total: 4,

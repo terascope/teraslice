@@ -68,11 +68,11 @@ export const isBooleanLikeConfig: FieldValidateConfig = {
         return isBooleanLike;
     },
     /**
-     * `isFalsy(x) || isTruthy(x)`, which is a different question per column type.
+     * `isFalsy(x) || isTruthy(x)`, expressed per column type.
      *
-     * A real boolean always qualifies. A number qualifies when it is 0 or 1 - `String(0)` is the
-     * `_falsy` key `'0'`. A string qualifies when it trims and lowercases into either table, or is
-     * empty. Anything else never does.
+     * A boolean always qualifies. A number qualifies when it is 0 or 1. A string qualifies when it
+     * is empty, or when it trims and lowercases to one of the truthy or falsy keys. Other column
+     * types keep the UDF.
     */
     sql: {
         applies: (_args, inputConfig) => isBooleanColumn(inputConfig)

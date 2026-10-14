@@ -22,9 +22,9 @@ export type NestedTypes = { [field: string]: BaseType };
  *   fields are the children, referenced from the parent type.
  * - **xLucene:** the merged xLucene configs of the parent and all children,
  *   keyed by their full dot-notation paths.
- * - **DuckDB:** ONE entry holding a nested `STRUCT`, since DuckDB nests rather than
- *   flattening. Unlike the conversions above it recurses past one level - see
- *   {@link GroupType.toDuckDB} for why that asymmetry exists.
+ * - **DuckDB:** one entry holding a nested `STRUCT`, since DuckDB nests rather than
+ *   flattens. Unlike the conversions above it nests past one level; see
+ *   {@link GroupType.toDuckDB}.
  *
  * @see {@link TupleType} for the ordered-set analogue.
  */
@@ -125,18 +125,14 @@ export default class GroupType extends BaseType {
     }
 
     /**
-     * Emit the parent as a single `STRUCT(child TYPE, ...)` entry built from its children.
+     * Return the parent as a single `STRUCT(child TYPE, ...)` entry built from its children.
      *
-     * Note this does NOT flatten the way `toXlucene` does: DuckDB nests, so children are not
-     * columns of their own and the result has exactly one key. A childless Object stays
-     * `JSON` - its shape is unknowable.
+     * Unlike `toXlucene`, children are not flattened into columns of their own, so the result
+     * has exactly one key. An Object with no children stays `JSON`, since its shape is unknown.
      *
-     * **This recurses where the rest of the package does not.** `getGroupedFields` splits on
-     * the FIRST dot only (`getTypes` carries a `@todo support multiple levels deep nesting`),
-     * so `this.types` is flat: `a.b` and `a.b.c` are siblings here. Inheriting that would
-     * emit `STRUCT(b JSON, "b.c" VARCHAR)` - a struct with a dotted member name, which is a
-     * broken table definition rather than merely an incomplete one. So the dotted paths are
-     * regrouped and nested properly.
+     * `getGroupedFields` splits on the first dot only, so `this.types` is flat: `a.b` and
+     * `a.b.c` are siblings here. Used as-is that would produce `STRUCT(b JSON, "b.c" VARCHAR)`,
+     * an invalid table definition, so the dotted paths are regrouped and nested.
      */
     toDuckDB(): DuckDBTypeConfig {
         const children: [name: string, type: BaseType][] = [];
@@ -179,9 +175,8 @@ function buildStruct(children: [name: string, type: BaseType][]): string {
         nested.set(head, group);
     }
 
-    // members in the order the config first names them - `DataFrame`'s key order - rather than
-    // plain members first and groups after. A STRUCT cast maps members BY NAME, so a payload
-    // written with the other order still loads into this one.
+    // Keep members in the order the config first names them, which matches DataFrame's key
+    // order. A STRUCT cast maps members by name, so data written in another order still loads.
     const order = [...new Set(children.map(([name]) => name.split('.', 1)[0]))];
     const members = order.map((name) => {
         const group = nested.get(name); // the group wins over the bare parent entry

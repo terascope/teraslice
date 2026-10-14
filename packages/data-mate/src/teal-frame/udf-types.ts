@@ -13,30 +13,29 @@ import { isJSONColumn } from './row-shape.js';
 import { DATE_TYPE, fromDateValue } from './date-value.js';
 
 /**
- * The DuckDB type OBJECTS a scalar function is registered with, and the conversion of what DuckDB
- * then hands it - both driven by the FULL field config, not a bare `FieldType`.
+ * Maps field configs to the DuckDB type objects a scalar function is registered with, and
+ * converts the values DuckDB passes to it.
  *
- * A bare type could not say "a list of", "a struct of these members" or "JSON", so every geo
- * function, the array reducers, `split`, `parseJSON`, `lookup`, `toGeoPoint` and `toGeoJSON` had
- * no UDF at all (known-defects DF4, DF7). Their SQL emission was the only way they ran.
+ * Both work from the full field config rather than a bare `FieldType`, because a bare type
+ * cannot describe a list, a struct with members, or JSON.
  *
- * **This must agree with `DataType.toDuckDB()`**, which gives the same mapping as type STRINGS
- * for DDL: registration needs the binding's type objects, and `@terascope/data-types` neither
- * depends on `@duckdb/node-api` nor should. A mismatch shows up as a bind error, or as a column
- * whose type contradicts its config - which is what `diffSchema` exists to catch.
+ * **This must agree with `DataType.toDuckDB()`**, which produces the same mapping as type
+ * strings for DDL. Registration needs the binding's type objects, and `@terascope/data-types`
+ * does not depend on `@duckdb/node-api`. A mismatch shows up as a bind error, or as a column
+ * whose type contradicts its config (which `diffSchema` reports).
 */
 
 /**
- * `DataTypeFieldConfig.type` is the enum OR the deprecated string union, and real configs still
- * carry both; the enum's values are those same strings.
+ * `DataTypeFieldConfig.type` is either the enum or the deprecated string union, and configs still
+ * use both. The enum's values are the same strings.
 */
 type FieldTypeLike = FieldType | DeprecatedFieldType;
 
 type Children = DataTypeFields | ReadonlyDataTypeFields;
 
 /**
- * DuckDB's `JSON` is a VARCHAR with an alias, which is what the json extension registers. The
- * binding exports no constant for it, so it is built here once.
+ * DuckDB's `JSON` type is a VARCHAR with an alias, registered by the json extension. The binding
+ * exports no constant for it, so it is created here.
 */
 const JSON_TYPE = DuckDBVarCharType.create('JSON');
 
@@ -76,19 +75,19 @@ const SCALAR_TYPES: Readonly<Record<string, DuckDBType | undefined>> = {
 
 export interface UdfTypeOptions {
     /**
-     * Widen `Long`/`Integer` to HUGEINT. **For a RESULT only**: a result is computed, so it may be
-     * wider than a stored Long (`ipToInt` on an IPv6 address is 128 bits). A PARAMETER is read from
-     * a stored column, which is a BIGINT.
+     * Widens `Long` and `Integer` to HUGEINT. Use it for results only: a computed result may be
+     * wider than a stored Long (`ipToInt` on an IPv6 address is 128 bits), while a parameter is
+     * read from a stored BIGINT column.
     */
     wide?: boolean;
 }
 
-/** The members of an Object or Tuple, by name; dotted descendants are folded into their parent. */
+/** The direct members of an Object or Tuple; dotted descendants are skipped. */
 function members(childConfig: Children): [name: string, config: DataTypeFieldConfig][] {
     return Object.entries(childConfig).filter(([name]) => !name.includes('.'));
 }
 
-/** The DuckDB type object for a field config, or a clear error naming the gap. */
+/** Returns the DuckDB type object for a field config, or throws if the type has none. */
 export function udfTypeFor(
     fieldConfig: DataTypeFieldConfig,
     childConfig?: Children,
@@ -101,7 +100,7 @@ export function udfTypeFor(
     const type = fieldConfig.type as FieldTypeLike;
 
     if (type === FieldType.Object || type === FieldType.Tuple) {
-        // no declared shape, so the column is JSON - `object.ts` / `tuple-type.ts`
+        // no declared shape, so the column is JSON (as in `object.ts` and `tuple-type.ts`)
         if (isJSONColumn(type as FieldType, childConfig)) return JSON_TYPE;
 
         return STRUCT(Object.fromEntries(members(childConfig!).map(([name, config]) => [
@@ -145,8 +144,8 @@ function structEntries(value: unknown): Record<string, unknown> | undefined {
 }
 
 /**
- * Builds the converter for the declared members of an Object (an object) or a Tuple (an array in
- * position order, which is how `DataFrame` holds one - the STRUCT is only DuckDB's encoding).
+ * Builds the converter for a STRUCT value. An Object becomes an object; a Tuple becomes an array
+ * in position order, which is how `DataFrame` holds it.
 */
 function structConverter(
     type: FieldTypeLike,
@@ -177,20 +176,15 @@ function structConverter(
 }
 
 /**
- * The INVERSE of `makeValueConverter`: what DuckDB hands a scalar function, turned into the value
- * `DataFrame` would have handed the same function.
+ * The inverse of `makeValueConverter`: converts the value DuckDB passes to a scalar function into
+ * the value `DataFrame` would pass to the same function.
  *
- * **`Date` is why this exists.** When a date was a TIMESTAMP it arrived as a `DuckDBTimestampValue`
- * whose zone-less `toString()` the date primitives re-parsed as machine-local, drifting 13 of 16
- * date functions by the host's UTC offset. A date is now `{ ms, tz_offset }`, handed over as what
- * `DateVector` holds - epoch millis, or the `[ms, offset]` tuple - with no parse at all.
- *
- * The rest are the encodings `udfTypeFor` chose, undone: a LIST is a JS array, a STRUCT the object
- * (or, for a Tuple, the array) it was built from, a GEOMETRY the GeoShape its WKB encodes, and a
- * JSON column the value its text encodes. **That JSON parse is decoding the storage format, not
- * undoing a step of our own**: `Any` and untyped `Object` are stored as JSON text (VARIANT was
- * measured and rejected, DF16), so text is what the column holds. `Long` stays a `bigint`, which
- * is what the primitives already expect.
+ * - A `Date` becomes what `DateVector` holds: epoch millis, or an `[ms, offset]` tuple. No string
+ *   parsing is involved, so the result does not depend on the host time zone.
+ * - A LIST becomes a JS array, and a STRUCT becomes an object (or, for a Tuple, an array).
+ * - A GEOMETRY becomes the GeoShape its WKB encodes.
+ * - A JSON column (`Any` or an untyped `Object`) is stored as JSON text, so it is parsed.
+ * - A `Long` stays a `bigint`, which the functions already expect.
 */
 export function makeInputConverter(
     field: FieldTypeLike | DataTypeFieldConfig,
@@ -210,7 +204,7 @@ export function makeInputConverter(
         };
     }
 
-    // epoch millis, or the `DateTuple` - exactly the value `DataFrame` hands the same function
+    // epoch millis, or a `DateTuple`, as `DataFrame` passes to the same function
     if (type === FieldType.Date) return fromDateValue;
 
     if (type === FieldType.GeoJSON) {

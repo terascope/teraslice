@@ -52,13 +52,12 @@ export const logConfig: FieldTransformConfig = {
     /**
      * `ln`, with its domain checked first.
      *
-     * **`ln`, not `log`** - `Math.log` is the NATURAL logarithm and DuckDB's `log()` is base-10, so
-     * `log(${value})` would silently return a different number. `ln(0)` and `ln(-1)` both THROW, so
-     * the domain guard is required rather than cosmetic.
+     * `Math.log` is the natural logarithm while DuckDB's `log()` is base 10, so this uses `ln`.
+     * `ln(0)` and `ln(-1)` raise an error in DuckDB, so the domain check is required.
     */
     sql: {
-        // transcendental: DuckDB's libm and V8 differ in the last bit, which IEEE 754
-        // permits. The gate compares these to a few ULP - see `approximate`.
+        // DuckDB and V8 can differ in the last bit of a transcendental result, which
+        // IEEE 754 allows, so `approximate` compares results to within a few ULP
         approximate: true,
         expression: ({ value }) => finiteOrNull(inDomain(`${value} > 0`, `ln(${value})`)),
     },

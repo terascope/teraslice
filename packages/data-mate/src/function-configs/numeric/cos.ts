@@ -49,10 +49,10 @@ export const cosConfig: FieldTransformConfig = {
     create() {
         return runMathFn(Math.cos);
     },
-    /** `cos` is native. */
+    /** Native `cos`. */
     sql: {
-        // transcendental: DuckDB's libm and V8 differ in the last bit, which IEEE 754
-        // permits. The gate compares these to a few ULP - see `approximate`.
+        // DuckDB and V8 can differ in the last bit of a transcendental result, which
+        // IEEE 754 allows, so `approximate` compares results to within a few ULP
         approximate: true,
         expression: ({ value }) => finiteOrNull(`cos(${value})`),
     },

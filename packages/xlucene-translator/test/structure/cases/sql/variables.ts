@@ -1,10 +1,10 @@
 import { TranslatorOptions } from '../../../../src/index.js';
 
 /**
- * One set of variables for every emission case that uses them.
+ * One set of variables for every SQL case that uses them.
  *
- * The same values are in `test/sql/duckdb-general-spec.ts`, where they run against real rows -
- * these lock the SQL, that one proves it answers correctly.
+ * `test/sql/duckdb-general-spec.ts` uses the same values against real rows. These cases pin
+ * the SQL text; that spec checks the results.
 */
 export const variables = {
     str: 'hello',
@@ -22,10 +22,10 @@ export const variables = {
 export const withVariables: TranslatorOptions = { variables };
 
 /**
- * The same variables, with an unresolved one dropped rather than resolved to nothing.
+ * The same variables, for cases where an unresolved one is dropped instead of resolved to an
+ * empty value.
  *
- * `filterNilVariables` removes the node before the translation ever sees it, so the SQL for a
- * missing variable differs from the SQL for one that resolved - which is the distinction these
- * cases exist to pin.
+ * `filterNilVariables` removes the node before translation, so a missing variable produces
+ * different SQL than one that resolved. These cases pin that difference.
 */
 export const nilVariables: TranslatorOptions = { variables, filterNilVariables: true };

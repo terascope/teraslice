@@ -95,22 +95,19 @@ export const formatDateConfig: FieldTransformConfig<FormatDateArgs> = {
     },
     sql: {
         /**
-         * **Three of `formatDateValue`'s four branches are one function call**, which is what the
-         * "translating the date-fns format vocabulary is its own project" note was hiding:
+         * Three of `formatDateValue`'s four branches have a single SQL equivalent:
          *
-         * | `format` | what it returns | emission |
+         * | `format` | what it returns | SQL |
          * |---|---|---|
          * | `epoch_millis`, `milliseconds` | the millis | `epoch_ms(v)` |
          * | `epoch`, `seconds` | `floor(ms / 1000)` | `floor(epoch_ms(v) / 1000)` |
          * | absent, or `iso_8601` | `toISO8601(value)` | `strftime(v, '%Y-%m-%dT%H:%M:%S.%gZ')` |
-         * | anything else | `formatDate(ms + offset, format)` | **declined** - date-fns |
+         * | anything else | `formatDate(ms + offset, format)` | none; keeps the UDF |
          *
-         * Verified exact on four instants including 1900 and the epoch itself. `output_type`
-         * already declares Number for the epoch formats and String otherwise, so the emission's
-         * types line up with the column without any extra work.
+         * `output_type` already declares Number for the epoch formats and String otherwise, so
+         * the SQL result types match the column.
          *
-         * `types: [Date]` for the same reason as every other date function: `String` and `Number`
-         * columns make the UDF PARSE the value first.
+         * Only a `Date` column is handled; `String` and `Number` input is parsed by the UDF.
         */
         types: [FieldType.Date],
         applies: ({ format }) => format == null || format in DateFormat,

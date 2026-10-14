@@ -38,12 +38,11 @@ export const truncateConfig: FieldTransformConfig<TruncateConfig> = {
         return truncateFP(size, false) as (value: unknown) => string;
     },
     /**
-     * `substring` for BMP-only values, the UDF for anything with an astral code point.
+     * `substring` for values without astral characters, the UDF otherwise.
      *
-     * `truncateFP` counts UTF-16 CODE UNITS and `substring` counts CHARACTERS, so they part company
-     * on astral input: four thumbs-up emoji truncated to 3 gives one emoji plus a LONE SURROGATE in
-     * JavaScript and three whole emoji in SQL. The guard keeps today's answer for those and takes
-     * the native path for everything else.
+     * `truncateFP` counts UTF-16 code units and `substring` counts characters. Truncating four
+     * thumbs-up emoji to 3 gives one emoji plus a lone surrogate in JavaScript and three whole
+     * emoji in SQL, so astral input keeps the UDF.
     */
     sql: {
         applies: needsNumericArgs('size'),

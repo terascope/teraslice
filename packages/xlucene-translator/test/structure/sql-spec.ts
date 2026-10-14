@@ -8,16 +8,16 @@ import {
     buildSQLStatement, getProjectablePaths
 } from '../../src/index.js';
 
-/** The dialect renders the sort now, so the tests ask it rather than a free function. */
+/** The dialect renders the sort, so the tests call it directly. */
 const duckdb = getSQLDialect();
 import allTestCases, { typeConfig } from './cases/sql/index.js';
 
 /**
- * What `toSQL` emits, per dialect.
+ * The SQL `toSQL` generates, per dialect.
  *
- * The DuckDB cases are also RUN, in `test/sql/` - these lock the text so a change to it is a
- * diff rather than a surprise. The Postgres cases have nothing that runs them, which is why
- * they are hand-verified rather than snapshotted.
+ * `test/sql/` also runs the DuckDB cases; these tests pin the text so any change shows up in
+ * a diff. Nothing runs the Postgres cases, so their expectations are hand-checked, not
+ * snapshots.
 */
 describe('Translator->toSQL', () => {
     for (const [dialect, groups] of Object.entries(allTestCases)) {
@@ -25,11 +25,10 @@ describe('Translator->toSQL', () => {
             for (const [group, testCases] of Object.entries(groups)) {
                 describe(`given ${group} queries`, () => {
                     /**
-                     * `describe.each` rather than `test.each`, for the same reason
-                     * `translator-spec` uses it: a `test.each` callback that declares more
-                     * parameters than the shortest row supplies is handed a `done` callback
-                     * by jest and then waits 60s for a call that never comes - a case with no
-                     * options would hang rather than fail.
+                     * `describe.each` instead of `test.each`: a `test.each` callback that
+                     * declares more parameters than a row supplies is given a jest `done`
+                     * callback and waits for it, so a case with no options would hang
+                     * instead of failing.
                     */
                     describe.each(testCases)('given %s', (query, expected, options) => {
                         it('should translate the query correctly', () => {
@@ -64,8 +63,8 @@ describe('Translator->toSQL', () => {
         });
 
         /**
-         * A caller with a storage layout that differs from the dialect's assumptions overrides
-         * the one method concerned rather than waiting for a dialect to be added here.
+         * A caller whose storage layout differs from the dialect's assumptions can override the
+         * one method concerned instead of adding a new dialect.
         */
         it('takes a dialect object, so a caller can override one method', () => {
             class LowerCaseColumns extends DuckDBDialect {
@@ -167,8 +166,8 @@ describe('Translator->toSQL', () => {
     });
 
     /**
-     * The projection is the only thing in SQL that can withhold a field, so these lock its
-     * text - including the Postgres form, which nothing runs.
+     * The projection is the only place SQL can withhold a field, so these pin its text,
+     * including the Postgres form, which nothing runs.
     */
     describe('the projection', () => {
         const nested = {
@@ -197,7 +196,7 @@ describe('Translator->toSQL', () => {
             expect(getSQLDialect(dialect).projection(readable, all)).toEqual(expected);
         });
 
-        /** A column is only taken whole when every one of its members survived. */
+        /** A column is selected whole only when none of its members are excluded. */
         it('rebuilds a struct only when part of it was withheld', () => {
             const all = getProjectablePaths(nested);
 
@@ -208,8 +207,8 @@ describe('Translator->toSQL', () => {
     });
 
     /**
-     * The statement builder, which is what keeps a caller from assembling one - and therefore
-     * from leaving out the half of it that restricts anything.
+     * The statement builder. Callers use it instead of assembling SQL themselves, so they
+     * cannot leave out the restriction.
     */
     describe('buildSQLStatement', () => {
         const parts = {
@@ -248,9 +247,9 @@ describe('Translator->toSQL', () => {
         });
 
         /**
-         * **The direction is the one half of an `ORDER BY` entry that is a value rather than
-         * SQL**, and it goes into the statement as a keyword - so it is checked for exactly
-         * the reason `size` is. The expression beside it is the caller's own SQL and is not.
+         * The direction of an `ORDER BY` entry is a value, not SQL, and goes into the statement
+         * as a keyword, so it is validated like `size`. The expression is the caller's own SQL
+         * and is not validated.
         */
         describe('the sort direction', () => {
             it.each([
@@ -299,8 +298,8 @@ describe('Translator->toSQL', () => {
 
     describe('type config handling', () => {
         /**
-         * A field whose type cannot hold the value is left out of an expansion. When none can,
-         * the query matches nothing - which is the answer, not an error.
+         * A field whose type cannot hold the value is left out of an expansion. When no field
+         * can, the query matches nothing instead of throwing.
         */
         it('matches nothing when no field could hold the value', () => {
             const numbersOnly: xLuceneTypeConfig = { num: xLuceneFieldType.Integer };

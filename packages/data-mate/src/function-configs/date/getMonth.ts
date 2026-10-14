@@ -68,20 +68,16 @@ export const getMonthConfig: FieldTransformConfig = {
         return getMonth;
     },
     /**
-     * `date_part('month', x)`.
+     * Runs as `date_part('month', x)`.
      *
-     * **`types: [Date]` is required, not defensive.** These functions accept `Date`, `String` AND
-     * `Number`, and for the latter two the UDF PARSES the value - many formats, `Number` as epoch
-     * millis - which this expression does not do. So the emission claims only a real TIMESTAMP
-     * column and a `String` or `Number` column keeps using the UDF.
+     * Only a `Date` column is handled. The function also accepts `String` and `Number` input,
+     * which the UDF parses first, so those columns keep the UDF.
      *
-     * **The stored value is a naive UTC TIMESTAMP, and these getters are UTC-based.** Verified
-     * under `TZ=America/New_York`: `getHours('2026-01-02T03:04:05.678Z')` is `3`, the UTC hour, not
-     * `22` - so `date_part` on the stored timestamp is the same thing, with no timezone handling
-     * needed.
+     * The column stores a UTC timestamp and the function returns the UTC part, so no timezone
+     * handling is needed.
      *
-     * **1-based, and so is `getMonth`** - it returns `1` for January where JavaScript's own
-     * `Date.getMonth` returns `0`. Verified against the implementation; `date_part` agrees.
+     * Both sides are 1-based: `getMonth` returns `1` for January (unlike JavaScript's
+     * `Date.getMonth`), and so does `date_part`.
     */
     sql: {
         types: [FieldType.Date],

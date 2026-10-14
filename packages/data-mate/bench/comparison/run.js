@@ -8,13 +8,12 @@
  *     RUNS=5 node ...                                        # more samples per case
  *     OUT=bench/comparison/PERFORMANCE.md node ...        # where the report goes
  *
- * The heap flag is not optional at the larger scales: `DataFrame` holds every value in JS, and
- * with Node's default heap it will OOM well before `TealFrame` breaks a sweat. Giving it room is
- * what makes the comparison fair - and where it OOMs anyway, that is reported as a result.
+ * The larger scales need the heap flag. `DataFrame` holds every value in JS and runs out of
+ * memory early on Node's default heap, which would overstate the difference. Where it still runs
+ * out of memory, that is reported as a result.
  *
- * **For a full sweep use `sweep.js`, not this file directly.** A `DataFrame` case can abort the
- * PROCESS rather than throw, which no `try/catch` here can survive; the supervisor restarts this
- * runner and records the case that died. See its docstring.
+ * For a full sweep, use `sweep.js`. A large `DataFrame` case can abort the process instead of
+ * throwing; the supervisor restarts this runner and records the case that died.
 */
 import os from 'node:os';
 import path from 'node:path';
@@ -27,7 +26,7 @@ import {
     CONFIG, COLUMNS, SCALES, makeRecords, label
 } from './lib/generate.js';
 import { GROUPS } from './lib/cases.js';
-import { lifecycle } from './lifecycle/spaces.js';
+import { lifecycle } from './lifecycle/search-lifecycle.js';
 import {
     loadResults, saveResults, indexRows, rowFor, withMismatch, keyOf,
     markInflight, clearInflight, RESULTS_FILE,
@@ -41,14 +40,11 @@ import {
 const OUT = process.env.OUT || 'bench/comparison/PERFORMANCE.md';
 
 /**
- * Which engine this process measures. Unset means both, which is what the small scales use.
+ * Which engine this process measures. Unset means both.
  *
- * **Splitting them is what makes the big scales survivable.** At 3M `DataFrame.unique(fields)`
- * exhausts the heap in a way V8 cannot report as an exception - it prints `Ineffective
- * mark-compacts near heap limit` and aborts the process (exit 134). Nothing in-process can catch
- * that, so it took out the 12 cases that came after it, at 3M and again at 5M. Running
- * `ENGINE=tealframe` in its own process means DataFrame cannot do that to TealFrame's numbers,
- * and `ENGINE=dataframe` afterwards records whatever DataFrame manages before it dies.
+ * At 3M rows `DataFrame.unique(fields)` exhausts the heap and V8 aborts the process (exit 134)
+ * instead of throwing, which would lose every case after it. Running each engine in its own
+ * process keeps a DataFrame abort from losing TealFrame's results:
  *
  *     ENGINE=tealframe SCALES=5000000 node --max-old-space-size=24576 bench/comparison/run.js
  *     ENGINE=dataframe SCALES=5000000 node --max-old-space-size=24576 bench/comparison/run.js
@@ -61,19 +57,15 @@ const RUN_DF = ENGINE !== 'tealframe';
 const RUN_DUCK = ENGINE !== 'dataframe';
 
 /**
- * Cases this process must NOT attempt, as `scale::group::case` keys.
- *
- * `sweep.js` fills it with the cases that killed a previous process outright: their cell is
- * already recorded as an OOM, and re-running them would only kill this process too.
+ * Cases this process must skip, as `scale::group::case` keys. `sweep.js` sets it to the cases
+ * that killed a previous process; their cells are already recorded as OOM.
 */
 const SKIP = new Set(JSON.parse(process.env.SKIP || '[]'));
 
 /**
- * Results are appended to `RESULTS_FILE` after EVERY half, and the report is rendered from it.
- *
- * **Because a big enough `DataFrame` case does not throw - it kills the process.** Persisting per
- * half means a death at 5M costs only that half, and the in-flight marker (see `lib/results.js`)
- * lets the supervisor turn it into an `OOM` cell rather than a hole.
+ * Results are saved to `RESULTS_FILE` after every case, and the report is rendered from that file.
+ * A large `DataFrame` case can kill the process, so saving often means a death loses only the case
+ * that was running; the in-flight marker (see `lib/results.js`) lets the supervisor record it.
 */
 const scratch = fs.mkdtempSync(path.join(os.tmpdir(), 'dm-compare-'));
 const written = [];
@@ -88,19 +80,15 @@ function tmp(name, ext = 'parquet') {
 const state = loadResults();
 const index = indexRows(state.rows);
 
-// a re-run of a scale replaces that scale's LIFECYCLE numbers, which are always measured as a pair
+// re-running a scale replaces its lifecycle results, which are always measured as a pair
 for (const scale of SCALES) {
     state.lifecycleRows = state.lifecycleRows.filter((row) => row.scale !== scale);
 }
 
 /**
- * Measures ONE engine's half of a case: its own setup, its own timing, its own teardown, each
- * with its own error capture.
- *
- * **The halves are independent so that a failure is attributed to the engine that had it.** When
- * setup built both engines' prerequisites together, a `DataFrame` that could not even be
- * constructed at 5M skipped the case for BOTH sides - so the report lost TealFrame's number
- * instead of reporting DataFrame's ceiling, which is the finding.
+ * Measures one engine's half of a case: its setup, timing, and teardown, each with its own error
+ * handling. Keeping the halves independent attributes a failure to the engine that had it, so one
+ * engine failing does not hide the other engine's result.
 */
 async function runHalf(half, testCase, ctx) {
     const setup = half === 'df' ? testCase.setupDataFrame : testCase.setupTealFrame;
@@ -115,13 +103,9 @@ async function runHalf(half, testCase, ctx) {
     }
 
     /**
-     * `CHECKPOINT=1` compresses what setup built, before the timing starts.
-     *
-     * Deliberately part of SETUP and not of the measurement: a checkpoint is a one-off cost paid
-     * once per frame when ingest is quiesced, while the case below is a per-query cost paid every
-     * time a question is asked. Charging the one to the other would answer neither. What a
-     * checkpoint COSTS is a separate per-size measurement; what it BUYS is this run, compared
-     * against the same sweep with the flag off.
+     * With `CHECKPOINT=1`, compresses what setup built before the timing starts. A checkpoint is
+     * a one-time cost per frame, while the case is a per-query cost, so it is kept out of the
+     * timing. Its benefit is this run compared with the same sweep without the flag.
     */
     let checkpointMs = 0;
     if (half === 'duck') {
@@ -160,8 +144,8 @@ for (const scale of SCALES) {
 
     const records = makeRecords(scale);
 
-    // the Parquet payload every "from Parquet" case reads, produced once and not timed. Only
-    // TealFrame reads it, so an ENGINE=dataframe process must not spend the memory building it.
+    // the Parquet file every "from Parquet" case reads, written once and not timed. Only
+    // TealFrame reads it, so an ENGINE=dataframe process skips building it.
     let parquet;
     if (RUN_DUCK) {
         try {
@@ -179,9 +163,8 @@ for (const scale of SCALES) {
         TealFrame,
         dfAdapter: dataFrameAdapter,
         /**
-         * Wrapped rather than passed through, so `PREFER_SQL` reaches every case without any of
-         * them opting in. A case that set `preferSql` itself would still win, which is the right
-         * precedence: the flag is a default for the run, not an override of a case's intent.
+         * Wrapped so `PREFER_SQL` applies to every case by default. A case that sets `preferSql`
+         * itself still takes precedence.
         */
         duckAdapter: (fnDef, options) => tealFrameAdapter(
             fnDef,
@@ -221,7 +204,7 @@ for (const scale of SCALES) {
             index.set(keyOf(scale, group.title, testCase.name), withMismatch(row));
             progress(label(scale), testCase.name, row.df, row.duck);
 
-            // after EVERY case: the next one may kill the process outright
+            // save after every case, because the next one may kill the process
             state.rows = [...index.values()];
             saveResults(state);
         }
@@ -230,9 +213,8 @@ for (const scale of SCALES) {
 
 // ---------------------------------------------------------------- lifecycle
 /**
- * Skipped in a per-engine process: every lifecycle stage times the two engines as a PAIR, so
- * half of one is not a result. Run the scale without `ENGINE` to get it - which works wherever
- * `DataFrame` can still complete the stage at all.
+ * Skipped in a per-engine process, because every lifecycle stage times both engines as a pair.
+ * Run the scale without `ENGINE` to include it.
 */
 const lifecycleRows = ENGINE
     ? state.lifecycleRows
@@ -255,8 +237,7 @@ const report = writeReport({
         cores: os.cpus().length,
         memory: `${(os.totalmem() / 1024 ** 3).toFixed(0)} GB`,
         heap: heapLimitMB() ? `${heapLimitMB()} MB` : 'default',
-        // the same string the progress header prints: a flat `RUNS` here claimed "median of
-        // 3 runs" even at 5M, where the policy takes ONE sample
+        // matches the progress header; the sample count varies by scale unless RUNS is set
         runs: process.env.RUNS || '3 / 2 / 1 by scale',
         columns: COLUMNS.length,
         paths: Object.keys(CONFIG.fields).length,
@@ -276,17 +257,11 @@ fs.rmSync(scratch, { recursive: true, force: true });
 await closeDuckDatabase();
 
 /**
- * **Explicit exit, because this process will otherwise never end.**
+ * Exits explicitly, because otherwise the process never ends.
  *
- * A process that has REGISTERED A SCALAR FUNCTION does not exit when its work is done, even though
- * `closeDuckDatabase()` calls `instance.closeSync()` - a known node-neo defect (their PR #457), and
- * the same reason the test runner uses
- * `--forceExit`. Every transform and validation case here registers a UDF, so every run hits it.
- *
- * It cost about 30 MINUTES PER SCALE before it was found: the child printed its whole report, went
- * to 0% CPU, and sat there until `sweep.js`'s `CASE_TIMEOUT` watchdog killed it. The supervisor
- * then found no in-flight marker - the last case had already cleared it - so it logged "child
- * failed before any case started", which reads like a harness bug rather than a finished run. The
- * results were complete and correct the whole time; only the wall clock was wrong.
+ * A process that has registered a scalar function does not exit after its work is done, even
+ * after `closeDuckDatabase()` calls `instance.closeSync()`. This is a known issue in the DuckDB
+ * Node bindings (node-neo PR #457), and the test runner uses `--forceExit` for the same reason.
+ * Every transform and validation case registers a UDF.
 */
 process.exit(0);

@@ -74,30 +74,25 @@ export const extractConfig: FieldTransformConfig<ExtractArgs> = {
     },
     sql: {
         /**
-         * Both modes, built from what `_extract` and `matchAll` actually do rather than from the
-         * names - the builders and every measurement are in `sql-utils.ts`.
+         * Both modes, built from what `_extract` and `matchAll` do. The SQL builders are in
+         * `sql-utils.ts`.
          *
-         * The guards, each earned:
+         * `applies` declines anything the SQL could answer differently:
          *
-         * - **marker mode wants ONE CODE POINT per marker.** `_subSlice` compares `char === start`
-         *   inside `for (const char of input)`, so a two-character `start` can never match and the
-         *   function returns null for every row. A native `position()` WOULD find it, which is a
-         *   different answer, not a slower one.
-         * - **regex mode wants at most ONE capture group.** `matchAll` pushes every group of every
-         *   match, interleaved; `regexp_extract_all` takes a single group index.
-         * - **RE2 must compile it, AND its classes must mean the same thing.** `isRe2Safe` covers
-         *   the first: lookaround and backreferences ERROR. The second is `needsClassGuard`, and
-         *   here it DECLINES rather than guards - a pattern containing `.`, `\s`, `\S` or a
-         *   negated class keeps the UDF outright. `replaceRegex` can guard the value and fall back
-         *   per row; `extract` cannot, because under `global` it has no working UDF to fall back to
-         *   (DF4), so the emission must be self-sufficient or absent. What that costs is `he.*`
-         *   staying on the UDF; what it buys is never returning a different answer.
-         * - **a FLAGGED pattern keeps the UDF.** `formatRegex` accepts the `/pattern/flags` form
-         *   and `i`, `s`, `m` and `x` each change the match; `x` has no RE2 equivalent at all.
+         * - Marker mode requires each marker to be one code point. `_subSlice` compares `char ===
+         *   start` inside `for (const char of input)`, so a two-character marker never matches and
+         *   the function returns null for every row, while `position()` would find it.
+         * - Regex mode allows at most one capture group. `matchAll` collects every group of every
+         *   match, interleaved, while `regexp_extract_all` takes a single group index.
+         * - The pattern must compile in RE2 (`isRe2Safe`: no lookaround or backreferences), and its
+         *   classes must mean the same thing in both engines. Unlike `replaceRegex`, a pattern
+         *   containing `.`, `\s`, `\S` or a negated class is declined outright rather than guarded
+         *   per value, so this SQL never needs a UDF fallback. As a result, patterns like `he.*`
+         *   stay on the UDF.
+         * - A pattern with flags (`/pattern/flags`) keeps the UDF. `i`, `s`, `m` and `x` each
+         *   change the match, and `x` has no RE2 equivalent.
          *
-         * `global: true` returns a LIST, so the emission is the only way that shape runs at all -
-         * `scalarResultConfig` strips `array` from the UDF's return type and the registered
-         * function promises a VARCHAR (known-defects DF4, the same wall `split` hit).
+         * With `global: true` the result is a list.
         */
         applies: ({ regex, start, end }) => {
             if (regex != null) {

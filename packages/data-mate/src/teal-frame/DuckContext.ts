@@ -13,17 +13,15 @@ import { extensionSettingsFromEnv, ExtensionSettings, loadExtensions } from './e
 export const MAX_CHUNK_ROWS = 2048;
 
 /**
- * Owns the DuckDB instance and the shared connection.
+ * Owns a DuckDB instance and its shared connection.
  *
- * INTERNAL. Not in the package barrel and not reachable from a frame: there is exactly ONE
- * database per
- * process - the qpl-api and qpl-worker are separate processes whose frames never meet, and a
- * child hands Parquet to its parent rather than sharing a catalogue. A caller has nothing to
- * pass around, so it is not in the API.
+ * Internal: it is not exported from the package, and callers reach the database through
+ * `configureDuckDatabase`, `registerScalarFunction` and `closeDuckDatabase`. Processes that
+ * need to exchange data hand each other Parquet files rather than sharing a database.
  *
- * The *instance* is shared because tables live in its catalogue and any connection can see
- * them (they are real tables, not TEMP, which would be connection-local). The *connection*
- * is deliberately NOT shared with streams - see `streamRowObjects`.
+ * Every frame on a database shares the instance, because tables live in its catalog and any
+ * connection can see them (they are real tables, not TEMP tables, which would be
+ * connection-local). Streams do not share the connection; see `streamRowObjects`.
 */
 export class DuckContext {
     /**
@@ -42,14 +40,15 @@ export class DuckContext {
     ) {}
 
     /**
-     * Registers a scalar function. **Instance-wide, not connection-scoped** - MEASURED: a
-     * function registered on one connection is visible to every other connection on the same
-     * instance, including the private connection each `rows()` stream opens. That is what
-     * makes UDFs and streaming compatible.
+     * Registers a scalar function on the instance.
+     *
+     * Registration is instance-wide: a function registered on one connection is visible to
+     * every other connection, including the private connection each stream opens. That is
+     * what lets UDFs and streaming work together.
     */
     registerFunction(spec: ScalarFunctionSpec): void {
         // Idempotent: `tealFrameAdapter` derives the name from (function, column, args), so
-        // the same step registered twice IS the same function and must not error.
+        // a second registration under the same name is the same function and must not error.
         if (this.functions.has(spec.name)) return;
 
         const fn = createScalarFunction(spec);
@@ -57,7 +56,7 @@ export class DuckContext {
         this.functions.set(spec.name, fn);
     }
 
-    /** How many scalar functions are registered - they are permanent, so this must stay bounded. */
+    /** How many scalar functions are registered. They cannot be removed, so keep this bounded. */
     get functionCount(): number {
         return this.functions.size;
     }
@@ -67,11 +66,11 @@ export class DuckContext {
     }
 
     /**
-     * Opens the database and LOADs the required extensions, so a missing one fails HERE, at
-     * startup, instead of at the first query that needs it (see `extensions.ts`).
+     * Opens the database and loads the required extensions, so a missing extension fails at
+     * startup rather than at the first query that needs it (see `extensions.ts`).
      *
-     * Explicit settings win over the environment. On any failure the instance is closed -
-     * nothing else holds it, so it would otherwise leak.
+     * Explicit settings take precedence over the environment. On failure the instance is
+     * closed, because nothing else holds it and it would otherwise leak.
     */
     static async create(
         path = ':memory:',
@@ -90,7 +89,7 @@ export class DuckContext {
             await loadExtensions(connection, extensions.autoinstallExtensions ?? true);
             return context;
         } catch (err) {
-            // Both, as in `disconnect()`: a live connection keeps a closed instance usable
+            // Close both, as `disconnect()` does: a live connection keeps a closed instance open
             connection?.disconnectSync();
             instance.closeSync();
             throw err;
@@ -98,21 +97,19 @@ export class DuckContext {
     }
 
     /**
-     * Applies the spill and memory settings.
+     * Applies the spill, memory and thread settings. They are runtime `SET`s, so they can be
+     * changed on an open database.
      *
-     * `temp_directory` is what makes "load the whole dataset and let DuckDB overflow to disk"
-     * work - without it a query that exceeds `memory_limit` fails instead of spilling. Both
-     * are runtime `SET`s, so they can be changed on an existing database.
+     * Without `temp_directory`, a query that exceeds `memory_limit` fails instead of spilling
+     * to disk.
      *
-     * `memory_limit` MUST be set below the container's cap. If DuckDB believes it has more
-     * than the container allows it never spills and the kernel kills the process - that is
-     * exactly what once produced a bogus "DuckDB OOMs and does not spill" finding.
+     * **Set `memory_limit` below the container's memory cap.** If DuckDB thinks it has more
+     * memory than the container allows, it never spills and the kernel kills the process.
     */
     async applySettings(settings: DuckDatabaseSettings): Promise<void> {
         // Refused rather than applied: extensions already loaded from the old directory stay
-        // loaded, so the new value would be reported and never used.
-        // Compared resolved: DuckDB keeps the string verbatim, so `/ext/` and `/ext` would
-        // otherwise be refused as different directories.
+        // loaded, so the new value would be reported but never used. Paths are compared after
+        // resolving, so `/ext/` and `/ext` count as the same directory.
         if (settings.extensionDirectory != null
             && !sameDirectory(settings.extensionDirectory, this.extensionDirectory)) {
             throw new Error(
@@ -155,11 +152,11 @@ export class DuckContext {
     }
 
     /**
-     * The columns a query produces, with DuckDB's type OBJECTS - no rows are read.
+     * The columns a query produces, with their DuckDB type objects. No rows are read.
      *
-     * Objects, not `DESCRIBE`'s text: that text does not quote a struct member's name, so
-     * `STRUCT(HUGEINT BIGINT)` is a member NAMED `HUGEINT`, and no string match can tell a name
-     * from a type there.
+     * Type objects rather than `DESCRIBE`'s text, because that text does not quote struct member
+     * names: in `STRUCT(HUGEINT BIGINT)` the member is named `HUGEINT`, and string matching
+     * cannot tell a name from a type.
     */
     async columnTypes(sql: string): Promise<{ name: string; type: DuckDBType }[]> {
         const result = await this.connection.run(`SELECT * FROM (${sql}) LIMIT 0`);
@@ -168,26 +165,11 @@ export class DuckContext {
     }
 
     /**
-     * Streams a query's rows as objects, a DuckDB chunk at a time.
-     *
-     * Uses `stream()` + `fetchChunk()` rather than a materializing read, so a large
-     * result never lands in JS all at once. The QPL engine's output path is
-     * `frame.rows(...)` returning an `Iterable`, not an array (`run.ts:188`), so streaming
-     * is the shape that path already expects.
-     *
-     * **Each stream gets its OWN connection and closes it when the stream ends.**
-     * MEASURED: any query run on a connection holding an
-     * open streaming result silently truncates that stream - one interleaved query took
-     * 500,000 rows down to 100,352, with NO error. DuckDB concurrency itself is fine; the
-     * limit is per-connection. On the shared connection, any other frame's `size()` - or
-     * this frame's own - could clip a stream in progress and look like a short result.
-    */
-    /**
      * Streams a single-column result as strings, chunk by chunk.
      *
-     * For output formats DuckDB has already rendered - ldjson, CSV - where the only work left
-     * in JS is moving bytes. Deliberately does NOT go through `toPlainValue`: the value is
-     * already the final text.
+     * For output DuckDB has already rendered, such as ldjson lines, where the only work left in
+     * JS is moving bytes. It skips `toPlainValue` because each value is already the final text.
+     * Like `streamRowObjects`, it uses its own connection.
     */
     async* streamColumnStrings(sql: string): AsyncIterableIterator<string> {
         const connection = await this.instance.connect();
@@ -210,8 +192,16 @@ export class DuckContext {
     }
 
     /**
-     * `shapers` finish a column's value where the value alone is not enough - a `Tuple` is a
-     * STRUCT that must come out as an array. See `row-shape.ts`.
+     * Streams a query's rows as objects, one DuckDB chunk at a time, so a large result is never
+     * held in JS all at once.
+     *
+     * **Each stream opens its own connection and closes it when the stream ends.** Running any
+     * other query on a connection that holds an open streaming result silently truncates that
+     * stream, with no error. On a shared connection, any frame's `size()` could cut a stream
+     * short.
+     *
+     * `shapers` finish a column's value where the value alone is not enough; for example, a
+     * `Tuple` is stored as a STRUCT but must come out as an array. See `row-shape.ts`.
     */
     async* streamRowObjects(
         sql: string,
@@ -225,10 +215,9 @@ export class DuckContext {
 
             for (;;) {
                 const chunk = await result.fetchChunk();
-                // MEASURED: fetchChunk never returns null - at the end it returns an EMPTY
-                // chunk, forever. So rowCount === 0 IS the terminator. Skipping empties and
-                // waiting for null (which is what the docs' shape suggests) is an infinite
-                // loop; the null check stays only as a guard, not as the exit condition.
+                // At the end of the result `fetchChunk` returns an empty chunk, repeatedly,
+                // rather than null. An empty chunk is the end; waiting for null would loop
+                // forever. The null check is only a guard.
                 if (chunk == null || chunk.rowCount === 0) return;
 
                 const columns = names.map((_name, i) => chunk.getColumnValues(i));
@@ -241,21 +230,17 @@ export class DuckContext {
                 }
             }
         } finally {
-            // also runs on an early `break` out of a `for await`, not just on exhaustion
+            // also runs on an early `break` out of a `for await`, not only on exhaustion
             connection.disconnectSync();
         }
     }
 
     /**
-     * Closes the connection AND the instance.
+     * Closes the connection and the instance.
      *
-     * Closing the instance is not optional once a scalar UDF has been registered: MEASURED
-     * (isolated in an earlier session; that script is gone), a process that registers one
-     * **never exits** on
-     * `disconnectSync()` alone, and `DuckDBScalarFunction.destroySync()` makes no difference.
-     * `instance.closeSync()` is what releases it. Without a UDF the process exits either way,
-     * so this is only visible once UDFs land - which is exactly when it would be hardest to
-     * diagnose.
+     * Closing the instance is required once a scalar UDF has been registered: a process that
+     * registered one does not exit after `disconnectSync()` alone, and
+     * `DuckDBScalarFunction.destroySync()` does not help. `instance.closeSync()` releases it.
     */
     disconnect(): void {
         this.connection.disconnectSync();

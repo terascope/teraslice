@@ -45,11 +45,10 @@ RUN pnpm --version && node --version && npm --version && \
 # verify teraslice is installed right
 RUN node -e "import('teraslice')"
 
-# DuckDB downloads its extensions at RUNTIME, on the first query that needs one,
-# which fails on an air-gapped box. Fetch them now, the way the kafka client
-# fetches its native binary during `pnpm install`: inside this container, so
-# DuckDB picks this platform (linux_amd64_musl / linux_arm64_musl), and with
-# data-mate's own @duckdb/node-api, so the version matches the binding.
+# DuckDB otherwise downloads its extensions on the first query that needs one,
+# which fails without network access. Install them at build time instead. This
+# runs inside the container so DuckDB picks the right platform, and uses
+# data-mate's own @duckdb/node-api so the extension version matches it.
 RUN node packages/data-mate/bin/duckdb-extensions.js install --dir /app/duckdb-extensions
 
 
@@ -96,8 +95,8 @@ USER 10001
 # Check if it still works
 RUN node -e "import('teraslice')"
 
-# Prove DuckDB's extensions load and work with NO network, as the unprivileged
-# user, from the files that ship. Fails the build if any is missing.
+# Check that DuckDB's extensions load from the shipped files, as the runtime
+# user and without network access. Fails the build if any is missing.
 RUN node packages/data-mate/bin/duckdb-extensions.js verify
 
 # verify what version of librdkafka is installed

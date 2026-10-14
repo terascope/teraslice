@@ -51,13 +51,11 @@ const geoBox: i.FunctionDefinition = {
         }
 
         /**
-         * A bounding box as arithmetic rather than as a spatial predicate, so it needs no
-         * spatial extension at all.
+         * The bounding box as two inclusive range checks rather than a spatial predicate, so
+         * no spatial extension is needed.
          *
-         * `validateBoundingBox` has already rejected a box that would cross the antimeridian,
-         * so the box is axis-aligned and containment is two inclusive range checks - which is
-         * boundary-inclusive by construction, exactly as turf's `booleanPointInPolygon` is
-         * with its default `ignoreBoundary: false`.
+         * `validateBoundingBox` already rejects boxes that cross the antimeridian. The range
+         * checks include the boundary, as turf's `booleanPointInPolygon` does by default.
         */
         function toSQLQuery(field: string, options: i.FunctionSQLOptions) {
             const { dialect } = options;

@@ -51,9 +51,9 @@ describe('TealFrame ordering and paging', () => {
         });
 
         it('should place nulls as DataFrame does by default, not as DuckDB does', async () => {
-            // DataFrame's Vector.compare sorts a nil as the SMALLEST value: first ascending,
-            // last descending. DuckDB's own default is NULLS_LAST for BOTH directions, so an
-            // ascending sort would otherwise move every null to the other end of the page.
+            // DataFrame's Vector.compare sorts a nil as the smallest value: first ascending,
+            // last descending. DuckDB's default is NULLS LAST in both directions, so without an
+            // explicit NULLS clause an ascending sort would put nulls at the other end.
             const asc = await names(frame.orderBy([{ expression: 'bytes' }]));
             const desc = await names(frame.orderBy([
                 { expression: 'bytes', order: 'desc' },
@@ -64,9 +64,9 @@ describe('TealFrame ordering and paging', () => {
         });
 
         it('should reject a direction written into a bare string, loudly', async () => {
-            // A bare string is the EXPRESSION only - we always emit direction and nulls, so
-            // 'bytes DESC' becomes 'bytes DESC ASC NULLS FIRST' and DuckDB rejects it. Loud
-            // beats a sort that quietly disagrees with the object form.
+            // A bare string is only the expression. Direction and nulls are always added, so
+            // 'bytes DESC' becomes 'bytes DESC ASC NULLS FIRST' and DuckDB rejects it, which is
+            // better than a sort that silently disagrees with the object form.
             await expect(collect(frame.orderBy([{ expression: 'bytes DESC' }]))).rejects.toThrow();
         });
 
@@ -105,8 +105,8 @@ describe('TealFrame ordering and paging', () => {
 
         /**
          * These messages come from `@terascope/sql-builder`, which renders the `ORDER BY` for
-         * a frame and for a translated statement alike - so a bad direction reads the same
-         * whichever built it.
+         * both a frame and a translated statement, so a bad direction reports the same error
+         * either way.
         */
         it('should reject a term with no expression', () => {
             expect(() => frame.orderBy([{ expression: '' }]))
@@ -170,8 +170,8 @@ describe('TealFrame ordering and paging', () => {
         });
 
         it('should sort only the page for limit then orderBy', async () => {
-            // Which rows land in the page is the scan's business, so assert the shape:
-            // three rows, sorted - not which three.
+            // Which rows land in the page depends on the scan, so assert only the shape: three
+            // sorted rows.
             const rows = await collect(frame.limit(3).orderBy([{ expression: 'name' }]));
             const sorted = rows.map((row) => String(row.name));
 

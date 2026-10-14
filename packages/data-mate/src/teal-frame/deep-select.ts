@@ -6,29 +6,28 @@ import { getChildDataTypeConfig } from '../core/utils.js';
 import { FrameConfig } from './interfaces.js';
 
 /**
- * `deepSelect` - `DataFrame.deepSelect` as SQL: keep the selected fields, in the shape selected.
+ * `DataFrame.deepSelect` as SQL: keeps the selected fields, in the selected shape.
  *
- * The QPL engine calls it wherever a result takes the shape of a GraphQL selection set: a fetch
- * from a stored frame (after the search, which may need other fields), the SELECT table node, and
- * a join's nested sub-selection. The rules are `DataFrame`'s, each measured against it:
+ * It is used wherever a result must take the shape of a GraphQL selection set. The rules match
+ * `DataFrame`:
  *
- * - A selector is a field or a dotted path: `'config.owner.name'` keeps `config` with only that
+ * - A selector is a field or a dotted path. `'config.owner.name'` keeps `config` with only that
  *   member, plus every Object on the way down (`Column.selectSubFields`).
- * - A selector naming an Object takes all its children - **unless that Object is `_allow_empty`**
- *   (a joined field), when it takes the Object alone.
- * - **An Object left with no selected children** becomes `{}` if it is `_allow_empty`, and keeps
- *   its whole value otherwise (`coerceToObject`). Either way it has no declared children any more,
- *   so it is JSON here - which is also what lets `pruneEmptyObjects` find it.
- * - A selector that names nothing is ignored. Columns come out in the CONFIG's order, not the
- *   selectors'. Selecting nothing at all gives no columns and no rows.
- * - A null object stays null, and an array of objects is trimmed element by element, null
- *   elements kept - which is why this is not sql-builder's `projection`, whose `struct_pack` would
- *   turn a null struct into a struct of nulls and cannot see into a list.
+ * - A selector naming an Object takes all its children, unless the Object is `_allow_empty`
+ *   (a joined field), in which case it takes the Object alone.
+ * - An Object left with no selected children becomes `{}` if it is `_allow_empty`, and keeps its
+ *   whole value otherwise (`coerceToObject`). Either way it has no declared children left, so it
+ *   becomes a JSON column, which also lets `pruneEmptyObjects` find it.
+ * - A selector that matches nothing is ignored. Columns come out in config order, not selector
+ *   order. Selecting nothing returns no columns and no rows.
+ * - A null object stays null, and an array of objects is trimmed element by element, keeping null
+ *   elements. sql-builder's `projection` cannot be used here: its `struct_pack` turns a null
+ *   struct into a struct of nulls, and it cannot reach inside a list.
 */
 
 type Fields = DataTypeFields | ReadonlyDataTypeFields;
 
-/** The flags the QPL engine puts on a field config; not part of the public type. */
+/** Extra flags a caller may set on a field config; not part of the public type. */
 interface EngineFlags {
     _allow_empty?: boolean;
 }
@@ -41,7 +40,7 @@ function isObject(config: DataTypeFieldConfig | undefined): boolean {
     return config?.type === FieldType.Object;
 }
 
-/** Each matched field's top-level column, with the child paths kept under it, in config order. */
+/** Maps each matched top-level column to the child paths kept under it, in config order. */
 function match(fields: Fields, selectors: readonly string[]): Map<string, Set<string>> {
     const matched = new Map<string, Set<string>>();
 
@@ -57,7 +56,7 @@ function match(fields: Fields, selectors: readonly string[]): Map<string, Set<st
     return matched;
 }
 
-/** `selectSubFields`: the selected child paths, plus every Object above one of them. */
+/** Like `selectSubFields`: the selected child paths, plus every Object above one of them. */
 function keptChildren(children: Fields, selected: ReadonlySet<string>): Set<string> {
     const kept = new Set<string>();
     for (const path of selected) {
@@ -87,8 +86,8 @@ function each(expression: string, array: boolean, one: (value: string) => string
 }
 
 /**
- * One Object value narrowed to `kept` (paths relative to it), or the value itself when nothing is
- * dropped.
+ * SQL that narrows an Object value to the `kept` paths (relative to it). Returns the value
+ * unchanged when nothing is dropped.
 */
 function narrow(
     expression: string,
@@ -161,8 +160,8 @@ export function deepSelectSQL(
 }
 
 /**
- * The SELECT node's `@skipIfEmpty` rule: an Object column marked `_skip_if_empty` that has no
- * declared children left - all of them filtered away by `deepSelect` - is dropped.
+ * Implements the `@skipIfEmpty` GraphQL directive: an Object column marked `_skip_if_empty`
+ * is dropped once `deepSelect` has removed all of its declared children.
 */
 function isEmptyObject(fields: Fields, name: string): boolean {
     const children = getChildDataTypeConfig(fields as DataTypeFields, name, FieldType.Object);

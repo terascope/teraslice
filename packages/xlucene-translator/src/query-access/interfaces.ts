@@ -21,8 +21,8 @@ export interface RestrictOptions {
 export interface RestrictSQLQueryOptions extends xLuceneSQLOptions {
     variables?: xLuceneVariables;
     /**
-     * Everything the statement needs besides the query - the table, the row limit, the
-     * offset, extra ordering, and the field restrictions.
+     * Everything the statement needs besides the query: the table, row limit, offset,
+     * extra ordering and field restrictions.
      *
      * The SQL counterpart of {@link RestrictSearchQueryOptions.params}.
     */

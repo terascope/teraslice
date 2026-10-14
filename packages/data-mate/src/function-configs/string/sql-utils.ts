@@ -2,15 +2,14 @@ import { isAsciiSql, sqlLiteral } from '../sql-helpers.js';
 import { re2Literal } from './sql-regex-utils.js';
 
 /**
- * Helpers shared by the `sql` emissions on the string function configs.
+ * Helpers shared by the SQL expressions on the string function configs.
 */
 
 /**
  * `validator.isAlpha`'s `en-US` alphabet, as an RE2 pattern.
  *
- * Taken from `validator`'s own locale table, not from the function name. Every other locale has a
- * different letter set - and several are not expressible as a simple class - so the emissions that
- * use this claim the DEFAULT locale only.
+ * Other locales use different letter sets, and several cannot be written as a simple class, so the
+ * functions using this handle only the default locale.
 */
 export const ALPHA_LOCALES = '^[A-Za-z]+$';
 
@@ -25,13 +24,9 @@ export function defaultLocale(locale: unknown): boolean {
 /**
  * `encodeURIComponent`, built from `url_encode` plus the five characters it over-escapes.
  *
- * Measured: `url_encode` percent-escapes `!`, `'`, `(`, `)` and `*`, and `encodeURIComponent`
- * leaves all five alone - the only difference over a battery that also covers spaces, `+`, `%`,
- * non-ASCII and astral input.
- *
- * **Un-escaping them afterwards is safe, not a heuristic.** A literal `%` in the input is already
- * `%25` by the time these run, so a `%21` in `url_encode`'s output can only have come from a real
- * `!`. Verified with `'%21 literal'` and `'%2A%27'` in the battery.
+ * `url_encode` percent-escapes `!`, `'`, `(`, `)` and `*`, which `encodeURIComponent` leaves alone.
+ * Unescaping them afterwards is safe: a literal `%` in the input is already `%25` by then, so a
+ * `%21` in the output can only come from a real `!`.
 */
 export function encodeURIComponentSql(value: string): string {
     const unescape: [string, string][] = [
@@ -44,10 +39,7 @@ export function encodeURIComponentSql(value: string): string {
 }
 
 /**
- * `validator.isHash`'s length table, transliterated from its source.
- *
- * The check is only `^[a-fA-F0-9]{N}$` - there is nothing subtler in it, which is what makes this
- * one of the three `validator`-backed predicates that can be stated exactly.
+ * `validator.isHash`'s length table, copied from its source. The check is only `^[a-fA-F0-9]{N}$`.
 */
 export const HASH_LENGTHS: Record<string, number> = {
     md5: 32,
@@ -66,13 +58,11 @@ export const HASH_LENGTHS: Record<string, number> = {
 };
 
 /**
- * `validator.isUUID`'s per-version patterns, transliterated from its source.
+ * `validator.isUUID`'s per-version patterns, copied from its source.
  *
- * `all` is the default and is NOT the union of the numbered versions - it accepts variants 1-8 plus
- * the nil and max UUIDs, and rejects the `[89ab]` variant nibble being anything else. Written out
- * rather than derived, because deriving it is where a guess would creep in.
- *
- * None of these use lookaround or a backreference, so RE2 compiles all of them.
+ * The default, `all`, is not the union of the numbered versions: it accepts versions 1-8 plus the
+ * nil and max UUIDs, and still requires the `[89ab]` variant nibble. It is written out rather than
+ * derived. None of the patterns use lookaround or backreferences, so RE2 compiles all of them.
 */
 const UUID_HEX = '[0-9a-fA-F]';
 const UUID_TAIL = `${UUID_HEX}{8}-${UUID_HEX}{4}`;
@@ -98,23 +88,23 @@ export function uuidPattern(version: unknown): string | null {
 }
 
 /**
- * lodash's word splitting, for the ASCII case only - which is what makes the case converters
- * promotable at all.
+ * lodash's test for which word splitter to use. The case converters run in SQL only when it does
+ * not match.
  *
- * `_.camelCase` and friends run `words(deburr(string).replace(/['’]/g, ''))`, and `words`
- * picks one of two algorithms:
+ * `_.camelCase` and the other converters run `words(deburr(string).replace(/['’]/g, ''))`, and
+ * `words` picks one of two algorithms:
  *
  * ```js
  * var reHasUnicodeWord = /[a-z][A-Z]|[A-Z]{2}[a-z]|[0-9][a-zA-Z]|[a-zA-Z][0-9]|[^a-zA-Z0-9 ]/;
  * var reAsciiWord = /[^\x00-\x2f\x3a-\x40\x5b-\x60\x7b-\x7f]+/g;
  * ```
  *
- * When `reHasUnicodeWord` does NOT match, the whole thing is `string.match(reAsciiWord)` - split on
- * ASCII punctuation, nothing else. That path is exactly reproducible. The unicode path handles
- * case transitions, digit/letter boundaries, acronyms like `XMLHttpRequest` and combining marks,
- * and is not; it keeps the UDF.
+ * When `reHasUnicodeWord` does not match, the result is `string.match(reAsciiWord)`, which splits
+ * on ASCII punctuation only, and SQL reproduces that exactly. The other algorithm handles case
+ * transitions, digit/letter boundaries, acronyms like `XMLHttpRequest` and combining marks, and
+ * keeps the UDF.
  *
- * `deburr` is a no-op for input this guard admits, since it only contains `[a-zA-Z0-9 ]`.
+ * `deburr` does nothing to input this guard admits, which contains only `[a-zA-Z0-9 ]`.
 */
 export const HAS_UNICODE_WORD = '[a-z][A-Z]|[A-Z]{2}[a-z]|[0-9][a-zA-Z]|[a-zA-Z][0-9]|[^a-zA-Z0-9 ]';
 
@@ -146,17 +136,17 @@ export function capitalizeSql(word: string): string {
 }
 
 /**
- * `_.upperFirst`: the first character uppercased and **the rest left alone**.
+ * `_.upperFirst`: the first character uppercased and the rest left as is.
  *
- * Not `capitalize`, which also lowercases the tail. `_.startCase` uses this one, which is why
- * `startCase('HELLO WORLD')` is `'HELLO WORLD'` and not `'Hello World'`.
+ * This is not `capitalize`, which also lowercases the rest. `_.startCase` uses this one, which is
+ * why `startCase('HELLO WORLD')` is `'HELLO WORLD'` and not `'Hello World'`.
 */
 export function upperFirstSql(word: string): string {
     return `upper(substring(${word}, 1, 1)) || substring(${word}, 2)`;
 }
 
 /**
- * **Correct** base64 validation — RFC 4648 with padding, which is `validator.isBase64`'s default.
+ * Base64 validation per RFC 4648 with padding, `validator.isBase64`'s default.
  *
  * ```js
  * var base64WithPadding = /^[A-Za-z0-9+/]+={0,2}$/;
@@ -164,10 +154,9 @@ export function upperFirstSql(word: string): string {
  * if (options.padding && str.length % 4 !== 0) return false;
  * ```
  *
- * This deliberately does NOT reproduce `core-utils`' `isBase64`, which is broken: it wraps
- * `validator` in a lossy UTF-8 round trip and so **rejects 99.3% of valid base64-encoded binary**:
- * `toString('utf8')` replaces every non-UTF-8 byte with U+FFFD, which cannot re-encode to the
- * original, so it only accepts base64 of UTF-8 text.
+ * This intentionally does not reproduce `core-utils`' `isBase64`, which also requires a UTF-8 round
+ * trip to be lossless. `toString('utf8')` replaces every invalid byte with U+FFFD, so that check
+ * accepts only base64 of UTF-8 text and rejects most base64-encoded binary.
 */
 export function isBase64Sql(value: string): string {
     return `(${value} = '' OR (length(${value}) % 4 = 0`
@@ -177,9 +166,9 @@ export function isBase64Sql(value: string): string {
 /**
  * `validator.isFQDN` with its default options, for ASCII input.
  *
- * Transliterated from source rather than inferred - and there is **no TLD list** in it, which is
- * what makes it expressible at all. With the defaults (`require_tld`, no underscores, no trailing
- * dot, no wildcard, no numeric TLD, max length enforced) the algorithm is:
+ * The function has no TLD list, which is what makes it expressible in SQL. With the defaults
+ * (`require_tld`, no underscores, no trailing dot, no wildcard, no numeric TLD, max length
+ * enforced) the algorithm is:
  *
  * 1. at least two dot-separated parts;
  * 2. the last part matches `/^([a-z…]{2,}|xn[a-z0-9-]{2,})$/i`, contains no whitespace and is not
@@ -187,9 +176,8 @@ export function isBase64Sql(value: string): string {
  * 3. every part is 1-63 characters, matches `/^[a-z_0-9-]+$/i`, has no full-width character, and
  *    neither starts nor ends with `-`; and with `allow_underscores` false, contains no `_`.
  *
- * The guard is ASCII: the real character classes run to `\u{ffff}` and include a full-width
- * exclusion, and reproducing those exactly is not worth the risk when non-ASCII domains can have
- * the UDF.
+ * Non-ASCII input keeps the UDF. `validator`'s character classes run to `\u{ffff}` and include a
+ * full-width exclusion, which is not worth reproducing.
 */
 export function isFQDNSql(value: string, udf: (v: string) => string): string {
     const parts = `string_split(${value}, '.')`;
@@ -197,7 +185,7 @@ export function isFQDNSql(value: string, udf: (v: string) => string): string {
     const badPart = `list_filter(${parts}, lambda p :`
         + ' NOT regexp_matches(p, \'^[A-Za-z0-9](([A-Za-z0-9-]{0,61})[A-Za-z0-9])?$\'))';
     // non-ASCII goes to the UDF rather than being answered false: `validator`'s classes run to
-    // \u{ffff}, so `exämple.com` is a VALID domain to it
+    // \u{ffff}, so `exämple.com` is a valid domain to it
     return `CASE WHEN NOT ${isAsciiSql(value)} THEN ${udf(value)} ELSE (`
         + `len(${parts}) >= 2`
         + ` AND regexp_matches(${tld}, '^([A-Za-z]{2,}|[xX][nN][A-Za-z0-9-]{2,})$')`
@@ -205,19 +193,17 @@ export function isFQDNSql(value: string, udf: (v: string) => string): string {
 }
 
 /**
- * A hash or byte-encoding of a string, in SQL - shared by `encode` and `createID`.
+ * A hash or byte encoding of a string in SQL, shared by `encode` and `createID`.
  *
- * Returns null for a combination DuckDB cannot express, which is how the callers' `applies` decide.
- * Measured against `node:crypto` and `Buffer` over a 12-input battery covering empty, non-ASCII,
- * astral, combining-mark and 500-character input - all 60 comparisons byte-equal:
+ * Returns null for a combination DuckDB cannot express, which is what the callers' `applies` check.
+ * The results match `node:crypto` and `Buffer` byte for byte, including for empty, non-ASCII,
+ * astral and combining-mark input:
  *
- * - `md5`, `sha1` and `sha256` exist and return a **lowercase hex** digest, matching
- *   `createHash(...).digest('hex')`. There is no `sha512` and no `sha384`.
- * - a **base64 digest** is `to_base64(unhex(<digest>))`, which is why `encode` can offer one where
- *   `encodeSHA` could not.
- * - `Buffer.from(x).toString('hex')` is `lower(hex(encode(x)))` - `hex()` is UPPERCASE and
- *   `Buffer` is lowercase, and `encode()` rather than `::BLOB` because a VARCHAR-to-BLOB cast
- *   refuses non-ASCII.
+ * - `md5`, `sha1` and `sha256` return a lowercase hex digest, matching
+ *   `createHash(...).digest('hex')`. There is no `sha512` or `sha384`.
+ * - A base64 digest is `to_base64(unhex(<digest>))`.
+ * - `Buffer.from(x).toString('hex')` is `lower(hex(encode(x)))`. `hex()` is uppercase, and
+ *   `encode()` is used because a VARCHAR-to-BLOB cast rejects non-ASCII.
  * - `Buffer.from(x).toString('base64')` is `to_base64(encode(x))`.
 */
 export const SQL_HASHES: readonly string[] = ['md5', 'sha1', 'sha256'];
@@ -239,11 +225,10 @@ export function hasHashSql(algo: unknown, digest: unknown): boolean {
 }
 
 /**
- * A single character, as a code point rather than a UTF-16 code unit.
+ * Whether a value is a single code point (not a single UTF-16 code unit).
  *
- * `extract`'s marker mode compares `char === start` inside `for (const char of input)`, which
- * iterates CODE POINTS - so a multi-character `start` can never match anything and an astral one
- * matches as a single unit. The emission therefore claims exactly one code point.
+ * `extract`'s marker mode compares `char === start` while iterating code points, so a
+ * multi-character marker never matches and an astral one matches as a unit.
 */
 export function isOneCodePoint(value: unknown): boolean {
     return typeof value === 'string' && [...value].length === 1;
@@ -252,10 +237,9 @@ export function isOneCodePoint(value: unknown): boolean {
 /**
  * `extract`'s marker mode: the text between the first `start` and the first `end` after it.
  *
- * **This mirrors a state machine, not a regex.** `_subSlice` scans for `start`, then collects every
- * character until `end` - so a second `start` before the `end` is CONTENT (`'<a<b>'` extracts
- * `'a<b'`), an unterminated run yields nothing, and `'a|b|c'` with `|` for both markers extracts
- * `'b'`. All nine shapes agree, including newlines and `'<>'` extracting the empty string.
+ * This mirrors `_subSlice`, which finds `start` and then collects characters until `end`. A second
+ * `start` before the `end` is content (`'<a<b>'` extracts `'a<b'`), an unterminated run yields
+ * null, and `'a|b|c'` with `|` for both markers extracts `'b'`.
 */
 export function extractMarkerSql(value: string, start: string, end: string): string {
     const s = sqlLiteral(start);
@@ -268,10 +252,9 @@ export function extractMarkerSql(value: string, start: string, end: string): str
 /**
  * `extract`'s marker mode with `global`: every extraction, as a list.
  *
- * The repeated form of the same state machine, and a regex expresses it exactly: a non-greedy
- * `(?s).*?` between the two escaped markers. `(?s)` is required - the machine collects newlines
- * and RE2's `.` does not match one without it. Verified against the state machine on all seven
- * shapes, including `'a|b|c|d'` giving `['b']` and `'<>'` giving `['']`.
+ * The repeated scan is a non-greedy `(?s).*?` between the two escaped markers. `(?s)` is required
+ * because the scan collects newlines and RE2's `.` does not match one without it. For example,
+ * `'a|b|c|d'` gives `['b']` and `'<>'` gives `['']`.
 */
 export function extractMarkerAllSql(value: string, start: string, end: string): string {
     const pattern = `${re2Literal(start)}((?s).*?)${re2Literal(end)}`;
@@ -279,18 +262,18 @@ export function extractMarkerAllSql(value: string, start: string, end: string): 
 }
 
 /**
- * `extract`'s regex mode, built from what `matchAll` actually does.
+ * `extract`'s regex mode, built from what `matchAll` does.
  *
- * `matchAll` forces the `g` flag, and per match pushes **every capture group** when the pattern has
- * any and the whole match otherwise - then `extract` takes the first element, or the whole list
- * under `global`. So the emission is `regexp_extract` at group 0 or 1, and `regexp_extract_all` for
- * the list.
+ * `matchAll` forces the `g` flag and, per match, collects every capture group if the pattern has
+ * any, or the whole match otherwise. `extract` then takes the first element, or the whole list
+ * under `global`. So the SQL is `regexp_extract` at group 0 or 1, and `regexp_extract_all` for the
+ * list.
  *
- * **The no-match case is why this is not a one-liner.** `matchAll` returns null when nothing
- * matched, and its loop also STOPS on an empty match - so a pattern whose first match is empty
- * gives null, not `''`. `regexp_extract` returns `''` for both, which `nullif` maps to null;
- * where a group is extracted the whole-match result is tested first, because a group can legally
- * capture the empty string inside a non-empty match.
+ * The no-match case needs care. `matchAll` returns null when nothing matched, and its loop also
+ * stops on an empty match, so a pattern whose first match is empty gives null, not `''`.
+ * `regexp_extract` returns `''` for both, which `nullif` maps to null. When extracting a group, the
+ * whole match is tested first, because a group can capture the empty string inside a non-empty
+ * match.
 */
 export function extractRegexSql(
     value: string, pattern: string, group: number
@@ -310,51 +293,43 @@ export function extractRegexAllSql(
 }
 
 /**
- * A list expression that answers NULL rather than `[]` when nothing matched.
+ * A list expression that returns NULL rather than `[]` when nothing matched.
  *
- * **`extract` under `global` returns null for no match, not an empty list.** `matchAll` returns
- * null when its loop pushed nothing, and `getSubslice` only returns `results` `if (results.length)`
- * and falls through to `return null` otherwise - so both modes agree on that and neither produces
- * `[]`. `regexp_extract_all` produces exactly `[]`, which the gate caught.
+ * `extract` under `global` returns null for no match in both modes, never an empty list, while
+ * `regexp_extract_all` returns `[]`.
 */
 export function emptyToNull(list: string): string {
     return `CASE WHEN len(${list}) = 0 THEN NULL ELSE ${list} END`;
 }
 
 /**
- * `isPhoneNumberLike`, and it is **not libphonenumber**.
+ * `isPhoneNumberLike`: strip every non-digit and check that 7 to 20 digits remain. It does not use
+ * libphonenumber.
  *
  * ```
  * const testValue = toString(input).trim().replace(/\D/g, '');
  * return inNumberRange(testValue.length, { min: 7, max: 20, inclusive: true });
  * ```
  *
- * Strip every non-digit, count what is left, ask whether it is 7 to 20. `trim()` cannot change the
- * answer - whitespace is not a digit, so it is stripped either way - and `\D` is `[^0-9]` in both
- * engines (measured: `\d` and `\w` agree on all 28 characters where they could differ). The digits
- * that remain are ASCII, so `length()` counting characters and JavaScript counting code units
- * agree.
- *
- * `isISDN` and `toISDN` really are libphonenumber; this one only shares their file.
+ * `trim()` cannot change the answer because whitespace is not a digit. `\D` is `[^0-9]` in both
+ * engines, and the remaining digits are ASCII, so `length()` counting characters agrees with
+ * JavaScript counting code units.
 */
 export function phoneNumberLikeSql(value: string): string {
     return `length(regexp_replace(${value}, '[^0-9]', '', 'g')) BETWEEN 7 AND 20`;
 }
 
 /**
- * Shannon entropy with no aggregate: split to characters, count each distinct one, fold the terms.
+ * Shannon entropy without an aggregate: split into characters, count each distinct one, and sum the
+ * terms.
  *
- * `list_filter` over the distinct characters is the per-character aggregation that was called
- * impossible inside a scalar expression. It is quadratic in the number of DISTINCT characters,
- * which for text is bounded by the alphabet rather than by the string length.
+ * `list_filter` over the distinct characters does the per-character counting. It is quadratic in
+ * the number of distinct characters, which for text is bounded by the alphabet rather than the
+ * string length. The result is exact.
  *
- * Verified against `shannonEntropy` on nine inputs including the empty string, a single character,
- * an all-same string and non-ASCII - **exact, not approximate** (`tools/probe/remaining-26.mjs`).
- *
- * The divisor is the character count, and that is where the JavaScript is internally inconsistent:
- * it builds the frequency table with `for (const char of input)`, which iterates CODE POINTS, and
- * divides by `input.length`, which counts CODE UNITS. The two differ only for astral input, so
- * astral input keeps the UDF rather than the emission reproducing the inconsistency.
+ * The JavaScript builds its frequency table over code points (`for (const char of input)`) but
+ * divides by `input.length`, which counts UTF-16 code units. The two differ only for astral input,
+ * so astral input keeps the UDF.
 */
 export function shannonEntropySql(value: string): string {
     const chars = `string_split(${value}, '')`;
@@ -363,9 +338,9 @@ export function shannonEntropySql(value: string): string {
     const total = `len(${chars})`;
     const terms = `list_transform(${counts},`
         + ` lambda n : -((n / ${total}) * ln(n / ${total}) / ln(2)))`;
-    // `+ 0` normalises NEGATIVE ZERO, which is the only thing the gate found wrong here: for a
-    // single-distinct-character string `p` is 1 and the term is `-(1 * 0 / ln(2))` = `-0`, where
-    // the JavaScript accumulates `0 - 0` and gets `0`. Same trick as `withinIntegerRange`.
+    // `+ 0` turns negative zero into zero: for a string with one distinct character the term is
+    // `-(1 * 0 / ln(2))` = `-0`, where the JavaScript gets `0`. Same approach as
+    // `withinIntegerRange`.
     return `CASE WHEN ${total} = 0 THEN 0`
         + ` ELSE list_reduce(${terms}, lambda a, b : a + b) + 0 END`;
 }

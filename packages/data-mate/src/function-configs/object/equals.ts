@@ -66,11 +66,11 @@ export const equalsConfig: FieldValidateConfig<EqualsArgs> = {
         return isDeepEqualFP(value);
     },
     /**
-     * A plain comparison, for a scalar column against a primitive argument.
+     * A plain `=` comparison, for a scalar column against a primitive argument.
      *
-     * `isDeepEqual` is structural, and neither an object nor an array has a literal form here, so
-     * `applies` keeps those on the UDF. The kinds must match too: `coalesce`-style implicit casting
-     * would be DuckDB deciding how `5` becomes a string, where the UDF path never converts at all.
+     * `isDeepEqual` compares structure, and objects and arrays have no literal form here, so
+     * `applies` leaves them on the UDF. The argument's kind must also match the column type: the
+     * UDF never converts types, while DuckDB would implicitly cast `5` to `'5'`.
     */
     sql: {
         applies: (args, inputConfig) => primitiveLiteral(args.value) != null

@@ -47,10 +47,9 @@ export const isIPv4Config: FieldValidateConfig = {
         return isIPv4;
     },
     /**
-     * `IPV4_RE` from `ip-utils`, transliterated, rather than anything `INET` offers.
-     *
-     * There is no `family()` in the extension, and the cast would take a leading-zero octet and a
-     * `/prefix` that data-mate does not - so the regex IS the definition here.
+     * `IPV4_RE` from `ip-utils`, translated to SQL. The `inet` extension has no `family()`, and the
+     * cast accepts leading-zero octets and a `/prefix` that data-mate rejects, so the regex is the
+     * definition.
     */
     sql: {
         expression: ({ value }) => isIPv4Sql(value),

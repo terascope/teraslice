@@ -85,7 +85,7 @@ export const geoDisjointConfig: FieldValidateConfig<GeoDisjointArgs> = {
     create({ args: { value } }) {
         return geoDisjointFP(value);
     },
-    /** `ST_Disjoint` - likewise identical on all 324 pairs. */
+    /** `ST_Disjoint`. Gives the same answers as `geoDisjoint`, including for shapes with holes. */
     sql: {
         applies: (args, inputConfig) => isScalarColumn(inputConfig)
             && isGeoColumn(inputConfig) && isGeoArg(args.value),

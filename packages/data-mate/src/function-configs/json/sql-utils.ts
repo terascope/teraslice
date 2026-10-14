@@ -1,30 +1,22 @@
 import { FieldType } from '@terascope/types';
 
 /**
- * Helpers shared by the `sql` emissions on the json function configs.
+ * Helpers shared by the SQL expressions on the json function configs.
 */
 
 /**
- * The column types where `to_json` renders exactly what `JSON.stringify` renders.
+ * The column types where `to_json` produces exactly what `JSON.stringify` produces.
  *
- * Measured, not assumed. What is absent is as deliberate as
- * what is present:
+ * The other types are left out on purpose:
  *
- * - **no floating point.** `to_json(2.0)` is `'2.0'` and `JSON.stringify(2)` is `'2'`; `to_json`
- *   writes `1e21` where JavaScript writes `1e+21`. Reproducing JavaScript's number-to-string
- *   algorithm in SQL is a different project from calling `to_json`.
- * - **no Date.** A TIMESTAMP renders as `"2026-01-02 03:04:05.678"`, without the `T` or the `Z`.
- * - **no integers**, and this one is not about `to_json` at all - see known-defects DF11. The gate
- *   found that `toJSON`'s own UDF FAILS on an `Integer` or `Long` column with
- *   `Invalid Input Error: A string was expected`, because `bigIntToJSON` returns a NUMBER for
- *   anything up to `Number.MAX_SAFE_INTEGER` while `output_type` promises a String. `to_json` gets
- *   these right; the emission is withheld because there is no working UDF to prove it against, and
- *   silently changing a column from a broken query into a working one belongs in a decision, not
- *   in a guard.
- * - **no `Any`/JSON, GeoJSON, GeoPoint, Object or Tuple.** Those have no UDF path either
- *   (known-defects DF7) - and `to_json` on a STRUCT was measured equal to `JSON.stringify`, key
- *   order included, so they are worth revisiting the moment the gate can compare them against the
- *   JavaScript directly.
+ * - Floating point: `to_json(2.0)` is `'2.0'` where `JSON.stringify(2)` is `'2'`, and `to_json`
+ *   writes `1e21` where JavaScript writes `1e+21`.
+ * - Date: a TIMESTAMP renders as `"2026-01-02 03:04:05.678"`, without the `T` or the `Z`.
+ * - Integer and Long: not yet compared against the JavaScript. `to_json` renders them, and the
+ *   UDF path handles them (see `udf-types-spec`), so they are candidates to add.
+ * - Any/JSON, GeoJSON, GeoPoint, Object and Tuple: not yet compared against the JavaScript.
+ *   `to_json` on a STRUCT matches `JSON.stringify`, including key order, so these are candidates to
+ *   add.
 */
 export const JSON_SQL_TYPES: readonly FieldType[] = [
     FieldType.String,

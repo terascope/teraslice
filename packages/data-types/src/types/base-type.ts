@@ -82,7 +82,7 @@ export default abstract class BaseType {
 
     /**
      * Build the `{ [field]: type }` DuckDB result, wrapping the type as a DuckDB list
-     * (`TYPE[]`) when the field is an array - the DuckDB counterpart of `_formatGql`.
+     * (`TYPE[]`) when the field is an array. The DuckDB counterpart of `_formatGql`.
      */
     protected _formatDuckDB(type: string): DuckDBTypeConfig {
         return { [this.field]: this.config.array ? `${type}[]` : type };
@@ -116,22 +116,14 @@ export function formatGQLType(type: string, desc?: string): string {
 }
 
 /**
- * Quote a DuckDB identifier - ALWAYS. Used for STRUCT child names, which can be anything a
- * DataType field can be, including tuple positions like `0`.
+ * Quote a DuckDB identifier, always. Used for STRUCT member names, which can be any
+ * DataType field name, including reserved words (`inner`, `order`) and tuple positions (`0`).
  *
- * It used to skip anything matching `/^[A-Za-z_][A-Za-z0-9_]*$/`, which looks like the set of
- * identifiers needing no quotes but is not: **every reserved word matches it too**. A field
- * declared `nullObject.inner` produced `STRUCT(inner VARCHAR)` and a parser error, so the type
- * could not be created at all - and `inner`, `order`, `group` and `end` are ordinary names for
- * object members.
+ * Quoting unconditionally is safe because DuckDB matches quoted identifiers
+ * case-insensitively.
  *
- * Quoting unconditionally is safe because DuckDB treats a quoted identifier
- * case-INsensitively (verified), unlike Postgres where quoting pins the case.
- *
- * **`@terascope/sql-builder` has the same one-liner, on purpose.** This package emits DDL TYPE
- * strings, not queries, and depending on a query builder - dragging `geo-utils` and `ip-utils`
- * in with it - to share one line is the worse trade. What must not come back is the
- * CONDITIONAL version above; that was the bug, and it was written separately in both places.
+ * `@terascope/sql-builder` has the same one-liner; it is duplicated so this package does not
+ * depend on a query builder just for one line.
 */
 export function quoteDuckDBIdentifier(name: string): string {
     return `"${name.replace(/"/g, '""')}"`;

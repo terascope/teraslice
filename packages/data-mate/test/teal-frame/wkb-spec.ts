@@ -4,11 +4,10 @@ import { GeoShape, GeoShapeType } from '@terascope/types';
 import { geoShapeToWKB, wkbToGeoShape } from '../../src/teal-frame/wkb.js';
 
 /**
- * The GeoJSON <-> WKB codec a `GeoJSON` column is ingested and read through.
+ * The GeoJSON <-> WKB codec used to ingest and read a `GeoJSON` column.
  *
- * **Proved against DuckDB itself, byte for byte**: for every shape the encoder's output must equal
- * `ST_AsWKB(ST_GeomFromGeoJSON(...))`, so what lands in a `GEOMETRY` column is exactly what DuckDB
- * would have made from the same GeoJSON.
+ * For every shape the encoder's output must equal `ST_AsWKB(ST_GeomFromGeoJSON(...))` byte for
+ * byte, so a `GEOMETRY` column holds exactly what DuckDB would make from the same GeoJSON.
 */
 const SHAPES: readonly GeoShape[] = [
     { type: GeoShapeType.Point, coordinates: [-90.5, 22.5] },

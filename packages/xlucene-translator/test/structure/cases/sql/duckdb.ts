@@ -2,11 +2,10 @@ import { SQLTestCase } from './interfaces.js';
 import { nilVariables, withVariables } from './variables.js';
 
 /**
- * The SQL duckdb emits, query by query.
+ * The SQL the DuckDB dialect generates, query by query.
  *
- * These run for real in `test/sql/`, against a DuckDB that answers them. What this file
- * adds is the exact TEXT: a change here is either deliberate or a regression, and a diff says
- * which.
+ * `test/sql/` runs these queries against a real DuckDB. This file pins the exact text, so any
+ * change to it shows up in a diff.
 */
 const cases: Record<string, SQLTestCase[]> = {
     terms: [
@@ -26,10 +25,9 @@ const cases: Record<string, SQLTestCase[]> = {
         ['bar:*', '("bar" IS NOT NULL)'],
     ],
     /**
-     * **Every bracket spelling, because the two ends are independent.** `[` and `]` include
-     * the bound and `{` and `}` exclude it, so `[a TO b}` and `{a TO b]` are neither each
-     * other nor `[a TO b]`; a `*` end emits no comparison at all, and two of them emit
-     * nothing but a presence test.
+     * Every bracket spelling, because the two ends are independent. `[` and `]` include the
+     * bound and `{` and `}` exclude it, so `[a TO b}`, `{a TO b]` and `[a TO b]` all differ.
+     * A `*` end generates no comparison, and two of them leave only a presence test.
     */
     ranges: [
         ['num:>=50', '("num" >= 50)'],
@@ -58,12 +56,12 @@ const cases: Record<string, SQLTestCase[]> = {
         ['bar:{alpha TO delta]', '(("bar" > \'alpha\') AND ("bar" <= \'delta\'))'],
     ],
     /**
-     * **Every negation carries a `COALESCE`, and the parenthesising is the other half.**
+     * Every negation carries a `COALESCE`, and the parentheses must be preserved.
      *
      * `must_not` matches a document whose field is absent and `NOT (col = 'x')` does not, so
-     * the unknown case is forced back to true. The groupings go three deep because `AND` and
-     * `OR` alone parenthesise the same way either direction - only a group inside a group
-     * beside a bare term shows that the nesting survived.
+     * the unknown case is forced back to true. Groups nest three deep because a flat `AND` or
+     * `OR` looks the same with or without parentheses; only a group inside a group beside a
+     * bare term shows the nesting was kept.
     */
     'boolean logic': [
         ['_exists_:bar', '("bar" IS NOT NULL)'],
@@ -90,13 +88,13 @@ const cases: Record<string, SQLTestCase[]> = {
         ['hello', '(("bar" = \'hello\') OR ("baz" = \'hello\') OR ("nested"."name" = \'hello\'))'],
     ],
     /**
-     * **Both sides of every IP comparison are mapped into IPv6 first.**
+     * Both sides of every IP comparison are mapped into IPv6 first.
      *
-     * An `INET` orders by (family, address) in both engines, while Elasticsearch orders by
-     * the 128-bit value with IPv4 mapped in - so the column and the literal both go through
-     * `::ffff:`, and a CIDR's prefix gains the 96 bits in front of it. An `ip_range` column
-     * is compared by its block's first and last address rather than with `<<=`, which is what
-     * lets a mapped address find a block stored as IPv4.
+     * `INET` orders by family first in both engines, while Elasticsearch orders by the
+     * 128-bit value with IPv4 mapped in. So the column and the literal both go through
+     * `::ffff:`, and a CIDR's prefix length grows by 96. An `ip_range` column is compared by
+     * its block's first and last address instead of with `<<=`, so a mapped address can find
+     * a block stored as IPv4.
     */
     'ip addresses': [
         ['ip:192.168.2.1', '(TRY_CAST(CASE WHEN contains("ip", \':\') THEN "ip" ELSE \'::ffff:\' || "ip" END AS INET) = INET \'::ffff:192.168.2.1\')'],
@@ -122,14 +120,13 @@ const cases: Record<string, SQLTestCase[]> = {
         ['geoShape:geoPolygon(points:["10,10","10,50","50,50","50,10"] relation:"within")', 'try(ST_Within("geoShape", ST_GeomFromGeoJSON(\'{"type":"Polygon","coordinates":[[[10,10],[50,10],[50,50],[10,50],[10,10]]]}\')))'],
     ],
     /**
-     * A variable is a VALUE bound late: the structure comes from the query text and stays put,
-     * so `bar:$str` emits exactly what `bar:hello` emits once the variable resolves.
+     * A variable supplies a value at query time. The structure comes from the query text, so
+     * `bar:$str` generates the same SQL as `bar:hello` once the variable resolves.
      *
-     * Two things do move, and both are edges. An array fans out to one comparison per element,
-     * so the value decides how many there are and an empty list leaves none - a query that
-     * cannot match rather than one that matches everything. And a variable with no value
-     * resolves to an empty one, or, under `filterNilVariables`, drops the node it belongs to
-     * and takes its conjunction with it.
+     * Two cases change the structure. An array expands to one comparison per element, so an
+     * empty list leaves none and the query matches nothing (not everything). A variable with
+     * no value resolves to an empty value, or, with `filterNilVariables`, removes the node it
+     * belongs to along with its conjunction.
     */
     variables: [
         ['bar:$str', '("bar" = \'hello\')', withVariables],

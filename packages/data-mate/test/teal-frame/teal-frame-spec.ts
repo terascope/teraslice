@@ -46,9 +46,8 @@ describe('TealFrame', () => {
         });
 
         it('should accept fields named after SQL reserved words', async () => {
-            // `quoteIdentifier` used to skip anything matching /^[A-Za-z_][A-Za-z0-9_]*$/,
-            // which every reserved word matches too - so the DDL came out as
-            // `(name VARCHAR, group VARCHAR)` and the frame could not be created at all.
+            // A reserved word also looks like a plain identifier, so every column name must be
+            // quoted; an unquoted `group VARCHAR` in the DDL would fail to create the table.
             const config: DataTypeConfig = {
                 version: 1,
                 fields: {
@@ -119,13 +118,13 @@ describe('TealFrame', () => {
                 const e = err as CoercionFailureError;
                 expect(e.failures).toHaveLength(1);
                 expect(e.failures[0].field).toEqual('bytes');
-                // the ORIGINAL text is what is useful for something that fires rarely
+                // the original text is the most useful example for a rare failure
                 expect(e.failures[0].exampleValue).toEqual('not-a-number');
             }
         });
 
         it('should null the value instead of raising in lenient mode', async () => {
-            // the pipeline contract: failing to convert is an answer, not an error
+            // in lenient mode a failed conversion yields null rather than an error
             const frame = await TealFrame.fromRecords(
                 CONFIG, [{ ...RECORDS[0], bytes: 'not-a-number' }], { mode: 'lenient' }
             );
@@ -135,9 +134,8 @@ describe('TealFrame', () => {
         });
 
         it('should round-trip a Long above 2^53 without losing or gaining 1', async () => {
-            // toBigIntOrThrow adds 1 above MAX_SAFE_INTEGER and bigIntToJSON removes it;
-            // taking the bigint directly gets the +1 without the -1, which stored
-            // '9007199254740993' as ...994
+            // toBigIntOrThrow adds 1 above MAX_SAFE_INTEGER and bigIntToJSON removes it, so
+            // storing its bigint directly would keep the +1 and store ...994
             const cfg: DataTypeConfig = {
                 version: 1,
                 fields: { total: { type: FieldType.Long } },
@@ -151,7 +149,7 @@ describe('TealFrame', () => {
         });
 
         it('should decode a geohash, since coerceToType calls parseGeoPoint', async () => {
-            // the SQL path could not express this at all; using the primitive gets it free
+            // SQL cannot decode a geohash; the coerceToType primitive does it
             const cfg: DataTypeConfig = {
                 version: 1,
                 fields: { loc: { type: FieldType.GeoPoint } },
@@ -165,15 +163,14 @@ describe('TealFrame', () => {
         });
 
         /**
-         * **Large whole numbers survive the trip out, exactly.**
+         * Large whole numbers are output exactly.
          *
-         * `core-utils`' `bigIntToJSON` cannot be used here: it subtracts 1 from every positive
-         * value above the safe limit (cancelling a `+1` in `toBigInt` that a value from DuckDB
-         * never went through), and its bound is a SIGNED comparison, so every negative takes a
-         * lossy `Number` conversion with no string fallback. See the DEF-BIGINT issue.
+         * `core-utils`' `bigIntToJSON` cannot be used here (#4555). It subtracts 1 from every
+         * positive value above the safe limit, cancelling a `+1` from `toBigInt` that a value
+         * read from DuckDB never received, and its bound is a signed comparison, so every
+         * negative value takes a lossy `Number` conversion.
          *
-         * The invariant pinned here is that **what is stored, what `rows()` yields and what
-         * `ndjson()` writes all agree** - they did not, and `rows()` was the odd one out.
+         * What is stored, what `rows()` yields and what `ndjson()` writes must all agree.
         */
         it('should read large integers back exactly, and agree with ndjson', async () => {
             const cfg: DataTypeConfig = {
@@ -268,7 +265,7 @@ describe('TealFrame', () => {
         });
 
         it('should be lazy, not a materialized array', async () => {
-            // the engine's output path takes an Iterable and may stop early
+            // a caller may consume the output as an Iterable and stop early
             const frame = await TealFrame.fromRecords(CONFIG, RECORDS, {});
             const iterator = frame.rows();
             const first = await iterator.next();
@@ -280,7 +277,7 @@ describe('TealFrame', () => {
 
         it('should stream a result larger than one DuckDB chunk', async () => {
             // a chunk holds at most 2048 rows, so this crosses the boundary where a
-            // single-chunk implementation would silently truncate
+            // single-chunk implementation would truncate
             const many = Array.from({ length: 5000 }, (_unused, i) => ({
                 ...RECORDS[0], _key: `k-${i}`,
             }));
@@ -392,9 +389,8 @@ describe('TealFrame', () => {
 
     describe('coercion failure parity with DataFrame', () => {
         it('should fail FAST on the first bad value, not after the whole batch', async () => {
-            // DataFrame's Builder throws out of valueFrom on the first value it cannot
-            // convert and nothing catches it. Strict mode matches: one failure recorded,
-            // not one per bad row or per bad field.
+            // DataFrame's Builder throws on the first value it cannot convert. Strict mode
+            // matches that: one failure is recorded, not one per bad row or field.
             const bad = Array.from({ length: 500 }, () => ({
                 ...RECORDS[0], bytes: 'not-a-number', ip: 'not-an-ip',
             }));
@@ -411,9 +407,9 @@ describe('TealFrame', () => {
         });
 
         it('should leave NO table behind when it throws', async () => {
-            // The table is created before the append loop, so an early throw used to orphan a
-            // populated table that nothing could reach - no frame was returned, so no caller
-            // could destroy() it. DataFrame produces no artifact when fromJSON throws.
+            // The table is created before the append loop. If fromRecords throws, no frame is
+            // returned to destroy(), so it must drop the table itself, just as DataFrame leaves
+            // nothing behind when fromJSON throws.
             await expect(TealFrame.fromRecords(
                 CONFIG, [{ ...RECORDS[0], bytes: 'not-a-number' }], { name: 'orphan_check' }
             )).toReject();
@@ -427,7 +423,7 @@ describe('TealFrame', () => {
         });
 
         it('should still collect every failing field in lenient mode', async () => {
-            // lenient is the opt-in extra, and the one place collecting is worth the full pass
+            // lenient mode is opt-in, so it can afford a full pass to collect every failure
             const frame = await TealFrame.fromRecords(
                 CONFIG,
                 [{ ...RECORDS[0], bytes: 'not-a-number', ip: 'not-an-ip' }],
@@ -440,9 +436,8 @@ describe('TealFrame', () => {
     });
 
     describe('rows() value shapes', () => {
-        // REGRESSION: getColumnValues returns DuckDBListValue / struct wrappers, not plain JS.
-        // rows() is the output path, so a wrapper would surface as {"items":[...]} in a user's
-        // results. Nothing covered an array or struct through rows() before.
+        // getColumnValues returns DuckDBListValue and struct wrappers, not plain JS. rows() is
+        // the output path, so a wrapper would surface as {"items":[...]} in a user's results.
         it('should yield plain arrays and objects, not DuckDB value wrappers', async () => {
             const frame = await TealFrame.fromRecords(CONFIG, RECORDS, { name: 'plain' });
             const [first] = await (async () => {
@@ -461,10 +456,8 @@ describe('TealFrame', () => {
     });
 
     describe('stream isolation', () => {
-        // REGRESSION: streams used to share the process-wide connection, and DuckDB silently
-        // truncates an open streaming result when another query runs on that connection -
-        // measured at 500,000 rows down to 100,352 with no error.
-        // Each stream now gets its own connection.
+        // DuckDB truncates an open streaming result, without an error, when another query runs
+        // on the same connection. Each stream therefore gets its own connection.
         const MANY = Array.from({ length: 5000 }, (_, i) => ({ _key: `k${i}` }));
         const KEY_ONLY = { version: 1, fields: { _key: { type: FieldType.Keyword } } };
 

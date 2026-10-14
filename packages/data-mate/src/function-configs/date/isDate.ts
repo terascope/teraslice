@@ -74,12 +74,10 @@ Default: iso_8601 for strings and epoch_millis for number`
         };
     },
     /**
-     * A constant on a real `Date` column: it is already a `TIMESTAMP`, so every non-null value is
-     * a valid date and `isValidDate` cannot say otherwise.
+     * Always true on a `Date` column, because every non-null `TIMESTAMP` is a valid date.
      *
-     * `applies` declines a CUSTOM format - with one, the function stops asking "is this a date"
-     * and starts asking "does this string match this `date-fns` pattern", which is a different
-     * question and not one a `TIMESTAMP` column can be asked.
+     * A custom `format` keeps the UDF. With one, the function checks whether a string matches a
+     * `date-fns` pattern, which a `TIMESTAMP` column cannot answer.
     */
     sql: {
         types: [FieldType.Date],

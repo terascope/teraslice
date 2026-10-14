@@ -49,10 +49,10 @@ export const sinConfig: FieldTransformConfig = {
     create() {
         return runMathFn(Math.sin);
     },
-    /** `sin` is native. */
+    /** Native `sin`. */
     sql: {
-        // transcendental: DuckDB's libm and V8 differ in the last bit, which IEEE 754
-        // permits. The gate compares these to a few ULP - see `approximate`.
+        // DuckDB and V8 can differ in the last bit of a transcendental result, which
+        // IEEE 754 allows, so `approximate` compares results to within a few ULP
         approximate: true,
         expression: ({ value }) => finiteOrNull(`sin(${value})`),
     },

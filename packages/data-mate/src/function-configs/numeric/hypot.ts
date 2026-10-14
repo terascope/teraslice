@@ -77,9 +77,9 @@ export const hypotConfig: FieldTransformConfig = {
     /**
      * `sqrt(sum of squares)` over the list.
      *
-     * `approximate`, because `Math.hypot` SCALES by the largest magnitude before squaring to avoid
-     * intermediate overflow, where this squares directly - so the two agree to a few ULP for
-     * ordinary magnitudes and the guard turns an overflow into null on both sides.
+     * `approximate`, because `Math.hypot` scales by the largest magnitude before squaring to
+     * avoid overflow, while this squares directly. The two agree to a few ULP for ordinary
+     * magnitudes, and `finiteOrNull` turns an overflow into null.
     */
     sql: {
         approximate: true,

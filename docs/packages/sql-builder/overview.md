@@ -5,46 +5,61 @@ sidebar_label: overview
 
 > Builds SQL text from typed pieces, for every engine Terascope targets
 
-Everything here turns something typed — a value and its field type, a sort, a set of readable
-columns, a limit — into SQL **text**. It parses nothing and executes nothing.
+`@terascope/sql-builder` turns typed values (a value and its field type, a sort, a list of
+readable columns, a row limit) into SQL text. It does not parse or run SQL.
 
-- **`SQLDialect`** (`dialects/`) — every piece of SQL that differs between engines: geo
-  predicates, IP containment, regular expressions, JSON access, projections. `duckdb` and
-  `postgres` ship; `BaseSQLDialect` holds everything they spell the same way.
-- **`clauses`** — `ORDER BY` and `GROUP BY`. **Null placement is decided here, once**, for every
-  package that emits a sort.
-- **`quoting`** — identifiers, string literals, numbers, booleans, timestamps.
-- **`statement`** — `buildSQLStatement`, which assembles a complete statement from parts.
+It is used by `@terascope/xlucene-translator` to render translated queries and by
+`@terascope/data-mate` for its DuckDB-backed frame, so both generate the same SQL for sorts,
+projections and limits.
 
-## Who uses it
+## What it exports
 
-| package | for |
-|---|---|
-| `@terascope/xlucene-translator` | rendering the leaves of a translated xLucene query, and assembling the restricted statement `QueryAccess` hands back |
-| `@terascope/data-mate` | the DuckDB frame's own DDL, projections, sorts and limits |
+- **Dialects**: `getSQLDialect(name)` returns a `SQLDialect` for `'duckdb'` (the default) or
+  `'postgres'`. A dialect writes everything that differs between engines: field references,
+  literals, comparisons, geo and IP predicates, projections, `ORDER BY` and `LIMIT`.
+  `DuckDBDialect`, `PostgresDialect` and `BaseSQLDialect` are exported so you can subclass them.
+- **Clauses**: `orderByClause`, `orderByTerms`, `groupByClause`, `sortDirection`,
+  `defaultNullOrder` and `toSQLSort`.
+- **Quoting**: `quoteIdentifier`, `quoteLiteral`, `quoteNumber`, `quoteBoolean`, `parens` and
+  related helpers.
+- **Statements**: `buildSQLStatement` assembles a full `SELECT` from a `SQLQueryParts` object.
 
-Neither depends on the other, which is why this is its own package rather than part of either.
-
-## Null placement
-
-No two engines place nulls the same way, and none of them match `DataFrame`:
-
-| | ascending | descending |
-|---|---|---|
-| Elasticsearch (`missing` defaults to `_last`) | last | last |
-| DuckDB (`default_null_order`) | last | last |
-| PostgreSQL (a null is the largest value) | last | first |
-| **`DataFrame` — the default here** | **first** | **last** |
-
-Because the rule matches nothing, it can never be left to an engine default: `NULLS FIRST` /
-`NULLS LAST` is emitted on **every** term, in **every** engine. Pass `nulls: 'last'` on a
-`SQLSort` for the Elasticsearch answer.
+## Using a dialect
 
 ```ts
 import { getSQLDialect } from '@terascope/sql-builder';
+import { SQLDialectName, xLuceneFieldType } from '@terascope/types';
 
-const dialect = getSQLDialect('duckdb');
+const dialect = getSQLDialect(SQLDialectName.duckdb);
 
+dialect.fieldRef('user.name');
+// '"user"."name"'
+
+dialect.equals(dialect.fieldRef('bar'), 'hello', xLuceneFieldType.String);
+// '("bar" = \'hello\')'
+
+dialect.limitOffset(100, 200);
+// 'LIMIT 100 OFFSET 200'
+```
+
+Values that are written into the statement, such as `LIMIT`, `OFFSET`, sort directions and IP
+addresses, are validated and throw a `TSError` with status 400 when invalid.
+
+## Null placement in sorts
+
+Engines place nulls differently by default, and none match `DataFrame`:
+
+| | ascending | descending |
+|---|---|---|
+| Elasticsearch | last | last |
+| DuckDB | last | last |
+| PostgreSQL | last | first |
+| `DataFrame` (the default here) | first | last |
+
+So every `ORDER BY` term includes `NULLS FIRST` or `NULLS LAST`. Pass `nulls: 'last'` to match
+Elasticsearch.
+
+```ts
 dialect.orderBy([{ expression: '"bytes"', order: 'asc' }]);
 // '"bytes" ASC NULLS FIRST'
 
@@ -52,12 +67,18 @@ dialect.orderBy([{ expression: '"bytes"', order: 'asc', nulls: 'last' }]);
 // '"bytes" ASC NULLS LAST'
 ```
 
+A sort `expression` is SQL and is used as-is, so never build it from untrusted input. Wrap a
+field name with `dialect.fieldRef(field)` first.
+
 ## Quoting
 
-Identifiers are quoted **unconditionally**. "Only when it looks unsafe" is not a decidable test —
-every reserved word looks like an ordinary identifier, and `group`, `order`, `end` and `table` are
-ordinary field names in real data.
+`quoteIdentifier` always quotes, so reserved words such as `group`, `order` and `end` work as
+field names. `quoteLiteral` escapes a string by doubling single quotes, which is correct for
+DuckDB and PostgreSQL.
 
-Note that `quoteLiteral` is not the same job as `core-utils`' `jsStringEscape`: that escapes for a
-*JavaScript* string literal, including backslashes, which would corrupt `C:\path` here while
-leaving the quote that actually matters unescaped.
+```ts
+import { quoteIdentifier, quoteLiteral } from '@terascope/sql-builder';
+
+quoteIdentifier('order');  // '"order"'
+quoteLiteral("it's");      // "'it''s'"
+```

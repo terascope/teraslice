@@ -118,11 +118,8 @@ export const isFQDNConfig: FieldValidateConfig = {
         return isFQDN;
     },
     /**
-     * `validator.isFQDN` with its defaults, for ASCII input. There is no TLD list in it, which is
-     * what makes it expressible.
-     *
-     * Transliterated from `validator`'s source, not inferred from the name - the same bar
-     * `isAlpha`, `isPort`, `isHash` and `isUUID` had to clear.
+     * `validator.isFQDN` with its default options, for ASCII input. It has no TLD list, which is
+     * what makes it expressible in SQL. See `isFQDNSql`.
     */
     sql: {
         needs_udf_fallback: true,

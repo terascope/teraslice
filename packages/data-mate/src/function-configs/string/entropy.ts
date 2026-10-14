@@ -70,15 +70,12 @@ export const entropyConfig: FieldTransformConfig<EntropyArgs> = {
     },
     sql: {
         /**
-         * **Per-character aggregation inside a scalar expression, which was the stated wall.**
-         * `string_split` to a list, `list_filter` to count each distinct character, `list_reduce`
-         * to fold the terms - see `shannonEntropySql`. Measured EXACT, not approximate, on nine
-         * inputs including the empty string and non-ASCII.
+         * Shannon entropy as a scalar SQL expression; see `shannonEntropySql`. The result is exact.
          *
-         * `shannon` is the only algorithm in `StringEntropyDict` and anything else THROWS, so
-         * `applies` claims it and nothing more. Astral input keeps the UDF: the JavaScript builds
-         * its frequency table over CODE POINTS and divides by `input.length`, which counts CODE
-         * UNITS, and the emission is not going to reproduce that inconsistency.
+         * `shannon` is the only algorithm in `StringEntropyDict` and any other throws, so `applies`
+         * handles only `shannon`. Astral input keeps the UDF: the JavaScript counts frequencies per
+         * code point but divides by `input.length`, which counts UTF-16 code units, and the SQL
+         * does not reproduce that inconsistency.
         */
         needs_udf_fallback: true,
         applies: ({ algo }) => algo == null || algo === StringEntropy.shannon,

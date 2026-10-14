@@ -99,12 +99,11 @@ export const isMACAddressConfig: FieldValidateConfig<IsMACArgs> = {
     },
     sql: {
         /**
-         * **Five fixed regexes, no backreference.** The backreference this was declined for is in
-         * `validator.isMACAddress`; `core-utils` has its own `macAddressDelimiters` table and
-         * `'any'` is `Object.values(...).some(...)`, so separator consistency falls out of the
-         * patterns rather than needing to be checked. See `MAC_SQL_PATTERNS`.
+         * Five fixed regexes, one per delimiter; see `MAC_SQL_PATTERNS`. `core-utils` uses its own
+         * `macAddressDelimiters` table rather than `validator.isMACAddress`, and `'any'` tries each
+         * pattern in turn, so no backreference is needed to keep the separators consistent.
          *
-         * An ARRAY `delimiter` is declined because the implementation cannot handle one either:
+         * An array `delimiter` is declined because the implementation cannot handle one either:
          * `macAddressDelimiters[['colon']]` is `undefined` and `.test` throws.
         */
         applies: ({ delimiter }) => delimiter == null

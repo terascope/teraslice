@@ -1,102 +1,98 @@
 # `bench/comparison/` — DataFrame vs TealFrame
 
-Produces a report, `bench/comparison/PERFORMANCE.md` by default (git-ignored): the same work asked of both
-engines, across nine scales.
+Runs the same work on both engines at nine scales and writes a markdown report, by default to
+`bench/comparison/PERFORMANCE.md` (git-ignored).
 
 ```bash
 cd packages/data-mate && pnpm build
 node bench/comparison/sweep.js                           # the full sweep, supervised
 
 SCALES=1000,10000 RUNS=1 node bench/comparison/run.js    # quick pass, one process
-OUT=/tmp/report.md node bench/comparison/run.js          # write it elsewhere
-node bench/comparison/render.js                          # re-render what is measured
+OUT=/tmp/report.md node bench/comparison/run.js          # write the report elsewhere
+node bench/comparison/render.js                          # re-render from saved results
 ```
 
-**`CHECKPOINT=1` compresses the TealFrame side before each case is timed**, which is a dimension of
-the comparison rather than a tweak: an in-memory DuckDB table stays `Uncompressed` until a
-checkpoint, and compressing it changes what a scan reads and how often a UDF is called. Measure the
-payback by sweeping twice into separate result files:
+`CHECKPOINT=1` compresses the TealFrame tables before each case is timed. An in-memory DuckDB
+table stays uncompressed until a checkpoint, and compression changes what a scan reads and how
+often a UDF is called, so this changes the results rather than just tuning them. To see what it
+buys, sweep twice into separate result files:
 
 ```bash
 RESULTS=bench/comparison/.plain.json  ENGINES=tealframe node bench/comparison/sweep.js
 RESULTS=bench/comparison/.ckpt.json   ENGINES=tealframe CHECKPOINT=1 node bench/comparison/sweep.js
 ```
 
-The checkpoint is taken in each case's SETUP, so it is never inside a timing - what it COSTS is a
-one-off measured separately, and what it BUYS is the difference
-between those two files. It is also **armed and verified**: after the ingest path a plain
-`CHECKPOINT` can return in 0 ms having compressed nothing, so the harness does a throwaway write
-first and then checks `pragma_storage_info`, failing the cell rather than reporting an uncompressed
-measurement as a checkpointed one.
+The checkpoint runs during each case's setup, so it is never part of a timing. After an ingest, a
+plain `CHECKPOINT` can return immediately without compressing anything, so the harness first does
+a throwaway write to make it run, then checks `pragma_storage_info`. If the table is still
+uncompressed, the cell is reported as a failure.
 
-**Use `sweep.js` for a full run.** `DataFrame.unique(fields)` at 3M does not throw - V8 prints
-`Ineffective mark-compacts near heap limit` and **aborts the process**, which no `try/catch` can
-survive. In one process that cost the 12 cases after it, at 3M and again at 5M: every ldjson case,
-both joins and all the aggregations, missing at exactly the scales that make the argument. The
-supervisor runs one scale and one engine per child, records the case that died from the in-flight
-marker, and restarts after it - so a death becomes an `OOM (fatal abort)` cell instead of a hole.
-It also kills and reports a child that stops producing output (`CASE_TIMEOUT`, default 1800s).
+Use `sweep.js` for a full run. At 3M rows, `DataFrame.unique(fields)` does not throw: V8 prints
+`Ineffective mark-compacts near heap limit` and aborts the process, which no `try/catch` can
+catch. The supervisor runs one scale and one engine per child process. When a child dies, it reads
+the in-flight marker to find the case that was running, records that cell as `OOM (fatal abort)`,
+and restarts after it. It also kills and reports a child that stops producing output for
+`CASE_TIMEOUT` seconds (default 1800).
 
-`run.js` directly is for a quick pass, and for the **lifecycle** section, which times both engines
-as a pair and therefore needs one process with both loaded.
+Run `run.js` directly for a quick pass, or for the lifecycle section, which times both engines as
+a pair and so needs one process with both loaded.
 
-Separate from `bench/suites/` on purpose. Those are benchmark.js micro-benchmarks that run a case
-thousands of times; these run a handful of very large operations, need their own forcing rules,
-and have to tolerate one engine running out of memory. `index.js` does not discover them.
+These benchmarks are separate from `bench/suites/`, which are benchmark.js micro-benchmarks that
+run a case thousands of times. The cases here run a few very large operations, need their own
+rules for forcing execution, and must tolerate one engine running out of memory. `index.js` does
+not discover them.
 
-## Why the numbers can be trusted
+## Measurement rules
 
-Every one of these exists because getting it wrong changes the result:
-
-- **The corpus is seeded and identical for both engines.** No `Math.random()`; a case at 1M rows
-  gets the same records today and tomorrow.
-- **Generation is never timed.** Records are built once per scale and handed to both engines.
-- **Median of `RUNS` after a discarded warm-up.** The first call pays for DuckDB instance
-  creation and V8 warm-up; at 1k rows a single timing is mostly that.
-- **Setup is per engine, and not timed.** A case that measures sorting starts from a frame that
-  already exists - and `setupDataFrame`/`setupTealFrame` build only their own side's. A shared
-  setup hid each engine behind the other's failure: when `DataFrame.fromJSON` could not be built at
-  5M, the case was skipped for BOTH, so the report lost TealFrame's number rather than reporting
-  DataFrame's ceiling. It also had `ENGINE=tealframe` building a `DataFrame` it never measured.
-- **Row counts are compared.** Each case returns how many rows it produced; a mismatch is printed
-  in the report as a warning. "Faster" must never mean "did less".
-- **`TealFrame` is lazy, so every case forces execution** — and the forcing method is chosen per
-  case. `count(*)` for a filter or join (how fast are the rows found), `materialize()` for
-  anything that must yield a usable frame, a full row drain where the `DataFrame` side also
-  produces JS values. **A sort is never forced with a count**, because the optimiser would drop
-  the `ORDER BY` and the case would measure nothing.
-- **An OOM is a result, not a crash.** It is caught, recorded, and the run continues. Give Node a
-  large heap so the limit found is the engine's, not the flag's.
+- The corpus is seeded and identical for both engines. There is no `Math.random()`, so a case at
+  1M rows gets the same records on every run.
+- Generating records is never timed. Records are built once per scale and given to both engines.
+- Each timing is the median of `RUNS` samples after a discarded warm-up. The first call pays for
+  DuckDB instance creation and V8 warm-up, which would dominate a 1k-row timing.
+- Setup is per engine and untimed. A sort case starts from a frame that already exists, and
+  `setupDataFrame` and `setupTealFrame` each build only their own side, so a failure in one
+  engine's setup does not remove the other engine's result.
+- Row counts are compared. Each case returns how many rows it produced, and the report warns when
+  the two engines disagree, so a faster result cannot come from doing less work.
+- `TealFrame` is lazy, so every case forces execution, and the method is chosen per case:
+  `count(*)` for a filter or join (how fast the rows are found), `materialize()` for anything that
+  must produce a usable frame, and a full row drain where the `DataFrame` side also produces JS
+  values. A sort is never forced with a count, because the optimizer drops the `ORDER BY` and the
+  case would measure nothing.
+- An out-of-memory error is a result, not a crash. It is caught and recorded, and the run
+  continues. Give Node a large heap so the limit reported is the engine's, not the flag's.
 
 ## The corpus
 
-30 top-level columns (35 declared field paths) in `lib/generate.js`, spanning Keyword, Text,
-Byte, Short, Integer, Long, Float, Double, Number, Boolean, Date, IP, GeoPoint, seven array
-types, and two nested objects.
+`lib/generate.js` defines 30 top-level columns (35 declared field paths) covering Keyword, Text,
+Byte, Short, Integer, Long, Float, Double, Number, Boolean, Date, IP, GeoPoint, seven array types,
+and two nested objects.
 
-Two columns are deliberately sparse, both of redundant types so nothing loses coverage:
+Two columns are sparse on purpose. Both have types that other columns also cover, so no type
+loses coverage:
 
 | column | type | |
 |---|---|---|
-| `subnet` | Keyword | **null in every record** — a declared field nothing populates, which is very common in real DataTypes and is the cheapest column either engine can hold |
-| `expires` | Date | **null in half the records** — neither engine can take an all-or-nothing shortcut, so per-value branching shows up |
+| `subnet` | Keyword | null in every record: a declared field that nothing populates, which is common in real DataTypes and the cheapest column either engine can hold |
+| `expires` | Date | null in half the records, so neither engine can take an all-or-nothing shortcut and per-value branching shows up |
 
-Values stay inside their type's range on purpose. `Byte`/`Short` bounds and `Long` above
-`MAX_SAFE_INTEGER` are known divergences between the engines; feeding those here would measure error paths, and would make one engine fail
-where the other does not.
+Values stay inside each type's range. The engines handle out-of-range `Byte`/`Short` values and
+`Long` values above `MAX_SAFE_INTEGER` differently, so including them would measure error paths
+and make one engine fail where the other does not.
 
 ## Layout
 
 | | |
 |---|---|
-| `sweep.js` | supervises the full run: one child per scale+engine, survives a fatal abort |
-| `run.js` | measures one pass, prints progress, writes the report |
+| `sweep.js` | supervises the full run: one child per scale and engine, survives a fatal abort |
+| `run.js` | runs one pass, prints progress, writes the report |
+| `render.js` | renders the report from the saved results |
 | `lib/generate.js` | the corpus: config, seeded records, scales |
 | `lib/harness.js` | timing, forcing, OOM handling, formatting |
-| `lib/cases.js` | the cases themselves, grouped by feature |
+| `lib/cases.js` | the cases, grouped by feature |
 | `lib/report.js` | markdown rendering |
-| `lib/results.js` | the result file, per-half merging, and the in-flight marker |
-| `lifecycle/spaces.js` | the end-to-end spaces flow, today vs TealFrame |
+| `lib/results.js` | the result file, per-engine merging, and the in-flight marker |
+| `lifecycle/search-lifecycle.js` | an end-to-end search request (API process, then worker), DataFrame vs TealFrame |
 
 ## Adding a case
 
@@ -107,14 +103,14 @@ where the other does not.
     setupDataFrame: dfFrame,          // untimed, DataFrame's prerequisites only
     setupTealFrame: duckTable,        // untimed, TealFrame's only
     async dataFrame(ctx, state) { /* return rows produced, or SKIPPED */ },
-    async tealFrame(ctx, state) { /* MUST end in force(...) */ },
+    async tealFrame(ctx, state) { /* must end in force(...) */ },
     teardownTealFrame: destroyDuck,   // and teardownDataFrame, where one is needed
 }
 ```
 
-`dfFrame` / `duckTable` / `destroyDuck` in `lib/cases.js` are the halves most cases need. Each
-half's setup, timing and teardown are caught separately, so one engine's failure is recorded
-against that engine and the other still reports.
+`dfFrame`, `duckTable` and `destroyDuck` in `lib/cases.js` cover what most cases need. Each
+engine's setup, timing and teardown are caught separately, so a failure is recorded against the
+engine that had it and the other engine still reports.
 
-Return `SKIPPED` where an engine genuinely has no equivalent — Parquet and joins for
-`DataFrame` — rather than bending the case into something comparable.
+Return `SKIPPED` where an engine has no equivalent, such as Parquet or joins for `DataFrame`,
+rather than bending the case into something comparable.

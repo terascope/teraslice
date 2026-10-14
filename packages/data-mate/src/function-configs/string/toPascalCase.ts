@@ -43,11 +43,10 @@ export const toPascalCaseConfig: FieldTransformConfig = {
         return (input: unknown) => toPascalCase(input as string);
     },
     /**
-     * `_.pascalCase` - `firstToUpper(camelCase(x))`, so every word is capitalised.
+     * `_.pascalCase`: `firstToUpper(camelCase(x))`, so every word is capitalized.
      *
-     * Only for input lodash handles with its ASCII word splitter - see `HAS_UNICODE_WORD`. Case
-     * transitions, digit/letter boundaries, acronyms and anything non-ASCII take lodash's other
-     * algorithm and keep the UDF.
+     *  Only for input that lodash splits with its ASCII word splitter; see `HAS_UNICODE_WORD`.
+     * Other input keeps the UDF.
     */
     sql: {
         needs_udf_fallback: true,

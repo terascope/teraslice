@@ -15,19 +15,18 @@ export interface ScalarFunctionSpec {
     /** The name it is called by in SQL. */
     name: string;
     /**
-     * The single value argument: a bare field type, or the full field config when it is a list,
-     * a struct or JSON - which a bare type cannot express. See `udfTypeFor`.
+     * The single value argument: a bare field type, or a full field config for a list, struct or
+     * JSON value, which a bare type cannot express. See `udfTypeFor`.
     */
     parameter: FieldType | DataTypeFieldConfig;
     /** Children of the parameter, for an Object/Tuple parameter. */
     parameterChildren?: DataTypeFields | ReadonlyDataTypeFields;
     /**
-     * The result's FIELD CONFIG, not just its type.
+     * The result's field config, not just its type.
      *
-     * The config is needed because the JS value the function returns still has to be turned
-     * into DuckDB's representation - a `number` is not accepted by a BIGINT vector, which
-     * fails as `Cannot convert 1 to a BigInt`. That conversion is `makeValueConverter`, the
-     * same one `fromRecords` uses, so there is one implementation of it.
+     * The returned JS value must be converted to DuckDB's representation (a BIGINT vector
+     * rejects a `number`, for example). `makeValueConverter`, which `fromRecords` also uses,
+     * does that from the config.
      */
     returns: DataTypeFieldConfig;
     /** Children of the result type, for Object/Tuple results. */
@@ -35,32 +34,29 @@ export interface ScalarFunctionSpec {
     /**
      * The implementation, called once per row.
      *
-     * **This should come from a function config's `create()` via `tealFrameAdapter`, not be
-     * hand-written.** The function configs already define these behaviours - name, args,
-     * accepted types, `output_type`, null and array handling - and are what spaces exposes as
-     * GraphQL directives. Restating any of that here would be a second source of truth.
+     * This should come from a function config's `create()` via `tealFrameAdapter`, not be
+     * written by hand. The function configs already define the name, arguments, accepted types,
+     * `output_type`, and null and array handling, so restating them here would duplicate them.
      *
      * Exactly one of `fn` and `fnForArgs` is set.
      */
     fn?: ScalarFunctionImpl;
     /**
-     * **The implementation for an argument set**, built from that set's JSON text, which the SQL
-     * passes as a SECOND, constant parameter: `dm_lookup_x(code, '{"in":{...}}')`.
+     * Builds the implementation for one argument set from its JSON text, which the SQL passes as
+     * a second, constant parameter: `dm_lookup_x(code, '{"in":{...}}')`.
      *
-     * **This is what keeps registrations bounded.** DuckDB cannot unregister a scalar function, so
-     * a UDF specialised to one argument set - named by it - is permanent, and a long-running worker
-     * that sees a new `lookup` table, regex or format per query grows without bound: measured, 300
-     * tables made 300 registrations. With the arguments as a parameter there is one UDF per
-     * (function, types), and each argument set's implementation lives in a bounded LRU
-     * (`ARGUMENT_SETS_KEPT`), so an old one can be collected.
+     * This keeps the number of registered UDFs bounded. DuckDB cannot unregister a scalar
+     * function, so registering one UDF per argument set (per `lookup` table, regex or format)
+     * would grow without limit in a long-running process. Passing the arguments as a parameter
+     * means one UDF per function and type signature, and each argument set's implementation is
+     * cached in a bounded LRU (`ARGUMENT_SETS_KEPT`).
     */
     fnForArgs?: (argsText: string) => ScalarFunctionImpl;
     /**
-     * Call `fn` for rows where an argument is null. Defaults to **false**, which matches
-     * data-mate: `transformVectorToBuilder` iterates `vector.values()`, and `ReadableData`
-     * only yields NON-NIL entries, so a transform never receives a null. DuckDB does the
-     * opposite - MEASURED, it hands nulls straight to the function - so the null skip has to
-     * be reproduced here or behaviour diverges on every nullable column.
+     * Call `fn` for rows where the argument is null. Defaults to false, which matches
+     * `DataFrame`: `transformVectorToBuilder` iterates `vector.values()`, which skips nil
+     * entries, so a transform never receives a null. DuckDB passes nulls to a UDF, so the skip
+     * is done here.
      */
     callWithNull?: boolean;
 }
@@ -68,7 +64,7 @@ export interface ScalarFunctionSpec {
 /** How many argument sets' implementations one UDF keeps; the least recently used is dropped. */
 export const ARGUMENT_SETS_KEPT = 256;
 
-/** `build`, memoised per argument text in a bounded LRU. */
+/** Memoizes `build` per argument text in a bounded LRU. */
 function perArgumentSet(
     build: (argsText: string) => ScalarFunctionImpl
 ): (argsText: string) => ScalarFunctionImpl {
@@ -90,21 +86,19 @@ function perArgumentSet(
 /**
  * Wraps a per-row JS function as a vectorized DuckDB scalar function.
  *
- * The binding is chunk-based - `mainFunction(info, chunk, outputVector)` - so the JS boundary
- * is crossed once per chunk (~2048 rows), not once per row. Measured at ~4.5x a trivial
- * native expression, which is cheap enough that using the real primitive is the right trade.
+ * The binding is chunk-based (`mainFunction(info, chunk, outputVector)`), so the JS boundary is
+ * crossed once per chunk of about 2048 rows, not once per row.
  */
 export function createScalarFunction(spec: ScalarFunctionSpec): DuckDBScalarFunction {
     const callWithNull = spec.callWithNull ?? false;
-    // a result is COMPUTED, so it may be wider than a stored Long - see `wideIntegers`
+    // a computed result may be wider than a stored Long; see `wideIntegers`
     const convert = makeValueConverter(spec.returns, spec.returnsChildren, { wideIntegers: true });
     const parameter: DataTypeFieldConfig = typeof spec.parameter === 'string'
         ? { type: spec.parameter }
         : spec.parameter;
     /**
-     * The way IN needs a conversion too, and its absence was a real defect: a `Date` arrived as a
-     * `DuckDBTimestampValue` that the date primitives stringified into a zone-less string and
-     * re-parsed as machine-local, drifting every date function by the host's UTC offset. See
+     * Input values need converting too. Without it, a date arrives as a DuckDB value class
+     * that the date functions would misread (for example, as host-local time). See
      * `makeInputConverter`.
     */
     const toInput = makeInputConverter(parameter, spec.parameterChildren);
@@ -122,9 +116,9 @@ export function createScalarFunction(spec: ScalarFunctionSpec): DuckDBScalarFunc
         mainFunction: (_info, chunk, output) => {
             const values = chunk.getColumnValues(0) as unknown[];
             /**
-             * The arguments are ONE literal per call (`udfCall`), the same on every row, so only
-             * the first is read. Reading the column would copy the JSON into a JS string PER ROW:
-             * measured, a 138 KB `lookup` table took 1M rows from 441 ms to 37 s.
+             * The arguments are one constant literal per call (`udfCall`), so only the first row
+             * is read. Reading the whole column would copy the JSON into a JS string for every
+             * row, which is very slow for a large `lookup` table.
             */
             const impl = forArgs
                 ? forArgs(chunk.getColumnVector(1).getItem(0) as string)

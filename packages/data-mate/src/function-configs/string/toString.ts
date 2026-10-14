@@ -52,17 +52,16 @@ export const toStringConfig: FieldTransformConfig = {
         return toString;
     },
     /**
-     * One emission per starting type, because `toString` is a different conversion for each.
+     * One SQL expression per input type, because `toString` converts each type differently.
      *
-     * - **String** - identity. `toString` returns a string unchanged.
-     * - **Date** - `toISO8601`, which `create` substitutes for a `Date` column. Same `strftime`
-     *   idiom the rest of the date group uses.
-     * - **Boolean** - `String(true)` is `'true'`, and DuckDB's cast agrees.
-     * - **Number** - `String(n)`, which needs two corrections and a guard.
-     *   `5.0::DOUBLE::VARCHAR` is `'5.0'` where JavaScript writes `'5'`, so an integral value goes
-     *   through `HUGEINT` (not `BIGINT` - `1e20` overflows it); and past `1e21` JavaScript switches
-     *   to exponential form and writes `1e+21` where DuckDB writes `1e21`, which cannot be
-     *   corrected, so that range and the non-finite values keep the UDF.
+     * - String: returned unchanged.
+     * - Date: ISO 8601 via `strftime`, matching the `toISO8601` conversion used for a `Date`
+     *   column.
+     * - Boolean: `String(true)` is `'true'`, and DuckDB's cast agrees.
+     * - Number: `String(n)`. DuckDB renders `5.0::VARCHAR` as `'5.0'` where JavaScript writes
+     *   `'5'`, so integral values are cast through `HUGEINT` (`1e20` overflows `BIGINT`).
+     *   JavaScript uses exponential notation at or above 1e21 and below 1e-6 and formats it
+     *   differently from DuckDB, so those values and non-finite ones keep the UDF.
     */
     sql: {
         needs_udf_fallback: true,
@@ -79,11 +78,11 @@ export const toStringConfig: FieldTransformConfig = {
             if (type === FieldType.Date) {
                 return `strftime(${value}, '%Y-%m-%dT%H:%M:%S.%g') || 'Z'`;
             }
-            // `::VARCHAR` rather than a CASE: it renders 'true'/'false' AND is null-safe, where
-            // `CASE WHEN x THEN ... ELSE ...` sends a NULL down the ELSE branch
+            // `::VARCHAR` rather than a CASE: it renders 'true'/'false' and keeps NULL as NULL,
+            // where `CASE WHEN x THEN ... ELSE ...` would send a NULL down the ELSE branch
             if (type === FieldType.Boolean) return `${value}::VARCHAR`;
-            // exponential form differs at BOTH ends: JavaScript writes `1e+21` and `1e-7` where
-            // DuckDB writes `1e21` and `1e-07`. JS switches to it past 1e21 and below 1e-6.
+            // JavaScript uses exponential form at or above 1e21 and below 1e-6, and writes
+            // `1e+21` and `1e-7` where DuckDB writes `1e21` and `1e-07`
             return `CASE WHEN NOT isfinite(${value}) OR abs(${value}) >= 1e21`
                 + ` OR (${value} <> 0 AND abs(${value}) < 1e-6)`
                 + ` THEN ${udf(value)}`

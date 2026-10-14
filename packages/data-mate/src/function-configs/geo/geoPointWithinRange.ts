@@ -6,7 +6,7 @@ import {
     FunctionDefinitionCategory
 } from '../interfaces.js';
 import { parseGeoPoint } from '@terascope/geo-utils';
-import { isGeoPointColumn, rangeInMetres, distanceSphere } from './sql-utils.js';
+import { isGeoPointColumn, rangeInMeters, distanceSphere } from './sql-utils.js';
 
 export interface GeoPointWithinRangeArgs {
     point: GeoPointInput;
@@ -40,11 +40,11 @@ export const geoPointWithinRangeConfig: FieldValidateConfig<GeoPointWithinRangeA
         return geoPointWithinRangeFP(point, distance);
     },
     /**
-     * A TRUE distance test, which is the point: `geoPointWithinRange` builds a turf 64-gon and
-     * does point-in-polygon against it, so it reports points inside the circle as out of range.
-     * Measured band at `1000km`: a point 998,867 m away is `false` in JavaScript. SQL is right.
+     * A true distance test. `geoPointWithinRange` approximates the circle with a 64-sided polygon,
+     * so it reports some points just inside the range as out of range: for `1000km`, a point
+     * 998.867 km away is `false` in JavaScript and `true` here.
      *
-     * Note the (lat, lon) argument order - see `distanceSphere`.
+     * `ST_Distance_Sphere` takes (lat, lon); see `distanceSphere`.
     */
     sql: {
         applies: (args, inputConfig) => {
@@ -52,15 +52,15 @@ export const geoPointWithinRangeConfig: FieldValidateConfig<GeoPointWithinRangeA
             try {
                 parseGeoPoint(args.point as any);
                 const { distance, unit } = parseGeoDistance(args.distance as string);
-                return rangeInMetres(distance, unit) != null;
+                return rangeInMeters(distance, unit) != null;
             } catch {
                 return false;
             }
         },
         expression: ({ value, args }) => {
             const { distance, unit } = parseGeoDistance(args.distance as string);
-            const metres = rangeInMetres(distance, unit);
-            return `(${distanceSphere(value, parseGeoPoint(args.point as any))} <= ${metres})`;
+            const meters = rangeInMeters(distance, unit);
+            return `(${distanceSphere(value, parseGeoPoint(args.point as any))} <= ${meters})`;
         },
     },
     accepts: [

@@ -38,11 +38,10 @@ export const isOddConfig: FieldValidateConfig = {
         return isOdd;
     },
     /**
-     * `mod(x, 2) = 1`, and the `= 1` is deliberate rather than `abs(...) = 1`.
+     * `mod(x, 2) = 1`, deliberately not `abs(...) = 1`.
      *
-     * `isOdd(-3)` is **false** in data-mate - the implementation compares `x % 2 === 1` and
-     * `-3 % 2` is `-1` - so SQL has to make the same asymmetric comparison to agree. Verified
-     * against the implementation, not assumed.
+     * `isOdd(-3)` is false in data-mate: the implementation checks `x % 2 === 1`, and `-3 % 2` is
+     * `-1`. SQL makes the same comparison so the results match.
     */
     sql: {
         expression: ({ value }) => `mod(${value}, 2) = 1`,

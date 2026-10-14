@@ -1,31 +1,25 @@
 /**
- * The side-by-side cases: the same work, asked of both engines.
+ * The comparison cases: the same work, run on both engines.
  *
- * **Each case states what it encapsulates**, because that is the part a benchmark gets wrong.
- * The rules applied throughout:
- *
- * - **Setup is PER ENGINE, and never timed.** `setupDataFrame` and `setupTealFrame` build only
- *   their own side's prerequisites - a built frame, a written Parquet payload - so the measurement
- *   covers only the operation named, and one engine failing to set up cannot delete the other
- *   engine's number. `teardownDataFrame`/`teardownTealFrame` are the matching halves.
- * - A case returns the row count it produced. The runner compares the two engines' counts and
- *   flags a mismatch, so "faster" can never mean "did less".
- * - `TealFrame` is lazy, so every TealFrame case ends in `force(...)`, and the forcing method is
- *   chosen per case: `count` for a filter (find the rows), `table` for anything that must yield a
- *   usable frame, `rows` where the DataFrame side also hands back materialised JS values.
- * - Where an engine genuinely has no equivalent, the case returns `SKIPPED` rather than being
- *   quietly bent into something comparable.
+ * - Setup is per engine and never timed. `setupDataFrame` and `setupTealFrame` each build only
+ *   their own side's prerequisites, such as a frame or a Parquet file, so the timing covers only
+ *   the named operation and one engine's setup failure does not remove the other's result.
+ *   `teardownDataFrame` and `teardownTealFrame` are the matching cleanups.
+ * - A case returns the row count it produced. The runner compares the two counts and flags a
+ *   mismatch, so a faster result cannot come from doing less work.
+ * - `TealFrame` is lazy, so every TealFrame case ends in `force(...)`, with the method chosen per
+ *   case: `count` for a filter, `table` for anything that must produce a usable frame, `rows`
+ *   where the DataFrame side also returns JS values.
+ * - Where an engine has no equivalent, the case returns `SKIPPED` instead of being bent into
+ *   something comparable.
 */
 import fs from 'node:fs';
 import { SKIPPED, force } from './harness.js';
 import { COLUMNS } from './generate.js';
 
 /**
- * The `toJSON` options spaces really passes (`qpl-engine/src/v3/execute/run.ts:174`).
- *
- * `remove_null_fields` defaults to TRUE (`create-execution-plan.ts:94`, off only via
- * `@preserveNullFields`), so the default output OMITS null keys - which is also what
- * `TealFrame`'s export does. Using anything else here would compare two different formats.
+ * `toJSON` options that omit null keys, matching what `TealFrame`'s export does by default, so
+ * both engines produce the same output format.
 */
 const TO_JSON_OPTIONS = {
     useNullForUndefined: false,
@@ -45,7 +39,7 @@ function writeLdjsonFromJS(file, rows) {
         for (const row of rows) {
             chunk += `${JSON.stringify(row)}\n`;
             lines++;
-            // batched, not one write per row: a syscall per row would measure the kernel
+            // batched into 1 MB writes; a syscall per row would mostly measure the kernel
             if (chunk.length > 1 << 20) {
                 fs.writeSync(fd, chunk);
                 chunk = '';
@@ -74,24 +68,18 @@ function outputConfig(config, field, replacement) {
 }
 
 /**
- * Child rows for the join cases: `_key` remapped so **five** children share each parent key.
- *
- * A 1:1 self-join is not a join anyone runs, and joining on a low-cardinality column (5 distinct
- * categories) is a cartesian product - at 100k rows that measured 11.8 seconds of explosion.
- * Five children per parent is the fan-out the QPL join shapes actually have.
+ * Child rows for the join cases, with `_key` remapped so five children share each parent key.
+ * A 1:1 self-join is unrealistic, and joining on a low-cardinality column (5 categories) is
+ * effectively a cartesian product. Five children per parent is a realistic fan-out.
 */
 function childRecords(records) {
     return records.map((record, i) => ({ ...record, _key: `key-${Math.floor(i / 5)}` }));
 }
 
 /**
- * The DataFrame half of a case whose only prerequisite is the frame itself.
- *
- * **Each engine's setup is its OWN.** A shared one hid each engine behind the other's failure: at
- * 5M `DataFrame.fromJSON` can exhaust the heap, and while setup built both frames together that
- * took TealFrame's number with it - the report then showed a hole where DataFrame's ceiling
- * belonged. It also meant `ENGINE=tealframe` still built a `DataFrame`, spending exactly the heap
- * that the per-engine split exists to protect.
+ * DataFrame setup for a case whose only prerequisite is the frame itself. Each engine has its
+ * own setup, so a `DataFrame.fromJSON` that runs out of memory at 5M does not affect TealFrame,
+ * and an `ENGINE=tealframe` run never builds a `DataFrame`.
 */
 const dfFrame = ({ DataFrame, config, records }) => ({ df: DataFrame.fromJSON(config, records) });
 
@@ -100,7 +88,7 @@ const duckTable = async ({ TealFrame, config, records }) => ({
     duck: await TealFrame.fromRecords(config, records, {}),
 });
 
-/** Every TealFrame half that owns a table drops it; DataFrame's frames are just GC'd. */
+/** Drops a TealFrame half's table. DataFrame frames are garbage-collected instead. */
 const destroyDuck = async (ctx, { duck }) => {
     await duck.destroy();
 };
@@ -114,13 +102,13 @@ const STEPS = [
     ['trim', 'description'],
 ];
 
-/** The already-typed batches the append cases combine - one per fetch that landed. */
+/** Splits records into the already-typed batches that the append cases combine. */
 function batchesOf(records, count = 5) {
     const size = Math.max(1, Math.floor(records.length / count));
     return Array.from({ length: count }, (_, n) => records.slice(n * size, (n + 1) * size));
 }
 
-/** Each batch as its own Parquet payload: what the api-server hands the worker, once per fetch. */
+/** Writes each batch as its own Parquet file, the payload an API process sends a worker. */
 async function writePayloads({ TealFrame, config, records, tmp }, prefix) {
     const payloads = [];
     for (const [n, batch] of batchesOf(records).entries()) {
@@ -136,8 +124,8 @@ async function writePayloads({ TealFrame, config, records, tmp }, prefix) {
 export const GROUPS = [
     {
         title: 'Frame creation',
-        blurb: 'Building a queryable frame from data, coercion included. This is the api-server\'s'
-            + ' job for records, and the worker\'s for Parquet.',
+        blurb: 'Building a queryable frame from data, type coercion included. An API process'
+            + ' does this for records, and a worker does it for Parquet.',
         cases: [
             {
                 name: 'from records (+coercion)',
@@ -154,24 +142,19 @@ export const GROUPS = [
             },
             {
                 name: 'read from the wire',
-                note: 'The **worker\'s** ingest leg, and the other half of `serialize for the'
-                    + ' wire`: `DataFrame.deserialize` of a dfjson payload against `fromParquet`'
-                    + ' of a Parquet+zstd one. Each side reads its OWN wire format, because'
-                    + ' `DataFrame` cannot read Parquet at all and `TealFrame` has no dfjson -'
-                    + ' which is precisely the choice being compared. Parquet is typed and'
-                    + ' schema-carrying, so this leg does **zero coercion**.'
-                    + '\n\n**Forced with `materialize()`, and that is not optional.**'
-                    + ' `fromParquet` is relation-backed - nothing is read until something asks'
-                    + ' for rows - and `size()` on its own is answered from the Parquet footer\'s'
-                    + ' row-group counts in under a millisecond, which measures no ingest at all.'
-                    + ' An earlier version of this case did exactly that and reported a'
-                    + ' meaningless 5,939x.'
-                    + '\n\n`serializeIterator`/`deserializeIterator`, **not**'
-                    + ' `serialize`/`deserialize`: the latter pair joins every column into ONE'
-                    + ' string and its own docstring caps the whole frame at 1 GB, which this'
-                    + ' corpus exceeds at 1M rows - the setup died with `Invalid string length`.'
-                    + ' The iterator pair caps at 1 GB **per column**, so it is both what a real'
-                    + ' implementation would use at this scale and the fairer comparison.',
+                note: 'The worker\'s ingest step, and the reverse of `serialize for the wire`:'
+                    + ' `DataFrame.deserializeIterator` of a dfjson payload against `fromParquet`'
+                    + ' of a Parquet+zstd one. Each side reads its own wire format, because'
+                    + ' `DataFrame` cannot read Parquet and `TealFrame` has no dfjson; that'
+                    + ' choice is what is being compared. Parquet is typed and carries its schema,'
+                    + ' so this step does no type coercion.'
+                    + '\n\nForced with `materialize()`. `fromParquet` reads nothing until rows'
+                    + ' are requested, and `size()` alone is answered from the Parquet footer'
+                    + ' without reading any values.'
+                    + '\n\nUses `serializeIterator`/`deserializeIterator` rather than'
+                    + ' `serialize`/`deserialize`, which join every column into one string capped'
+                    + ' at 1 GB for the whole frame; this corpus exceeds that at 1M rows. The'
+                    + ' iterator pair caps each column at 1 GB instead.',
                 async setupDataFrame({ DataFrame, config, records }) {
                     return { wire: [...DataFrame.fromJSON(config, records).serializeIterator()] };
                 },
@@ -197,8 +180,7 @@ export const GROUPS = [
                 async dataFrame(ctx, { df }) {
                     let bytes = 0;
 
-                    // consumed, not just created: it is a generator, so leaving it unread would
-                    // serialize nothing at all
+                    // the iterator is a generator, so it must be consumed to serialize anything
                     for (const chunk of df.serializeIterator()) bytes += chunk.length;
                     return bytes > 0 ? df.size : 0;
                 },
@@ -213,9 +195,9 @@ export const GROUPS = [
 
     {
         title: 'Transforms and validations',
-        blurb: 'The 205 QPL functions. Both engines drive the SAME `FunctionDefinitionConfig`'
-            + ' through their own adapter - `dataFrameAdapter` builds a new column, '
-            + '`tealFrameAdapter` returns a SQL expression backed by a vectorized UDF.',
+        blurb: 'The data-mate functions. Both engines run the same `FunctionDefinitionConfig`'
+            + ' through their own adapter: `dataFrameAdapter` builds a new column, and'
+            + ' `tealFrameAdapter` returns a SQL expression (native SQL, or a vectorized UDF).',
         cases: [
             {
                 name: 'transform (toUpperCase)',
@@ -223,8 +205,8 @@ export const GROUPS = [
                     + '**`DataFrame` shares data structurally.** It is immutable and columnar, so this'
                     + ' returns a new frame REFERENCING the existing column vectors -'
                     + ' almost no data moves, while `TealFrame` physically'
-                    + ' materialises a new result. The two do different amounts of'
-                    + ' work: the comparison is of semantics, not equal labour, and'
+                    + ' materializes a new result. The two do different amounts of'
+                    + ' work: the comparison is of semantics, not equal labor, and'
                     + ' the deferred cost reappears when the data is read.'
                     + ' Here `DataFrame` swaps ONE column and reuses the other 29, while'
                     + ' `TealFrame` writes all 30 - see the composed pipeline case for'
@@ -331,10 +313,10 @@ export const GROUPS = [
 
     {
         title: 'Composed pipelines',
-        blurb: 'The case that separates the two models. A QPL query applies SEVERAL functions and'
-            + ' then filters. `DataFrame` makes one materialising pass per function, because each'
-            + ' adapter returns a new frame. `TealFrame` composes them into ONE statement that'
-            + ' DuckDB evaluates in a single pass - which is the whole argument for the change.',
+        blurb: 'Where the two models differ most. A query often applies several functions and'
+            + ' then filters. `DataFrame` makes one pass per function, because each adapter'
+            + ' returns a new frame. `TealFrame` composes them into one statement that DuckDB'
+            + ' evaluates in a single pass.',
         cases: [
             {
                 name: '5 transforms + filter',
@@ -405,7 +387,7 @@ export const GROUPS = [
             {
                 name: 'sort (2 keys)',
                 note: 'Forced with `materialize()`, never `count(*)` - a count lets the'
-                    + ' optimiser drop the ORDER BY and would measure nothing.',
+                    + ' optimizer drop the ORDER BY and would measure nothing.',
                 setupDataFrame: dfFrame,
                 setupTealFrame: duckTable,
                 async dataFrame(ctx, { df }) {
@@ -421,12 +403,11 @@ export const GROUPS = [
             },
             {
                 name: 'sort + limit (top 1,000)',
-                note: 'The shape a real search request has - `params.sort` plus `size`'
-                    + ' (`v3/execute/search/fetch-from-frame.ts`), which neither the sort case'
-                    + ' nor the page case measures on its own. `DataFrame` sorts EVERY row and'
-                    + ' then slices; DuckDB plans it as `TOP_N` - a heap of 1,000 plus a dynamic'
-                    + ' filter that skips row groups - so the gap should widen with scale.'
-                    + ' Forced with `materialize()`, never a count.',
+                note: 'The shape of a typical search request, a sort plus a size, which neither'
+                    + ' the sort case nor the page case measures on its own. `DataFrame` sorts'
+                    + ' every row and then slices; DuckDB plans it as `TOP_N`, a heap of 1,000'
+                    + ' plus a dynamic filter that skips row groups, so the gap should widen with'
+                    + ' scale. Forced with `materialize()`, never a count.',
                 setupDataFrame: dfFrame,
                 setupTealFrame: duckTable,
                 async dataFrame(ctx, { df }) {
@@ -459,8 +440,8 @@ export const GROUPS = [
                 note: '**`DataFrame` shares data structurally.** It is immutable and columnar, so this'
                     + ' returns a new frame REFERENCING the existing column vectors -'
                     + ' almost no data moves, while `TealFrame` physically'
-                    + ' materialises a new result. The two do different amounts of'
-                    + ' work: the comparison is of semantics, not equal labour, and'
+                    + ' materializes a new result. The two do different amounts of'
+                    + ' work: the comparison is of semantics, not equal labor, and'
                     + ' the deferred cost reappears when the data is read.'
                     + ' `DataFrame.limit` is a `slice` view over the same vectors.',
                 setupDataFrame: dfFrame,
@@ -494,19 +475,19 @@ export const GROUPS = [
 
     {
         title: 'Output to ldjson',
-        blurb: 'What production actually does with a finished result: write **ldjson** to S3, one'
+        blurb: 'A common way to deliver a finished result: write **ldjson** to S3, one'
             + ' JSON object per line. `DataFrame` has to build every row as a JS object and'
             + ' `JSON.stringify` it; `TealFrame` renders each line in C++ inside the query, so'
             + ' the rows never become JS values at all.'
-            + '\n\n**The bytes are identical** - all 500 sampled lines of this corpus, checked'
-            + ' against `DataFrame` itself. DuckDB\'s native JSON is not `DataFrame`\'s: it'
+            + '\n\n**The output bytes are identical** to `DataFrame`\'s. DuckDB\'s native JSON'
+            + ' differs from `DataFrame`\'s: it'
             + ' writes `2026-01-10 00:00:00` for a Date, a bare number for a `Long` past'
             + ' `MAX_SAFE_INTEGER` that `JSON.parse` rounds, `"f": null` where `DataFrame` omits'
             + ' the key, `5.0` for an integral float, and a bare `Infinity` that is not valid'
             + ' JSON at all. The export projection corrects every one of them in SQL before'
-            + ' anything is written, pinned in `test/teal-frame/export-json-spec.ts`. That'
-            + ' correction is measured: it costs 7% of the projection.'
-            + '\n\nBoth sides use spaces\' own `remove_null_fields: true` default.',
+            + ' anything is written (see `test/teal-frame/export-json-spec.ts`), at a cost of'
+            + ' about 7% of the projection.'
+            + '\n\nBoth sides omit null fields from the output.',
         cases: [
             {
                 name: 'ldjson to a file',
@@ -514,7 +495,7 @@ export const GROUPS = [
                     + ' `DataFrame.toJSON` then `JSON.stringify` per row, batched into 1 MB'
                     + ' writes so the measurement is not one syscall per row, against'
                     + ' `writeNDJSON`, which is a single `COPY`. Note that `toJSON` builds an'
-                    + ' array of every row first - that materialisation is part of the cost, and'
+                    + ' array of every row first; building it is part of the cost, and'
                     + ' is why this is where `DataFrame` runs out of heap.',
                 async setupDataFrame({
                     DataFrame, config, records, tmp
@@ -543,8 +524,8 @@ export const GROUPS = [
             },
             {
                 name: 'ldjson streamed',
-                note: 'The same lines, never held all at once - what the worker needs when the'
-                    + ' table is already most of its 64 GB. `ndjson()` yields one rendered line'
+                note: 'The same lines, never held in memory all at once, which a worker needs'
+                    + ' when the table already uses most of its memory. `ndjson()` yields one line'
                     + ' at a time, so JavaScript only moves bytes. Byte-identical to the file'
                     + ' path; the only question is throughput.',
                 setupDataFrame: dfFrame,
@@ -557,8 +538,8 @@ export const GROUPS = [
                         bytes += JSON.stringify(row).length;
                         lines++;
                     }
-                    // `bytes` is what a caller would flush; the row count is what the harness
-                    // compares, so returning it only once bytes exist keeps both honest
+                    // the harness compares row counts; requiring bytes > 0 ensures the JSON was
+                    // actually produced
                     return bytes > 0 ? lines : 0;
                 },
                 async tealFrame(ctx, { duck }) {
@@ -575,11 +556,11 @@ export const GROUPS = [
             },
             {
                 name: 'transform + filter -> ldjson',
-                note: 'The whole response path in one case, which is the argument the other'
-                    + ' cases only make in pieces: transform a field, filter, and emit ldjson.'
+                note: 'The whole response path in one case: transform a field, filter, and emit'
+                    + ' ldjson.'
                     + ' `DataFrame` makes a pass per step and then converts every surviving row'
                     + ' to JS; for `TealFrame` the transform, the filter and the JSON rendering'
-                    + ' are ONE statement, so no intermediate result is ever built.',
+                    + ' are one statement, so no intermediate result is built.',
                 setupDataFrame: dfFrame,
                 async setupTealFrame(ctx) {
                     const {
@@ -639,7 +620,7 @@ export const GROUPS = [
             {
                 name: 'group by 1 key + sum',
                 note: '5 groups out. Forced with `rows` on both sides, since both produce a small'
-                    + ' materialised result.',
+                    + ' materialized result.',
                 setupDataFrame: dfFrame,
                 setupTealFrame: duckTable,
                 async dataFrame(ctx, { df }) {
@@ -707,8 +688,8 @@ export const GROUPS = [
 
     {
         title: 'Appending batches',
-        blurb: 'Combining several already-typed batches into ONE frame - what the worker does as'
-            + ' its fetches land. Coercion is excluded: the batches are prepared in setup.',
+        blurb: 'Combining several already-typed batches into one frame, as a worker does when'
+            + ' payloads arrive. Coercion is excluded because the batches are prepared in setup.',
         cases: [
             {
                 name: 'combine 5 batches',
@@ -717,12 +698,12 @@ export const GROUPS = [
                     + '**`DataFrame` shares data structurally.** It is immutable and columnar, so this'
                     + ' returns a new frame REFERENCING the existing column vectors -'
                     + ' almost no data moves, while `TealFrame` physically'
-                    + ' materialises a new result. The two do different amounts of'
-                    + ' work: the comparison is of semantics, not equal labour, and'
+                    + ' materializes a new result. The two do different amounts of'
+                    + ' work: the comparison is of semantics, not equal labor, and'
                     + ' the deferred cost reappears when the data is read.'
                     + ' `appendAll` only recomputes offsets - its own doc says the cost is'
-                    + ' relatively low - whereas `TealFrame` inserts the rows into a real'
-                    + ' table that is queryable with no further cost.',
+                    + ' relatively low, whereas `TealFrame` inserts the rows into a real'
+                    + ' table that can be queried with no further cost.',
                 async setupDataFrame({ DataFrame, config, records }) {
                     return {
                         frames: batchesOf(records).map((batch) => (
@@ -744,8 +725,8 @@ export const GROUPS = [
             },
             {
                 name: 'combine 5 batches, concurrent',
-                note: 'TealFrame only: the fetches land at once. `DataFrame` has no concurrent'
-                    + ' append - `appendAll` is one synchronous pass.',
+                note: 'TealFrame only: all payloads arrive at once. `DataFrame` has no concurrent'
+                    + ' append; `appendAll` is one synchronous pass.',
                 setupTealFrame: (ctx) => writePayloads(ctx, 'cbatch'),
                 async dataFrame() {
                     return SKIPPED;
@@ -760,14 +741,12 @@ export const GROUPS = [
             },
             {
                 name: 'combine 5 batches, one append',
-                note: 'TealFrame only, and the fastest of the three. `append({ parquet })` takes'
-                    + ' a LIST of paths, which `read_parquet` reads as ONE relation - so all five'
-                    + ' payloads land in a single `INSERT ... BY NAME` rather than five.'
-                    + ' `tools/bench/append-ingest.mjs` measures this at ~4x a sequential loop'
-                    + ' over 20 payloads at 1M rows.'
-                    + '\n\nThe trade is real rather than free: it needs every payload to have'
-                    + ' ARRIVED, so it suits a worker that batches what has landed, while the'
-                    + ' concurrent case above suits one ingesting each fetch as it completes.',
+                note: 'TealFrame only. `append({ parquet })` takes a list of paths, which'
+                    + ' `read_parquet` reads as one relation, so all five payloads land in a'
+                    + ' single `INSERT ... BY NAME` rather than five.'
+                    + '\n\nThe trade-off is that every payload must have arrived first, so it'
+                    + ' suits a worker that batches what has arrived, while the concurrent case'
+                    + ' above suits one that ingests each payload as it completes.',
                 setupTealFrame: (ctx) => writePayloads(ctx, 'obatch'),
                 async dataFrame() {
                     return SKIPPED;
@@ -785,15 +764,14 @@ export const GROUPS = [
 
     {
         title: 'Join',
-        blurb: '**`DataFrame` has no join primitive at all** - which is the reason this project'
-            + ' exists. Today spaces emulates one by issuing a child search per parent row,'
-            + ' cached in a 10,000-entry LRU that high cardinality defeats. For `TealFrame` a'
-            + ' join is ordinary SQL over two tables.',
+        blurb: '**`DataFrame` has no join primitive.** A caller has to emulate one, for example'
+            + ' by issuing a child search per parent row. For `TealFrame` a join is ordinary SQL'
+            + ' over two tables.',
         cases: [
             {
                 name: 'inner join, 5 children per parent',
-                note: 'A child table keyed so each parent matches **5** children - the fan-out'
-                    + ' a real join has. Forced with `count(*)`.',
+                note: 'A child table keyed so each parent matches 5 children, a realistic'
+                    + ' fan-out. Forced with `count(*)`.',
                 async setupTealFrame({ TealFrame, config, records }) {
                     return {
                         parent: await TealFrame.fromRecords(config, records, {}),
@@ -828,10 +806,10 @@ export const GROUPS = [
             },
             {
                 name: 'join + count per parent',
-                note: 'Per-parent counts in ONE statement - the shape the per-row fanout is'
-                    + ' faking today. Grouped by the parent key, NOT by a low-cardinality field:'
-                    + ' joining two 100k tables on a 5-value column is a 2-billion-row cartesian'
-                    + ' product, which measures an explosion rather than a join.',
+                note: 'Per-parent child counts in one statement, which a per-row child search'
+                    + ' can only emulate. Grouped by the parent key, not a low-cardinality field:'
+                    + ' joining two 100k tables on a 5-value column produces a 2-billion-row'
+                    + ' cartesian product rather than a realistic join.',
                 async setupTealFrame({ TealFrame, config, records }) {
                     return {
                         parent: await TealFrame.fromRecords(config, records, {}),

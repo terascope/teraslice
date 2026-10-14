@@ -86,7 +86,7 @@ export const setSecondsConfig: FieldTransformConfig<SetSecondsArgs> = {
         types: [FieldType.Date],
         applies: (args) => Number.isInteger(args.value)
             && args.value >= 0 && args.value <= 59,
-        // the INSTANT: core-utils' `setUTCSeconds` ignores a DateTuple's offset
+        // use the instant: core-utils' `setUTCSeconds` ignores a DateTuple's offset
         expression: ({ value, instant, args }) => replaceField(
             instant ?? value, 'minute', 'second', String(args.value)
         ),

@@ -21,10 +21,10 @@ export const isLengthConfig: FieldValidateConfig<IsLengthArgs> = {
     category: FunctionDefinitionCategory.STRING,
     description: 'Returns the input if it either matches a certain length, or is within the specified range.  Otherwise returns null.',
     /**
-     * `length()` compared against the arguments, for BMP-only values.
+     * `length()` compared against the arguments, for values without astral characters.
      *
-     * Same code-unit-versus-character split as `truncate`: `isLength` calls five emoji a length of
-     * 10, where `length()` says 5. Astral input goes to the UDF.
+     * `isLength` counts UTF-16 code units, so five emoji have a length of 10 where `length()`
+     * returns 5. Astral input keeps the UDF.
     */
     sql: {
         applies: allowsNumericArgs('size', 'min', 'max'),

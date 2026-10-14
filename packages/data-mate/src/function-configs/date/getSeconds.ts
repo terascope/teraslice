@@ -58,17 +58,13 @@ export const getSecondsConfig: FieldTransformConfig = {
         return getSeconds;
     },
     /**
-     * `date_part('second', x)`.
+     * Runs as `date_part('second', x)`.
      *
-     * **`types: [Date]` is required, not defensive.** These functions accept `Date`, `String` AND
-     * `Number`, and for the latter two the UDF PARSES the value - many formats, `Number` as epoch
-     * millis - which this expression does not do. So the emission claims only a real TIMESTAMP
-     * column and a `String` or `Number` column keeps using the UDF.
+     * Only a `Date` column is handled. The function also accepts `String` and `Number` input,
+     * which the UDF parses first, so those columns keep the UDF.
      *
-     * **The stored value is a naive UTC TIMESTAMP, and these getters are UTC-based.** Verified
-     * under `TZ=America/New_York`: `getHours('2026-01-02T03:04:05.678Z')` is `3`, the UTC hour, not
-     * `22` - so `date_part` on the stored timestamp is the same thing, with no timezone handling
-     * needed.
+     * The column stores a UTC timestamp and the function returns the UTC part, so no timezone
+     * handling is needed.
     */
     sql: {
         types: [FieldType.Date],

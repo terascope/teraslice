@@ -78,8 +78,8 @@ export const addToDateConfig: FieldTransformConfig<AdjustDateArgs> = {
         return addToDateFP(args);
     },
     /**
-     * Hour, minute and second adjustments only - the calendar units are timezone dependent and stay
-     * on the UDF. `sql-utils.ts` records the measurements.
+     * Handles hour, minute and second adjustments only. Calendar units depend on the host
+     * timezone and keep the UDF; see `TIME_UNITS` in `sql-utils.ts`.
     */
     sql: {
         types: [FieldType.Date],

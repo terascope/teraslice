@@ -87,8 +87,7 @@ export const geoIntersectsConfig: FieldValidateConfig<GeoIntersectsArgs> = {
         return geoIntersectsFP(value);
     },
     /**
-     * `ST_Intersects` - measured identical to `geoIntersects` on all 324 shape pairs, holes and
-     * holed MultiPolygons included. No divergence to accept here.
+     * `ST_Intersects`. Gives the same answers as `geoIntersects`, including for shapes with holes.
     */
     sql: {
         applies: (args, inputConfig) => isScalarColumn(inputConfig)

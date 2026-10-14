@@ -4,13 +4,12 @@ import { allExcept } from './corpus.js';
 /**
  * The term-level nodes, one query each.
  *
- * These are the cases where the two engines do the same thing by completely different means -
- * a `wildcard` query against a `LIKE` pattern, a `regexp` query against `regexp_full_match`,
- * a `term` against `=` - so agreeing on the records is the only thing that shows the
- * translation of each node is right.
+ * The two engines answer these by different means: a `wildcard` query versus a `LIKE`
+ * pattern, a `regexp` query versus `regexp_full_match`, a `term` versus `=`. Returning the
+ * same records is what shows each node is translated correctly.
  *
- * **Both engines anchor a regular expression**, which is the one that surprises people:
- * Elasticsearch's `regexp` query matches the whole value, so `/lph/` does not find `alpha`.
+ * Both engines anchor a regular expression. Elasticsearch's `regexp` query matches the whole
+ * value, so `/lph/` does not find `alpha`.
 */
 export const termCases: readonly QueryCase[] = [
     ['a term', 'name:alpha', ['01', '04', '09', '12']],
@@ -24,23 +23,22 @@ export const termCases: readonly QueryCase[] = [
     ['an anchored regular expression', 'name:/al.*/', ['01', '04', '09', '12']],
     // anchored, so a substring of a value is not a match
     ['a regular expression that is only a substring', 'name:/lph/', []],
-    // the alternation must not escape the anchors - `^gamma` or `delta$` is a different query
+    // the alternation stays inside the anchors; `^gamma` or `delta$` would be a different query
     ['a regular expression with an alternation', 'name:/gamma|delta/', ['03', '05']],
     ['exists', '_exists_:name', allExcept('07', '11')],
 ];
 
 /**
- * The queries `prevent_prefix_wildcard` exists to refuse.
+ * The queries `prevent_prefix_wildcard` refuses.
  *
- * A leading `*` or `?` has to read every term in the field, which is the whole index dressed
- * as a filter - so they are run through a `QueryAccess` that permits them, and the refusal
- * itself is checked in `test/sql/duckdb-query-access-spec.ts`. What they prove here is that
- * the translation is right when a deployment does allow them: a `wildcard` query and a
- * `LIKE '%…'` have to select the same records.
+ * A leading `*` or `?` must read every term in the field. These cases run through a
+ * `QueryAccess` that permits them, to check the translation when a deployment allows them:
+ * a `wildcard` query and a `LIKE '%…'` must select the same records. The refusal itself is
+ * tested in `test/sql/duckdb-query-access-spec.ts`.
 */
 export const prefixWildcardCases: readonly QueryCase[] = [
     ['a leading *', 'name:*ta', ['02', '05', '06', '10']],
-    // `?` is exactly one character, so a five-letter `delta` is not a match and `beta` is
+    // `?` is exactly one character, so `beta` matches and the five-letter `delta` does not
     ['a leading ?', 'name:?eta', ['02', '06', '10']],
     ['a * on its own, which asks only that the field have a value', 'name:*', allExcept('07', '11')],
 ];

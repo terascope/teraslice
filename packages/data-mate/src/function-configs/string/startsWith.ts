@@ -62,7 +62,7 @@ export const startsWithConfig: FieldValidateConfig<StartsWithArgs> = {
             description: 'The value that must match at the beginning of the input string '
         }
     },
-    /** `starts_with` is native; an empty needle is true for both, which the battery checks. */
+    /** `starts_with` is native. An empty search value returns true, as it does in JavaScript. */
     sql: {
         expression: ({ value, args }) => `starts_with(${value}, ${sqlLiteral(args.value)})`,
     },

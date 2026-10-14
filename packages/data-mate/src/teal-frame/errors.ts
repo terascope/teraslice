@@ -1,12 +1,11 @@
 import { AppendFailure, CoercionFailure, ExtensionFailure } from './interfaces.js';
 
 /**
- * What the DuckDB frame throws.
+ * Errors thrown by the DuckDB frame.
  *
- * Both carry the context a caller needs to decide what to do next, which is why they are
- * classes rather than bare `Error`s: a coercion failure names every field that failed and an
- * example value, and an append failure says what SURVIVED in the table it was rolled back
- * from.
+ * They are classes rather than plain `Error`s so they can carry context: a coercion failure
+ * lists each failing field with an example value, and an append failure reports what is left
+ * in the table after the rollback.
 */
 
 /** Raised by strict mode when a value does not fit its declared field type. */
@@ -18,14 +17,14 @@ export class CoercionFailureError extends Error {
 }
 
 /**
- * An `append` that did not happen.
+ * Thrown when an `append` fails and is rolled back.
  *
- * The whole point is to say **what survived**: an append runs in a transaction, so a failure
- * leaves the table exactly as it was, and a worker assembling one table from many payloads
- * needs to know that its earlier payloads are intact. The underlying error is kept as `cause`.
+ * An append runs in a transaction, so a failure leaves the table as it was. The message says
+ * how many rows remain, so a caller building one table from many payloads knows its earlier
+ * payloads are intact. The underlying error is kept as `cause`.
  *
- * `fromRecords` deliberately does NOT wrap in this - it is one-shot, so there is no prior table
- * to reassure anyone about, and its contract is to throw what `DataFrame` throws.
+ * `fromRecords` does not use this error: it has no earlier table to report on, and it throws
+ * what `DataFrame` throws.
 */
 export class AppendError extends Error {
     constructor(readonly failure: AppendFailure, cause: unknown) {
@@ -44,10 +43,10 @@ export class AppendError extends Error {
 }
 
 /**
- * Required DuckDB extensions that could not be loaded when the database opened.
+ * Thrown when required DuckDB extensions cannot be loaded as the database opens.
  *
- * Raised at startup on purpose: without it the same failure arrives later, from whichever
- * query first needs the extension, as a DuckDB autoload error that says nothing about images.
+ * Failing at startup gives a clear message. Otherwise the first query that needs the
+ * extension fails with a DuckDB autoload error that does not explain how to fix it.
 */
 export class DuckExtensionError extends Error {
     constructor(readonly failure: ExtensionFailure) {

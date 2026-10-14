@@ -325,10 +325,8 @@ export class QueryAccess<T extends Record<string, any> = Record<string, any>> {
     /**
      * Converts a restricted xlucene query to a complete SQL statement
      *
-     * The SQL counterpart of {@link QueryAccess.restrictSearchQuery}: that one returns search
-     * params a client can be handed as-is, and this returns a statement a client can be handed
-     * as-is. **Neither asks the caller to assemble anything**, and for the same reason - the
-     * part a caller forgets to assemble is the field restriction.
+     * The SQL counterpart of {@link QueryAccess.restrictSearchQuery}. The returned statement
+     * already applies the field restrictions and can be run as-is.
      *
      * ```ts
      * const sql = await access.restrictSQLQuery('bar:hello', {
@@ -338,12 +336,10 @@ export class QueryAccess<T extends Record<string, any> = Record<string, any>> {
      * await connection.run(sql);
      * ```
      *
-     * `params.table` is quoted as an identifier; `params.relation` is used verbatim, for a
-     * source no name can reach - `read_parquet([...])`, a sub-select, a join. One of the two
-     * is required.
+     * `params.table` is quoted as an identifier. `params.relation` is used as-is, for sources
+     * such as `read_parquet([...])`, a subquery or a join. One of the two is required.
      *
-     * A caller composing their own statement - a frame that already knows its relation - wants
-     * {@link QueryAccess.restrictSQLParts} instead, and then owes the restriction itself.
+     * To build the statement yourself, use {@link QueryAccess.restrictSQLParts}.
      *
      * @returns a complete SQL statement
      */
@@ -359,15 +355,13 @@ export class QueryAccess<T extends Record<string, any> = Record<string, any>> {
     }
 
     /**
-     * The pieces of a restricted SQL query, for a caller that builds its own statement
+     * The parts of a restricted SQL query, for a caller that builds its own statement
      *
-     * Everything {@link QueryAccess.restrictSQLQuery} assembles, unassembled: the `WHERE`
-     * expression, the `SELECT` list with the field restrictions applied, the ordering, and the
+     * Returns what {@link QueryAccess.restrictSQLQuery} joins together: the `WHERE`
+     * expression, the `SELECT` list with field restrictions applied, the ordering, and the
      * readable columns.
      *
-     * **A caller here owes the restriction.** Using `where` and ignoring `select` returns every
-     * excluded column - which is why the method that returns a finished statement is the one
-     * with the ordinary name.
+     * **Callers must apply `select`**; using only `where` returns excluded columns.
      *
      * @returns the parts of a restricted SQL query
      */
@@ -406,8 +400,7 @@ export class QueryAccess<T extends Record<string, any> = Record<string, any>> {
             excludes as string[] | undefined
         );
 
-        // no source filtering at all is `*`, the same "everything the document has" that
-        // Elasticsearch returns when neither list is sent
+        // with no includes or excludes, select `*`, as Elasticsearch returns the whole document
         const unrestricted = !includes?.length && !excludes?.length;
         const dialect = getSQLDialect(translateOptions.dialect);
 

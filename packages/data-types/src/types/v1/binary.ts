@@ -57,8 +57,8 @@ export default class BinaryType extends BaseType {
 
     /**
      * The DuckDB column type for this field.
-     * VARCHAR, not BLOB: no validation or decoding happens for Binary - `'not base64!!!'`
-     * is accepted unchanged - so storing the string as given is behaviour-preserving.
+     * VARCHAR, not BLOB, because Binary values are never validated or decoded; the string
+     * is stored exactly as given.
      */
     toDuckDB(): DuckDBTypeConfig {
         return this._formatDuckDB('VARCHAR');

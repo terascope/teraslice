@@ -74,11 +74,10 @@ export const getTimezoneOffsetConfig: FieldTransformConfig<GetTimezoneOffsetArgs
         return getTimezoneOffsetFP(timezone);
     },
     /**
-     * The DST-aware per-row offset, via `AT TIME ZONE` in both directions.
+     * The zone's offset at each row's date, computed with `AT TIME ZONE` so it follows DST.
      *
-     * The zone is a constant argument here, so nothing needs the column - but the INSTANT does,
-     * which is why this is not a constant: `America/New_York` is -300 in January and -240 in July,
-     * and the emission gets both right.
+     * The zone is a constant, but the offset still varies by row: `America/New_York` is -300 in
+     * January and -240 in July.
     */
     sql: {
         types: [FieldType.Date],

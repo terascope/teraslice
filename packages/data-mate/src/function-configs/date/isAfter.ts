@@ -90,8 +90,7 @@ export const isAfterConfig: FieldValidateConfig<IsAfterArgs> = {
         return (input: unknown) => isAfter(input, date);
     },
     /**
-     * A strict comparison against a constant, because `date-fns`' `isAfter` is strict and the
-     * argument is fixed for the whole query.
+     * A strict `>` against the constant argument, matching `date-fns`' strict `isAfter`.
     */
     sql: {
         types: [FieldType.Date],

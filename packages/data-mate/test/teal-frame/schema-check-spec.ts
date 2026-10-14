@@ -67,7 +67,7 @@ describe('schema-check', () => {
         });
 
         it('does not invent an "actual FieldType", because that is not knowable', async () => {
-            // VARCHAR is Keyword, Text, IP, Binary and more - there is no reverse mapping
+            // VARCHAR is Keyword, Text, IP, Binary and more, so there is no reverse mapping
             const lying = frame.select(
                 { bytes: 'CAST(bytes AS VARCHAR)' }, { config: only(FieldType.Integer) });
             const [mismatch] = await diffSchema(lying);
@@ -98,8 +98,8 @@ describe('schema-check', () => {
         });
 
         it('catches DuckDB promoting an aggregate past its declared type', async () => {
-            // THE case this helper exists for: DuckDB widens sum(BIGINT) to HUGEINT, so a
-            // config still claiming Integer is wrong. An explicit CAST is what fixes it.
+            // the main case for this helper: DuckDB widens sum(BIGINT) to HUGEINT, so a config
+            // still claiming Integer is wrong until an explicit CAST is added.
             const summed = frame.select(
                 { bytes: 'sum(bytes)' }, { config: only(FieldType.Integer) });
 

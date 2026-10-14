@@ -10,12 +10,12 @@ import { int64Column } from './parquet-columns.js';
 import { FrameConfig } from './interfaces.js';
 
 /**
- * The bodies of `TealFrame`'s output methods - `writeParquet`, the ldjson projection behind
- * `ndjson`/`writeNDJSON`/`rows(options)`, and `listValues`. The methods and their contracts are
- * documented on `TealFrame`; this is the SQL and iteration they run.
+ * Implementations of `TealFrame`'s output methods: `writeParquet`, the JSON-lines query behind
+ * `ndjson`, `writeNDJSON` and `rows(options)`, and `listValues`. Their contracts are documented
+ * on `TealFrame`.
 */
 
-/** `writeParquet`: zstd, every 128-bit column narrowed to its declared type. */
+/** Writes the frame to a zstd Parquet file, narrowing 128-bit columns to their declared type. */
 export async function writeParquet(
     ctx: DuckContext,
     from: string,
@@ -28,10 +28,10 @@ export async function writeParquet(
         .map(({ name, type }) => int64Column(name, type, declared[name]))
         .join(', ');
 
-    // GEOPARQUET_VERSION 'BOTH': Parquet's native GEOMETRY logical type, which - unlike the
-    // GeoParquet 1.0 default - survives NESTING, so a GeoJSON array or an object's GeoJSON
-    // member reads back as GEOMETRY rather than as BLOB (and BLOB -> GEOMETRY has no cast).
-    // The 1.0 metadata is still written, for readers that only know it.
+    // GEOPARQUET_VERSION 'BOTH' writes Parquet's native GEOMETRY logical type, which, unlike
+    // the GeoParquet 1.0 default, also works for nested values. A GeoJSON array or an object's
+    // GeoJSON member then reads back as GEOMETRY instead of BLOB (BLOB has no cast to
+    // GEOMETRY). The 1.0 metadata is still written for readers that only support it.
     await ctx.run(
         `COPY (SELECT ${list} FROM ${from}) TO ${quoteLiteral(path)}`
         + ' (FORMAT parquet, COMPRESSION zstd, GEOPARQUET_VERSION \'BOTH\')'
@@ -39,8 +39,8 @@ export async function writeParquet(
 }
 
 /**
- * One JSON line per row, as `DataFrame.toJSON` renders it with the same options - minus the rows
- * `skipEmptyObjects` drops, which render as NULL. See `export-json.ts`.
+ * SQL that renders one JSON line per row, as `DataFrame.toJSON` does with the same options.
+ * Rows that `skipEmptyObjects` drops are filtered out. See `export-json.ts`.
 */
 export function jsonLinesSQL(
     from: string,
@@ -52,7 +52,7 @@ export function jsonLinesSQL(
     return `SELECT ${expression} AS json FROM ${from}` + (filter ? ` WHERE ${filter}` : '');
 }
 
-/** `listValues`: one row's LIST column, element by element, as `ListVector.getRowIterator`. */
+/** Yields one row's LIST column element by element, like `ListVector.getRowIterator`. */
 export async function* listValues(
     ctx: DuckContext,
     from: string,

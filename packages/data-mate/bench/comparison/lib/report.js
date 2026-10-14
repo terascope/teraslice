@@ -1,8 +1,8 @@
 /**
  * Renders the comparison as the markdown report.
  *
- * Deliberately plain: one table per case, scales down the rows, so a reader can see where the
- * two engines cross over rather than being handed a single ratio.
+ * One table per case with a row per scale, so a reader can see where the two engines cross over
+ * instead of a single ratio.
 */
 import { fmt, rate, speedup } from './harness.js';
 import { label } from './generate.js';
@@ -41,7 +41,7 @@ export function writeReport({
         + ' execute nothing — so every case below ends in an explicit force: `count(*)` for a'
         + ' filter or join, `materialize()` for anything that must yield a usable frame, and a'
         + ' full row drain where the `DataFrame` side also produces JS values. A sort is *never*'
-        + ' forced with a count, because that lets the optimiser drop the `ORDER BY` and would'
+        + ' forced with a count, because that lets the optimizer drop the `ORDER BY` and would'
         + ' measure nothing.');
     push();
     push('`OOM` means the JS heap was exhausted — a result, not a crash: it is the scale at which'
@@ -94,22 +94,22 @@ export function writeReport({
     }
 
     if (lifecycleRows?.length) {
-        push('## The spaces query lifecycle, end to end');
+        push('## Search lifecycle, end to end');
         push();
-        push('The only section that measures the system rather than an operation. **Today** the'
-            + ' api-server builds a `DataFrame` and serializes it to dfjson, and the worker'
-            + ' deserializes every payload, appends them, and runs the query in JS. **On'
-            + ' TealFrame** the api-server writes Parquet+zstd, the worker inserts the payloads'
-            + ' into one table with no coercion at all, and the whole query is one SQL statement.');
+        push('Times a whole search request rather than a single operation. **With DataFrame**,'
+            + ' the API process builds a `DataFrame` and serializes it to dfjson, and the worker'
+            + ' deserializes every payload, appends them, and runs the query in JS. **With'
+            + ' TealFrame**, the API process writes Parquet+zstd, the worker inserts the payloads'
+            + ' into one table with no type coercion, and the whole query is one SQL statement.');
         push();
-        push('The fetch itself is not simulated — that cost is identical either way.');
+        push('The search itself is not simulated, because it costs the same either way.');
         push();
 
         const stages = [...new Set(lifecycleRows.map((row) => row.stage))];
         for (const stage of stages) {
             push(`### ${stage}`);
             push();
-            push('| records | today | TealFrame | difference |');
+            push('| records | DataFrame | TealFrame | difference |');
             push('|---|---|---|---|');
             for (const row of lifecycleRows.filter((entry) => entry.stage === stage)) {
                 const diff = row.today.note || row.duck.note

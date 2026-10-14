@@ -33,11 +33,10 @@ export const ipToIntConfig: FieldTransformConfig = {
         return ipToInt;
     },
     /**
-     * IPv4 only, as octet arithmetic.
+     * IPv4 only, as octet arithmetic (see `ipv4ToIntSql`).
      *
-     * There is no `inet_aton` and no cast between `INET` and a number, so the octets are split out
-     * and weighted. IPv6 needs 128 UNSIGNED bits where `HUGEINT` is signed, so it keeps the UDF -
-     * along with anything that is not an address, which throws there as it does today.
+     * IPv6 needs 128 unsigned bits and `HUGEINT` is signed, so it keeps the UDF, as does anything
+     * that is not an address, which throws there.
     */
     sql: {
         needs_udf_fallback: true,

@@ -81,8 +81,9 @@ export const isPostalCodeConfig: FieldValidateConfig<IsPostalCodeArgs> = {
         return (input: unknown) => isPostalCode(input, locale as validator.PostalCodeLocale);
     },
     /**
-     * Every locale's pattern in RE2, an ASCII value only - see `postal-code-utils.ts`. A String
-     * column only: a Number is formatted by `toString` first, which the UDF does.
+     * Every locale's pattern rewritten for RE2, for ASCII values; see `postal-code-utils.ts`.
+     * String columns only, because a number is formatted by `toString` first, which only the UDF
+     * does.
     */
     sql: {
         types: [FieldType.String],

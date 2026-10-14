@@ -5,6 +5,6 @@ export type SQLTestCase = [
     string,
     // the expected SQL expression
     string,
-    // optional translator options - variables, filterNilVariables, a type config of its own
+    // optional translator options: variables, filterNilVariables, or its own type config
     TranslatorOptions?
 ];

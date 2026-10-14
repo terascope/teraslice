@@ -62,17 +62,14 @@ export const setDefaultConfig: FieldTransformConfig<SetDefaultArgs> = {
         };
     },
     /**
-     * `coalesce`, for a scalar STRING column and a string default. Deliberately nothing else.
+     * `coalesce`, for a scalar string column with a string default. Other shapes keep the UDF.
      *
-     * **`output_type` is `Keyword` whatever the input is**, while the implementation returns the
-     * value unchanged - so on a `Number` column the UDF path hands a number to a VARCHAR result and
-     * DuckDB answers `Invalid Input Error: A string was expected`. That is broken today, before any
-     * emission (known-defects DF5), and an emission that returned a DOUBLE there would be declaring
-     * a different output type rather than fixing it. A string column is the shape where input,
-     * output and default all agree, and it is also what the function is for.
+     * `output_type` is always `Keyword`, but the implementation returns the value unchanged, so on
+     * any other column type the input, output and default types disagree. The SQL form is limited
+     * to string columns, where all three agree.
      *
-     * The array shape is a different function too - a null column becomes `[value]` and a present
-     * one has each ELEMENT defaulted - and stays on the UDF.
+     * On an array column the function defaults each element and turns a null column into `[value]`,
+     * so arrays also keep the UDF.
     */
     sql: {
         applies: (args, inputConfig) => typeof args.value === 'string'

@@ -44,8 +44,8 @@ export default class ObjectType extends BaseType {
 
     /**
      * The DuckDB column type for this field.
-     * JSON on its own. An Object WITH declared children is assembled into a GroupType,
-     * whose toDuckDB emits a STRUCT; a childless Object has no knowable shape.
+     * JSON, because an Object with no declared children has no known shape. An Object
+     * with declared children becomes a GroupType, which maps to a STRUCT instead.
      */
     toDuckDB(): DuckDBTypeConfig {
         return this._formatDuckDB('JSON');

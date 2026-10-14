@@ -6,16 +6,13 @@ import { FieldType, DataTypeConfig } from '@terascope/types';
 import { DataFrame, SerializeOptions, TealFrame } from '../../src/index.js';
 
 /**
- * TealFrame's JSON output follows `DataFrame`'s `SerializeOptions` - ALL seven of them, in every
- * combination - byte for byte.
+ * TealFrame's JSON output matches `DataFrame`'s byte for byte under all seven `SerializeOptions`,
+ * in every combination.
  *
- * Spaces sets two combinations, from one flag (`qpl-engine/src/v3/execute/run.ts:174`):
- * `remove_null_fields` true (the default) or false (`@preserveNullFields`). Before 2026-09-29
- * TealFrame took only that flag, and approximated the default with `json_merge_patch`, which strips
- * EVERY null key: it kept an object that had become empty (`"obj":{}`, where `skipEmptyObjects`
- * omits it), kept a null key inside an array of objects, removed a non-finite number's key (which
- * `DataFrame` keeps, as `null`), and stripped nulls inside an untyped object that `DataFrame`
- * copies verbatim. The whole matrix is compared here so a rule cannot be right for one preset only.
+ * Most callers use two presets driven by one `remove_null_fields` flag, but the whole matrix is
+ * compared so that no rule is right for only one preset. The rules differ in the details: an
+ * object left empty is omitted under `skipEmptyObjects`, a non-finite number keeps its key as
+ * `null`, and an untyped object is copied verbatim, nulls included.
 */
 const FLAGS = [
     'useNullForUndefined',
@@ -109,11 +106,11 @@ const RECORDS = [
 ];
 
 /**
- * **`skipEmptyArrays` is excluded for Tuples, and deliberately.** `TupleVector` counts a position
- * as non-nil only when its vector HAS a `toJSONCompatibleValue` - which `Float`, `String`, `Int`,
- * `Boolean` and `IP` do not - so under `skipEmptyArrays` `DataFrame` drops `[1.5, "a"]` as
- * "empty". That is a DataFrame defect, not a rule; TealFrame drops a tuple only when every
- * position is nil. Pinned below.
+ * `skipEmptyArrays` is deliberately excluded for Tuples. `TupleVector` counts a position as
+ * non-nil only when its vector has a `toJSONCompatibleValue`, which `Float`, `String`, `Int`,
+ * `Boolean` and `IP` do not, so under `skipEmptyArrays` `DataFrame` drops `[1.5, "a"]` as empty.
+ * That is a `DataFrame` bug. TealFrame drops a tuple only when every position is nil, as the
+ * test below checks.
 */
 const TUPLE_CONFIG: DataTypeConfig = {
     version: 1,
@@ -182,7 +179,7 @@ describe('TealFrame JSON output follows DataFrame SerializeOptions', () => {
         }
     );
 
-    it('should keep the spaces flag as a shorthand for its two presets', async () => {
+    it('should keep removeNullFields as a shorthand for its two presets', async () => {
         const preset = (removeNullFields: boolean): SerializeOptions => ({
             useNullForUndefined: !removeNullFields,
             skipNilValues: removeNullFields,
@@ -194,7 +191,7 @@ describe('TealFrame JSON output follows DataFrame SerializeOptions', () => {
             expect(await collect(frame.ndjson({ removeNullFields })))
                 .toEqual(await collect(frame.ndjson(preset(removeNullFields))));
         }
-        // no options at all is spaces' default: remove_null_fields true
+        // no options at all means remove_null_fields true
         expect(await collect(frame.ndjson())).toEqual(await collect(frame.ndjson(preset(true))));
     });
 
@@ -222,7 +219,7 @@ describe('TealFrame JSON output follows DataFrame SerializeOptions', () => {
         await subject.destroy();
 
         expect(lines).toEqual(['{"_key":"a","t":[1.5,"a"]}', '{"_key":"b"}']);
-        // DataFrame drops the populated one too - the defect above
+        // DataFrame drops the populated one too, the bug described above
         expect(expected(TUPLE_CONFIG, [{ _key: 'a', t: [1.5, 'a'] }], { skipEmptyArrays: true }))
             .toEqual(['{"_key":"a"}']);
     });

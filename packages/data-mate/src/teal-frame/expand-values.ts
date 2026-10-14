@@ -4,26 +4,27 @@ import { quoteIdentifier } from '@terascope/sql-builder';
 import { FrameConfig } from './interfaces.js';
 
 /**
- * `@expandValues` - one array element per output row - as the QPL engine's `expand-values.ts` does
- * it, in two modes:
+ * SQL for the `@expandValues` directive, which turns each array element into its own output
+ * row. There are two modes:
  *
- * - `correlate: true` - on a search or `qpl_context`, with `fields`: a POSITIONAL ZIP, as many rows
- *   as the longest list, shorter lists padded with null.
- * - `correlate: false` - on individual fields: STACKED, as many rows as the lengths ADD UP to, each
- *   field in its own block with the other expanded fields null there.
+ * - `correlate: true` zips the lists by position: a row produces as many rows as its longest
+ *   list, and shorter lists are padded with null.
+ * - `correlate: false` stacks the lists: a row produces as many rows as its list lengths add
+ *   up to. Each field gets its own block of rows, with the other expanded fields null there.
  *
- * Both keep a row whose expanded lists are ALL null or empty, as one row with those fields null -
- * a plain `unnest` would drop it. Fields not expanded are copied onto every output row. Blocks
- * follow the FRAME's column order, not the order `fields` were named in, as the engine's builder
- * loop does. The expanded fields come out with `array: false`.
+ * In both modes, a row whose expanded lists are all null or empty is kept as one row with those
+ * fields null (a plain `unnest` would drop it). Fields that are not expanded are copied onto
+ * every output row. Blocks follow the frame's column order, not the order of `fields`. The
+ * expanded fields come out with `array: false`.
  *
- * **One SELECT, no UNION ALL, so row order is kept**: each row unnests a list of `{ k, i }` pairs -
- * which field, which position - and every expanded column is `field[i]` where `k` names it. The
- * pairs have one type whatever the fields hold, so no element type has to be spelled out.
+ * It is a single SELECT with no UNION ALL, so row order is kept. Each row unnests a list of
+ * `{ k, i }` pairs (which field, which position), and each expanded column is `field[i]` where
+ * `k` selects it. The pairs have the same type whatever the fields hold, so no element type
+ * has to be spelled out.
 */
 
 export interface ExpandValuesOptions {
-    /** `true`: positional zip (search / `qpl_context`). `false`: one block per field. */
+    /** `true` zips the lists by position; `false` stacks one block of rows per field. */
     readonly correlate: boolean;
 }
 

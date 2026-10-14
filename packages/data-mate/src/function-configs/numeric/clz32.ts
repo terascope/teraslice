@@ -50,14 +50,12 @@ export const clz32Config: FieldTransformConfig = {
         return runMathFn(Math.clz32);
     },
     /**
-     * `Math.clz32`, via the binary rendering rather than `log2`.
+     * `Math.clz32`, computed from the binary string rather than `log2`.
      *
-     * Two things it has to do. **`ToUint32` first**: `Math.clz32` coerces its argument to an
-     * unsigned 32-bit integer, so it truncates the fraction and WRAPS - `clz32(-1)` is `0`, not 32,
-     * because `-1` becomes `0xFFFFFFFF`. And then count the leading zeros, which
-     * `32 - length(ltrim(bin(u), '0'))` does exactly, where `31 - floor(log2(u))` would be a
-     * floating-point answer to an integer question. Verified against `Math.clz32` for 0, 1, 2, 255,
-     * 2^32-1, -1, 2.5 and -2.5.
+     * `Math.clz32` first converts its argument to an unsigned 32-bit integer, truncating the
+     * fraction and wrapping negatives: `clz32(-1)` is `0` because `-1` becomes `0xFFFFFFFF`. The
+     * leading zeros are then `32 - length(ltrim(bin(u), '0'))`, which is exact, where
+     * `31 - floor(log2(u))` would rely on floating point.
     */
     sql: {
         expression: ({ value }) => {

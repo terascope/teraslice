@@ -5,11 +5,10 @@ import {
 } from '../../src/index.js';
 
 /**
- * `TealFrame.expandValues` against the QPL engine's own implementation.
+ * Compares `TealFrame.expandValues` with a reference implementation built on `DataFrame`.
  *
- * `reference` below is spaces' `qpl-engine/src/v3/execute/run-pipeline/operations/table-nodes/
- * expand-values.ts`, ported as-is (logging removed) so the comparison is with the code that runs in
- * production rather than with a reading of it.
+ * `reference` below is an existing production implementation copied as-is (logging removed), so
+ * the comparison is with code that already runs rather than with a description of it.
 */
 
 function reference(
@@ -119,8 +118,8 @@ const RECORDS = [
 ];
 
 /**
- * Rows as plain JSON, a null field dropped: `rows()` writes every column and `DataFrame.toJSON`
- * leaves a nil one out - the same absence, spelled two ways. A null ELEMENT inside a list is kept.
+ * Rows as plain JSON with null fields dropped. `rows()` writes every column and `DataFrame.toJSON`
+ * leaves a nil one out, so this makes the two comparable. A null element inside a list is kept.
 */
 function plain(rows: readonly unknown[]): unknown[] {
     return JSON.parse(JSON.stringify(rows, (_k, v) => (v === undefined ? null : v)))

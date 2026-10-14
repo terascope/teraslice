@@ -24,14 +24,12 @@ interface SQLContext extends UtilsTranslateSQLOptions {
 }
 
 /**
- * An xLucene query as a SQL boolean expression.
+ * Translate an xLucene query to a SQL boolean expression.
  *
- * This is the same walk `translateQuery` makes for the Elasticsearch DSL - same node types,
- * same order, same rules about when a branch is dropped - and everything an engine spells
- * for itself is reached through `options.dialect`.
+ * It walks the AST the same way `translateQuery` does for the Elasticsearch DSL, with the
+ * same rules for dropping a branch. Engine-specific SQL comes from `options.dialect`.
  *
- * The result is an EXPRESSION, not a statement: the caller owns the projection and the
- * source, and hands this to a `WHERE` clause or to any predicate-taking API.
+ * The result is an expression for a `WHERE` clause, not a full statement.
 */
 export function translateSQLQuery(
     parser: Parser,
@@ -71,9 +69,8 @@ export function translateSQLQuery(
  * The ordering, which comes either from a `geoDistance` function or from the configured
  * default geo field.
  *
- * **`geo_sort_unit` has no effect on a SQL sort and is not an omission.** The distance is
- * always emitted in metres, and scaling every distance by the same factor cannot reorder
- * them - unlike Elasticsearch, where the unit is part of the value the sort reports back.
+ * `geo_sort_unit` is ignored. The distance is always in meters, and changing the unit would
+ * not change the order.
 */
 function resolveSort(context: SQLContext): SQLSort[] {
     if (context.sort.length) return context.sort;
@@ -120,11 +117,10 @@ function buildGroupSQL(node: GroupLikeNode, context: SQLContext): string | undef
 }
 
 /**
- * Every node of a conjunction has to translate or the whole conjunction is dropped.
+ * Every node of a conjunction must translate, or the whole conjunction is dropped.
  *
- * That is the Elasticsearch rule, not a shortcut: a term whose variable resolved to nothing
- * produces no query, and an AND missing one of its halves would match MORE than it was
- * asked to rather than less.
+ * This matches the Elasticsearch translation. A term whose variable resolved to nothing
+ * produces no query, and an AND missing one side would match more rows than asked for.
 */
 function buildConjunctionSQL(
     conjunction: Conjunction,
@@ -179,7 +175,7 @@ function buildTermLevelSQL(node: TermLikeNode, context: SQLContext): string | un
 
 /**
  * A field pattern such as `fo*:bar` becomes the same query against every configured field
- * it matches, exactly as the Elasticsearch translation does.
+ * it matches, as in the Elasticsearch translation.
 */
 function buildWildcardFieldSQL(node: TermLikeNode, context: SQLContext): string | undefined {
     if (isEmpty(context.type_config)) {
@@ -196,8 +192,8 @@ function buildWildcardFieldSQL(node: TermLikeNode, context: SQLContext): string 
 }
 
 /**
- * A query with no field at all - Elasticsearch answers it with `multi_match`, which searches
- * every field - becomes the same test against every configured field.
+ * A query with no field becomes the same test against every configured field, like
+ * Elasticsearch's `multi_match`.
 */
 function buildFieldlessSQL(node: TermLikeNode, context: SQLContext): string | undefined {
     if (isRange(node)) {
@@ -218,13 +214,11 @@ function buildFieldlessSQL(node: TermLikeNode, context: SQLContext): string | un
 }
 
 /**
- * The same term against many fields, each one typed as that field is.
+ * The same term against many fields, each compared using its own type.
  *
- * **A field whose type cannot hold the value is left out rather than compared.** SQL has no
- * `multi_match`, and the obvious substitute - comparing every column as text - is both
- * slower and less true: `"num" = 'hello'` is a cast error that fails the whole query, not a
- * row that does not match. A field that cannot hold the value cannot match it, so dropping
- * it gives the Elasticsearch answer and keeps every remaining comparison typed.
+ * A field whose type cannot hold the value is left out, because `"num" = 'hello'` is a cast
+ * error that fails the whole query. Such a field could not match anyway, so the result is
+ * the same as in Elasticsearch.
 */
 function expandAcrossFields(
     node: TermLikeNode,
@@ -259,9 +253,8 @@ function buildTermSQL(
     const { dialect } = context;
 
     /**
-     * An `ip` field given a CIDR block asks which addresses fall INSIDE the block, which is
-     * a containment and not an equality. Elasticsearch does this for itself because its `ip`
-     * type understands CIDR; SQL has to be told.
+     * A CIDR block on an `ip` field matches addresses inside the block, so it becomes a
+     * containment check rather than an equality.
     */
     if (node.field_type === xLuceneFieldType.IP && isCIDR(value)) {
         return dialect.ipInCIDR(fieldExpr, `${value}`);
@@ -293,11 +286,10 @@ function buildWildcardSQL(
 }
 
 /**
- * A range, with the one special case an `ip_range` field is.
+ * A range query, with a special case for `ip_range` fields.
  *
- * An `ip_range` column stores a BLOCK, and the parser has already turned a CIDR query on one
- * into a range of addresses - so the question is whether the two overlap, not whether the
- * column compares against the bounds.
+ * An `ip_range` column stores a block, and the parser has already turned a CIDR query on it
+ * into an address range, so the check is whether the two overlap.
 */
 function buildRangeSQL(
     node: Range,
@@ -330,15 +322,9 @@ function buildRangeSQL(
 /**
  * The type of the field a range is over.
  *
- * **A range node does not always carry it, and the two spellings carry it in different
- * places.** A CIDR the parser rewrote into a range puts `ip_range` on the node and `ip` on
- * each bound; a range the query wrote out puts nothing on the node and the field's type on
- * each bound. Reading only `node.field_type` misses the second, which is how an `ip_range`
- * column came to be compared as TEXT - `"net" >= '10.0.0.3'` against a stored `10.0.0.0/30`
- * is a string comparison that runs, returns rows, and is wrong.
- *
- * The type config is asked first because it is the field's declared type rather than
- * whatever the parser happened to put on the node.
+ * The type config is checked first, since it holds the declared type. A CIDR that the
+ * parser rewrote into a range has `ip_range` on the node, but a range written in the query
+ * has the type only on its bounds, so the left bound is the last fallback.
 */
 function fieldTypeOf(node: Range, context: SQLContext): xLuceneFieldType | undefined {
     return context.type_config[node.field as string]
@@ -361,8 +347,8 @@ function rangeBound(inclusive: unknown, exclusive: unknown): SQLIPRangeBound | u
 /**
  * The type to render a bound as.
  *
- * The bound carries its own `field_type` and it is the more specific of the two: a `date`
- * range's bounds are dates even when the node itself reports something broader.
+ * The bound's own `field_type` is preferred because it is more specific: a `date` range's
+ * bounds are dates even when the node reports a broader type.
 */
 function rangeFieldType(
     node: Range,

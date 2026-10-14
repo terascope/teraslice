@@ -4,15 +4,13 @@ import { allExcept } from './corpus.js';
 /**
  * Ranges, spelled every way a bound can be written.
  *
- * **The four bracket combinations are the whole point.** `[` and `]` include the bound, `{`
- * and `}` exclude it, and the two ends are independent - `[a TO b}` and `{a TO b]` are
- * different queries and neither is `[a TO b]`. The corpus puts two records on each of the
- * bounds used here, so every one of the four answers a different set and a translation that
- * confused `gt` with `gte` cannot pass by accident.
+ * `[` and `]` include the bound, `{` and `}` exclude it, and the two ends are independent, so
+ * `[a TO b}`, `{a TO b]` and `[a TO b]` are three different queries. The corpus has two
+ * records on each bound used here, so each of the four bracket combinations returns a
+ * different set and confusing `gt` with `gte` fails.
  *
- * An unbounded side (`*`) is included for the same reason: it is the case where one of the
- * two comparisons should not be emitted at all, and `[* TO *]` is the case where neither
- * should - which leaves a range that asks only that the field have a value.
+ * An unbounded side (`*`) drops one of the two comparisons, and `[* TO *]` drops both,
+ * which leaves a query that asks only that the field have a value.
 */
 export const numericRangeCases: readonly QueryCase[] = [
     ['[ TO ], both bounds included', 'count:[20 TO 40]', ['02', '03', '04', '07', '09', '10']],
@@ -27,7 +25,7 @@ export const numericRangeCases: readonly QueryCase[] = [
     ['an excluded lower bound and no upper', 'count:{30 TO *}', ['04', '05', '10', '12']],
     ['no lower bound and an included upper', 'count:[* TO 30]', ['01', '02', '03', '06', '07', '09']],
     ['no lower bound and an excluded upper', 'count:[* TO 30}', ['01', '02', '06', '07']],
-    // neither bound is emitted, so what is left is the field having a value at all
+    // neither bound is generated, so the query only asks that the field have a value
     ['neither bound, which asks only that the field exist', 'count:[* TO *]', allExcept('08', '11')],
     ['a range inside a field group', 'count:(>=20 AND <40)', ['02', '03', '07', '09']],
     [
@@ -44,12 +42,11 @@ export const numericRangeCases: readonly QueryCase[] = [
 ];
 
 /**
- * The same four spellings over dates, where the bound is a timestamp rather than a number.
+ * The same four spellings over dates, where the bound is a timestamp instead of a number.
  *
- * A date bound takes a second path to the engine: Elasticsearch parses the literal itself,
- * while SQL casts it - and a `TIMESTAMP` cast DROPS a zone rather than applying it, so the
- * translation normalises to UTC first. A bound landing exactly on a record's value is what
- * makes an off-by-one visible, and every record's date here is midnight UTC.
+ * Elasticsearch parses a date literal itself, while SQL casts it. A `TIMESTAMP` cast drops
+ * the zone instead of applying it, so the translator normalizes to UTC first. Every record's
+ * date is midnight UTC and the bounds land exactly on them, so an off-by-one shows up.
 */
 export const dateRangeCases: readonly QueryCase[] = [
     [
@@ -89,12 +86,11 @@ export const dateRangeCases: readonly QueryCase[] = [
 ];
 
 /**
- * A range over a `keyword`, which both engines answer by comparing the strings.
+ * A range over a `keyword`, which both engines answer by comparing strings.
  *
- * Worth pinning because nothing about the query says it is not a number: the bounds are
- * bare words, and the two engines have to agree on both the comparison and where the bound
- * sits. `alpha`, `beta`, `delta` are adjacent in the corpus, so each bracket spelling moves
- * the answer by exactly one value.
+ * Nothing in the query says the bounds are not numbers, so the engines must agree on both
+ * the comparison and the bound. `alpha`, `beta` and `delta` are adjacent in the corpus, so
+ * each bracket spelling changes the answer by exactly one value.
 */
 export const keywordRangeCases: readonly QueryCase[] = [
     ['[ TO ], both bounds included', 'name:[alpha TO delta]', ['01', '02', '04', '05', '06', '09', '12']],

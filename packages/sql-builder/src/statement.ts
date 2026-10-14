@@ -3,11 +3,11 @@ import { SQLDialect, SQLSearchParams, SQLSort } from '@terascope/types';
 import { quoteIdentifier } from './quoting.js';
 
 /**
- * The pieces of a statement, before they are one.
+ * The parts of a SQL statement, before they are joined.
  *
- * `QueryAccess.restrictSQLParts` returns this for a caller composing their own statement - a
- * frame that already knows its relation, say. Anyone who wants the statement itself should
- * use `restrictSQLQuery` and never see this.
+ * `QueryAccess.restrictSQLParts` returns this for callers that build their own statement,
+ * such as a frame that already has its relation. Use `restrictSQLQuery` to get a complete
+ * statement instead.
 */
 export interface SQLQueryParts {
     /** The `SELECT` list, with the field restrictions already applied. */
@@ -18,18 +18,16 @@ export interface SQLQueryParts {
     sort?: SQLSort[];
     /** The field paths `select` projects. */
     columns: string[];
-    /** The lists Elasticsearch would have been sent. NOT column names. */
+    /** The `_source` include/exclude lists Elasticsearch would receive, not column names. */
     includes?: string[];
     excludes?: string[];
 }
 
 /**
- * A complete, executable SQL statement.
+ * Build a complete, executable SQL statement from its parts.
  *
- * This is the SQL counterpart of what `restrictSearchQuery` hands back: something a client can
- * be given as-is. **It exists so that no caller has to concatenate a statement**, because the
- * pieces a caller forgets are the field restrictions - and forgetting those means a restricted
- * column reaches whoever asked.
+ * This is the SQL counterpart of `restrictSearchQuery`. Callers should use it rather than
+ * joining the parts themselves, since leaving out `select` would return restricted columns.
 */
 export function buildSQLStatement(
     parts: SQLQueryParts,
@@ -41,15 +39,12 @@ export function buildSQLStatement(
         `FROM ${relationOf(params)}`,
     ];
 
-    // `WHERE TRUE` is valid and says nothing; a query that restricts nothing gets no clause
+    // skip the clause when the query matches everything
     if (parts.where !== dialect.matchAll()) {
         statement.push(`WHERE ${parts.where}`);
     }
 
-    /**
-     * The query's own ordering comes first, matching `restrictSearchQuery`, where the
-     * translated `sort` is spread over the caller's.
-    */
+    // the query's own sort comes before the caller's, as in `restrictSearchQuery`
     const orderBy = dialect.orderBy([...(parts.sort ?? []), ...(params.sort ?? [])]);
     if (orderBy) statement.push(`ORDER BY ${orderBy}`);
 
@@ -60,12 +55,10 @@ export function buildSQLStatement(
 }
 
 /**
- * What the statement selects from.
+ * The `FROM` source: exactly one of `table` or `relation` is required.
  *
- * `table` is quoted a segment at a time, so `main.events` is a schema and a table rather than
- * anything the name could otherwise be read as; `relation` is the caller's own SQL and is used
- * verbatim. One or the other is required - there is no statement without a source, and
- * defaulting to one would be a guess about somebody's schema.
+ * `table` is quoted one dot-separated segment at a time, so `main.events` is schema `main`,
+ * table `events`. `relation` is the caller's own SQL and is used as-is.
 */
 function relationOf(params: SQLSearchParams): string {
     const { table, relation } = params;

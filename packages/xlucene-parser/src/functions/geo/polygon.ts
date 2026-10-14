@@ -237,12 +237,11 @@ const geoPolygon: i.FunctionDefinition = {
         }
 
         /**
-         * The relation as ONE spatial predicate, whatever the shape.
+         * The relation as one spatial predicate, whatever the shape.
          *
-         * The Elasticsearch emission has to take a polygon apart - shell in `filter`, every
-         * hole in `must_not`, a `should` per polygon of a multi-polygon - because
-         * `geo_polygon` knows nothing about holes. A spatial engine does, so a hole needs no
-         * special handling and neither does a multi-polygon.
+         * The Elasticsearch query splits a polygon into parts (holes in `must_not`, one
+         * `should` per polygon of a multi-polygon) because `geo_polygon` does not support
+         * holes. SQL spatial functions handle holes and multi-polygons directly.
         */
         function toSQLQuery(field: string, options: i.FunctionSQLOptions) {
             const { dialect } = options;

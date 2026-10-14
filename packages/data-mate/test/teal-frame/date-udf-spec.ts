@@ -9,23 +9,19 @@ import {
 const repo = functionConfigRepository as Record<string, FunctionDefinitionConfig<any>>;
 
 /**
- * **What a date UDF receives, and why it cannot be a `DuckDBTimestampValue`.**
+ * Tests what a date UDF receives: epoch millis or a `[ms, offset]` DateTuple, never a
+ * `DuckDBTimestampValue`.
  *
- * A date is now stored as `{ ms, tz_offset }` (`date-value.ts`), so a UDF receives epoch millis
- * or a `[ms, offset]` DateTuple - exactly what `DateVector` holds - and nothing is ever parsed.
- * The history below is why that matters; the old-defect test keeps the identity it obeyed.
+ * A date is stored as `{ ms, tz_offset }` (`date-value.ts`), so a UDF gets exactly what
+ * `DateVector` holds and nothing is parsed. A raw `DuckDBTimestampValue` would be wrong: its
+ * `toString()` is zone-less (`'2026-08-14 01:02:03.456'`), the date primitives coerce objects by
+ * stringifying them, and `new Date()` parses a zone-less string in the host's local time, so
+ * every input would shift by the host's UTC offset.
  *
- * `createScalarFunction` used to hand DuckDB's value straight to the JS function. A `Date` column
- * arrives as a `DuckDBTimestampValue`, whose `toString()` is `'2026-08-14 01:02:03.456'` -
- * space-separated and **zone-less**. Every date primitive coerces an object by stringifying it, so
- * the value went through `new Date('2026-08-14 01:02:03.456')`, which parses a zone-less string as
- * **MACHINE-LOCAL**. Every date function's input therefore drifted by the host's UTC offset.
- *
- * **These tests have to work on a UTC machine, where the bug is invisible.** Under `TZ=UTC` the
- * drift is zero, so an end-to-end "is the answer right" assertion passes either way - and jest
- * caches `TZ` in the VM context at startup, so a test cannot switch it. So the guards here are: the
- * converter's exact numeric result, the arithmetic identity that describes the old bug for ANY host
- * offset, and - the real wiring guard - an assertion about the JS TYPE the function is handed.
+ * These tests must also catch that on a UTC machine, where the shift is zero. Jest fixes `TZ` at
+ * startup, so a test cannot switch it. The checks are therefore the converter's exact numeric
+ * result, an arithmetic identity that holds for any host offset, and an assertion about the JS
+ * type the function is handed.
 */
 
 /** 2026-08-14T01:02:03.456Z */
@@ -58,22 +54,21 @@ describe('date values crossing the UDF boundary', () => {
         it('should describe the old defect exactly, for any host timezone', () => {
             const value = timestampValue(MICROS);
 
-            // zone-less, which is the whole problem
+            // DuckDB's string form has no zone
             expect(String(value)).toBe('2026-08-14 01:02:03.456');
 
-            // the identity the bug obeyed: parsing that string drifts by the host's offset. It
-            // holds under every TZ - and collapses to equality only under UTC, which is why a
-            // UTC-only test suite could never have caught this.
+            // parsing that string shifts it by the host's offset. This holds under every TZ and
+            // reduces to equality only under UTC, so an end-to-end check alone would miss it.
             const offsetMinutes = -new Date().getTimezoneOffset();
             expect(new Date(String(value)).getTime()).toBe(MILLIS - (offsetMinutes * 60_000));
 
-            // the converter never goes near a string
+            // the converter never goes through a string
             expect(makeInputConverter(FieldType.Date)(storedDate())).toBe(MILLIS);
         });
 
         it('should pass every other type through untouched', () => {
-            // measured: these already arrive as what the primitives expect, so converting them
-            // would be inventing a second coercion layer
+            // these already arrive as what the primitives expect, so converting them would add
+            // a second coercion layer
             for (const type of [
                 FieldType.Keyword,
                 FieldType.IP,
@@ -128,9 +123,8 @@ describe('date values crossing the UDF boundary', () => {
         /**
          * Registers a UDF that records what it was handed, and drains a query through it.
          *
-         * **This is the guard that works on a UTC machine**: it asserts the JS TYPE and value the
-         * function receives, not the answer the function computes - so it fails if the converter
-         * is ever unwired, whatever the host timezone.
+         * It asserts the JS type and value the function receives rather than the answer it
+         * computes, so it fails if the converter is unwired even on a UTC host.
         */
         async function capture(field: string): Promise<unknown[]> {
             const seen: unknown[] = [];
@@ -178,9 +172,9 @@ describe('date values crossing the UDF boundary', () => {
         });
 
         /**
-         * The instant-comparing validations, which are the clearest evidence: they are not
-         * locale-dependent at all, so a shifted input simply makes them wrong. Before the fix
-         * these flipped between `TZ=UTC` and `TZ=America/New_York`.
+         * The instant-comparing validations do not depend on locale, so a shifted input makes
+         * them wrong outright. With a zone-less input their result would change between
+         * `TZ=UTC` and `TZ=America/New_York`.
         */
         it.each([
             ['isBefore', { date: '2026-08-14T03:00:00.000Z' }, true],
@@ -205,8 +199,8 @@ describe('date values crossing the UDF boundary', () => {
             const rows: Record<string, unknown>[] = [];
             for await (const row of projected.rows()) rows.push(row);
 
-            // a validation nulls the value and keeps the row, so "did it pass" is "did the value
-            // survive" - and the instant is 01:02:03Z, which IS before 03:00:00Z
+            // a validation nulls the value and keeps the row, so it passed if the value survived.
+            // The instant is 01:02:03Z, which is before 03:00:00Z.
             expect(rows[0].created == null).toBe(!passes);
         });
 

@@ -82,11 +82,7 @@ export const isUUIDConfig: FieldValidateConfig = {
         }
     },
     /**
-     * `validator.isUUID`'s per-version patterns, transliterated from its source.
-     *
-     * The default `all` is NOT the union of versions 1-8 - it also takes the nil and max UUIDs, and
-     * still requires the `[89ab]` variant nibble - so it is written out rather than derived. None
-     * of the patterns use lookaround or a backreference, so RE2 compiles every one.
+     * `validator.isUUID`'s per-version patterns; see `uuidPattern`.
     */
     sql: {
         applies: (args) => uuidPattern(args.version) != null,

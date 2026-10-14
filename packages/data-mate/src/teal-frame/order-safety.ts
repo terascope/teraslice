@@ -1,34 +1,22 @@
 /**
- * Refuses an operation that would silently discard an ordering - `TealFrame`'s `join`, `distinct`
- * and an aggregating `select`.
+ * Throws if an operation would silently discard the frame's ordering. Used by `TealFrame`'s
+ * `join`, `distinct` and aggregating `select`.
  *
- * **Measured at 5M rows / 14 threads**, counting
- * out-of-order rows in the streamed output of a subquery that ends in `ORDER BY x`:
+ * SQL does not guarantee that a subquery's `ORDER BY` survives the outer query. In DuckDB a
+ * projection, `WHERE`, `LIMIT` or `OFFSET` keeps the order, but a hash join or hash aggregate
+ * reorders rows. This only shows once the data is large enough to run in parallel (small
+ * inputs come out ordered), so it is easy to miss in tests. Sort the result instead.
  *
- * | outer operator | out of order |
- * |---|---|
- * | projection, `WHERE`, `LIMIT`, `OFFSET` | **0** - order preserved |
- * | `JOIN` | 303 |
- * | `GROUP BY` | 2,104 |
- *
- * SQL promises nothing about a subquery's `ORDER BY`, and DuckDB's hash join and hash
- * aggregate both reorder. **The same two queries come out perfectly ordered at 20 rows**,
- * so this is a bug that appears only once the data is large enough to be parallelised -
- * exactly the kind that reaches production. Hence a throw rather than a silent drop.
- *
- * Sorting last is the real shape anyway: QPL emits `orderBy` as a POST-aggregate node.
- *
- * **What this cannot catch:** a global aggregate written into `select`'s expressions with
- * no `groupBy` (`{ total: 'sum(x)' }`) also reorders, but the expressions are raw SQL, so
- * there is nothing to inspect. Its result is one row, which makes the ordering moot.
+ * A global aggregate written directly into `select`'s expressions with no `groupBy`
+ * (`{ total: 'sum(x)' }`) is not detected, because the expressions are raw SQL. It returns
+ * one row, so the ordering does not matter.
 */
 export function assertOrderSafe(operation: string, ordered: boolean): void {
     if (!ordered) return;
 
     throw new TypeError(
         `${operation} reorders rows, so this frame's ORDER BY would be silently discarded`
-        + ' - measured: a subquery ORDER BY survives a projection or a filter, but comes'
-        + ' out of a join or a GROUP BY scrambled, and only once the data is big enough to'
-        + ' be parallelised. Sort the RESULT instead.'
+        + ' (a join or GROUP BY does not preserve the order of its input once DuckDB runs it'
+        + ' in parallel). Sort the result instead.'
     );
 }

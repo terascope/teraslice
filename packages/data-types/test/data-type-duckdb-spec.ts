@@ -17,8 +17,8 @@ function duckTypeOf(
 
 describe('DataType -> DuckDB', () => {
     describe('scalar field types', () => {
-        // The numeric ladder maps to the width data-mate actually enforces, NOT the width
-        // the type name suggests, and the reasons live on each type class.
+        // Numeric types map to the width data-mate enforces, not the width the type name
+        // suggests. Each type class explains its choice.
         const cases: [FieldType, string][] = [
             [FieldType.Boolean, 'BOOLEAN'],
             [FieldType.Byte, 'TINYINT'],
@@ -82,9 +82,8 @@ describe('DataType -> DuckDB', () => {
             })).toEqual('STRUCT("region" VARCHAR, "tier" BIGINT)');
         });
 
-        // NOTE this recursion is specific to toDuckDB. getGroupedFields splits on the first
-        // dot only (getTypes: "@todo support multiple levels deep nesting"), so toESMapping
-        // and toGraphQL do not nest this deeply.
+        // Only toDuckDB nests this deeply. getGroupedFields splits on the first dot only, so
+        // toESMapping and toGraphQL stop at one level.
         it('nests a STRUCT inside a STRUCT for a grandchild', () => {
             expect(duckTypeOf(FieldType.Object, {}, {
                 'field.inner': { type: FieldType.Object },
@@ -92,8 +91,8 @@ describe('DataType -> DuckDB', () => {
             })).toEqual('STRUCT("inner" STRUCT("leaf" VARCHAR))');
         });
 
-        // DataFrame writes an object's keys in config order, and rows() follows the STRUCT's
-        // member order - so the members are in config order, a group where it is first named
+        // DataFrame writes an object's keys in config order and rows() follows the STRUCT's
+        // member order, so members must be in config order. A group sits where it is first named.
         it('orders members as the config names them, groups included', () => {
             expect(duckTypeOf(FieldType.Object, {}, {
                 'field.inner': { type: FieldType.Object },
@@ -134,7 +133,7 @@ describe('DataType -> DuckDB', () => {
                 },
             };
 
-            // `meta.tier` is NOT a column of its own - unlike toXlucene, which flattens
+            // `meta.tier` is not a column of its own, unlike toXlucene, which flattens it
             expect(new DataType(config).toDuckDB()).toEqual({
                 name: 'VARCHAR',
                 count: 'BIGINT',

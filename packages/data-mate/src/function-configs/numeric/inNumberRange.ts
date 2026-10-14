@@ -82,10 +82,10 @@ export const inNumberRangeConfig: FieldValidateConfig<InNumberRangeArg> = {
         return inNumberRangeFP(args);
     },
     /**
-     * `>`/`<`, or `>=`/`<=` when `inclusive` is set - EXCLUSIVE is the default.
+     * `>`/`<` by default, or `>=`/`<=` when `inclusive` is set.
      *
-     * Verified: `inNumberRange(1, { min: 1, max: 10 })` is false and only becomes true with
-     * `inclusive: true`, so emitting `BETWEEN` (which is inclusive) would have been wrong.
+     * `inNumberRange(1, { min: 1, max: 10 })` is false unless `inclusive: true`, so `BETWEEN`
+     * (which is inclusive) would be wrong.
     */
     sql: {
         applies: allowsNumericArgs('min', 'max'),

@@ -47,8 +47,8 @@ export default class Float extends BaseType {
 
     /**
      * The DuckDB column type for this field.
-     * DOUBLE, not FLOAT: this is a JS number, i.e. a 64-bit IEEE-754 double. A 32-bit
-     * FLOAT silently rounds 9007199254740992 to 9007199000000000 (measured).
+     * DOUBLE, not FLOAT, because a JS number is a 64-bit double. A 32-bit FLOAT would
+     * round large values (9007199254740992 becomes 9007199000000000).
      */
     toDuckDB(): DuckDBTypeConfig {
         return this._formatDuckDB('DOUBLE');

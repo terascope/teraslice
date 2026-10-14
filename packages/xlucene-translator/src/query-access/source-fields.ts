@@ -1,20 +1,19 @@
 import { xLuceneTypeConfig } from '@terascope/types';
 
 /**
- * Elasticsearch `_source` filtering semantics, applied to a type config.
+ * Elasticsearch `_source` filtering rules, applied to a type config.
  *
- * `restrictSearchQuery` hands `_source_includes` and `_source_excludes` to Elasticsearch and
- * the SERVER decides which fields come back. SQL has no such thing - the projection is the
- * only place a field can be withheld - so the same two lists have to be resolved into the
- * set of fields that may be selected.
+ * Elasticsearch applies `_source_includes` and `_source_excludes` on the server. In SQL the
+ * projection is the only way to leave a field out, so these helpers resolve the two lists
+ * into the set of fields that may be selected.
 */
 
 /**
  * Whether a restriction entry covers a field path.
  *
- * The match is by dotted SEGMENT, not by string prefix: `nested` covers `nested.name`, and
- * `nest` covers neither. This is the rule `matchTypeField` applies when the same lists
- * restrict the type config, so a field is readable exactly when it is also queryable.
+ * The match is by dotted segment, not string prefix: `nested` covers `nested.name`, but
+ * `nest` does not. `matchTypeField` uses the same rule, so a field is readable exactly when
+ * it is queryable.
 */
 export function restrictionCovers(restriction: string, path: string): boolean {
     return restriction === path || path.startsWith(`${restriction}.`);
@@ -23,9 +22,9 @@ export function restrictionCovers(restriction: string, path: string): boolean {
 /**
  * The field paths a projection can name.
  *
- * A path is projectable when nothing else is declared beneath it - so a leaf, or an object
- * whose shape the type config does not describe. The intermediate `nested` of a declared
- * `nested.name` is not one: it is rebuilt from whichever of its children survive.
+ * A path is projectable when nothing is declared beneath it: a leaf, or an object whose
+ * shape the type config does not describe. The parent `nested` of a declared `nested.name`
+ * is not projectable; it is rebuilt from its readable children.
 */
 export function getProjectablePaths(typeConfig: xLuceneTypeConfig): string[] {
     const paths = Object.keys(typeConfig);
@@ -36,17 +35,13 @@ export function getProjectablePaths(typeConfig: xLuceneTypeConfig): string[] {
 }
 
 /**
- * The paths that may be returned, given the two lists Elasticsearch would have been sent.
+ * The paths that may be returned, given the `_source` include and exclude lists.
  *
- * Elasticsearch applies includes first and excludes second, and an empty includes list means
- * everything - so a field is readable when some include covers it (or there are none) and no
- * exclude does.
+ * As in Elasticsearch, a field is readable when an include covers it (or there are no
+ * includes) and no exclude covers it.
  *
- * **`['*']` is an exclude entry, not a field name.** `restrictSourceFields` returns it when a
- * caller asks only for fields they may not have, and it means nothing may be returned; a
- * consumer treating these lists as plain names would match it against nothing and expose
- * every column, which is why resolving them here rather than at the call site is the point
- * of this module.
+ * An exclude list containing `'*'` means nothing may be returned. `restrictSourceFields`
+ * returns it when a caller asks only for fields they may not read.
 */
 export function getReadableFields(
     typeConfig: xLuceneTypeConfig,

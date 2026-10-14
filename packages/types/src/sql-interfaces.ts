@@ -5,9 +5,8 @@ import { xLuceneFieldType } from './xlucene-interfaces.js';
 /**
  * The SQL engines an xLucene query can be translated for.
  *
- * The differences between them are real and concentrated in a few places - geo predicates,
- * IP containment, JSON access and regular expressions - which is why translation goes
- * through a {@link SQLDialect} rather than emitting one string for everyone.
+ * The engines differ mainly in geo predicates, IP handling and regular expressions, so
+ * translation goes through a {@link SQLDialect}.
 */
 export enum SQLDialectName {
     duckdb = 'duckdb',
@@ -17,9 +16,8 @@ export enum SQLDialectName {
 /**
  * One end of a queried address range.
  *
- * **The inclusivity is not decoration.** `[a TO b]` and `{a TO b}` are different questions
- * of an `ip_range` column: the first overlaps a block that merely touches `b`, the second
- * does not. An overlap test makes no such distinction for itself, so the bound carries it.
+ * `inclusive` matters for `ip_range` columns: `[a TO b]` matches a block that only touches
+ * `b`, and `{a TO b}` does not.
 */
 export interface SQLIPRangeBound {
     /** The address at that end of the range. */
@@ -31,53 +29,44 @@ export interface SQLIPRangeBound {
 /**
  * Where nulls are placed within a sorted column.
  *
- * It is spelled out on every emitted term rather than left to the engine, because no two
- * engines agree and none of them match `DataFrame` - see `defaultNullOrder` in
- * `@terascope/sql-builder`.
+ * It is written on every `ORDER BY` term, because engine defaults differ and none match
+ * `DataFrame`. See `defaultNullOrder` in `@terascope/sql-builder`.
 */
 export type SQLNullOrder = 'first' | 'last';
 
 /**
  * A SQL `ORDER BY` entry.
  *
- * **This is the only sort shape.** The xLucene translator produces it, `SQLSearchParams`
- * carries it, and `data-mate`'s DuckDB frame consumes it, so a translated sort can be handed
- * to a frame without being reshaped on the way.
+ * The xLucene translator produces it, `SQLSearchParams` carries it and `data-mate`'s DuckDB
+ * frame accepts it, so a translated sort can be passed to a frame unchanged.
 */
 export interface SQLSort {
     /**
-     * Already-quoted SQL, so it may be a bare column or a function call - a geo-distance
-     * sort is the latter.
+     * A SQL expression, already quoted: a column reference or a function call (a
+     * geo-distance sort is a function call).
      *
-     * **This is not escaped and cannot be**, for the same reason
-     * {@link SQLSearchParams.relation} is not: it is the caller's own SQL, and it must never
-     * be built from input the caller did not write. A field name coming from a request wants
-     * `dialect.fieldRef(field)` around it first.
+     * **It is used as-is, without escaping**, so never build it from untrusted input. Wrap a
+     * field name from a request with `dialect.fieldRef(field)` first.
     */
     expression: string;
     /**
-     * The direction, which is checked rather than interpolated - the one half of an
-     * `ORDER BY` entry that arrives from a request as a value rather than as SQL.
+     * The sort direction. It is validated before it is written into the statement.
      *
-     * **Required, including here where a default would be harmless-looking.** A missing
-     * direction is refused rather than assumed ascending, because this shape is built from
-     * request data: a sort that arrives without one is a caller bug, and answering it with a
-     * guess returns a plausible page in the wrong order. A frame whose own API defaults to
-     * ascending applies that default before it builds one of these - see `SQLSortInput` in
-     * `@terascope/sql-builder`.
+     * Required, because this shape is built from request data and a missing direction is a
+     * caller bug. Code that wants an ascending default can use `SQLSortInput` and
+     * `toSQLSort` from `@terascope/sql-builder`.
     */
     order: SortOrder;
     /**
-     * Where nulls go, defaulting to `DataFrame`'s rule - FIRST ascending, LAST descending.
-     *
-     * Set it to `'last'` in both directions for the Elasticsearch answer.
+     * Where nulls go. Defaults to `DataFrame`'s rule: first when ascending, last when
+     * descending. Set it to `'last'` to match Elasticsearch.
     */
     nulls?: SQLNullOrder;
 }
 
 /**
- * The SQL analogue of `ClientParams.SearchParams` - everything a complete statement needs
- * beyond the query itself.
+ * The SQL counterpart of `ClientParams.SearchParams`: everything a complete statement needs
+ * besides the query itself.
  *
  * | Elasticsearch | here |
  * |---|---|
@@ -96,11 +85,10 @@ export interface SQLSearchParams {
     */
     table?: string;
     /**
-     * A relation expression used VERBATIM, for a source no identifier can name:
-     * `read_parquet(['s3://bucket/a.parquet'])`, a sub-select, a join.
+     * A SQL source expression used as-is, for sources that are not a plain table name, such
+     * as `read_parquet(['s3://bucket/a.parquet'])`, a subquery or a join.
      *
-     * **This is not escaped and cannot be.** It is the caller's own SQL, and it must never be
-     * built from input the caller did not write. Use `table` for anything that is a name.
+     * **It is not escaped**, so never build it from untrusted input. Use `table` for a name.
     */
     relation?: string;
     /** Row limit. Must be a non-negative integer. */
@@ -112,7 +100,7 @@ export interface SQLSearchParams {
      *
      * A `geoDistance` query produces its own sort; when it does, it comes first.
      *
-     * **Each entry's `expression` is used verbatim** - see {@link SQLSort.expression}.
+     * Each entry's `expression` is used as-is; see {@link SQLSort.expression}.
     */
     sort?: SQLSort[];
     /** Fields the caller wants, filtered by what the configuration permits. */
@@ -124,16 +112,15 @@ export interface SQLSearchParams {
 /**
  * The result of translating an xLucene query to SQL.
  *
- * `query` is a boolean expression suitable for a `WHERE` clause or any predicate-taking
- * API - it is NOT a complete statement, because the caller owns the projection and the
- * source. An empty xLucene query becomes `TRUE`, and a query that cannot match anything
- * becomes `FALSE`.
+ * `query` is a boolean expression for a `WHERE` clause, not a complete statement; the caller
+ * supplies the projection and the source. An empty xLucene query becomes `TRUE`, and a query
+ * that cannot match anything becomes `FALSE`.
 */
 export interface SQLResult {
     query: string;
     /**
-     * Present only when the query asked for an ordering - today a `geoDistance` function,
-     * or a `default_geo_field` with a `geo_sort_point`.
+     * Present only when the query implies an ordering: a `geoDistance` function, or a
+     * `default_geo_field` with a `geo_sort_point`.
     */
     sort?: SQLSort[];
 }
@@ -141,15 +128,14 @@ export interface SQLResult {
 /**
  * Options for translating an xLucene query to SQL.
  *
- * Mirrors {@link ElasticsearchDSLOptions}: the engine-specific knobs live on the dialect,
- * and the geo sort options behave exactly as they do for the Elasticsearch DSL.
+ * Mirrors {@link ElasticsearchDSLOptions}. Engine-specific behavior lives on the dialect, and
+ * the geo sort options work as they do for the Elasticsearch DSL.
 */
 export interface xLuceneSQLOptions {
     /**
-     * The SQL engine to emit for, either by name or as a complete dialect.
+     * The SQL engine to generate SQL for, as a name or a dialect object.
      *
-     * Passing an object lets a caller override individual methods of a built-in dialect
-     * without a new one being added here.
+     * Passing an object lets a caller override methods of a built-in dialect.
      *
      * @default SQLDialectName.duckdb
     */
@@ -163,8 +149,7 @@ export interface xLuceneSQLOptions {
 }
 
 /**
- * How a `geo-point` field is stored in the target engine, which decides how a
- * latitude or longitude is read back out of it.
+ * SQL expressions that read the latitude and longitude out of a `geo-point` column.
 */
 export interface SQLGeoPointColumn {
     lat: string;
@@ -172,14 +157,13 @@ export interface SQLGeoPointColumn {
 }
 
 /**
- * Every piece of SQL that differs between engines.
+ * The SQL that differs between engines.
  *
- * A dialect never walks the AST - the translator does that - it only renders the leaves and
- * the boolean glue. That split is what keeps `postgres` from re-implementing the language
- * and what lets a caller override one method without forking the walk.
+ * The translator walks the xLucene AST; a dialect only renders the leaves and combines them
+ * with AND, OR and NOT. A caller can override one method without changing the translator.
  *
- * **Every predicate returned must be safe to inline into a larger expression**, so anything
- * with operator precedence returns itself parenthesized.
+ * Every predicate returned must be safe to embed in a larger expression, so anything with
+ * operator precedence is returned in parentheses.
 */
 export interface SQLDialect {
     readonly name: string;
@@ -190,9 +174,8 @@ export interface SQLDialect {
     /**
      * The column expression for an xLucene field path.
      *
-     * A dotted xLucene field is ambiguous - it may be a column named `a.b` or a member `b`
-     * of a struct column `a` - and which one it is depends on how the engine stores nested
-     * data, so each dialect answers for itself.
+     * A dotted field can be a column named `a.b` or member `b` of a struct column `a`,
+     * depending on how the engine stores nested data, so each dialect decides.
     */
     fieldRef(field: string): string;
 
@@ -208,32 +191,29 @@ export interface SQLDialect {
     /**
      * The `SELECT` list for the readable fields.
      *
-     * This is where a field restriction is ENFORCED: Elasticsearch withholds a field because
-     * the request carries `_source_excludes` and the server obeys it, and the projection is
-     * the only thing in SQL that can do the same job.
+     * This is where field restrictions are enforced, the SQL equivalent of Elasticsearch's
+     * `_source_excludes`.
      *
-     * `readable` is the field paths that may be returned and `all` is every path the type
-     * config declares - a dialect needs both to tell a whole column from one only part of
-     * which may be read. An empty `readable` means nothing may be returned, which is a row
-     * with no data rather than no row.
+     * `readable` is the field paths that may be returned, and `all` is every path the type
+     * config declares; both are needed to tell a fully readable column from a partly
+     * readable one. An empty `readable` still returns rows, but with no data.
     */
     projection(readable: readonly string[], all: readonly string[]): string;
 
     /**
      * The row-limiting clause, or an empty string when neither bound is set.
      *
-     * DuckDB and PostgreSQL both spell it `LIMIT n OFFSET m`, but plenty of engines do not -
-     * SQL Server and older Oracle want `OFFSET … FETCH` - so it belongs on the dialect rather
-     * than in the statement builder.
+     * DuckDB and PostgreSQL both use `LIMIT n OFFSET m`, but other engines use
+     * `OFFSET … FETCH`, so this is part of the dialect.
     */
     limitOffset(size?: number, offset?: number): string;
 
     /**
      * The `ORDER BY` terms, without the keyword, or `''` for no ordering.
      *
-     * **Direction AND null placement are always emitted**, never left to the engine: no two
-     * engines place nulls the same way and none of them match `DataFrame`. An engine with no
-     * `NULLS FIRST`/`NULLS LAST` syntax overrides this and emits whatever it needs instead.
+     * Direction and null placement are always written, because engine defaults for null
+     * placement differ and none match `DataFrame`. An engine without
+     * `NULLS FIRST`/`NULLS LAST` syntax can override this.
     */
     orderBy(sort?: readonly SQLSort[]): string;
 
@@ -269,9 +249,8 @@ export interface SQLDialect {
     /**
      * Negation.
      *
-     * **This is not a bare `NOT`.** Elasticsearch's `must_not` matches a document whose field
-     * is missing, while SQL's three-valued logic drops a row whose predicate is `NULL`, so a
-     * dialect has to force the unknown case back to true.
+     * Not a bare `NOT`: Elasticsearch's `must_not` matches a document whose field is missing,
+     * but SQL drops a row whose predicate is NULL, so a NULL result must become TRUE.
     */
     not(expression: string): string;
 
@@ -299,12 +278,12 @@ export interface SQLDialect {
         fieldExpr: string, start?: SQLIPRangeBound, end?: SQLIPRangeBound
     ): string;
 
-    /** A `geo-point` field within `distance` metres of a point. */
+    /** A `geo-point` field within `distance` meters of a point. */
     geoPointWithinDistance(
-        fieldExpr: string, point: geo.GeoPoint, metres: number
+        fieldExpr: string, point: geo.GeoPoint, meters: number
     ): string;
 
-    /** The distance in metres from a `geo-point` field to a point, for sorting. */
+    /** The distance in meters from a `geo-point` field to a point, for sorting. */
     geoPointDistance(fieldExpr: string, point: geo.GeoPoint): string;
 
     /** A `geo-point` field inside an axis-aligned bounding box. */

@@ -3,24 +3,23 @@ import { DuckExtensionError } from './errors.js';
 import { MissingExtension } from './interfaces.js';
 
 /**
- * The DuckDB extensions a frame needs, and how the database gets them.
+ * The DuckDB extensions a frame needs, and how the database loads them.
  *
- * **DuckDB downloads extensions at RUNTIME** from `extensions.duckdb.org`, the first time a
- * query needs one - there is no npm install step that fetches them. On an air-gapped box that
- * download fails, and it fails at the first query that happens to need the extension, not at
- * startup. So every database LOADs these up front (`loadExtensions`) and the images install
- * them at build time (`extension-tools.ts`, run from `bin/duckdb-extensions.js`).
+ * DuckDB downloads extensions from `extensions.duckdb.org` the first time a query needs one;
+ * no npm install step fetches them. Without network access that download fails at the first
+ * query that needs the extension rather than at startup. So every database loads them up front
+ * (`loadExtensions`), and images install them at build time (`extension-tools.ts`, run from
+ * `bin/duckdb-extensions.js`).
  *
- * MEASURED with an empty extension directory and autoinstall off: parquet, json and icu work,
- * because they are compiled into the binding (`STATIC_EXTENSIONS`); the four below fail.
- * `spatial` does not even autoload - a bare `ST_Point` is a catalog error, network or not.
+ * parquet, json and icu are compiled into the binding (`STATIC_EXTENSIONS`). The four below
+ * are not. `spatial` does not autoload at all: without it, `ST_Point` is a catalog error.
 */
 
 export interface DuckExtension {
     readonly name: string;
     /** What breaks without it, for the error a missing one produces. */
     readonly reason: string;
-    /** Statements that exercise it for real, run by `verify`. Presence is not proof. */
+    /** Statements run by `verify` to check that the extension actually works. */
     readonly check: readonly string[];
 }
 
@@ -43,27 +42,27 @@ export const REQUIRED_EXTENSIONS: readonly DuckExtension[] = [
     },
     {
         name: 'inet',
-        reason: 'the IP function SQL emissions',
+        reason: 'the SQL form of the IP functions',
         check: [`SELECT '1.2.3.4'::INET`],
     },
     {
         name: 'spatial',
-        reason: 'the geo function SQL emissions, which have NO UDF fallback',
+        reason: 'the SQL form of the geo functions, which have no JavaScript fallback',
         check: ['SELECT ST_AsText(ST_Point(1, 2))'],
     },
 ];
 
 /**
- * Compiled into the binding, so NEVER installed: `INSTALL parquet` downloads a repository copy
- * that SHADOWS the built-in one and makes `duckdb_extensions()` misreport it. `install`
- * asserts they are still static, so a DuckDB upgrade that unlinks one fails the build.
+ * Extensions compiled into the binding, which must never be installed: `INSTALL parquet`
+ * downloads a copy that shadows the built-in one and makes `duckdb_extensions()` misreport it.
+ * `install` checks they are still compiled in, so a DuckDB upgrade that drops one fails the build.
 */
 export const STATIC_EXTENSIONS: readonly string[] = ['icu', 'json', 'parquet'];
 
 /** Where the extensions live. Unset means DuckDB's default, `~/.duckdb/extensions`. */
 export const EXTENSION_DIRECTORY_ENV = 'DUCKDB_EXTENSION_DIRECTORY';
 
-/** `false` in an image, so a missing file fails at startup rather than trying the network. */
+/** Set to `false` in an image, so a missing extension fails at startup instead of downloading. */
 export const AUTOINSTALL_EXTENSIONS_ENV = 'DUCKDB_AUTOINSTALL_EXTENSIONS';
 
 export interface ExtensionSettings {
@@ -72,11 +71,11 @@ export interface ExtensionSettings {
 }
 
 /**
- * The extension settings an image sets through its environment.
+ * Reads the extension settings from the environment.
  *
- * These come from the environment rather than only from `configureDuckDatabase`, because a
- * database is opened by whichever call reaches it FIRST - often a frame, before any
- * configuration runs - and the directory has to be right from the moment it opens.
+ * They are read from the environment, not only from `configureDuckDatabase`, because the
+ * database may be opened by a frame before any configuration runs, and the directory must be
+ * correct from the moment it opens.
 */
 export function extensionSettingsFromEnv(
     env: NodeJS.ProcessEnv = process.env
@@ -101,11 +100,11 @@ function parseBoolean(name: string, raw: string | undefined): boolean | undefine
 }
 
 /**
- * LOADs every required extension, and throws ONE error naming all that are missing.
+ * Loads every required extension and throws one error naming all that are missing.
  *
- * With autoinstall on (the default, and local development) a missing extension is installed
- * first, once per machine. With it off (an image) nothing touches the network. A LOAD of an
- * already-loaded extension costs ~0.3 ms, so running this again is harmless.
+ * With autoinstall on (the default, used in local development) a missing extension is installed
+ * first, once per machine. With it off (in an image) nothing uses the network. Loading an
+ * already-loaded extension is cheap, so calling this again is harmless.
 */
 export async function loadExtensions(
     connection: DuckDBConnection,
@@ -130,7 +129,7 @@ export async function loadExtensions(
     });
 }
 
-/** The failure message, or undefined once the extension is loaded. */
+/** Loads one extension. Returns the failure message, or undefined on success. */
 async function loadOne(
     connection: DuckDBConnection,
     name: string,

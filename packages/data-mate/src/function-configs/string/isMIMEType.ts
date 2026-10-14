@@ -73,11 +73,10 @@ export const isMIMETypeConfig: FieldValidateConfig = {
     examples,
     sql: {
         /**
-         * **Three regexes.** This one IS `validator`, and it is still only a fixed list of nine
-         * top-level types, `text/*` with an optional charset, and `multipart/*` with up to two
-         * parameters - no locale table and no procedural parsing, which is what separates it from
-         * `isURL` and `isPostalCode`. See `MIME_SQL_PATTERNS`, where the `i` flags become explicit
-         * classes and every `\s` becomes the set JavaScript means.
+         * The three regexes of `validator.isMimeType`: a fixed list of nine top-level types,
+         * `text/*` with an optional charset, and `multipart/*` with up to two parameters. See
+         * `MIME_SQL_PATTERNS`, where the `i` flags become explicit classes and `\s` becomes
+         * JavaScript's whitespace set.
         */
         expression: ({ value }) => matchesAny(value, MIME_SQL_PATTERNS),
     },

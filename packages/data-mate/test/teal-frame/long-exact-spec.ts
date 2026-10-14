@@ -6,18 +6,14 @@ import { FieldType, DataTypeConfig } from '@terascope/types';
 import { TealFrame, CoercionFailureError, describeColumns } from '../../src/index.js';
 
 /**
- * A `Long` must arrive, be stored, be read back and cross the Parquet wire EXACTLY.
+ * A `Long` must be ingested, stored, read back and written to Parquet exactly.
  *
- * Two defects this pins, both found 2026-09-28:
- *
- * - **The wire.** `Long` was a `HUGEINT`, and Parquet has no 128-bit integer, so DuckDB wrote it
- *   as a DOUBLE: every value past 2^53 changed on the way from qpl-search-api to the worker, and
- *   `9223372036854775807` came back as a value that no longer fits in 64 bits. A `Long` column is
- *   now a `BIGINT` - an Elasticsearch `long` is exactly a signed 64-bit integer, and Parquet
- *   carries it as INT64.
- * - **A bigint input.** `core-utils`' `toBigIntOrThrow` adds 1 above the safe limit to a value it
- *   PARSED and returns a bigint input untouched, and the ingest converter subtracted 1 from both,
- *   so `9007199254740993n` was stored as `...992`. See DEF-BIGINT / #4555.
+ * - A `Long` column is a `BIGINT`. An Elasticsearch `long` is a signed 64-bit integer and Parquet
+ *   carries it as INT64. Parquet has no 128-bit integer, so a `HUGEINT` would be written as a
+ *   DOUBLE and every value past 2^53 would change.
+ * - `core-utils`' `toBigIntOrThrow` adds 1 above the safe limit to a value it parses but returns a
+ *   bigint input untouched (#4555), so the ingest converter must only undo that for parsed values.
+ *   Otherwise `9007199254740993n` would be stored as `...992`.
 */
 const CONFIG: DataTypeConfig = {
     version: 1,
@@ -50,7 +46,7 @@ function records(toInput: (value: string) => unknown) {
     }));
 }
 
-/** Exact decimal text for every Long, straight out of DuckDB - no JS number involved. */
+/** Exact decimal text for every Long, read from DuckDB without a JS number in between. */
 async function stored(frame: TealFrame): Promise<string[][]> {
     const rows = await frame.rawRows(
         `SELECT n::VARCHAR, obj.n::VARCHAR, list::VARCHAR FROM ${frame.from} ORDER BY _key`
@@ -160,9 +156,9 @@ describe('TealFrame Long values are exact end to end', () => {
 
     describe('a computed Long wider than 64 bits', () => {
         /**
-         * `ipToInt` returns a `Long`, and an IPv6 address is 128 bits, so a COMPUTED Long can
-         * exceed what a stored one can hold. It stays exact in the query; what it must never do
-         * is cross the wire as a DOUBLE.
+         * `ipToInt` returns a `Long` and an IPv6 address is 128 bits, so a computed Long can
+         * exceed what a stored one can hold. It stays exact in the query, but it must never be
+         * written to Parquet as a DOUBLE.
         */
         it('should fail writeParquet loudly rather than write a rounded value', async () => {
             const base = await TealFrame.fromRecords(CONFIG, [{ _key: 'a', n: '1' }]);
@@ -176,9 +172,9 @@ describe('TealFrame Long values are exact end to end', () => {
         });
 
         /**
-         * Found in review: DuckDB's DESCRIBE text does not quote struct member names, so a TEXT
-         * substitution of `HUGEINT` renamed a member called `HUGEINT` and nulled its value -
-         * silently. The narrowing now reads type OBJECTS and casts to the DECLARED type.
+         * DuckDB's DESCRIBE text does not quote struct member names, so narrowing `HUGEINT` by
+         * text substitution would rename a member called `HUGEINT` and null its value. The
+         * narrowing reads type objects and casts to the declared type instead.
         */
         it('should keep a nested field NAMED HUGEINT through writeParquet', async () => {
             const config: DataTypeConfig = {

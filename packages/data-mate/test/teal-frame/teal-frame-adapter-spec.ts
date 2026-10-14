@@ -94,7 +94,7 @@ describe('tealFrameAdapter', () => {
     it('nulls a failing validation and keeps the row', async () => {
         const { result, values } = await applyTo(frame, 'isIP', 'ip');
 
-        // validatorTransformFN semantics: value if valid, else null - never a dropped row
+        // validatorTransformFN semantics: the value if valid, else null; the row is never dropped
         expect(result.expression).toContain('CASE WHEN');
         expect(values).toEqual(['1.2.3.4', null, null]);
     });

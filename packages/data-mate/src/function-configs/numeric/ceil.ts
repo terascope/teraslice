@@ -52,11 +52,9 @@ export const ceilConfig: FieldTransformConfig = {
     /**
      * `ceil()` inside the `Integer` range, the UDF outside it.
      *
-     * `output_type` makes the result an `Integer`, and past that range the UDF path returns a
-     * wrapped BIGINT rendered as a STRING - `"3875820019684212735"` for `1e21` - where plain SQL
-     * returns the true value. SQL is the better answer there, but changing it is still a behaviour
-     * change, so the guard keeps the UDF for magnitudes no real dataset holds and takes the native
-     * path for everything else.
+     * `output_type` makes the result an `Integer`. Outside that range the UDF returns a wrapped
+     * BIGINT as a string (`1e21` gives `"3875820019684212735"`) where SQL would return the true
+     * value, so values that large keep the UDF and their result does not change.
     */
     sql: {
         needs_udf_fallback: true,

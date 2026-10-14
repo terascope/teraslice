@@ -10,10 +10,9 @@ import { printHeader } from './lib/helpers.js';
 const dirname = path.dirname(fileURLToPath(import.meta.url));
 
 /**
- * Every `*-suite.js` under `suites/`, found recursively so suites can be grouped by subject.
- *
- * `scripts/` is deliberately NOT searched: those are one-off perf scripts that run their own
- * thing on import, and `lib/` holds the harness rather than benchmarks.
+ * Finds every `*-suite.js` under `suites/`, recursively, so suites can be grouped by subject.
+ * `scripts/` and `lib/` are not searched: `scripts/` holds standalone scripts that run on import,
+ * and `lib/` holds the harness.
 */
 function findSuites(dir, group = '') {
     return fs.readdirSync(dir, { withFileTypes: true })
@@ -29,17 +28,9 @@ function findSuites(dir, group = '') {
 }
 
 /**
- * Loads a suite and returns its `run` function.
- *
- * **Two things used to make `pnpm benchmark` run ZERO benchmarks**, both fixed here:
- *
- * 1. This called the module NAMESPACE (`await initSuite()`), not its default export, so every
- *    run died with `TypeError: initSuite is not a function` before a single benchmark started.
- * 2. Loading was a single `pMap` over every suite, so ONE bad import aborted the whole run -
- *    which is what a cwd-dependent fixture path in the aggregation suite was doing.
- *
- * Now each suite is loaded and reported on independently: a broken one is named and skipped
- * instead of taking the other twenty-three with it.
+ * Loads a suite and returns its default export, the `run` function. Each suite loads
+ * independently, so a suite that fails to import is reported and skipped without stopping the
+ * others.
 */
 async function load({ file, label }) {
     try {

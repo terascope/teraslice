@@ -23,6 +23,8 @@ import {
     shortenIPv6Address,
     getFirstUsableIPInCIDR,
     getLastUsableIPInCIDR,
+    NON_ROUTABLE_IPV4_CIDRS,
+    NON_ROUTABLE_IPV6_CIDRS,
 } from '../src/index.js';
 
 describe('IP Utils', () => {
@@ -688,6 +690,16 @@ describe('IP Utils', () => {
             }).toThrow(
                 'input must be a valid IP address and suffix must be a value <= 32 for IPv4 or <= 128 for IPv6',
             );
+        });
+    });
+
+    describe('NON_ROUTABLE_IPV4_CIDRS / NON_ROUTABLE_IPV6_CIDRS', () => {
+        const cidrs = [...NON_ROUTABLE_IPV4_CIDRS, ...NON_ROUTABLE_IPV6_CIDRS];
+
+        test.each(cidrs)('%s has its first and last address classified as non-routable', (cidr) => {
+            expect(isCIDR(cidr)).toBeTrue();
+            expect(isNonRoutableIP(getCIDRMin(cidr))).toBeTrue();
+            expect(isNonRoutableIP(getCIDRMax(cidr))).toBeTrue();
         });
     });
 });

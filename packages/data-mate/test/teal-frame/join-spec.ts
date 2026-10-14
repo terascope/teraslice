@@ -173,8 +173,8 @@ describe('TealFrame.join', () => {
 
     it('chains to three and four levels by nesting relations', async () => {
         // Each join returns a relation, so the next join takes it as its left side. The
-        // previous join is aliased as `a`, and you can only reference columns it SELECTED -
-        // so a column needed at level 4 must be projected through every level.
+        // previous join is aliased as `a` and only its selected columns can be referenced, so
+        // a column needed at level 4 must be projected through every level.
         const grand = await TealFrame.fromRecords({
             version: 1,
             fields: { gkey: { type: FieldType.Keyword }, gname: { type: FieldType.Keyword } },
@@ -234,7 +234,7 @@ describe('TealFrame.join', () => {
             { pkey: 'a', gname: 'g-one', xname: 'deep' },
         ]);
 
-        // still one statement - the optimiser sees the whole thing, not four round trips
+        // still one statement, so the optimizer sees the whole query rather than four steps
         expect(level4.isMaterialized).toBeFalse();
 
         await grand.destroy();

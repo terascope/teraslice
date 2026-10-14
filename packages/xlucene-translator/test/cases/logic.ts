@@ -4,22 +4,21 @@ import { allExcept } from './corpus.js';
 /**
  * Conjunctions, disjunctions and the groups they nest in.
  *
- * Every spelling the parser accepts for the same operator is here - `AND`/`&&`, `OR`/`||`,
- * and a bare space, **which is an OR and not an AND** - because the translation reads the
- * node the parser produced and nothing downstream would notice if two spellings stopped
- * producing the same node.
+ * Every spelling the parser accepts for each operator is tested: `AND`/`&&`, `OR`/`||`, and a
+ * bare space, which means OR, not AND. The translator only sees the parsed node, so these
+ * cases catch two spellings that stop producing the same node.
  *
- * The groupings go three deep. A flat `a AND b` cannot tell a correct emitter from one that
- * drops parentheses, since `AND` and `OR` alone parenthesise the same either way; a group
- * inside a group beside a bare term does.
+ * Groups nest three deep. A flat `a AND b` gives the same result with or without
+ * parentheses; a group inside a group beside a bare term does not, so it catches SQL that
+ * drops them.
 */
 export const multiStatementCases: readonly QueryCase[] = [
     ['two terms joined by AND', 'name:alpha AND active:true', ['01', '12']],
     ['two terms joined by OR', 'name:alpha OR name:beta', ['01', '02', '04', '06', '09', '12']],
     ['&&, which is AND', 'name:alpha && active:true', ['01', '12']],
     ['||, which is OR', 'name:gamma || name:delta', ['03', '05']],
-    // a space between two terms is a DISJUNCTION in xLucene, not the conjunction Lucene's
-    // default operator would make it
+    // a space between two terms is an OR in xLucene, not the AND that Lucene's default
+    // operator would make it
     ['a bare space, which is OR', 'name:gamma name:delta', ['03', '05']],
     ['three terms AND-ed', 'name:alpha AND active:true AND count:50', ['12']],
     ['three terms OR-ed', 'name:gamma OR name:delta OR name:zeta', ['03', '05', '10']],
@@ -48,13 +47,12 @@ export const multiStatementCases: readonly QueryCase[] = [
 ];
 
 /**
- * Negation, which is the one place SQL answers differently unless it is made not to.
+ * Negation, where plain SQL answers differently from Elasticsearch.
  *
- * **Every case here returns at least one record that has no value for the negated field**,
- * and that is deliberate: `must_not` matches a document whose field is absent, while
- * `NOT (col = 'x')` is unknown when `col` is `NULL` and a `WHERE` clause drops an unknown
- * row. `11` has no fields at all and belongs in the answer to almost all of these; an
- * emitter that lost the `COALESCE` would return every one of them short.
+ * Every case returns at least one record with no value for the negated field. `must_not`
+ * matches a document whose field is absent, but `NOT (col = 'x')` is unknown when `col` is
+ * `NULL`, and `WHERE` drops unknown rows. `11` has no fields and belongs in almost every
+ * answer here, so SQL without the `COALESCE` would return each of them short.
 */
 export const negationCases: readonly QueryCase[] = [
     ['a negated term', 'NOT name:alpha', allExcept('01', '04', '09', '12')],

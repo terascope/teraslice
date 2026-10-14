@@ -129,9 +129,9 @@ export const toTimeZoneUsingLocationConfig: FieldTransformConfig<TimeZoneUsingLo
         return toTimeZoneUsingLocationFP(location);
     },
     /**
-     * `toTimeZone` with the zone looked up ONCE from the constant `location`, as
+     * `toTimeZone`, with the zone looked up once from the constant `location` as
      * `toTimeZoneUsingLocationFP` does. A location that does not resolve keeps the UDF, which
-     * throws as `DataFrame` does. A Date column only.
+     * throws as `DataFrame` does. Only a `Date` column is handled.
     */
     sql: {
         types: [FieldType.Date],

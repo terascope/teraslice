@@ -2,19 +2,17 @@ import { FieldType } from '@terascope/types';
 import { DataType, LATEST_VERSION } from '@terascope/data-types';
 
 /**
- * The records every parity case is answered from.
+ * The records every parity case runs against.
  *
- * **The missing values are the point of it.** A query that only ever sees populated fields
- * cannot tell a correct `NOT` from one that silently drops rows, and it cannot tell a range
- * that excludes an absent value from one that includes it - which are the two places SQL
- * and Elasticsearch disagree by default. So `07` and `11` have no `name`, `08` and `11` have
- * no `count`, `09` and `11` have no `active`, `10` and `11` have no `created`, and `11` has
- * nothing at all but its id.
+ * Some records are missing fields on purpose. `NOT` and ranges over absent values are where
+ * SQL and Elasticsearch disagree by default, and only records without the field show it.
+ * `07` and `11` have no `name`, `08` and `11` have no `count`, `09` and `11` have no
+ * `active`, `10` and `11` have no `created`, and `11` has nothing but its id.
  *
- * The rest is chosen so that boundaries are hit exactly: `count` lands on 20, 30 and 40 with
- * two records each, so `[20 TO 40]`, `{20 TO 40}` and both mixed spellings all answer
- * differently; `created` does the same with dates; and the addresses straddle IPv4 and IPv6
- * so that anything ordering by family rather than by value gives itself away.
+ * The values hit range boundaries exactly. `count` has two records each at 20, 30 and 40, so
+ * every bracket spelling of `20 TO 40` returns a different set. `created` does the same with
+ * dates, and the addresses mix IPv4 and IPv6 so that ordering by family instead of by value
+ * shows up.
 */
 export const dataType = new DataType({
     version: LATEST_VERSION,

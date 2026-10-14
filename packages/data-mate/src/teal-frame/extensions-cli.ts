@@ -1,13 +1,13 @@
 /* eslint-disable no-console */
-// This file's output IS its product: it runs as an image build step and reports to whoever
-// reads the build log. There is no logger to route through.
+// This CLI runs as an image build step and reports to the build log, so it writes to the
+// console directly.
 import { parseArgs } from 'node:util';
 import { ExtensionReport, installExtensions, verifyExtensions } from './extension-tools.js';
 
 const USAGE = `usage: duckdb-extensions <install|verify> [--dir <directory>] [--repository <url|dir>]
 
-  install   download the extensions TealFrame needs into --dir (image BUILDER stage)
-  verify    prove they load and work with no network (image RUNTIME stage)
+  install   download the extensions TealFrame needs into --dir (run at image build time)
+  verify    check they load and work without network access (run in the final image)
 
   --dir         defaults to $DUCKDB_EXTENSION_DIRECTORY, then ~/.duckdb/extensions
   --repository  install only: an internal mirror, laid out as

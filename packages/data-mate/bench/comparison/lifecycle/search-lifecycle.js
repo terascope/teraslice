@@ -1,20 +1,19 @@
 /**
- * The spaces query lifecycle, end to end, as it runs today versus on TealFrame.
+ * Times a whole search request, end to end, on DataFrame and on TealFrame.
  *
- * This is the only section that measures the SYSTEM rather than an operation, and it is the one
- * that answers "what would change if we switched". The flow:
+ * Unlike the cases in `lib/cases.js`, which time single operations, this times the pipeline a
+ * search runs across two processes:
  *
- *   qpl-search-api   Elasticsearch -> RECORDS -> a frame -> something on the wire
- *   qpl-worker       many payloads -> ONE table -> filter, transform, aggregate, sort -> output
+ *   API process      search results -> records -> a frame -> a wire payload
+ *   worker process   many payloads -> one frame -> filter, aggregate, sort -> output
  *
- * **Today** the api-server builds a `DataFrame` and `serialize()`s it to dfjson; the worker
- * `deserialize`s each payload, `appendAll`s them, and runs the query in JS.
- * **On TealFrame** the api-server writes Parquet+zstd; the worker `append`s the payloads into one
- * table and the whole query is one SQL statement.
+ * With DataFrame, the API process builds a `DataFrame` and `serialize()`s it to dfjson; the worker
+ * `deserialize`s each payload, `appendAll`s them, and runs the query in JS. With TealFrame, the
+ * API process writes Parquet+zstd; the worker `append`s the payloads into one table and runs the
+ * query as one SQL statement.
  *
- * Both legs do the same five things and are checked against each other's row counts. The fetch
- * itself is not simulated - no network, no Elasticsearch - because that cost is identical either
- * way and would only dilute the comparison.
+ * Both legs do the same work and their row counts are compared. The search itself is not
+ * simulated: it costs the same either way and would only dilute the comparison.
 */
 
 /** Payloads per query, i.e. how many fetches the worker is assembling. */
@@ -27,17 +26,14 @@ export async function lifecycle(ctx) {
     } = ctx;
 
     /**
-     * The SAME per-scale sample count the cases use.
-     *
-     * Without this the lifecycle took 3 samples where a 5M case takes 1, so it ran
-     * `DataFrame.serialize()` over the whole corpus six times at the one scale that is already
-     * known to exhaust a 24 GB heap - a needless way to lose a whole run's numbers.
+     * Uses the same per-scale sample count as the cases, so the largest scales take one sample
+     * instead of repeatedly serializing a corpus that can exhaust the heap.
     */
     const samples = (scale) => ({ runs: runsFor(scale) });
 
-    heading(`Spaces lifecycle: today (DataFrame + dfjson) vs TealFrame + Parquet`);
+    heading(`Search lifecycle: DataFrame + dfjson vs TealFrame + Parquet`);
     line(`  ${PAYLOADS} payloads per query, assembled then queried\n`);
-    line(`  ${'scale'.padEnd(8)}${'stage'.padEnd(30)}${'today'.padStart(12)}${'TealFrame'.padStart(12)}`);
+    line(`  ${'scale'.padEnd(8)}${'stage'.padEnd(30)}${'DataFrame'.padStart(12)}${'TealFrame'.padStart(12)}`);
 
     const results = [];
 
@@ -46,8 +42,8 @@ export async function lifecycle(ctx) {
         const batches = Array.from({ length: PAYLOADS }, (_unused, n) => makeRecords(per, n + 1));
 
         // ---------------------------------------------------- PRODUCER
-        // api-server: records -> frame -> wire format. Timed as one stage because that is what
-        // one fetch response costs.
+        // API process: records -> frame -> wire format. Timed as one stage because together
+        // they are the cost of one search response.
         const producerToday = await measure(async () => {
             let bytes = 0;
             for (const batch of batches) {
@@ -70,8 +66,8 @@ export async function lifecycle(ctx) {
         }, samples(scale));
 
         // ---------------------------------------------------- WORKER: assemble
-        // Today the worker must deserialize every payload and append them; on TealFrame it
-        // inserts Parquet into one table with no coercion at all.
+        // DataFrame deserializes every payload and appends them; TealFrame inserts the Parquet
+        // payloads into one table with no type coercion.
         const wire = batches.map((batch) => DataFrame.fromJSON(config, batch).serialize());
 
         const assembleToday = await measure(async () => {
@@ -88,8 +84,8 @@ export async function lifecycle(ctx) {
         }, samples(scale));
 
         // ---------------------------------------------------- WORKER: query
-        // filter -> aggregate -> sort, then read the answer. On TealFrame that is ONE statement;
-        // on DataFrame it is three passes, each materialising a new frame.
+        // filter -> aggregate -> sort, then read the result. TealFrame runs one statement;
+        // DataFrame makes three passes, each building a new frame.
         const assembledToday = await (async () => {
             try {
                 const frames = await Promise.all(wire.map((buf) => DataFrame.deserialize(buf)));

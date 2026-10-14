@@ -60,12 +60,11 @@ export const toBooleanConfig: FieldTransformConfig = {
         return toBoolean;
     },
     /**
-     * `isFalsy(x) ? false : isTruthy(x) ? true : Boolean(x)`, collapsed per column type.
+     * `isFalsy(x) ? false : isTruthy(x) ? true : Boolean(x)`, simplified per column type.
      *
-     * For a string the three branches reduce to "not falsy": anything that is not in `_falsy` and
-     * not empty is either in `_truthy` or a non-empty string, and `Boolean` of a non-empty string
-     * is true. For a number, `Boolean(x)` is false only for zero and `NaN`, and `String(0)` is
-     * already a `_falsy` key, so the two agree on `x <> 0 AND NOT isnan(x)`.
+     * For a string this reduces to "not falsy": a non-empty string that is not a falsy key is true
+     * either way. For a number, `Boolean(x)` is false only for zero and `NaN`, and `'0'` is already
+     * a falsy key, so the result is `x <> 0 AND NOT isnan(x)`.
     */
     sql: {
         applies: (_args, inputConfig) => isBooleanColumn(inputConfig)

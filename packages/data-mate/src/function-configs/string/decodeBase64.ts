@@ -34,17 +34,14 @@ export const decodeBase64Config: FieldTransformConfig = {
         return (input: unknown) => Buffer.from(input as string, 'base64').toString('utf8');
     },
     /**
-     * `coalesce(try(decode(from_base64(x))), udf(x))` - `try` does the whole job.
+     * `coalesce(try(decode(from_base64(x))), udf(x))`.
      *
-     * DuckDB THROWS on malformed base64, which would abort the entire query, where
-     * `Buffer.from(x, 'base64')` is lenient and returns mojibake: `'hello'` becomes
-     * `'\ufffd\ufffde'`. Aborting a query is a far worse behaviour change than the garbage, so the
-     * garbage is preserved - `try` turns every failure into NULL and the UDF then produces exactly
-     * what it produces today.
+     * DuckDB throws on malformed base64, which would abort the whole query, while `Buffer.from(x,
+     * 'base64')` is lenient and returns garbled text (`'hello'` becomes `'��e'`). `try` turns the
+     * error into NULL, and the UDF then returns the same garbled text as JavaScript.
      *
-     * `try` rather than a validity regex because it also catches the second failure: base64 that
-     * decodes to bytes which are not valid UTF-8. A regex on the input cannot see that, and one row
-     * of it would abort the query.
+     * `try` is used rather than a validity regex because it also catches base64 that decodes to
+     * invalid UTF-8, which a regex on the input cannot detect.
     */
     sql: {
         needs_udf_fallback: true,

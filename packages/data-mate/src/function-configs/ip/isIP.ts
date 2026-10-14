@@ -54,11 +54,10 @@ export const isIPConfig: FieldValidateConfig = {
         return isIP;
     },
     /**
-     * The union of the two parsers, not `TRY_CAST(x AS INET) IS NOT NULL`.
+     * The union of the IPv4 and IPv6 checks, not `TRY_CAST(x AS INET) IS NOT NULL`.
      *
-     * The naive cast is wrong twice over and silently: it accepts `01.02.03.04`, which data-mate
-     * rejects for the leading zeros, and it accepts `1.2.3.4/24`, which data-mate calls a CIDR
-     * rather than an IP. Both are excluded inside `isIPSql`.
+     * The plain cast accepts `01.02.03.04`, which data-mate rejects for its leading zeros, and
+     * `1.2.3.4/24`, which data-mate treats as a CIDR rather than an IP. `isIPSql` excludes both.
     */
     sql: {
         expression: ({ value }) => isIPSql(value),

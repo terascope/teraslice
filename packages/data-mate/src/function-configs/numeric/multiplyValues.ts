@@ -98,7 +98,7 @@ export const multiplyValuesConfig: FieldTransformConfig = {
         return multiplyValuesFn;
     },
     argument_schema: {},
-    /** `list_product`, with the same null behaviour as `list_sum`. */
+    /** `list_product`, with the same null behavior as `list_sum`. */
     sql: {
         applies: isArrayColumn,
         expression: ({ value }) => `list_product(${value})`,

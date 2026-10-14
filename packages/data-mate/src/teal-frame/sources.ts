@@ -2,14 +2,14 @@ import { quoteLiteral } from '@terascope/sql-builder';
 import { AppendSource } from './interfaces.js';
 
 /**
- * Naming where rows come FROM - a Parquet relation, or the thing an append was reading.
+ * Helpers that describe where rows come from: a Parquet relation, or an append's source.
 */
 
 /**
- * `read_parquet(...)` over one path or many.
+ * Returns `read_parquet(...)` over one path or many.
  *
- * A LIST of files reads as ONE relation - verified - which is what the worker needs: a search
- * result arrives as several Parquet payloads and has to become one table.
+ * A list of files reads as a single relation, so several Parquet payloads can be loaded as
+ * one table.
 */
 export function readParquetSource(paths: string | readonly string[]): string {
     if (typeof paths === 'string') return `read_parquet(${quoteLiteral(paths)})`;

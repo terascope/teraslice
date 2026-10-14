@@ -58,11 +58,10 @@ export const trimStartConfig: FieldTransformConfig<TrimStartArgs> = {
     },
     accepts: [FieldType.String],
     /**
-     * `ltrim(x, chars)` - always with an explicit character set, never the one-argument form.
+     * `ltrim(x, chars)`, always with an explicit character set.
      *
-     * DuckDB's `ltrim(x)` strips only SPACES where JavaScript strips every Unicode whitespace
-     * code point, so the one-argument form silently differs on tabs and newlines. Passing
-     * `JS_WHITESPACE` makes them agree on all 25 of those code points.
+     * DuckDB's one-argument `ltrim(x)` strips only spaces, while JavaScript strips all Unicode
+     * whitespace, including tabs and newlines. Passing `JS_WHITESPACE` makes them agree.
     */
     sql: {
         expression: ({ value, args }) => `ltrim(${value}, `

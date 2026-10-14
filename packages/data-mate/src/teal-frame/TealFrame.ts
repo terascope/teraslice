@@ -26,64 +26,48 @@ import {
 /**
  * The DuckDB dialect, shared with `@terascope/xlucene-translator`.
  *
- * **Identifier quoting, `ORDER BY` and `LIMIT`/`OFFSET` all come from here rather than from
- * this file**, so a sort a frame builds and a sort `QueryAccess.restrictSQLQuery` emits are
- * rendered by the same code. They used to be two implementations, and they disagreed: the
- * translator left null placement to DuckDB's `NULLS LAST` default while this file emitted
- * `DataFrame`'s rule, so the same user query put nulls at opposite ends of an ascending page
- * depending on which one built the statement.
+ * `ORDER BY` and `LIMIT`/`OFFSET` are rendered by the dialect, so a sort built by a frame and
+ * a sort in a statement from `QueryAccess.restrictSQLQuery` place nulls the same way.
 */
 const dialect = getSQLDialect(SQLDialectName.duckdb);
 
 /**
- * A frame whose rows live in a DuckDB table.
+ * A frame whose rows live in DuckDB.
  *
- * Its own thing with its own API - `DataFrame` and the QPL engine are frozen and this
- * neither wraps nor replaces them.
+ * TealFrame has its own API; it does not wrap or replace `DataFrame`. Its methods fall into
+ * three groups:
  *
- * ## THE API IS THREE GROUPS, NOT A LIST OF WAYS TO SEARCH
+ * 1. **Compose a statement:** `filter`, `select`, `orderBy`, `limit`, `distinct`, `join`,
+ *    `deepSelect`, `pruneEmptyObjects`, `expandValues` and `removeEmptyRows`. Each returns a
+ *    new frame over one more SQL step. Nothing runs yet.
+ * 2. **Run an existing statement:** `query` (instance) and `fromSQL` (static).
+ * 3. **Consume:** `rows`, `size`, `ndjson`, `writeNDJSON`, `writeParquet`, `listValues` and
+ *    `countEmptyRows`. These execute the statement and produce output.
  *
- * **1. Compose a statement** - `filter` `select` `orderBy` `limit` `distinct` `join`, and the
- * QPL engine's own shapes `deepSelect` `pruneEmptyObjects` `expandValues` `removeEmptyRows`.
- * Each returns a new frame over one more SQL step. Nothing runs.
+ * `filter` and `select` are clause builders, not a search API: `filter` is the `WHERE` clause
+ * and `select` is the `SELECT` list, just as `orderBy` is the `ORDER BY`. They exist for
+ * callers that build a query one step at a time. For example, `tealFrameAdapter` returns an
+ * expression for one function on one column, and a chain of transforms becomes a chain of
+ * `select` calls that compose into one statement evaluated in a single pass.
  *
- * **2. Be handed a statement** - `query` (instance) and `fromSQL` (static). The statement
- * already exists; the frame runs it. Same instance/static pairing as
- * `append({records})` / `fromRecords`.
- *
- * **3. Consume** - `rows` `size` `ndjson` `writeNDJSON` `writeParquet` `listValues`
- * `countEmptyRows`. Execute, and produce output.
- *
- * **`filter` and `select` are CLAUSE BUILDERS, not a search API.** `filter` is the `WHERE`
- * and `select` is the `SELECT` list, exactly as `orderBy` is the `ORDER BY` - six methods of
- * one kind, not two special ones. They exist because the 205 field functions arrive ONE AT A
- * TIME: `tealFrameAdapter` returns an expression for a single function on a single column, and
- * a transform chain is `select` -> `select` -> `select`, composing into one statement
- * evaluated in a single pass. There is no finished statement on that path to hand over.
- *
- * **If you already HAVE a statement, do not take it apart - use `query`.** That is the
- * `QueryAccess` path, and rebuilding a restricted statement out of `filter` + `select` is how
- * a field restriction gets dropped.
- *
- * `rawRows` is in none of these groups: it is inspection - a config-free hatch for catalog
- * queries and storage assertions. See its own note.
- *
- * **Ingest has no JSON anywhere** - see `append.ts`.
+ * If you already have a complete statement, such as one from `QueryAccess`, pass it to
+ * `query` whole. Rebuilding a restricted statement from `filter` and `select` can drop a
+ * field restriction.
 */
 export class TealFrame {
     private constructor(
         private readonly ctx: DuckContext,
         readonly config: FrameConfig,
         /**
-         * NOT readonly: `append` may promote a relation to a table, because a frame is a
-         * HANDLE to the data it represents and is in charge of its own storage. Every other
-         * operation still returns a NEW frame and leaves this one alone.
+         * Not readonly: `append` may promote a relation to a table, because a frame manages
+         * its own storage. Every other operation returns a new frame and leaves this one
+         * unchanged.
         */
         private source: Source,
         readonly columns: readonly string[]
     ) {}
 
-    /** In-flight relation->table promotion, so concurrent appends share one. */
+    /** The in-flight promotion of a relation to a table, shared by concurrent appends. */
     private promotion?: Promise<void>;
 
     /** True when the rows are in a real table rather than recomputed per reference. */
@@ -94,8 +78,8 @@ export class TealFrame {
     /**
      * True when this frame's rows come out in a defined order.
      *
-     * Set by `orderBy` and carried through the operators that preserve order. Read by
-     * `assertOrderSafe`, which is the whole reason it is tracked.
+     * Set by `orderBy` and kept by the operators that preserve order. Operations that would
+     * discard the order check it and throw.
     */
     get isOrdered(): boolean {
         return this.source.kind === 'relation' && this.source.ordered === true;
@@ -106,7 +90,7 @@ export class TealFrame {
         assertOrderSafe(operation, this.isOrdered || other?.isOrdered === true);
     }
 
-    /** A new relation-backed frame over `sql`, on the same database - every operation's result. */
+    /** A new relation-backed frame over `sql` on the same database. */
     private derive(
         sql: string,
         { config = this.config, columns = this.columns, ordered }: {
@@ -117,10 +101,11 @@ export class TealFrame {
     }
 
     /**
-     * SQL naming this frame's rows, usable directly in a FROM clause.
+     * SQL naming this frame's rows, usable directly in a `FROM` clause.
      *
-     * A materialized frame is its table name; a relation is a parenthesised subquery, so
-     * composing frames is textual and the optimiser sees a single statement.
+     * For a materialized frame this is its quoted table name; for a relation it is a
+     * parenthesized subquery, so composed frames reach DuckDB's optimizer as a single
+     * statement.
     */
     get from(): string {
         return this.source.kind === 'table'
@@ -129,28 +114,26 @@ export class TealFrame {
     }
 
     /**
-     * **Runs a complete SQL statement and returns a frame over its rows.**
+     * Returns a frame over the rows of a complete SQL statement.
      *
-     * This is how a statement from `QueryAccess.restrictSQLQuery` is executed. That method
-     * returns a finished `SELECT ... FROM ... WHERE ... ORDER BY ... LIMIT`, already carrying
-     * the field restrictions, and spaces drives every query and execution plan through it -
-     * so the frame's job is to RUN one, not to rebuild it from parts.
+     * Use it to run a statement from `QueryAccess.restrictSQLQuery`, which is a finished
+     * `SELECT` that already carries the field restrictions:
      *
      * ```ts
      * const sql = await access.restrictSQLQuery(query, { params: frame.searchParams(size) });
      * for await (const row of frame.query(sql).rows()) { ... }
      * ```
      *
-     * Lazy, like every other operator: the statement becomes this frame's relation and runs
-     * when something asks for rows. It therefore composes - `frame.query(sql).limit(10)` is
-     * one statement - though a statement that already says what it wants rarely needs to.
+     * The statement runs only when rows are requested, and it composes with other operations:
+     * `frame.query(sql).limit(10)` is one statement.
      *
-     * `config` defaults to this frame's, which is right when the statement projects the same
-     * fields and wrong when it does not; a statement whose `SELECT` list changes the shape
-     * must declare what it produces, exactly as `select` must.
+     * `config` defaults to this frame's config. Pass the right config when the statement's
+     * `SELECT` list produces different fields. If the statement references its source more
+     * than once, materialize this frame first; see `searchParams`.
      *
-     * **A statement that names its source more than once wants a TABLE, not a subquery** -
-     * see `searchParams`.
+     * @param sql A complete SQL statement.
+     * @param config The field types the statement produces. Defaults to this frame's config.
+     * @param columns The output column names. Defaults to the top-level fields of `config`.
     */
     query(sql: string, config: FrameConfig = this.config, columns?: readonly string[]): TealFrame {
         if (!sql.trim()) {
@@ -161,21 +144,12 @@ export class TealFrame {
     }
 
     /**
-     * **INSPECTION, not a way to read data.** Runs SQL and returns positional rows, with the
-     * values as DuckDB's own JSON rendering rather than as this package's output shape.
+     * Runs SQL and returns positional rows, with values as DuckDB renders them to JSON. This is
+     * for inspection, not for reading data; use `query(sql).rows()` to read data.
      *
-     * Two things it can do that `query(sql).rows()` cannot:
-     *
-     * - **It needs no `DataTypeConfig`.** `query` requires one to build a frame, so a catalog
-     *   query like `DESCRIBE` - six columns of DuckDB's own shape, nothing to do with the
-     *   frame's fields - would have to invent one. `schema-check.ts` is the only caller in
-     *   `src/` and this is why.
-     * - **It does not go through `toPlainValue`**, so it reports what DuckDB actually holds -
-     *   a `bigint`, a struct, a TIMESTAMP - rather than the output shape.
-     *
-     * **To READ data, use `query(sql).rows()`.** Deliberately narrow otherwise: it hands out
-     * neither the connection nor the instance, so it cannot route frames between databases,
-     * which is what the removed `get context()` allowed.
+     * Unlike `query`, it needs no `DataTypeConfig`, so it can run catalog queries such as
+     * `DESCRIBE`. It also skips the conversion to output values, so it shows what DuckDB
+     * actually stores.
      *
      * @internal
     */
@@ -184,18 +158,17 @@ export class TealFrame {
     }
 
     /**
-     * **How this frame names itself to `QueryAccess`**, as the source half of a
-     * `SQLSearchParams`.
+     * The `SQLSearchParams` that name this frame as the source of a `QueryAccess` statement.
      *
-     * A materialized frame reports `table`, which `buildSQLStatement` quotes as an
-     * identifier. A relation-backed one reports `relation`, its SQL used verbatim.
+     * A materialized frame reports `table`, which is quoted as an identifier. A relation-backed
+     * frame reports `relation`, its SQL used verbatim.
      *
-     * **Prefer the table, and that is not a style point.** A generated statement may name its
-     * source MORE THAN ONCE - a self-join, a correlated subquery, a `UNION` over the same
-     * rows - and a relation is textual, so each mention re-executes the whole subquery. A
-     * table name is evaluated once however often it appears. `materialize()` first whenever
-     * the statement might reference the source twice; a relation referenced four times
-     * measured 2.59x against the table.
+     * Prefer a table when the generated statement may reference its source more than once
+     * (a self-join, a correlated subquery, a `UNION`). Each reference to a relation re-runs the
+     * whole subquery, while a table is read directly. Call `materialize()` first in that case.
+     *
+     * @param size The page size, rendered as `LIMIT`.
+     * @param from The page start, rendered as `OFFSET`.
     */
     searchParams(size?: number, from?: number): SQLSearchParams {
         const source = this.source.kind === 'table'
@@ -215,10 +188,8 @@ export class TealFrame {
     }
 
     /**
-     * A new frame. It owns a table and starts empty - **the normal way to make one.**
-     *
-     * There is no separate "empty" factory, because a new frame IS empty; `fromRecords` and
-     * `fromParquet` are just this plus one `append`.
+     * Creates an empty frame backed by a new table. This is the usual way to make a frame;
+     * add rows with `append`.
     */
     static async create(
         config: FrameConfig,
@@ -230,41 +201,32 @@ export class TealFrame {
     }
 
     /**
-     * **Adds data to this frame. One method, whatever the source.** Returns the rows added.
+     * Adds rows to this frame, from parsed records or from Parquet files, and returns the
+     * number of rows added.
      *
-     * Records and Parquet are two shapes of the same act, so they are not two methods:
-     * `append({ records })` on the api-server, where an Elasticsearch response is parsed JS
-     * objects, and `append({ parquet })` on the worker, where each fetch returns a payload and
-     * the whole search result is one table.
+     * Records are coerced to the frame's field types; Parquet is already typed and is not.
      *
-     * **The frame is in charge of its own storage.** If it is a relation, appending promotes it
-     * to a table first - a caller should not have to know which it is holding, or call
-     * `materialize()` to earn the right to add data. That promotion mutates THIS frame; frames
-     * already derived from it keep the SQL they captured and are unaffected.
+     * If the frame is a relation, it is first promoted to a table in place. Frames already
+     * derived from it keep the SQL they captured and are unaffected.
      *
-     * **Atomic.** The append runs in a transaction, so a batch that fails leaves the table
-     * exactly as it was rather than half-written - verified: a rolled-back appender's flushed
-     * rows do disappear. That matters when a table is assembled from many payloads, since a bad
-     * one must not corrupt the good ones already in it.
+     * The append runs in a transaction, so a failed batch leaves the table exactly as it was.
+     * When a table is assembled from many batches, a bad one cannot corrupt those already in it.
      *
-     * **The one place a frame's table legitimately grows.** The rule against mutating a table
-     * holds everywhere else: relations read it by name, so appending after something derives
-     * from this frame would silently change that derived frame too. Append while assembling,
-     * derive afterwards.
+     * **Finish appending before deriving other frames from this one.** Derived frames read the
+     * table by name, so a later append changes their results too.
     */
     async append(source: AppendSource, options: AppendOptions = {}): Promise<number> {
         await this.ensureTable();
         const table = this.source.kind === 'table' ? this.source.table : '';
-        // on its OWN connection, and in a transaction - see `appendInTransaction` for why
+        // on its own connection and in a transaction; see `appendInTransaction`
         return appendInTransaction(this.ctx.instance, this.config, table, source, options);
     }
 
     /**
      * Promotes a relation to a table in place, so this frame has storage to append to.
      *
-     * Memoised, because concurrent appends race here: without it, two appends to a
-     * relation-backed frame would each create their own table, one would be orphaned, and the
-     * rows would split between them.
+     * The promotion is shared, so two concurrent appends do not each create a table and split
+     * the rows between them.
     */
     private async ensureTable(): Promise<void> {
         if (this.source.kind === 'table') return;
@@ -281,17 +243,14 @@ export class TealFrame {
     }
 
     /**
-     * Builds a frame from JS records - the shape callers actually hold, since the
-     * Elasticsearch client returns parsed objects.
+     * Creates a frame from parsed JS records, such as Elasticsearch documents.
      *
-     * `coerceToType` throws on a value that does not fit its field type. Rather than
-     * aborting on the first one (which is what `DataFrame.fromJSON` does, losing a whole
-     * slice to one bad record), every failure is collected and the value nulled. In
-     * `strict` mode the collected set is then raised as a `CoercionFailureError` naming
-     * each field and an offending value; in `lenient` mode the nulls simply stand.
+     * Each value is coerced to its field type. In `strict` mode (the default) the first value
+     * that does not fit throws a `CoercionFailureError`, as `DataFrame`'s builder does. In
+     * `lenient` mode the value is stored as null and each failing field is recorded with a count
+     * and an example value.
      *
-     * That flag-and-continue contract is provisional and due to be revisited - possibly
-     * making whole-batch rejection configurable.
+     * If the records cannot be added, the new table is dropped before the error is thrown.
     */
     static async fromRecords(
         config: FrameConfig,
@@ -303,16 +262,13 @@ export class TealFrame {
         try {
             await frame.append({ records }, { mode: options.mode });
         } catch (err) {
-            // A failed ingest must leave NOTHING behind. The table is created before the
-            // append, so throwing used to orphan a table no caller could reach - no frame was
-            // returned, so nobody could `destroy()` it. `DataFrame.fromJSON` leaves no artifact.
-            // `append` on its own does NOT do this: there the caller holds the frame, and
-            // dropping a table assembled from earlier payloads would be far worse.
+            // No frame is returned, so no caller could drop the table; drop it here. A plain
+            // `append` does not do this, because there the caller holds the frame and the
+            // table may hold earlier batches.
             await frame.destroy();
 
-            // Unwrapped: this is one-shot, so `AppendError`'s "what survived" context is
-            // meaningless (nothing did), and the contract here is to throw what `DataFrame`
-            // throws - a `CoercionFailureError`.
+            // Unwrapped: nothing survived, so `AppendError`'s context adds nothing, and this
+            // throws what `DataFrame` throws, a `CoercionFailureError`.
             throw err instanceof AppendError ? err.cause : err;
         }
 
@@ -320,13 +276,12 @@ export class TealFrame {
     }
 
     /**
-     * Reads a Parquet file whose values were validated upstream, doing NO coercion.
+     * Creates a frame over Parquet files, without coercing their values.
      *
-     * A separately named constructor rather than `fromRecords(..., {validate: false})`: a
-     * boolean flag is what silently flips to the wrong default in a refactor.
+     * Parquet carries its own schema, so column types are already enforced; the values are
+     * expected to have been validated when the files were written.
      *
-     * Safe because Parquet is typed and schema-carrying, so column types are enforced by
-     * the format; only semantic validity relies on the upstream pass.
+     * @param path One path, a list of paths, or a glob. Several files read as one relation.
     */
     static async fromParquet(
         config: FrameConfig,
@@ -334,21 +289,18 @@ export class TealFrame {
         options: FrameOptions = {}
     ): Promise<TealFrame> {
         const context = await getContext(options.database);
-        // relation-backed: a Parquet file is already a queryable source, so nothing is
-        // copied until something asks for the rows. A LIST of paths, or a glob in one path,
-        // reads as ONE relation - `materialize()` then makes it one table.
+        // relation-backed: Parquet is queried in place, so nothing is copied until rows are
+        // requested. `materialize()` turns it into one table.
         const sql = `SELECT * FROM ${readParquetSource(path)}`;
         return new TealFrame(context, config, { kind: 'relation', sql }, columnsOf(config));
     }
 
     /**
-     * **A frame over a complete SQL statement** - the entry point for a statement that was
-     * generated before any frame existed.
+     * Creates a frame over a complete SQL statement whose source is named in the SQL itself,
+     * such as `read_parquet([...])` or an existing table.
      *
-     * The instance `query()` is the same thing for a statement built AGAINST a frame, and is
-     * the common case, because a generated statement needs a source and the frame is it.
-     * This one is for a statement whose source is named in the SQL itself -
-     * `read_parquet([...])`, an already-known table, a join of two.
+     * Use the instance method `query()` instead when the statement was built against an
+     * existing frame.
      *
      * ```ts
      * const sql = await access.restrictSQLQuery(query, {
@@ -357,9 +309,8 @@ export class TealFrame {
      * const frame = await TealFrame.fromSQL(sql, config);
      * ```
      *
-     * Relation-backed, so nothing runs until something asks for rows. **Nothing validates the
-     * statement** - it is the caller's own SQL, exactly as `filter`'s predicate and `select`'s
-     * expressions are, and the error arrives from DuckDB when it executes.
+     * Nothing runs until rows are requested. The statement is not validated, so any error
+     * comes from DuckDB when it executes.
     */
     static async fromSQL(
         sql: string,
@@ -376,15 +327,12 @@ export class TealFrame {
     }
 
     /**
-     * Promotes this frame to a real table, returning a NEW frame. The original stays valid
-     * and unchanged.
+     * Copies this frame's rows into a new table and returns a new frame over it. The original
+     * frame is unchanged. A frame that is already a table is returned as is.
      *
-     * Worth doing when this frame's own computation is expensive AND it is referenced more
-     * than once: a relation is recomputed at every reference (measured 2.59x for a sort
-     * referenced four times). NOT worth it for a single use (1.36x slower), nor for a cheap
-     * relation over a base table however often that is referenced - a join target that
-     * never mutates the original needs no copy. The whole plan is known before execution,
-     * so this is decidable statically rather than by counting references at runtime.
+     * A relation is recomputed every time it is referenced, so materializing pays off when the
+     * relation is expensive and used more than once. For a single use it is slower, and a
+     * cheap relation over a table never needs it.
     */
     async materialize(name?: string): Promise<TealFrame> {
         if (this.isMaterialized) return this;
@@ -396,23 +344,18 @@ export class TealFrame {
     }
 
     /**
-     * The `SELECT` list - **the mechanism for column mutation and validation.**
+     * Sets the `SELECT` list, returning a new frame.
      *
-     * **A clause builder**, the sibling of `filter`; see the class note. Its caller is the
-     * directive path: `tealFrameAdapter` hands back one expression for one function on one
-     * column, and those accumulate here. A ready-made statement goes to `query` instead.
+     * Every column-level operation is a projection: applying a transform or validation,
+     * renaming, dropping, or adding a derived column. Chained `select` calls compose into one
+     * statement evaluated in a single pass, where `DataFrame` makes a pass per function.
+     * Expressions may be native SQL or calls to registered UDFs.
      *
-     * Every column-level operation is a projection: applying a transform, validating,
-     * renaming, dropping, adding a derived column. `SELECT expr AS name` covers all of
-     * them. Because projections compose into the relation, a chain of transforms becomes
-     * ONE statement evaluated in a single pass, where data-mate makes a separate pass per
-     * function.
+     * To run a complete statement, use `query` instead.
      *
-     * The expression may be native SQL or a call to a UDF over the real primitive; that
-     * choice is per function, and per-value JS measured ~0.89x of complex SQL but ~10x of a
-     * trivial cast.
-     *
-     * Returns a new relation-backed frame; the original is untouched.
+     * @param expressions A map of `{ outputName: sqlExpression }`, or a verbatim `SELECT` list.
+     * @param options The result's config and column names, and an optional `groupBy`. Grouping
+     * an ordered frame throws, because it would discard the order.
     */
     select(expressions: SelectList, options: SelectOptions = {}): TealFrame {
         const { config = this.config, groupBy } = options;
@@ -429,19 +372,14 @@ export class TealFrame {
     }
 
     /**
-     * Join another frame. Returns a relation, like every other operation.
+     * Joins another frame, returning a new frame.
      *
-     * There is nothing special here - a join is `FROM <a> JOIN <b> ON <pred>`, and `from`
-     * already yields either a table name or a parenthesised subquery, so either side may be
-     * a table or a relation. This method exists to gather the two sides' SQL, alias them, and
-     * declare the result config; it is a SQL builder, not a new execution concept.
+     * Either side may be a table or a relation. Both sides are aliased (`a` and `b` by
+     * default), because two frames often share column names; write `on` and `select` in terms
+     * of those aliases. `groupBy` lets a join and an aggregation run as one statement.
      *
-     * Both sides are aliased (`a` and `b` by default) because two frames routinely share
-     * column names, and a subquery in a FROM clause needs a name to be referenced by. Write
-     * `on` and `select` in terms of those aliases.
-     *
-     * `groupBy` is here too, so "join then aggregate" is one statement rather than two - that
-     * is where per-parent counts and picks land.
+     * Both frames must be in the same database, and neither may be ordered, because a join
+     * does not keep row order.
     */
     join(other: TealFrame, options: JoinOptions): TealFrame {
         if (other.ctx !== this.ctx) {
@@ -471,19 +409,13 @@ export class TealFrame {
     }
 
     /**
-     * The `WHERE` clause. Returns a new relation-backed frame.
+     * Adds a `WHERE` clause, returning a new frame.
      *
-     * **A clause builder** - one of six, beside `select`, `orderBy`, `limit`, `distinct` and
-     * `join`. It builds a statement up a clause at a time, for the path where the query is
-     * assembled rather than given. A statement that ALREADY exists - anything from
-     * `QueryAccess` - goes to `query`, whole; splitting one into a predicate here loses
-     * whatever its `SELECT` list was enforcing.
+     * The predicate is raw SQL, so the caller must quote identifiers itself: a field named
+     * `group` needs `filter('"group" = \'y\'')`. To run a complete statement, such as one
+     * from `QueryAccess`, use `query` instead.
      *
-     * The predicate is raw SQL, so identifiers the caller writes are the caller's to quote:
-     * a field named `group` needs `filter('"group" = \'y\'')`.
-     *
-     * A filter preserves ordering (measured: 0 of 1.6M rows out of order), so a sorted frame
-     * stays sorted through it.
+     * A filter keeps row order, so a sorted frame stays sorted.
     */
     filter(predicate: string): TealFrame {
         return this.derive(`SELECT * FROM ${this.from} WHERE ${predicate}`, {
@@ -492,18 +424,14 @@ export class TealFrame {
     }
 
     /**
-     * `SELECT DISTINCT` over every column - QPL's `DEDUP`.
+     * Removes duplicate rows, comparing every column (`SELECT DISTINCT *`). Returns a new
+     * frame.
      *
-     * **Takes no field list, because that IS the whole behaviour.** `TableDedupNode` carries no
-     * fields at all and the old engine calls `frame.unique(scope.frame.fields)` - every field.
-     * A `DISTINCT ON` / key-subset variant is deliberately not added on spec.
+     * It works on list and object columns, and treats nulls as equal, so rows that are null in
+     * the same column collapse into one.
      *
-     * Verified: DISTINCT works over LIST and STRUCT columns (arrays and objects are ordinary in
-     * these configs, and a naive dedup could have failed on them), and it treats NULLs as
-     * EQUAL, so rows null in the same column collapse into one.
-     *
-     * **It reorders rows** - measured, 373 of 1M out of order over an ordered subquery - so it
-     * is refused on an ordered frame and its own result is not ordered. Dedup first, sort after.
+     * `DISTINCT` does not keep row order, so it throws on an ordered frame and its result is
+     * unordered. Remove duplicates first, then sort.
     */
     distinct(): TealFrame {
         this.assertOrderSafe('distinct');
@@ -512,14 +440,11 @@ export class TealFrame {
     }
 
     /**
-     * `ORDER BY`. Returns a new relation-backed frame, like every other operation.
+     * Adds an `ORDER BY`, returning a new frame.
      *
-     * **Sorting is a relation, not trailing state on the frame**, because DuckDB's optimiser
-     * FLATTENS the subquery: `SELECT * FROM (SELECT * FROM t ORDER BY x) LIMIT 10` and
-     * `SELECT * FROM t ORDER BY x LIMIT 10` produce the IDENTICAL physical plan - one `TOP_N`
-     * with a dynamic filter pushed into the scan. Measured at 5M rows: 1-5 ms either way,
-     * against 754 ms for the same sort with no limit. So the nesting costs nothing, and the
-     * composition semantics come from SQL for free:
+     * The sort wraps the current relation in a subquery. DuckDB's optimizer flattens the
+     * nesting, so `.orderBy(x).limit(10)` runs as a single top-N query. The order of calls
+     * means what it says:
      *
      * | chain | means |
      * |---|---|
@@ -528,26 +453,18 @@ export class TealFrame {
      * | `.orderBy(x).filter(p).limit(10)` | the top 10 of the matching rows |
      * | `.orderBy(x).limit(10).filter(p)` | the top 10, then filtered - may yield fewer |
      *
-     * Each is what a caller writing those calls in that order asked for.
+     * `select`, `filter` and `limit` may follow a sort. `join`, `distinct` and a grouping
+     * `select` throw on a sorted frame, because they would discard the order. `materialize()`
+     * drops the order, because a table has none.
      *
-     * `select`, `filter` and `limit` may follow a sort. **`join` and an aggregating `select`
-     * may not** - they reorder rows, so they throw instead of discarding the ordering; see
-     * `assertOrderSafe`. `materialize()` also does not carry it, because a table has no
-     * ordering to carry.
+     * Nulls sort as in `DataFrame`: first when ascending, last when descending.
      *
-     * **Nulls follow `DataFrame`, not DuckDB** - first ascending, last descending. See
-     * `orderByClause`.
+     * **Ties are not ordered deterministically.** DuckDB sorts in parallel and is not stable,
+     * so rows with equal sort values can come back in a different order on each run, and
+     * paging over them can repeat or skip rows. `DataFrame` sorts with the stable
+     * `Array#sort`. A caller that pages must end `sort` with a unique field.
      *
-     * **A TIE-HEAVY SORT IS NOT DETERMINISTIC, AND PAGING OVER ONE LOSES ROWS.** Measured
-     * (2M rows / 14 threads, 20 distinct sort values):
-     * the same `ORDER BY bucket LIMIT 10` returned **2 different pages** across 20 runs, and
-     * across 10 runs `LIMIT 1000` yielded 4,410 distinct ids where 1,000 were expected while
-     * **1,305 rows appeared in BOTH page 1 and page 2**. Appending a unique tiebreaker
-     * (`ORDER BY bucket, id`) collapsed it to exactly one result over 20 runs.
-     *
-     * `DataFrame` does not have this problem: its sort is `Array#sort`, which is stable, so
-     * ties keep their input order. **A caller that pages MUST append a unique field to
-     * `specs`.** This cannot add one, because it cannot know which field is unique.
+     * @param sort The sort terms, at least one.
     */
     orderBy(sort: readonly SQLSortInput[]): TealFrame {
         if (sort.length === 0) {
@@ -560,33 +477,26 @@ export class TealFrame {
     }
 
     /**
-     * `LIMIT` / `OFFSET`. Returns a new relation-backed frame.
+     * Adds `LIMIT` and `OFFSET`, returning a new frame.
      *
-     * Either bound may stand alone - `OFFSET` with no `LIMIT` is valid in DuckDB (verified),
-     * which is what an unbounded page from a start position needs. With both absent this
-     * returns the frame unchanged, so a plan's optional `size`/`start` can be passed straight
-     * through without a conditional.
+     * Either bound may be given alone; with neither, the frame is returned unchanged, so
+     * optional paging values can be passed straight through.
      *
-     * **Push the limit into SQL; never emulate it by breaking out of `rows()`.** Measured:
-     * an unsorted `LIMIT` plans as `STREAMING_LIMIT`, so the pipeline stops pulling as soon as
-     * it is satisfied (5M-row scan: 1 ms to the first chunk against 68 ms to drain). A sorted
-     * one plans as `TOP_N`, which cannot exit early - the top ten are unknown until every row
-     * is seen - but holds a heap of `count` rather than the whole sort, and plants a dynamic
-     * filter in the scan so later row groups are skipped by their zone maps. Breaking out of
-     * `rows()` stops only the JS consumer and earns neither.
+     * Prefer `limit` to stopping early in `rows()`. DuckDB stops reading once an unsorted
+     * limit is satisfied, and for a sorted one keeps only the top `count` rows instead of
+     * sorting everything. Breaking out of `rows()` stops only the JS consumer.
      *
-     * A limit preserves ordering (measured: 0 of 1M rows out of order), so a sorted frame
-     * stays sorted through it.
+     * A limit keeps row order. Note that `size()` on a limited frame counts the page, not the
+     * total; call `size()` on the frame before the limit to get the total.
      *
-     * **`size()` on a limited frame counts the PAGE, not the total.** A response envelope that
-     * needs the total must call `size()` on the frame from BEFORE the limit was applied.
+     * @param count The maximum number of rows (`LIMIT`).
+     * @param offset The number of rows to skip (`OFFSET`).
     */
     limit(count?: number, offset?: number): TealFrame {
         if (count == null && offset == null) return this;
 
-        // checked HERE, under this method's own parameter names: the dialect renders
-        // `LIMIT`/`OFFSET` for a statement whose bounds are called `size` and `from`, and an
-        // error naming those would be about arguments this caller never passed
+        // validated here so the error names this method's parameters; the dialect's own
+        // error would name `size` and `from`
         if (count != null) wholeNumber(count, 'limit\'s count');
         if (offset != null) wholeNumber(offset, 'limit\'s offset');
 
@@ -596,41 +506,41 @@ export class TealFrame {
         );
     }
 
+    /** Counts the frame's rows. */
     async size(): Promise<number> {
         return Number(await this.ctx.scalar(`SELECT count(*) FROM ${this.from}`) ?? 0);
     }
 
     /**
-     * Writes Parquet with zstd, for transport.
+     * Writes the frame to a Parquet file compressed with zstd, for moving data between
+     * processes.
      *
-     * zstd, never gzip: measured, Parquet's internal compression costs ~30 ms at 1M rows
-     * and produces a SMALLER payload than gzipping ndjson or dfjson, which cost ~1.4-1.9 s.
+     * Parquet's built-in zstd compression is much faster than gzipping JSON output and
+     * produces a smaller file.
     */
     async writeParquet(path: string): Promise<void> {
         await output.writeParquet(this.ctx, this.from, this.config, path);
     }
 
     /**
-     * Writes the frame as **ldjson**, one JSON object per line - the format a finished result
-     * goes to S3 as.
+     * Writes the frame to a file as ldjson, one JSON object per line.
      *
-     * **DuckDB writes it, not JavaScript.** The rows never become JS objects, so this is not
-     * bounded by single-threaded value conversion the way `rows()` is.
+     * DuckDB writes the file, so rows never become JS objects and this is much faster than
+     * serializing `rows()`.
      *
-     * **The output is byte-identical to `DataFrame.toJSON` with the same `SerializeOptions`** -
-     * all seven, in every combination (`test/teal-frame/serialize-options-spec.ts`) - plus the
-     * value corrections: ISO8601 dates, big integers as strings past `MAX_SAFE_INTEGER`. See
+     * The output is byte-identical to `DataFrame.toJSON` with the same `SerializeOptions`,
+     * including ISO 8601 dates and integers past `MAX_SAFE_INTEGER` written as strings. See
      * `export-json.ts`.
      *
-     * With no options it is spaces' default (`remove_null_fields` true); `removeNullFields: false`
-     * is `@preserveNullFields`. Any explicit flag means exactly what it means to `DataFrame`.
+     * With no options, null fields and empty objects are omitted (`removeNullFields: true`).
+     * Any explicit `SerializeOptions` flag means exactly what it means to `DataFrame`.
      *
-     * Whole-file: it does not return until the file is complete. Use `ndjson()` when the result
-     * is too large to want that, or when it should be uploaded as it is produced.
+     * The promise resolves once the whole file is written. Use `ndjson()` to stream the lines
+     * instead, for example to upload them as they are produced.
     */
     async writeNDJSON(path: string, options: JsonExportOptions = {}): Promise<void> {
-        // row de-duplication keeps the FIRST of each in stream order, which a COPY cannot
-        // express - so that one option writes through the stream instead
+        // removing duplicate rows keeps the first of each in stream order, which a COPY
+        // cannot express, so that option writes through the stream instead
         if (resolveRules(options).skipDuplicateObjects) {
             await writeLines(path, this.ndjson(options));
             return;
@@ -642,14 +552,10 @@ export class TealFrame {
     }
 
     /**
-     * The same ldjson, **streamed** - one line at a time, as DuckDB produces them.
+     * Streams the frame as ldjson lines, byte-identical to what `writeNDJSON` writes.
      *
-     * Each line is rendered to a string in C++; JavaScript only concatenates bytes, so this
-     * keeps almost all of `writeNDJSON`'s advantage while letting a caller flush to S3 as it
-     * goes and never hold the whole result. That is the trade the worker needs when a table is
-     * already most of its memory.
-     *
-     * Byte-identical to `writeNDJSON` - both are the same projection.
+     * DuckDB renders each line, so JavaScript only passes strings along. A caller can upload
+     * the lines as they arrive and never hold the whole result in memory.
     */
     ndjson(options: JsonExportOptions = {}): AsyncIterableIterator<string> {
         const lines = this.ctx.streamColumnStrings(
@@ -659,25 +565,14 @@ export class TealFrame {
     }
 
     /**
-     * Streams the frame's rows as objects. **The real output path.**
+     * Streams the frame's rows as JS objects.
      *
-     * `DataFrame.rows()` is what the QPL engine calls to produce records for the response
-     * (`run.ts:188`) and it returns an `Iterable`, so this is lazy for the same reason:
-     * the result may be far larger than the response.
+     * With `options`, it yields what `DataFrame.rows(true, options)` yields, by parsing the
+     * lines `ndjson(options)` produces. Without options, it yields every column, with a nil
+     * value as `null`.
      *
-     * Deliberately NOT a `toArray()`. `DataFrame` has one and spaces never calls it -
-     * zero uses across the spaces sources - and the one first written here also carried a
-     * BIGINT-renders-as-string bug tracked as debt for three increments before anyone
-     * asked what used it.
-     *
-     * **With `options`, it yields exactly what `DataFrame.rows(true, options)` does** - fields and
-     * nulls per `SerializeOptions`, the engine's call (`run.ts:188`) - by parsing the same lines
-     * `ndjson(options)` writes, so the two cannot disagree. Without, it yields every column, a nil
-     * one as `null`.
-     *
-     * ALSO deliberately not a `getColumn()`. All 7 engine uses extract a resident JS
-     * `.vector`, or index a single row by position; that is exactly the model that cannot
-     * port, because the data lives in DuckDB. Those belong in SQL as projections.
+     * There is no `toArray()` or `getColumn()`: the data lives in DuckDB, so column-level work
+     * belongs in SQL, and a result may be too large to hold as an array.
     */
     rows(options?: JsonExportOptions): AsyncIterableIterator<Record<string, unknown>> {
         if (options != null) return parseLines(this.ndjson(options));
@@ -685,23 +580,24 @@ export class TealFrame {
     }
 
     /**
-     * **One row's LIST column, element by element** - as
-     * `ListVector.getRowIterator(0, true, options)` yields it.
+     * Streams the elements of a list column in the first row, as
+     * `ListVector.getRowIterator(0, true, options)` yields them.
      *
-     * The engine's `serializeObject` answers an object-shaped query from a ONE-row frame by
-     * streaming its `results` list this way. Each element is rendered by the same rules as
-     * `ndjson(options)`; a nil one is yielded as `null` under `useNullForUndefined`, `undefined`
-     * otherwise, or skipped under `skipNilListValues` - or, for object elements,
-     * `skipNilObjectValues`. Like `DataFrame`: nothing under `skipEmptyArrays` when the column
-     * holds no value at all, and `skipDuplicateObjects` is refused. Reads the first row.
+     * Useful for a one-row frame whose single list column holds the real result. Each element
+     * is rendered by the same rules as `ndjson(options)`. A nil element is yielded as `null`
+     * under `useNullForUndefined`, as `undefined` otherwise, and skipped under
+     * `skipNilListValues` (or `skipNilObjectValues` for object elements). As in `DataFrame`,
+     * nothing is yielded under `skipEmptyArrays` when the column is empty, and
+     * `skipDuplicateObjects` is not supported.
     */
     listValues(column: string, options: JsonExportOptions = {}): AsyncIterableIterator<unknown> {
         return output.listValues(this.ctx, this.from, this.config, column, options);
     }
 
     /**
-     * `DataFrame.deepSelect`: keep the selected fields - dotted paths into nested Objects
-     * included - in the shape selected, ignoring names that do not exist. See `deep-select.ts`.
+     * Keeps only the selected fields, as `DataFrame.deepSelect` does. Dotted paths select
+     * fields inside nested objects, and names that do not exist are ignored. See
+     * `deep-select.ts`.
     */
     deepSelect(fields: readonly string[]): TealFrame {
         const { sql, config, columns } = deepSelectSQL(
@@ -711,8 +607,8 @@ export class TealFrame {
     }
 
     /**
-     * The SELECT node's `@skipIfEmpty` rule, applied after `deepSelect`: drop every
-     * `_skip_if_empty` Object column with no declared children left. Config-only - no row is read.
+     * Drops every Object column marked `_skip_if_empty` that has no declared child fields left,
+     * typically after `deepSelect`. Decided from the config alone; no rows are read.
     */
     pruneEmptyObjects(): TealFrame {
         const dropped = new Set(emptySkippedObjects(this.config));
@@ -730,8 +626,9 @@ export class TealFrame {
     }
 
     /**
-     * `@expandValues`: one row per array element - see `expand-values.ts` for both modes. Keeps the
-     * rows' order, and a row with nothing to expand. The expanded fields become `array: false`.
+     * Expands array fields into one row per element, as the `@expandValues` directive does.
+     * See `expand-values.ts` for the two modes. Row order is kept, and so is a row with nothing
+     * to expand. The expanded fields become `array: false`.
     */
     expandValues(fields: readonly string[], options: ExpandValuesOptions): TealFrame {
         const { sql, config } = expandValuesSQL(
@@ -741,9 +638,8 @@ export class TealFrame {
     }
 
     /**
-     * Rows where EVERY column is nil - `DataFrame.countEmptyRows`, which the engine reports as a
-     * metric. A row with `{}` or `[]` is NOT empty: `DataFrame` tests the stored value
-     * (`isEmptyRow` -> `vector.has`), not its rendering.
+     * Counts the rows where every column is null, as `DataFrame.countEmptyRows` does. A row
+     * holding `{}` or `[]` is not empty, because the stored value is tested, not its JSON form.
     */
     async countEmptyRows(): Promise<number> {
         return Number(
@@ -751,7 +647,7 @@ export class TealFrame {
         );
     }
 
-    /** The rows that are not empty, in order - `DataFrame.removeEmptyRows`. */
+    /** Keeps the rows that are not empty, in order, as `DataFrame.removeEmptyRows` does. */
     removeEmptyRows(): TealFrame {
         return this.filter(`NOT (${this.emptyRow()})`);
     }
@@ -761,10 +657,10 @@ export class TealFrame {
     }
 
     /**
-     * Drops the backing table, if this frame owns one. A relation has nothing to drop.
+     * Drops the backing table, if this frame has one. A relation has nothing to drop.
      *
-     * Only safe once nothing derives from this frame: a relation built over it reads the
-     * table by name.
+     * Call it only once no frame derived from this one is still in use, because derived
+     * frames read the table by name.
     */
     async destroy(): Promise<void> {
         if (this.source.kind === 'table') {

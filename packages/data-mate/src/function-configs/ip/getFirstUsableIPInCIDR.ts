@@ -41,10 +41,10 @@ export const getFirstUsableIPInCIDRConfig: FieldTransformConfig = {
         return getFirstUsableIPInCIDR;
     },
     /**
-     * Network + 1, except for a single-address block, which is its own first usable address.
+     * The network address + 1, except that a single-address block is its own first usable address.
      *
-     * `firstUsableHitsTopOfV4` sends the one block whose answer is `255.255.255.255` to the UDF:
-     * DuckDB refuses to reach that address by addition.
+     * The one block whose answer is `255.255.255.255` goes to the UDF, because DuckDB cannot
+     * reach that address by addition (see `firstUsableHitsTopOfV4`).
     */
     sql: {
         needs_udf_fallback: true,

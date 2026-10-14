@@ -1,10 +1,9 @@
 /**
- * The DuckDB frame.
+ * TealFrame, a frame whose rows live in DuckDB.
  *
- * `DuckContext` is deliberately absent: there is exactly one database per process, a caller
- * has nothing to pass around, and exporting it is what previously let a frame be routed
- * between databases it could not see. Reach the database through `configureDuckDatabase`,
- * `registerScalarFunction` and `closeDuckDatabase` instead.
+ * `DuckContext` is not exported, so a frame cannot be handed a database it cannot see. Use
+ * `configureDuckDatabase`, `registerScalarFunction` and `closeDuckDatabase` to manage the
+ * database.
 */
 export * from './clauses.js';
 export * from './date-value.js';

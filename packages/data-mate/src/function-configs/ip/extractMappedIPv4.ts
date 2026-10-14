@@ -34,8 +34,8 @@ export const extractMappedIPv4Config: FieldTransformConfig = {
         return extractMappedIPv4;
     },
     /**
-     * The embedded IPv4, which `host()` already prints as the dotted tail of a mapped address -
-     * `::ffff:1.2.3.4` - so the extraction is dropping that prefix rather than masking 32 bits.
+     * The embedded IPv4 address. `host()` already prints a mapped address with a dotted tail
+     * (`::ffff:1.2.3.4`), so this strips the prefix rather than masking 32 bits.
     */
     sql: {
         needs_udf_fallback: true,

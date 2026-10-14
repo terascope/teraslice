@@ -9,11 +9,10 @@ import {
 import { BaseSQLDialect, NOTHING_READABLE } from './base.js';
 
 /**
- * `GeoShapeRelation` to the spatial predicate that answers it.
+ * Maps each `GeoShapeRelation` to its spatial predicate.
  *
- * The relation describes the DOCUMENT's shape against the QUERY's shape, and the arguments
- * are emitted in that order, so `within` is `ST_Within(column, query)` and `contains` is its
- * mirror.
+ * The relation describes the document's shape relative to the query's shape, and the
+ * arguments are written in that order: `within` is `ST_Within(column, query)`.
 */
 const RELATION_FUNCTIONS: Readonly<Record<GeoShapeRelation, string>> = Object.freeze({
     [GeoShapeRelation.Intersects]: 'ST_Intersects',
@@ -23,9 +22,9 @@ const RELATION_FUNCTIONS: Readonly<Record<GeoShapeRelation, string>> = Object.fr
 });
 
 /**
- * SQL for DuckDB, which is the engine this was built for.
+ * The DuckDB dialect.
  *
- * **What it assumes about storage**, all of it from `@terascope/data-types`' `toDuckDB`:
+ * It assumes the column types that `@terascope/data-types`' `toDuckDB` produces:
  *
  * | xLucene type | DuckDB column |
  * |---|---|
@@ -34,10 +33,9 @@ const RELATION_FUNCTIONS: Readonly<Record<GeoShapeRelation, string>> = Object.fr
  * | `ip`, `ip_range` | `VARCHAR` |
  * | `date` | `STRUCT(ms BIGINT, tz_offset SMALLINT)` - compared on `ms` |
  *
- * **Two extensions are needed and NEITHER is statically linked.** `inet` autoloads on first
- * use, so an IP query works on its own; `spatial` does NOT, and a geo query without it fails
- * with `Catalog Error: Scalar Function with name "st_within" is not in the catalog`. Load it
- * at bootstrap - `LOAD spatial` - rather than discovering it mid-query.
+ * IP queries need the `inet` extension, which autoloads on first use. Geo queries need the
+ * `spatial` extension, which does not autoload; run `LOAD spatial` at startup, or a geo query
+ * fails with `Scalar Function with name "st_within" is not in the catalog`.
 */
 export class DuckDBDialect extends BaseSQLDialect {
     readonly name = SQLDialectName.duckdb;
@@ -45,13 +43,9 @@ export class DuckDBDialect extends BaseSQLDialect {
     /**
      * A dotted xLucene field is a STRUCT path.
      *
-     * `toDuckDB` regroups dotted DataType paths into nested `STRUCT`s, so the column for
-     * `foo.bar` is `bar` inside `foo` rather than a column named `foo.bar`.
-     *
-     * Quoting every part is safe here in a way it is not everywhere: **DuckDB treats a
-     * quoted identifier case-INsensitively** - verified, `SELECT "mixedcase"` finds a column
-     * declared `"MixedCase"` - which is the opposite of PostgreSQL, where quoting pins the
-     * case.
+     * `toDuckDB` stores dotted DataType paths as nested `STRUCT`s, so `foo.bar` is member
+     * `bar` of column `foo`. Quoting each part is safe because DuckDB matches quoted
+     * identifiers case-insensitively (unlike PostgreSQL).
     */
     fieldRef(field: string): string {
         return field.split('.').map(quoteIdentifier)
@@ -63,9 +57,8 @@ export class DuckDBDialect extends BaseSQLDialect {
     }
 
     /**
-     * A date is `{ ms, tz_offset }` - epoch millis plus an optional display offset, as data-mate's
-     * `DateTuple` - so it is compared on the instant, `ms`, against epoch millis. A plain integer
-     * comparison, which Parquet min/max statistics can prune on.
+     * A date column is `STRUCT(ms, tz_offset)`, so it is compared on `ms` (epoch
+     * milliseconds). An integer comparison also lets Parquet min/max statistics skip row groups.
     */
     equals(fieldExpr: string, value: unknown, fieldType?: xLuceneFieldType): string {
         if (fieldType === xLuceneFieldType.Date) {
@@ -89,13 +82,11 @@ export class DuckDBDialect extends BaseSQLDialect {
     }
 
     /**
-     * The `SELECT` list, **rebuilding any column only part of which may be read.**
+     * The `SELECT` list, rebuilding any column that is only partly readable.
      *
-     * A dotted field is a `STRUCT` member here, not a column, so dropping `nested.name`
-     * cannot be done by leaving a column out - the column is `nested`, and leaving it out
-     * would withhold its siblings too while selecting it would leak the excluded member.
-     * `struct_pack` puts back exactly the members that survived, which is the shape
-     * Elasticsearch's `_source` filtering returns.
+     * A dotted field is a `STRUCT` member, not a column. To exclude `nested.name` the
+     * `nested` column is rebuilt with `struct_pack` from its readable members only, which
+     * matches the shape Elasticsearch's `_source` filtering returns.
     */
     projection(readable: readonly string[], all: readonly string[]): string {
         if (!readable.length) return NOTHING_READABLE;
@@ -123,10 +114,9 @@ export class DuckDBDialect extends BaseSQLDialect {
     }
 
     /**
-     * **`ST_Distance_Sphere` takes (LATITUDE, LONGITUDE)** - documented as a
-     * "[latitude, longitude] axis order" - which is the OPPOSITE of `ST_Point`'s (x, y)
-     * order used everywhere else here. Getting it backwards yields a plausible wrong number
-     * rather than an error.
+     * Distance in meters. `ST_Distance_Sphere` expects points in (latitude, longitude)
+     * order, the reverse of the (x, y) order used elsewhere in this file. Swapping them
+     * returns a wrong distance rather than an error.
     */
     geoPointDistance(fieldExpr: string, point: GeoPoint): string {
         const { lat, lon } = this.geoPointParts(fieldExpr);
@@ -134,15 +124,14 @@ export class DuckDBDialect extends BaseSQLDialect {
             + ` ST_Point(${quoteNumber(point.lat)}, ${quoteNumber(point.lon)}))`;
     }
 
-    geoPointWithinDistance(fieldExpr: string, point: GeoPoint, metres: number): string {
-        return parens(`${this.geoPointDistance(fieldExpr, point)} <= ${quoteNumber(metres)}`);
+    geoPointWithinDistance(fieldExpr: string, point: GeoPoint, meters: number): string {
+        return parens(`${this.geoPointDistance(fieldExpr, point)} <= ${quoteNumber(meters)}`);
     }
 
     /**
      * A bounding box as two inclusive range checks, which needs no `spatial` extension.
      *
-     * A spatial predicate would also be WRONG here: measured, DuckDB's `ST_Within` and
-     * `ST_Contains` EXCLUDE the boundary, while a `geoBox` includes it.
+     * `ST_Within` and `ST_Contains` exclude the boundary, while `geoBox` includes it.
     */
     geoPointInBoundingBox(
         fieldExpr: string, topLeft: GeoPoint, bottomRight: GeoPoint
@@ -172,12 +161,9 @@ export class DuckDBDialect extends BaseSQLDialect {
     }
 
     /**
-     * **`ST_Intersects`, not `ST_Contains`, and deliberately.**
-     *
-     * Both Elasticsearch's `geo_shape` with an `intersects` relation and `geoContainsFP`'s
-     * turf call include the boundary, so a point sitting on a polygon's edge is contained.
-     * DuckDB's `ST_Contains` applies OGC semantics and excludes it, which would answer
-     * differently for exactly those points.
+     * Uses `ST_Intersects` rather than `ST_Contains` so that a point on a polygon's edge
+     * matches. Elasticsearch's `intersects` relation and `geoContainsFP` both include the
+     * boundary; DuckDB's `ST_Contains` excludes it.
     */
     geoContainsPoint(fieldExpr: string, point: GeoPoint, isPointColumn: boolean): string {
         return this.tryPredicate(
@@ -186,21 +172,16 @@ export class DuckDBDialect extends BaseSQLDialect {
     }
 
     /**
-     * **`IS TRUE` is a fold barrier, not decoration.**
+     * One side of an IP range comparison, wrapped in `IS TRUE`.
      *
-     * DuckDB rewrites a conjunction of two comparisons on the same expression into a
-     * `BETWEEN`, and `INET` does not support one: measured, `ip >= INET 'a' AND ip <= INET
-     * 'b'` fails outright with `Invalid Type [INET]: Invalid type for BETWEEN`, and so does
-     * every arrangement of the same two comparisons - swapped operands, an explicit
-     * `BETWEEN`, even `NOT (ip > b)`. Wrapping each side stops the rewrite recognising the
-     * pair.
+     * DuckDB's optimizer rewrites `ip >= a AND ip <= b` into `ip BETWEEN a AND b`, and
+     * `BETWEEN` does not support `INET`, so the query fails with
+     * `Invalid type for BETWEEN`. Wrapping each comparison in `IS TRUE` prevents that rewrite.
+     * It does not change the result: a NULL comparison becomes FALSE, and `WHERE` drops
+     * both the same way.
      *
-     * The two comparisons an `ip_range` overlap makes are over DIFFERENT expressions - the
-     * block's first address and its last - so nothing there is foldable and this is only
-     * needed for the one field type whose bounds share a column.
-     *
-     * It also costs nothing semantically: the comparison is `NULL` exactly when the column
-     * is, `IS TRUE` turns that into `FALSE`, and a `WHERE` clause drops both alike.
+     * `ip_range` queries do not need this, because they compare two different expressions
+     * (the block's first and last address).
     */
     protected ipComparison(fieldExpr: string, operator: string, value: string): string {
         const column = this.mappedInet(fieldExpr);
@@ -228,9 +209,9 @@ export class DuckDBDialect extends BaseSQLDialect {
     }
 
     /**
-     * The column as a spatial `GEOMETRY`. A `geo-json` column already IS one - it was parsed once,
-     * at ingest - so it is used as it stands; re-parsing text on every row is what it replaced.
-     * A `geo-point` is a `STRUCT(lat, lon)`: **`ST_Point` takes (x, y), so LON comes first.**
+     * The column as a spatial `GEOMETRY`. A `geo-json` column is already a `GEOMETRY` and is
+     * used as-is. A `geo-point` is a `STRUCT(lat, lon)`; `ST_Point` takes (x, y), so the
+     * longitude comes first.
     */
     private asGeometry(fieldExpr: string, isPointColumn: boolean): string {
         if (isPointColumn) {
@@ -241,10 +222,10 @@ export class DuckDBDialect extends BaseSQLDialect {
     }
 
     /**
-     * A `STRUCT` holding only the readable members, to whatever depth they nest.
+     * A `STRUCT` holding only the readable members, at any depth.
      *
-     * A member whose own subtree survived intact is taken whole; one that did not is rebuilt
-     * the same way, so an exclusion three levels down costs only the structs above it.
+     * A member that is fully readable is copied whole; a partly readable one is rebuilt
+     * recursively.
     */
     private structFor(
         expression: string, kept: readonly string[], every: readonly string[]
@@ -276,16 +257,12 @@ export class DuckDBDialect extends BaseSQLDialect {
     }
 
     /**
-     * A spatial predicate wrapped so a shape the engine cannot parse fails the row rather
-     * than the query.
+     * A spatial predicate wrapped in `try`, so a shape the engine cannot parse fails that
+     * row rather than the whole query.
      *
-     * **`ST_GeomFromGeoJSON` THROWS on a non-canonical `type` spelling** - measured,
-     * `{"type":"POINT",...}` is `Invalid Input Error: GeoJSON input has invalid type field` -
-     * and a stored document can carry that spelling. `try` turns it into `NULL`, which a
-     * `WHERE` clause drops, which is the same observable result as not matching.
-     *
-     * It does not hide a missing `spatial` extension: that is a binder error, raised before
-     * anything is evaluated.
+     * `ST_GeomFromGeoJSON` throws on a non-standard `type` spelling such as `"POINT"`.
+     * `try` turns the error into NULL, which `WHERE` treats as no match. A missing `spatial`
+     * extension still fails the query, because that error is raised before evaluation.
     */
     private tryPredicate(expression: string): string {
         return `try(${expression})`;
@@ -300,9 +277,8 @@ function topLevel(path: string): string {
 /**
  * The paths beneath one segment, with that segment removed.
  *
- * A path equal to the segment is the segment itself rather than something under it, and it
- * becomes an empty entry - which is what marks a leaf, and keeps `sameFields` able to tell
- * "the whole of this" from "part of this".
+ * A path equal to the segment becomes an empty string. That entry marks a leaf, so
+ * `sameFields` can tell the whole member from part of it.
 */
 function under(paths: readonly string[], segment: string): string[] {
     return paths

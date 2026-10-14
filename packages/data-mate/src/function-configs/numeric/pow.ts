@@ -44,7 +44,7 @@ export const powConfig: FieldTransformConfig<PowerArgs> = {
     create({ args: { value } }) {
         return runMathFn(Math.pow, value);
     },
-    /** Native `pow`. Transcendental, so compared to a few ULP rather than bit-exactly. */
+    /** Native `pow`. Like other transcendental functions it is `approximate` (a few ULP). */
     sql: {
         applies: needsNumericArgs('value'),
         approximate: true,

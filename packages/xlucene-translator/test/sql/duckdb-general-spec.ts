@@ -5,11 +5,11 @@ import { QueryAccess } from '../../src/index.js';
 import { DuckTestDB } from './duckdb-helpers.js';
 
 /**
- * The same queries `test/query/general-spec.ts` runs against OpenSearch, run against DuckDB.
+ * The queries `test/query/general-spec.ts` runs against OpenSearch, run against DuckDB.
  *
- * They go through `QueryAccess.restrictSQLQuery` rather than `Translator.toSQL` on purpose:
- * `QueryAccess` is what callers actually use, and it is the path where a restriction, a
- * constraint or a variable could change the query before the translator ever sees it.
+ * They go through `QueryAccess.restrictSQLQuery` instead of `Translator.toSQL` because that
+ * is what callers use, and it is where a restriction, constraint or variable can change the
+ * query before the translator sees it.
 */
 describe('general searches (duckdb)', () => {
     const table = 'all_search';
@@ -64,10 +64,8 @@ describe('general searches (duckdb)', () => {
     });
 
     /**
-     * The whole path: a query in, a statement out, executed verbatim.
-     *
-     * Nothing here builds SQL - `restrictSQLQuery` returns the complete statement, which is
-     * the point of it.
+     * The whole path: a query in, a complete statement out, executed as returned. The tests
+     * add no SQL of their own.
     */
     async function search(query: string): Promise<string[]> {
         const sql = await access.restrictSQLQuery(query, { params: { table } });
@@ -116,8 +114,8 @@ describe('general searches (duckdb)', () => {
         });
 
         /**
-         * `%` is a `LIKE` wildcard and an ordinary character in a value, and the value wins -
-         * `bar:100%` is an equality, and it is only ever a wildcard when the query says `*`.
+         * `%` in a value is an ordinary character, not a `LIKE` wildcard. `bar:100%` is an
+         * equality; only `*` in the query makes a wildcard.
         */
         it('does not treat a value\'s own % as a wildcard', async () => {
             await expect(search('bar:100%')).resolves.toEqual(['10']);
@@ -127,7 +125,7 @@ describe('general searches (duckdb)', () => {
             await expect(search('bar:/h.*o/')).resolves.toEqual(['1', '3', '7']);
         });
 
-        /** The Elasticsearch `regexp` query is anchored, so the translation has to be too. */
+        /** The Elasticsearch `regexp` query is anchored, so the translation must be too. */
         it('anchors a regex the way elasticsearch does', async () => {
             await expect(search('bar:/izz/')).resolves.toEqual([]);
             await expect(search('bar:/fizz/')).resolves.toEqual(['5']);
@@ -169,12 +167,12 @@ describe('general searches (duckdb)', () => {
         });
 
         /**
-         * **The two ends are independent, so all four spellings are different queries.**
+         * The two ends are independent, so all four bracket spellings are different queries.
          *
-         * `[` and `]` include the bound, `{` and `}` exclude it. The bounds below sit exactly
-         * on stored values - `num` has records at 50 and at 70, `date` at both ends, `bar` at
-         * `baz` and `fizzbuzz` - so each spelling answers with a different set and a `gt`
-         * emitted where a `gte` was asked for cannot pass.
+         * `[` and `]` include the bound, `{` and `}` exclude it. The bounds sit exactly on
+         * stored values (`num` at 50 and 70, `date` at both ends, `bar` at `baz` and
+         * `fizzbuzz`), so each spelling returns a different set and `gt` in place of `gte`
+         * fails.
         */
         it.each([
             ['[ TO ], both bounds included', 'num:[50 TO 70]', ['1', '2', '3', '4', '5', '9']],
@@ -186,8 +184,8 @@ describe('general searches (duckdb)', () => {
         });
 
         /**
-         * The same four over a `keyword`, where the comparison is between strings and nothing
-         * in the query says so - the bounds are bare words.
+         * The same four over a `keyword`, which compares strings even though the bounds are
+         * bare words.
         */
         it.each([
             ['[ TO ], both bounds included', 'bar:[baz TO fizzbuzz]', ['4', '5', '6']],
@@ -209,9 +207,9 @@ describe('general searches (duckdb)', () => {
         });
 
         /**
-         * A date literal carries a zone and a `TIMESTAMP` column does not - measured, DuckDB's
-         * cast DROPS the offset rather than applying it, so the translation normalises to UTC
-         * before emitting. These bounds are chosen to fail if it ever stops.
+         * A date literal carries a zone and a `TIMESTAMP` column does not. DuckDB's cast drops
+         * the offset instead of applying it, so the translator normalizes to UTC first. These
+         * bounds fail if it stops doing that.
         */
         it('can handle date ranges', async () => {
             await expect(search('date:["2020-01-01" TO "2020-06-01"]')).resolves.toEqual(['1', '2', '3']);
@@ -219,9 +217,8 @@ describe('general searches (duckdb)', () => {
         });
 
         /**
-         * **A date bound lands on a record's value exactly**, which is the only arrangement
-         * that can tell the four spellings apart - every date in the corpus is midnight UTC
-         * and both bounds here are stored dates.
+         * Both bounds are stored dates (every date in the corpus is midnight UTC), so each of
+         * the four spellings returns a different set.
         */
         it.each([
             [
@@ -270,12 +267,11 @@ describe('general searches (duckdb)', () => {
 
     describe('negation', () => {
         /**
-         * **The case that makes a bare `NOT` wrong.**
+         * The case a bare SQL `NOT` gets wrong.
          *
-         * Elasticsearch's `must_not` matches a document whose field is absent; SQL's
-         * three-valued logic makes `NOT (bar = 'hello')` unknown when `bar` is `NULL`, and a
-         * `WHERE` clause drops an unknown row. Records 8 and 9 have no `bar` at all and both
-         * must come back.
+         * Elasticsearch's `must_not` matches a document whose field is absent. In SQL,
+         * `NOT (bar = 'hello')` is unknown when `bar` is `NULL`, and `WHERE` drops unknown
+         * rows. Records 8 and 9 have no `bar` and both must be returned.
         */
         it('matches records missing the field entirely', async () => {
             await expect(search('NOT bar:hello')).resolves.toEqual(['2', '4', '5', '6', '8', '9', '10']);
@@ -290,28 +286,27 @@ describe('general searches (duckdb)', () => {
         });
 
         /**
-         * **A value containing parentheses must not change how the expression groups.**
+         * A value containing parentheses must not change how the expression groups.
          *
-         * The emitter leaves an expression that is already one parenthesized group alone, and
-         * a naive check for that is fooled by a `(` inside a string literal - which would let
-         * `NOT` bind to half of a conjunction. These values put unbalanced parentheses on both
-         * sides of an `AND` inside a `NOT`, which answers wrongly if the grouping slips.
+         * The translator does not re-wrap an expression that is already one parenthesized
+         * group. A naive check for that is fooled by a `(` inside a string literal, which
+         * would let `NOT` bind to half of a conjunction. These values put unbalanced
+         * parentheses on both sides of an `AND` inside a `NOT`.
         */
         it('groups correctly around a value containing parentheses', async () => {
             await expect(search('bar:"a(" OR bar:hello')).resolves.toEqual(['1', '3', '7']);
             await expect(search('NOT (bar:"a(" AND bar:"b)")')).resolves.toEqual(
                 searchData.map(({ id }) => id)
             );
-            // an OR group followed by an AND, where a slipped grouping changes the answer
+            // an OR group followed by an AND, where wrong grouping changes the answer
             await expect(search('(bar:"a(" OR bar:hello) AND bool:false')).resolves.toEqual(['3']);
         });
     });
 
     describe('implicit fields', () => {
         /**
-         * A query with no field searches every configured field - and the fields whose type
-         * could not hold the value are left out rather than compared, because `"num" =
-         * 'hello'` is a cast error and not a non-match.
+         * A query with no field searches every configured field. Fields whose type cannot hold
+         * the value are skipped, because `"num" = 'hello'` is a cast error, not a non-match.
         */
         it('searches every field whose type could hold the value', async () => {
             await expect(search('hello')).resolves.toEqual(['1', '3', '7', '8']);
@@ -327,17 +322,15 @@ describe('general searches (duckdb)', () => {
     });
 
     /**
-     * **A variable is a VALUE bound late.** The structure comes from the query text, so
-     * `bar:$str` asks exactly what `bar:hello` asks once the variable resolves - which is the
-     * whole point of one: the same query, a different value, decided at the last moment.
+     * A variable supplies a value at query time. The structure comes from the query text, so
+     * `bar:$str` asks the same thing as `bar:hello` once the variable resolves.
      *
-     * What these cover is the two places that is not the whole story. An array fans out to one
-     * comparison per element, so the value decides how many there are and an empty list leaves
-     * none. And a variable with no value resolves to an empty one, or, under
-     * `filterNilVariables`, drops the node it belongs to and takes its conjunction with it.
+     * Two cases change the structure. An array expands to one comparison per element, so an
+     * empty list leaves none. A variable with no value resolves to an empty value, or, with
+     * `filterNilVariables`, removes the node it belongs to along with its conjunction.
      *
-     * The SQL is locked in `test/structure/cases/sql/`; what is proved here is that each one
-     * returns the records it should when a real engine answers it.
+     * The generated SQL is pinned in `test/structure/cases/sql/`; these tests check that each
+     * statement returns the right records from a real engine.
     */
     describe('variables', () => {
         const variables = {
@@ -386,11 +379,11 @@ describe('general searches (duckdb)', () => {
         });
 
         /**
-         * **The expansion has to stay one group under a `NOT`.**
+         * The expansion must stay one group under a `NOT`.
          *
-         * An array variable becomes an `OR` of terms, and a negation that bound to only the
-         * first of them would answer for a query nobody wrote. Records 8 and 9 have no `bar`
-         * at all and come back for the same reason a plain negation returns them.
+         * An array variable becomes an `OR` of terms, and the negation must apply to all of
+         * them, not just the first. Records 8 and 9 have no `bar` and are returned for the
+         * same reason a plain negation returns them.
         */
         it('negates the whole expansion', async () => {
             await expect(searchWith('NOT bar:$arr'))
@@ -398,9 +391,8 @@ describe('general searches (duckdb)', () => {
         });
 
         /**
-         * An empty array matches nothing, which is `match_none` on the DSL side - and under an
-         * `AND` it takes the whole conjunction with it, while under an `OR` only its own half
-         * goes.
+         * An empty array matches nothing, like `match_none` in the DSL. Under an `AND` it
+         * empties the whole conjunction; under an `OR` only its own branch matches nothing.
         */
         it.each([
             ['on its own', 'bar:$empty', []],
@@ -410,7 +402,7 @@ describe('general searches (duckdb)', () => {
             await expect(searchWith(query)).resolves.toEqual(expected);
         });
 
-        /** A nil variable drops its half of the query, exactly as it does for the DSL. */
+        /** A nil variable drops its half of the query, as it does for the DSL. */
         it('drops a conjunction whose variable is missing', async () => {
             const sql = await access.restrictSQLQuery('bar:hello AND baz:$missing', {
                 variables: {},
@@ -420,8 +412,8 @@ describe('general searches (duckdb)', () => {
         });
 
         /**
-         * Without `filterNilVariables` the node survives with an empty value, which is the
-         * answer the DSL gives too - a `match` on `''`.
+         * Without `filterNilVariables` the node stays with an empty value, matching the DSL's
+         * `match` on `''`.
         */
         it('compares against an empty value when nil variables are not filtered', async () => {
             const keepsNil = new QueryAccess({
@@ -464,11 +456,10 @@ describe('general searches (duckdb)', () => {
             });
 
             /**
-             * **The same query text with different variables is a different query.**
+             * The same query text with different variables is a different query.
              *
-             * `QueryAccess` caches by query string, and a cache that ignored the variables
-             * would answer the second call with the first call's rows - which is a wrong
-             * answer rather than a slow one.
+             * `QueryAccess` caches by query string. A cache that ignored the variables would
+             * return the first call's rows for the second call.
             */
             it('does not answer a second call with the first call\'s values', async () => {
                 const first = await configured.restrictSQLQuery('bar:$str', {
@@ -499,12 +490,11 @@ describe('general searches (duckdb)', () => {
         });
 
         /**
-         * **The restriction has to be in the STATEMENT, not beside it.**
+         * The restriction must be part of the statement, not returned beside it.
          *
-         * Elasticsearch withholds a field because `_source_excludes` rides inside the request
-         * and the server obeys it; the only thing that can do that job in SQL is the
-         * projection, so `select` is what a caller interpolates and `SELECT *` is what
-         * defeats it.
+         * Elasticsearch withholds a field because `_source_excludes` is part of the request.
+         * In SQL only the projection can do that, so callers must use `select`; `SELECT *`
+         * returns the excluded columns.
         */
         it('applies an exclude to the projection', async () => {
             const restricted = new QueryAccess({

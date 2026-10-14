@@ -92,9 +92,10 @@ export const toTimeZoneConfig: FieldTransformConfig<TimeZoneArgs> = {
         return (val) => toTimeZone(val, timezone);
     },
     /**
-     * The instant, with the zone's offset for that date attached - see `timezoneOffsetMinutes` for
-     * the exact offset core-utils computes. A zone core-utils cannot resolve keeps the UDF, which
-     * returns null as `DataFrame` does. A Date column only; a String or Number one is PARSED first.
+     * The instant with the zone's offset for that date attached; `timezoneOffsetMinutes`
+     * describes exactly which offset. A zone core-utils cannot resolve keeps the UDF, which
+     * returns null as `DataFrame` does. Only a `Date` column is handled; `String` and `Number`
+     * input is parsed by the UDF.
     */
     sql: {
         types: [FieldType.Date],

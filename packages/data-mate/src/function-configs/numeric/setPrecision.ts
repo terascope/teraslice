@@ -150,15 +150,14 @@ export const setPrecisionConfig: FieldTransformConfig<SetPrecisionArgs> = {
     },
     sql: {
         /**
-         * The NUMERIC path only, and only away from a rounding tie.
+         * Handles fractional numeric columns only, and only for values not at a rounding tie.
          *
-         * `create` returns a different function for a `GeoPoint`/`Geo` column - it parses the point
-         * and rounds both members - and that produces a STRUCT, which is not something an emission
-         * can hand back today (known-defects DF7). A whole-number column is excluded too: the
-         * function is identity there, but `toFloatOrThrow` on a `Long` goes through `Number`, so
-         * matching it would mean matching a precision loss rather than avoiding one.
+         * A `GeoPoint`/`Geo` column keeps the UDF: `create` rounds both members of the point and
+         * returns a struct, which a SQL expression here cannot return. Whole-number columns keep
+         * the UDF too. The function is identity there, but `toFloatOrThrow` converts a `Long`
+         * through `Number` and loses precision, which SQL should not copy.
          *
-         * The rounding itself, and why it is `printf` rather than `round`, is on `toFixedSql`.
+         * `toFixedSql` explains why this uses `printf` rather than `round`.
         */
         needs_udf_fallback: true,
         applies: ({ digits }, inputConfig) => Number.isInteger(digits)

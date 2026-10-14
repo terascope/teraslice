@@ -6,10 +6,8 @@ import {
 
 describe('quoting', () => {
     /**
-     * Quoting is unconditional. It used to be skipped for anything matching
-     * `/^[A-Za-z_][A-Za-z0-9_]*$/`, which looks like the identifiers needing no quotes but is
-     * not - **every reserved word matches it too** - and a field named `group` produced DDL
-     * that would not parse.
+     * Identifiers are always quoted. A "safe identifier" pattern would also match reserved
+     * words, so a field named `group` would produce SQL that does not parse.
     */
     describe('->quoteIdentifier', () => {
         it.each(['group', 'order', 'end', 'all', 'table', 'select'])(
@@ -37,9 +35,8 @@ describe('quoting', () => {
         });
 
         /**
-         * Doubling the quote is the WHOLE escape: both DuckDB and PostgreSQL (with
-         * `standard_conforming_strings` on) treat a backslash as an ordinary character, so
-         * there is no second escape sequence to defeat.
+         * Doubling the quote is the only escape needed. DuckDB and PostgreSQL (with
+         * `standard_conforming_strings` on) treat a backslash as an ordinary character.
         */
         it('escapes an embedded single quote by doubling it', () => {
             expect(quoteLiteral('O\'Brien')).toBe('\'O\'\'Brien\'');
@@ -68,8 +65,8 @@ describe('quoting', () => {
         });
 
         /**
-         * A literal `(` would otherwise raise the depth and make two groups look like one -
-         * so a `NOT` applied to the result would bind to the first half alone.
+         * A `(` inside a literal must not count toward the depth. If it did, two groups would
+         * look like one and a `NOT` applied to the result would bind to the first half only.
         */
         it('does not count a paren inside a string literal', () => {
             expect(parens('(a = \'(\') AND (b = \')\')')).toBe('((a = \'(\') AND (b = \')\'))');
@@ -115,11 +112,11 @@ describe('quoting', () => {
     });
 
     /**
-     * **DuckDB's `TIMESTAMP` cast DROPS the zone rather than applying it**, so an offset left
-     * in the literal would silently compare a different instant.
+     * DuckDB's `TIMESTAMP` cast drops the zone instead of applying it, so an offset left in
+     * the literal would compare a different instant.
     */
     describe('->toUTCTimestampText', () => {
-        it('normalises an offset to UTC wall-clock text', () => {
+        it('normalizes an offset to UTC wall-clock text', () => {
             expect(toUTCTimestampText('2020-01-01T00:00:00+02:00')).toBe('2019-12-31 22:00:00.000');
         });
 

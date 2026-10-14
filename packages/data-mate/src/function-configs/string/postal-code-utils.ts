@@ -3,18 +3,17 @@ import { isAsciiSql, sqlLiteral } from '../sql-helpers.js';
 /**
  * `validator.isPostalCode` as SQL, for an ASCII string.
  *
- * **The patterns are validator 13's `isPostalCode` table, copied** - validator does not export it,
- * only `locales`. `postal-codes-spec`'s guard fails if validator adds or removes a locale, and
- * the emission gate compares every locale with the UDF over a battery, so a changed pattern shows
- * up as a failing case rather than a silent difference.
+ * The patterns are copied from validator 13's `isPostalCode` table, which validator does not
+ * export. `postal-codes-spec` fails if validator adds or removes a locale, and the tests compare
+ * every locale against the UDF, so a changed pattern shows up as a failing test.
  *
  * Three rewrites make them RE2 patterns that match exactly what JavaScript matches:
  *
- * - **Non-ASCII input goes to the UDF.** JavaScript's `\s` matches 25 code points, RE2's 5; inside
+ * - Non-ASCII input goes to the UDF. JavaScript's `\s` matches 25 code points and RE2's 5; within
  *   ASCII they differ only on U+000B, so `\s` is written out as `[\t\n\x0B\f\r ]`.
- * - **Lookahead and backreferences become a second pattern that must NOT match** - RE2 has neither.
- *   Each was worked through by hand, backtracking included (see the four entries below).
- * - `i` is passed as the regex option. Case folding agrees in ASCII.
+ * - RE2 has no lookahead or backreferences, so each one becomes a second pattern that must not
+ *   match. The four locales that need this are commented below.
+ * - `i` is passed as the regex option, since case folding agrees within ASCII.
 */
 
 /** JavaScript's `\s`, restricted to ASCII. */
@@ -23,7 +22,7 @@ const SPACE = '[\\t\\n\\x0B\\f\\r ]';
 interface PostalPattern {
     /** An anchored RE2 pattern. */
     readonly match: string;
-    /** Anchored patterns that must NOT match - a JavaScript lookahead, rewritten. */
+    /** Anchored patterns that must not match: a JavaScript lookahead, rewritten. */
     readonly exclude?: readonly string[];
     readonly insensitive?: boolean;
 }
@@ -176,7 +175,7 @@ export function postalCodeSQL(
     return `CASE WHEN ${isAsciiSql(value)} THEN ${match} ELSE ${udf(value)} END`;
 }
 
-/** Whether the emission claims this locale - none (meaning `any`), or one in the table. */
+/** Whether the SQL path handles this locale: none (meaning `any`), or one in the table. */
 export function postalLocaleApplies(locale: unknown): boolean {
     return locale == null || (typeof locale === 'string' && locale in POSTAL_PATTERNS);
 }

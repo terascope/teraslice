@@ -64,7 +64,7 @@ export default class Boundary extends BaseType {
 
     /**
      * The DuckDB column type for this field.
-     * A list of points, so the array form of the GeoPoint struct.
+     * A list of points, stored as an array of the GeoPoint struct.
      */
     toDuckDB(): DuckDBTypeConfig {
         return this._formatDuckDB('STRUCT(lat DOUBLE, lon DOUBLE)[]');

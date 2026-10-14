@@ -33,8 +33,8 @@ export const decodeURLConfig: FieldTransformConfig = {
         return (input: unknown) => decodeURIComponent(input as string);
     },
     /**
-     * `url_decode`, which matched `decodeURIComponent` on every input in the battery - spaces,
-     * `+`, `%`, non-ASCII and astral - with no correction needed.
+     * `url_decode`, which matches `decodeURIComponent` for spaces, `+`, `%`, non-ASCII and astral
+     * input.
     */
     sql: {
         expression: ({ value }) => `url_decode(${value})`,

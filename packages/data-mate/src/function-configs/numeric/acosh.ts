@@ -43,11 +43,11 @@ export const acoshConfig: FieldTransformConfig = {
     /**
      * `acosh`, with its domain checked first.
      *
-     * `Math.acosh` below 1 is NaN -> null; DuckDB raises instead.
+     * `Math.acosh` below 1 is NaN, which becomes null; DuckDB raises an error instead.
     */
     sql: {
-        // transcendental: DuckDB's libm and V8 differ in the last bit, which IEEE 754
-        // permits. The gate compares these to a few ULP - see `approximate`.
+        // DuckDB and V8 can differ in the last bit of a transcendental result, which
+        // IEEE 754 allows, so `approximate` compares results to within a few ULP
         approximate: true,
         expression: ({ value }) => finiteOrNull(inDomain(`${value} >= 1`, `acosh(${value})`)),
     },

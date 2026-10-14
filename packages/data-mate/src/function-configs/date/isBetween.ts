@@ -85,8 +85,8 @@ export const isBetweenConfig: FieldValidateConfig<IsBetweenArgs> = {
         return (input: unknown) => isBetween(input, args);
     },
     /**
-     * `after(start) AND before(end)`, and **both ends are EXCLUSIVE** - the implementation is
-     * literally `_isAfter(input, start) && _isBefore(input, end)`, so `BETWEEN` would be wrong.
+     * `> start AND < end`. Both ends are exclusive because the implementation is
+     * `_isAfter(input, start) && _isBefore(input, end)`, so `BETWEEN` would be wrong.
     */
     sql: {
         types: [FieldType.Date],

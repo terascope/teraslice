@@ -50,13 +50,11 @@ export const toMonthlyDateConfig: FieldTransformConfig = {
         return trimISODateSegment(ISO8601DateSegment.monthly);
     },
     /**
-     * `date_trunc('month', x)`.
+     * Runs as `date_trunc('month', x)`.
      *
-     * Truncation is in UTC on both sides - verified that `toDailyDate` on
-     * `2026-01-02T03:04:05.678Z` gives `2026-01-02T00:00:00Z` even under `TZ=America/New_York`.
+     * Both sides truncate in UTC, whatever the host timezone.
      *
-     * `types: [Date]` because these also accept `String` and `Number`, which the UDF parses and
-     * this expression does not - see any of the `get*` emissions for the full reasoning.
+     * Only a `Date` column is handled; `String` and `Number` input is parsed by the UDF.
     */
     sql: {
         types: [FieldType.Date],

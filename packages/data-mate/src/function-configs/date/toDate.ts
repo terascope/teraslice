@@ -111,14 +111,13 @@ export const toDateConfig: FieldTransformConfig<ToDateArgs> = {
     },
     sql: {
         /**
-         * **Identity on a Date column** - `parseDateValue` with no format is `getTime(value)`, the
-         * millis, and `output_type` declares the field a Date, so the TIMESTAMP the column already
-         * holds IS the answer. A UDF call per row that could only return what it was given.
+         * Returns a `Date` column unchanged. With no format, `parseDateValue` is
+         * `getTime(value)`, and `output_type` declares the field a Date, so the column's
+         * TIMESTAMP is already the result.
          *
-         * Narrow on purpose. The `epoch`/`seconds` branch multiplies `toInteger(value)`, which
-         * for a `Date` means `toInteger` of a Date object; and a String or Number column is where
-         * `getTime`'s loose parsing and the date-fns custom formats live. Those keep the UDF, which
-         * is separate, still-deferred date work, not this.
+         * Everything else keeps the UDF: the `epoch`/`seconds` formats call `toInteger` on the
+         * value, and String or Number columns need `getTime`'s loose parsing and the date-fns
+         * custom formats.
         */
         types: [FieldType.Date],
         applies: ({ format }) => format == null

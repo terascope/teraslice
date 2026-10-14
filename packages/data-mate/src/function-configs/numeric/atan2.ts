@@ -52,13 +52,13 @@ export const atan2Config: FieldTransformConfig = {
         return atan2;
     },
     /**
-     * `atan2(y, x)` from a two-element coordinate list - note the ARGUMENT ORDER.
+     * `atan2(y, x)` from a two-element `[x, y]` list.
      *
-     * `getCoordinates` destructures `[x, y]` and then calls `Math.atan2(y, x)`, so the list's
-     * SECOND element is the first argument. DuckDB's lists are 1-indexed. Reversed, this returns a
-     * plausible wrong angle rather than an error.
+     * `getCoordinates` reads `[x, y]` and calls `Math.atan2(y, x)`, so the list's second element
+     * is the first argument (DuckDB lists are 1-indexed). Swapping them returns a wrong angle
+     * rather than an error.
      *
-     * `approximate` for the usual transcendental reason.
+     * `approximate` because DuckDB and V8 can differ in the last bit of a transcendental result.
     */
     sql: {
         approximate: true,

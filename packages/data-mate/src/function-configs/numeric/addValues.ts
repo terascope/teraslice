@@ -99,8 +99,8 @@ export const addValuesConfig: FieldTransformConfig = {
     },
     argument_schema: {},
     /**
-     * `list_sum`, which ignores nulls and answers NULL for an all-null or empty list - exactly what
-     * the reducer does by skipping nulls and starting from `null`.
+     * `list_sum`, which ignores nulls and returns NULL for an all-null or empty list, as the
+     * reducer does.
     */
     sql: {
         applies: isArrayColumn,

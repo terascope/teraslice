@@ -8,9 +8,9 @@ import {
 } from '../../src/index.js';
 
 /**
- * The worker's ingest path: qpl-search-api turns Elasticsearch records into a frame and sends
- * Parquet back; the worker's slicers and fetches each bring back one payload, and the whole
- * search result must end up as ONE table.
+ * Tests the ingest path between an API process and a worker process. The API process turns
+ * Elasticsearch records into a frame and returns Parquet; each fetch in the worker brings back
+ * one payload, and the whole search result must end up as one table.
 */
 const CONFIG: DataTypeConfig = {
     version: 1,
@@ -234,7 +234,7 @@ describe('TealFrame multi-Parquet ingest (the worker tier)', () => {
 
         it('should let fromRecords throw the plain coercion error, being one-shot', async () => {
             // Nothing survives a failed fromRecords, so AppendError's "what survived" context
-            // would be noise - and the contract there is to throw what DataFrame throws.
+            // adds nothing, and fromRecords throws what DataFrame throws.
             await expect(TealFrame.fromRecords(CONFIG, [{ _key: 'x', bytes: 'nope' }], {}))
                 .rejects.toBeInstanceOf(CoercionFailureError);
         });
@@ -242,11 +242,9 @@ describe('TealFrame multi-Parquet ingest (the worker tier)', () => {
 
     describe('concurrent fetchers', () => {
         /**
-         * The real worker shape: several fetches finish at once and all append to the same
-         * frame. This is a REGRESSION TEST - the first implementation ran BEGIN/COMMIT on the
-         * process-wide shared connection, where a second concurrent append's BEGIN throws
-         * `cannot start a transaction within a transaction`, its ROLLBACK discards the FIRST
-         * append's rows, and the connection is then poisoned for everyone.
+         * Several fetches finish at once and all append to the same frame. Appends must not share
+         * one transaction: on a shared connection a second concurrent BEGIN throws `cannot start a
+         * transaction within a transaction`, and its ROLLBACK discards the first append's rows.
         */
         it('should land every row when many append to one frame at once', async () => {
             const frame = await TealFrame.create(CONFIG, { name: 'accumulator_concurrent' });
@@ -317,10 +315,8 @@ describe('TealFrame multi-Parquet ingest (the worker tier)', () => {
     });
 
     /**
-     * `info()` used to bundle these, and was dropped: every field it reported is reachable
-     * from the frame itself, and the one that was not - an `appends` counter - is what
-     * `append()` already RETURNS. Asserting the return value tests the contract a caller
-     * actually has rather than bookkeeping kept only to be asserted.
+     * The state of a frame is read from its own properties, and what an append added is the
+     * value `append()` returns.
     */
     describe('->the state of a frame', () => {
         it('should report the state of a table frame, including what its appends added',
@@ -363,7 +359,7 @@ describe('TealFrame multi-Parquet ingest (the worker tier)', () => {
             await expect(frame.append({ records: [{ _key: 'bad', bytes: 'nope' }] }))
                 .rejects.toThrow(AppendError);
 
-            // the rolled-back append added nothing, which is the invariant the counter stood in for
+            // the rolled-back append added nothing
             expect(await frame.size()).toBe(2);
 
             await frame.destroy();

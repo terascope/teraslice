@@ -6,10 +6,10 @@ import {
 } from '../../src/index.js';
 
 /**
- * DF7 and DF4: the UDF layer could not bind a LIST, STRUCT, JSON or GEOMETRY parameter or a LIST
- * result, so every geo function, the array reducers, `split`, `parseJSON`, `lookup`, `toGeoPoint`
- * and `toGeoJSON` had no UDF at all. Each case here runs the function with `preferSql: false`, so
- * the UDF is the ONLY path, and requires the same output `DataFrame` produces.
+ * Tests UDFs that take LIST, STRUCT, JSON or GEOMETRY parameters or return a LIST, STRUCT or JSON
+ * result: the geo functions, the array reducers, `split`, `parseJSON`, `lookup`, `toGeoPoint` and
+ * `toGeoJSON`. Each case runs with `preferSql: false`, so the UDF is the only path, and must
+ * produce the same output as `DataFrame`.
 */
 
 const repo = functionConfigRepository as Record<string, FunctionDefinitionConfig<any>>;
@@ -73,8 +73,8 @@ const RECORDS = [
 const fields = CONFIG.fields as Record<string, DataTypeFieldConfig>;
 
 /**
- * `DataFrame.toJSON()` leaves a missing value `undefined` where `rows()` gives `null` - the same
- * absence, spelled two ways - so the comparison is on the value, not the spelling.
+ * `DataFrame.toJSON()` leaves a missing value `undefined` where `rows()` gives `null`, so both
+ * are treated as the same missing value.
 */
 function nullable(values: readonly unknown[]): unknown[] {
     return values.map((value) => {
@@ -89,7 +89,7 @@ async function collect(frame: TealFrame): Promise<Record<string, unknown>[]> {
     return out;
 }
 
-describe('UDF parameter and result types (DF4, DF7)', () => {
+describe('UDF parameter and result types', () => {
     let frame: TealFrame;
     let dataFrame: DataFrame<Record<string, any>>;
 
@@ -168,7 +168,7 @@ describe('UDF parameter and result types (DF4, DF7)', () => {
         expect(rows.map((row) => row.location)).toEqual(expected);
     });
 
-    /** DF20: a JSON column came out of `rows()` as its text. */
+    /** A JSON column must come out of `rows()` as a value, not as its text. */
     it('yields Any and untyped Object columns as values, not JSON text', async () => {
         const config: DataTypeConfig = {
             version: 1,
@@ -195,8 +195,8 @@ describe('UDF parameter and result types (DF4, DF7)', () => {
 
     /**
      * `cast` is `ProcessMode.NONE`, which `DataFrame` runs by copying each value into a Builder for
-     * the NEW type - and the Builder coerces. Returning the column untouched left `'21.223'` in a
-     * column whose config said Integer.
+     * the new type, and the Builder coerces. Returning the column untouched would leave `'21.223'`
+     * in a column whose config says Integer.
     */
     describe('cast', () => {
         const castConfig: DataTypeConfig = {
@@ -266,8 +266,8 @@ describe('UDF parameter and result types (DF4, DF7)', () => {
 
     /**
      * Every `DataFrame` Builder's `_valueFrom` is `coerceToType(outputConfig)`, so a transform's
-     * result is COERCED into its declared output type. The UDF handed it to DuckDB raw, so a result
-     * that disagreed with its `output_type` failed as `A string was expected` (DF2, DF5, DF11).
+     * result is coerced into its declared output type. The UDF must do the same; a raw result that
+     * disagrees with its `output_type` fails in DuckDB with `A string was expected`.
     */
     describe('result coercion into the declared output type', () => {
         const coerceConfig: DataTypeConfig = {
@@ -295,7 +295,7 @@ describe('UDF parameter and result types (DF4, DF7)', () => {
             await coerceFrame.destroy();
         });
 
-        /** The values, or the fact that it threw - both sides must agree on which. */
+        /** The values, or the fact that it threw; both sides must agree on which. */
         async function outcome(run: () => Promise<unknown[]> | unknown[]) {
             try {
                 return { values: await run() };
@@ -332,10 +332,9 @@ describe('UDF parameter and result types (DF4, DF7)', () => {
         });
 
         /**
-         * Exact, where `DataFrame` is one too LOW: its output path subtracts 1 from every bigint
-         * past 2^53 (DEF-BIGINT, #4555). TealFrame stays exact there deliberately (DF15).
-         * Before the result coercion the UDF path was ALSO one low - a raw bigint result met the
-         * value converter's `-1` with no `+1` to cancel it, DF15's bug on the result side.
+         * TealFrame is exact here, where `DataFrame` is one too low: its output path subtracts 1
+         * from every bigint past 2^53 (#4555). The UDF result must be coerced too; a raw bigint
+         * result would meet the value converter's `-1` with no `+1` to cancel it.
         */
         it('ipToInt on an IPv6 address is EXACT past 2^53', async () => {
             const result = await tealFrameAdapter(repo.ipToInt, {
@@ -355,10 +354,9 @@ describe('UDF parameter and result types (DF4, DF7)', () => {
     });
 
     /**
-     * DF1: under `INDIVIDUAL_VALUES` the predicate is mapped over the list, so it is a
-     * `BOOLEAN[]`, and wrapping it as `CASE WHEN <pred> THEN col ...` failed with `Unimplemented
-     * type for cast (BOOLEAN[] -> BOOLEAN)` - on BOTH paths, so every validation on an array field
-     * broke the query.
+     * Under `INDIVIDUAL_VALUES` the predicate is mapped over the list, so it is a `BOOLEAN[]`.
+     * Wrapping it as `CASE WHEN <pred> THEN col ...` fails with `Unimplemented type for cast
+     * (BOOLEAN[] -> BOOLEAN)`, so on both paths each element must be nulled or kept instead.
     */
     describe('a validation on an ARRAY column', () => {
         const arrayConfig: DataTypeConfig = {

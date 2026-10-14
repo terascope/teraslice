@@ -48,11 +48,11 @@ export const isTodayConfig: FieldValidateConfig = {
     ],
     description: 'Returns the input if it is on the same day (utc-time), otherwise returns null',
     /**
-     * Within today's LOCAL day, whose boundaries are computed in JavaScript so they match
-     * `date-fns` rather than DuckDB's session zone.
+     * True when the date falls on today in the local timezone. The day boundaries are computed
+     * in JavaScript so they match `date-fns`, not DuckDB's session timezone.
      *
-     * **"now" is resolved ONCE, at plan time**, where the UDF reads it per row - the accepted
-     * behaviour change recorded in `sql-utils.ts`.
+     * "Now" is read once when the query is planned, not per row as the UDF does; see
+     * `sql-utils.ts`.
     */
     sql: {
         types: [FieldType.Date],

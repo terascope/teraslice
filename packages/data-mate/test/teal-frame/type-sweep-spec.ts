@@ -3,11 +3,11 @@ import { FieldType, DataTypeConfig, DataTypeFields } from '@terascope/types';
 import { TealFrame, closeDuckDatabase, diffSchema, DataFrame } from '../../src/index.js';
 
 /**
- * One sample value per FieldType, in the form the ES client would hand us.
+ * One sample value per FieldType, in the form the Elasticsearch client returns it.
  *
- * The point is a round trip: `fromRecords` -> table -> `rows()`. That is the whole lifecycle
- * data-mate is responsible for, and it is where representation gotchas hide - the
- * `DuckDBListValue` leak was found exactly this way.
+ * Each value makes a round trip, `fromRecords` -> table -> `rows()`, which is the whole lifecycle
+ * data-mate is responsible for and where representation problems such as a leaked
+ * `DuckDBListValue` show up.
  */
 const SAMPLES: Partial<Record<FieldType, unknown>> = {
     [FieldType.Boolean]: true,
@@ -43,7 +43,7 @@ const SAMPLES: Partial<Record<FieldType, unknown>> = {
 
 /** Types whose sample is inherently a list, so they cannot also be tested as an array-of. */
 const ALREADY_LIST = new Set<FieldType>([
-    // Boundary is a list of points by definition. Vector is NOT - type-coercion maps it with
+    // Boundary is a list of points by definition. Vector is not: type-coercion maps it with
     // `toFloatOrThrow` per value, so a multi-value Vector is declared `array: true`.
     FieldType.Boundary,
 ]);
@@ -117,8 +117,8 @@ describe('every FieldType round-trips through the frame', () => {
         });
 
         /**
-         * Plain is not enough: an `Any` or untyped `Object` came back as its JSON TEXT, which is a
-         * plain string and passed the check above while every caller got `'{"x":1}'` for `{x: 1}`.
+         * Plain values are not enough. An `Any` or untyped `Object` returned as JSON text would
+         * pass the check above as a plain string while callers got `'{"x":1}'` for `{x: 1}`.
         */
         it('yields exactly what DataFrame yields', async () => {
             const { value, expected } = await roundTrip(type, false);
@@ -136,7 +136,7 @@ describe('every FieldType round-trips through the frame', () => {
             const { value } = await roundTrip(type, true);
             expect(Array.isArray(value)).toBeTrue();
             assertPlain(value);
-            // JSON.stringify is what the response path does - a wrapper shows up here
+            // a response is serialized with JSON.stringify, so a wrapper would show up here
             expect(JSON.stringify(value)).toStartWith('[');
         });
 

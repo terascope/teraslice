@@ -6,11 +6,8 @@ import {
 } from '../src/index.js';
 
 /**
- * The clause builder, which is the one place null placement is decided.
- *
- * These are the tests that stop the two packages drifting apart again: before this existed,
- * `xlucene-translator` emitted `x ASC` and let DuckDB's `NULLS LAST` default stand, while
- * `data-mate`'s frame emitted `x ASC NULLS FIRST`.
+ * The clause builder is the one place null placement is decided, so `xlucene-translator` and
+ * `data-mate` sort nulls the same way.
 */
 describe('clauses', () => {
     describe('->sortDirection', () => {
@@ -35,8 +32,8 @@ describe('clauses', () => {
     });
 
     /**
-     * **`DataFrame`'s rule, which agrees with no engine's default**, so it is always spelled
-     * out rather than left to one. `Vector.compare` treats a nil as the smallest value.
+     * This is `DataFrame`'s rule (`Vector.compare` treats a nil as the smallest value). It
+     * matches no engine's default, so it is always written out.
     */
     describe('->defaultNullOrder', () => {
         it('puts nulls first ascending, which is where the smallest value goes', () => {
@@ -60,11 +57,10 @@ describe('clauses', () => {
         });
 
         /**
-         * The REGRESSION this file exists for: the null default is taken from the NORMALISED
-         * direction. Reading the raw value made `'DESC'` - a legal spelling - fall through to
-         * the ascending branch and sort its nulls at the wrong end.
+         * The null default must come from the normalized direction. Using the raw value would
+         * send `'DESC'`, a legal spelling, down the ascending branch and misplace its nulls.
         */
-        it('uses the normalised direction to place nulls, not the raw value', () => {
+        it('uses the normalized direction to place nulls, not the raw value', () => {
             expect(orderByTerms([{ expression: '"bytes"', order: 'DESC' as never }]))
                 .toBe('"bytes" DESC NULLS LAST');
         });

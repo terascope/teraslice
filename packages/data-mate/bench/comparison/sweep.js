@@ -1,32 +1,27 @@
 /**
- * Supervises a full sweep so a FATAL abort becomes a FINDING, not a hole in the report.
+ * Supervises a full sweep so that a process abort becomes a recorded result instead of missing
+ * data.
  *
  *     cd packages/data-mate && pnpm build
  *     node bench/comparison/sweep.js                 # every scale, both engines, then render
  *     SCALES=3000000,5000000 node bench/comparison/sweep.js
  *     HEAP=24576 CASE_TIMEOUT=1800 node bench/comparison/sweep.js
  *
- * **Why a supervisor exists.** `DataFrame.unique(fields)` at 3M does not throw - V8 prints
- * `FATAL ERROR: Ineffective mark-compacts near heap limit` and aborts the process (exit 134).
- * Nothing inside the runner can catch that, so a single-process sweep lost the 12 cases that came
- * after it, at 3M and again at 5M - including every ldjson case, both joins and all the
- * aggregations, which are the most compelling TealFrame wins at exactly the scales that matter.
+ * At 3M rows, `DataFrame.unique(fields)` does not throw: V8 prints `FATAL ERROR: Ineffective
+ * mark-compacts near heap limit` and aborts the process (exit 134). The runner cannot catch that,
+ * so in a single process every case after it would be lost. This script runs the loop instead:
  *
- * So this process owns the loop instead:
- *
- * 1. Run `run.js` as a child, one scale and one ENGINE at a time. The engine split means a
- *    DataFrame abort cannot take TealFrame's numbers with it.
+ * 1. Run `run.js` as a child process, one scale and one engine at a time, so a DataFrame abort
+ *    cannot lose TealFrame's results.
  * 2. The child writes an in-flight marker naming the case it is about to measure.
- * 3. On a non-zero exit, read the marker, record THAT case's cell as an OOM for that engine, add
- *    it to the child's skip list, and restart from the next case.
+ * 3. On a non-zero exit, read the marker, record that case as an OOM for that engine, add it to
+ *    the child's skip list, and restart.
  * 4. Repeat until the child exits cleanly, then render the report once.
  *
- * A child that stops producing output for `CASE_TIMEOUT` seconds is killed and recorded as hung -
- * a probe that registered UDFs once printed all its output and then never exited, and a sweep
- * must not wait five hours to find out.
+ * A child that produces no output for `CASE_TIMEOUT` seconds is killed and recorded as hung.
  *
- * The lifecycle section is NOT measured here: every stage of it times both engines as a pair, so
- * it needs a process with both loaded. Run `SCALES=<small scales> node run.js` for that.
+ * The lifecycle section is not run here, because each of its stages times both engines as a pair
+ * and needs a process with both loaded. Run `SCALES=<small scales> node run.js` for that.
 */
 import { spawn } from 'node:child_process';
 import process from 'node:process';
@@ -42,15 +37,14 @@ const ENGINES = (process.env.ENGINES || 'tealframe,dataframe').split(',');
 const OUT = process.env.OUT || 'bench/comparison/PERFORMANCE.md';
 
 /**
- * The runner this supervises. Overridable ONLY so the restart-after-death path can be tested with
- * a stub that dies on demand - reproducing a real V8 abort takes a multi-minute 5M run, and a
- * recovery path that is never exercised is a recovery path that does not work.
+ * The runner this supervises. Overridable so the restart path can be tested with a stub that
+ * exits on demand, since a real V8 abort takes a multi-minute run to reproduce.
 */
 const RUNNER = process.env.RUNNER || 'bench/comparison/run.js';
 
 /**
- * TealFrame first, deliberately: its numbers are the ones a DataFrame abort used to destroy, so
- * they are banked before the engine that dies is asked to run at all.
+ * The default order runs TealFrame first, so its results are saved before DataFrame, the engine
+ * that can abort, runs at all.
 */
 for (const engine of ENGINES) {
     if (!['dataframe', 'tealframe'].includes(engine)) {

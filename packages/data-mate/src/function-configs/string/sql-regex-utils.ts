@@ -1,23 +1,20 @@
 import { HAS_ASTRAL, JS_WHITESPACE, sqlLiteral } from '../sql-helpers.js';
 
 /**
- * Where DuckDB's RE2 and JavaScript's regex engine part company.
+ * Where DuckDB's regex engine (RE2) and JavaScript's differ.
  *
- * Split out of `sql-utils.ts` because it is a subject in its own right, and because getting it
- * half-right cost an already-promoted function a silent wrong answer: `replaceRegex` returned
- * different text for `.`, `\s`, `\S` and `[^`. **Compiling is not matching:** RE2 refusing a
- * construct is loud, RE2 accepting one and
- * meaning something else is not.
+ * Some differences stop RE2 from compiling a pattern, which fails loudly. Others compile in both
+ * engines but match different characters, which silently returns a different answer. The helpers
+ * here detect both.
 */
 /**
- * Whether a regex is safe to hand to RE2, DuckDB's engine.
+ * Whether a regex can be handed to RE2, DuckDB's engine.
  *
- * **RE2 has no lookaround and no backreferences**, and it does not degrade gracefully - the query
- * ERRORS. A JavaScript pattern using either is therefore not a slow path, it is a dead query, so
- * anything containing `(?=`, `(?!`, `(?<=`, `(?<!` or a `\1`-style backreference keeps the UDF.
+ * RE2 has no lookaround and no backreferences, and the query errors if a pattern uses them.
+ * Anything containing `(?=`, `(?!`, `(?<=`, `(?<!` or a backreference like `\1` keeps the UDF.
  *
- * Named groups `(?<name>...)` are excluded by the same `(?<` test. That is stricter than necessary
- * - RE2 supports them as `(?P<name>...)` - and being stricter is the right side to err on.
+ * Named groups `(?<name>...)` are excluded by the same `(?<` test. RE2 supports them as
+ * `(?P<name>...)`, so this is stricter than necessary, which is the safe direction.
 */
 export function isRe2Safe(pattern: string): boolean {
     if (/\(\?[=!]/.test(pattern)) return false;
@@ -27,10 +24,9 @@ export function isRe2Safe(pattern: string): boolean {
 /**
  * Whether a replacement string is a plain literal.
  *
- * **`$1` means a capture group in JavaScript and NOTHING in SQL** - measured, `'abc'` with
- * `/(a)(b)/g` and `'$2$1'` is `'bac'` in JavaScript and the literal `'$2$1c'` in DuckDB, which uses
- * `\1`. Translating is possible but `$&`, `` $` ``, `$'` and `$$` all mean something too, so a
- * replacement containing `$` keeps the UDF rather than being half-translated.
+ * `$1` is a capture group in JavaScript but literal text in DuckDB, which uses `\1`: `'abc'` with
+ * `/(a)(b)/g` and `'$2$1'` gives `'bac'` in JavaScript and `'$2$1c'` in DuckDB. `$&`, `` $` ``,
+ * `$'` and `$$` also have meanings, so any replacement containing `$` keeps the UDF.
 */
 export function isLiteralReplacement(replace: string): boolean {
     return !replace.includes('$');
@@ -38,60 +34,51 @@ export function isLiteralReplacement(replace: string): boolean {
 /**
  * Every character where RE2's `\s`, `\S` and `.` disagree with JavaScript's, as an RE2 class.
  *
- * **`isRe2Safe` is not sufficient on its own, and this is the measurement that says so.** It only
- * rejects the constructs RE2 cannot COMPILE. A pattern both engines compile can still match
- * different characters, and that failure is silent - a different answer, not an error.
+ * A pattern that passes `isRe2Safe` can still match different characters in the two engines:
  *
- * Measured over all 28 characters that could differ:
+ * - `\s` differs on 20 characters. JavaScript's `\s` includes vertical tab, NBSP, the whole `Zs`
+ *   category, U+2028, U+2029 and the BOM; RE2's is exactly `[\t\n\f\r ]`. `\S` differs on the same
+ *   20.
+ * - `.` differs on 3. JavaScript's `.` excludes CR, U+2028 and U+2029 as well as LF; RE2's excludes
+ *   only LF.
+ * - `\w`, `\d` and `\b` agree, because both engines are ASCII-only there.
  *
- * - **`\s` diverges on 20 of them.** JavaScript's `\s` is `WhiteSpace` + `LineTerminator`, so it
- *   accepts VERTICAL TAB, NBSP, the whole `Zs` category, U+2028, U+2029 and the BOM. RE2's `\s` is
- *   exactly `[\t\n\f\r ]`. `\S`, being the complement, inverts on the same 20.
- * - **`.` diverges on 3.** JavaScript's `.` excludes CR, U+2028 and U+2029 as well as LF; RE2's
- *   excludes only LF.
- * - **`\w`, `\d` and `\b` AGREE on all 28** - both engines are ASCII-only there, so a pattern built
- *   from those needs no guard at all.
+ * Astral input is a separate problem. A pattern that matches any character (`.`, `\S`, a negated
+ * class) consumes one UTF-16 code unit in JavaScript and one code point in RE2, so `/\S/g` makes
+ * two replacements per astral character in JavaScript and one in SQL. Translating the class cannot
+ * fix that, so `withClassGuard` combines this class with `HAS_ASTRAL`.
  *
- * **The gate then added a second half the probe had not asked about: ASTRAL input.** A pattern that
- * matches "any character" - `.`, `\S`, a negated class - consumes one UTF-16 CODE UNIT in
- * JavaScript and one CODE POINT in RE2, so `/\S/g` replacing over `'\u{1D518}nicode'` produces
- * TWO replacements per astral character in JavaScript and one in SQL. Translating the class cannot
- * fix that, because it is the unit of matching rather than the class membership - so `HAS_ASTRAL`
- * joins this class in `withClassGuard`, which is why that guard is built from both.
- *
- * So the guard is on the VALUE, not the pattern - the same shape as `HAS_ASTRAL` elsewhere. A value
- * holding none of these characters gets the native path; one that does keeps the UDF, where
- * JavaScript's own classes and code units apply.
+ * The guard is applied to the value, not the pattern: a value containing none of these characters
+ * takes the native path, and one that does keeps the UDF.
 */
 export const RE2_CLASS_DIVERGENCE = '[\\x{0b}\\x{0d}\\x{a0}\\x{1680}\\x{2000}-\\x{200a}'
     + '\\x{2028}\\x{2029}\\x{202f}\\x{205f}\\x{3000}\\x{feff}]';
 /**
- * Whether a pattern contains a class whose definition differs between the engines.
+ * Whether a pattern contains a class whose meaning differs between the engines.
  *
- * Only `.`, `\s` and `\S` do - see `RE2_CLASS_DIVERGENCE`. A `.` inside a character class (`[.]`)
- * is a literal dot and needs no guard, but distinguishing that means parsing the pattern, so any
- * `.` at all asks for the guard. Over-guarding costs a UDF call for exotic values; under-guarding
- * returns a wrong answer.
+ * Only `.`, `\s`, `\S` and negated classes do; see `RE2_CLASS_DIVERGENCE`. A `.` inside a character
+ * class (`[.]`) is a literal dot, but detecting that requires parsing the pattern, so any `.`
+ * triggers the guard. Over-guarding costs a UDF call for unusual values; under-guarding returns a
+ * wrong answer.
 */
 export function needsClassGuard(pattern: string): boolean {
     return /\\[sS]/.test(pattern) || pattern.includes('.') || pattern.includes('[^');
 }
 /**
- * A pattern whose ESCAPES mean the same thing to both engines.
+ * Whether a pattern's escapes mean the same thing in both engines.
  *
- * `\p{...}`/`\P{...}` are Unicode property escapes to RE2 always, and to JavaScript **only under
- * the `u` flag** - without it `\p` is an identity escape, so `/\p{L}/` matches the literal text
- * `p{L}`. `\u{...}` is the same story. Neither errors, so both are silent divergences and both
- * keep the UDF.
+ * `\p{...}` and `\P{...}` are Unicode property escapes in RE2, but in JavaScript only under the `u`
+ * flag. Without it `\p` is an identity escape, so `/\p{L}/` matches the literal text `p{L}`.
+ * `\u{...}` behaves the same way. Neither errors, so patterns using them keep the UDF.
 */
 export function hasPortableEscapes(pattern: string): boolean {
     return !/\\[pP]\{/.test(pattern) && !/\\u\{/.test(pattern);
 }
 /**
- * Guards a native regex expression with the value-level class check, when the pattern needs it.
+ * Wraps a native regex expression in the per-value class guard, when the pattern needs it.
  *
- * The whole point of `needs_udf_fallback`: the native path runs for every value that cannot be
- * affected by the divergence, which is all real text, and the UDF answers for the rest.
+ * Values the engine differences cannot affect, which is nearly all real text, use the native
+ * expression; the rest use the UDF.
 */
 export function withClassGuard(
     pattern: string,
@@ -109,11 +96,12 @@ export function re2Literal(value: string): string {
     return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 }
 /**
- * How many capture groups a pattern has, and whether the emission can express it.
+ * How many capture groups a pattern has, or null if JavaScript cannot compile it.
  *
- * `matchAll` pushes ALL groups of every match, interleaved - `regexp_extract_all` takes one group
- * index - so more than one group has no native form. Counted by compiling `pattern|`, which matches
- * the empty string and reports the group count without needing the pattern to match anything.
+ * `matchAll` collects every group of every match, while `regexp_extract_all` takes one group index,
+ * so more than one group has no native form. The count comes from compiling `pattern|`, which
+ * matches the empty string and so reports the group count whether or not the pattern itself
+ * matches.
 */
 export function countGroups(pattern: string): number | null {
     try {
@@ -124,13 +112,12 @@ export function countGroups(pattern: string): number | null {
     }
 }
 /**
- * `JS_WHITESPACE` as an RE2 character class, built from the code points rather than typed.
+ * `JS_WHITESPACE` as an RE2 character class, generated from the code points.
  *
- * **The reason this exists is `\s`.** Several `core-utils` regexes use `\s`, and RE2's `\s` is only
- * `[\t\n\f\r ]` where JavaScript's takes 20 more (see `RE2_CLASS_DIVERGENCE`). Where the
- * pattern is one of OURS - transliterated from `core-utils`, not supplied by a caller - the right
- * answer is not to guard the value but to write the class JavaScript actually means. Generated from
- * `JS_WHITESPACE` so the two can never drift.
+ * Several `core-utils` regexes use `\s`, and RE2's `\s` is narrower than JavaScript's (see
+ * `RE2_CLASS_DIVERGENCE`). When the pattern is one of ours, copied from `core-utils` rather than
+ * supplied by a caller, this class replaces `\s` so the pattern means what it means in JavaScript.
+ * Generating it from `JS_WHITESPACE` keeps the two in sync.
 */
 export const JS_WHITESPACE_CLASS = `[${[...JS_WHITESPACE]
     .map((char) => `\\x{${char.codePointAt(0)!.toString(16).padStart(2, '0')}}`)

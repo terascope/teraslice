@@ -79,7 +79,7 @@ export const isBeforeConfig: FieldValidateConfig<IsBeforeArgs> = {
     create({ args: { date } }) {
         return (input: unknown) => isBefore(input, date);
     },
-    /** Strict, for the same reason as `isAfter`. */
+    /** A strict `<` against the constant argument, as in `isAfter`. */
     sql: {
         types: [FieldType.Date],
         applies: (args) => isDateArg(args.date),

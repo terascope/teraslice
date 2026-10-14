@@ -8,17 +8,15 @@ import { DuckTestDB } from '../sql/duckdb-helpers.js';
 const { makeClient, populateIndex, cleanupIndex } = ElasticsearchTestHelpers;
 
 /**
- * **Field restrictions, answered by BOTH engines and required to agree.**
+ * Field restrictions, applied by both engines, must return the same records.
  *
- * `restrictSearchQuery` can hand `_source_includes`/`_source_excludes` to OpenSearch and let
- * the server withhold the field. SQL has no equivalent: the projection is the only place a
- * field can be withheld, so `restrictSQLQuery` builds one. Whether those two arrive at the
- * same answer is not something either side can be asked on its own - so this runs the same
- * `QueryAccess` against a real OpenSearch and a real DuckDB and compares the records.
+ * `restrictSearchQuery` passes `_source_includes`/`_source_excludes` to OpenSearch and lets
+ * the server withhold fields. SQL has no equivalent, so `restrictSQLQuery` builds a
+ * projection instead. This runs the same `QueryAccess` against a real OpenSearch and a real
+ * DuckDB and compares the records.
  *
- * The fields here are deliberately plain. A `geo-point` is a string in `_source` and a
- * `STRUCT` in DuckDB, and comparing those would be testing the storage mapping rather than
- * the restriction.
+ * The fields are plain types on purpose. A `geo-point` is a string in `_source` and a
+ * `STRUCT` in DuckDB, so comparing them would test the storage mapping, not the restriction.
 */
 describe('source restrictions, opensearch vs duckdb', () => {
     const index = 'sql_parity_';
@@ -103,8 +101,8 @@ describe('source restrictions, opensearch vs duckdb', () => {
     }
 
     /**
-     * The two calls sit side by side on purpose: each takes a query and a `params`, and each
-     * returns something its client executes unchanged. Neither test assembles anything.
+     * Each call takes a query and `params` and returns something its client executes
+     * unchanged. Neither test adds anything of its own.
     */
 
     async function fromDuckDB(
@@ -125,10 +123,9 @@ describe('source restrictions, opensearch vs duckdb', () => {
     }
 
     /**
-     * **A configured `includes` restricts what can be QUERIED as well as what is returned**,
-     * so every scenario below that sets one keeps `bar` in it - the field the shared query
-     * filters on. Leaving it out does not produce a different projection, it produces a
-     * rejected query, which would be a different test.
+     * A configured `includes` restricts which fields can be queried as well as returned, so
+     * every scenario below that sets one keeps `bar`, the field the shared query filters on.
+     * Leaving it out would reject the query instead of changing the projection.
     */
     const scenarios: [string, QueryAccessConfig<any>, Record<string, any>][] = [
         ['no restrictions at all', {}, {}],
@@ -163,10 +160,9 @@ describe('source restrictions, opensearch vs duckdb', () => {
     /**
      * The case a caller-side field filter gets backwards.
      *
-     * When none of the requested fields are permitted, `restrictSourceFields` answers with
-     * `excludes: ['*']` - which is not a field name. Filtering column names against that list
-     * removes nothing and returns EVERYTHING, so the most restrictive input would produce the
-     * most permissive output. Both engines have to answer with no data.
+     * When none of the requested fields are permitted, `restrictSourceFields` returns
+     * `excludes: ['*']`, which is not a field name. Filtering column names against that list
+     * removes nothing and returns every column. Both engines must return no data.
     */
     it('returns no data when nothing may be read', async () => {
         const access = new QueryAccess<any>({
@@ -187,7 +183,7 @@ describe('source restrictions, opensearch vs duckdb', () => {
         expect(duckdb).toEqual([{}, {}]);
     });
 
-    /** The restriction has to survive into the statement, not just into the result object. */
+    /** The restriction must reach the SQL statement, not just the result object. */
     it('withholds an excluded column from the rows themselves', async () => {
         const access = new QueryAccess<any>({
             excludes: ['baz'],

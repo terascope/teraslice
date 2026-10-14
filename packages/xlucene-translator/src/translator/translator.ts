@@ -72,13 +72,12 @@ export class Translator {
     /**
      * Translate the query to a SQL boolean expression.
      *
-     * The result is an EXPRESSION and not a statement - `"bar" = 'hello'`, not
-     * `SELECT ... WHERE ...` - because the caller owns the projection and the source. Hand it
-     * to a `WHERE` clause, or to any API that takes a predicate.
+     * The result is an expression such as `"bar" = 'hello'`, not a full statement; the caller
+     * supplies the projection and the source. Use it in a `WHERE` clause or any API that
+     * takes a predicate.
      *
-     * **The dialect is not cosmetic.** Engines differ on regular expressions, IP containment
-     * and every geo predicate, so `opts.dialect` decides which SQL is emitted; it defaults to
-     * DuckDB, which is the engine this is verified against.
+     * `opts.dialect` selects the engine, because regular expressions, IP handling and geo
+     * predicates differ between engines. It defaults to DuckDB.
      *
      * @example
      * new Translator('bar:hello AND num:>50', { type_config }).toSQL();
@@ -96,9 +95,7 @@ export class Translator {
             geo_sort_unit: opts.geo_sort_unit || this._defaultGeoSortConfig.default_unit,
         });
 
-        if (logger.level() === 10) {
-            logger.trace(`translated ${this.query ? this.query : '\'\''} query to sql`, result);
-        }
+        logger.trace(`translated ${this.query ? this.query : '\'\''} query to sql`, result);
 
         return result;
     }

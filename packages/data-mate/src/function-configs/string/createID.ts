@@ -125,11 +125,10 @@ export const createIDConfig: FieldTransformConfig<CreateIDArgs> = {
         /**
          * A scalar string column only.
          *
-         * `createID` is `FULL_VALUES` and hashes `toString(value)`, or for an array
-         * `value.flat().map(toString).join('')`. On a string column `toString` is identity and the
-         * hash is exact; every other shape means reproducing `toString`'s number, boolean, object
-         * and nested-array rendering in SQL, which is a guess this file exists to avoid. An array
-         * or tuple column keeps the UDF.
+         * `createID` hashes `toString(value)`, or for an array
+         * `value.flat().map(toString).join('')`. On a string column `toString` is the identity, so
+         * the hash is exact. Other column types would need SQL that reproduces how `toString`
+         * renders numbers, booleans, objects and nested arrays, so they keep the UDF.
         */
         types: STRING_FIELD_TYPES,
         applies: ({ hash, digest }, inputConfig) => !inputConfig.field_config.array

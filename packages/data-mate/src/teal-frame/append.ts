@@ -9,36 +9,18 @@ import {
 } from './interfaces.js';
 
 /**
- * **The ingest path** - getting rows INTO a frame's table: `TealFrame.append`, and so
- * `fromRecords`.
+ * Loads rows into a frame's table. Used by `TealFrame.append` and `fromRecords`.
  *
- * **There is no JSON anywhere in this path.** Records arrive as JS objects (the
- * Elasticsearch client already parsed them), are coerced by `coerceToType` - the SAME
- * function the regular builder uses - and are appended as typed values. Coercion is
- * therefore parity by construction: there is no second implementation of any field
- * semantics to drift from.
+ * Records arrive as JS objects, are coerced with `coerceToType` (the same function
+ * `DataFrame`'s builder uses) and are appended as typed values, with no JSON round trip.
+ * Because the coercion code is shared, field semantics match `DataFrame` exactly.
  *
- * Measured, 1M rows x 7 fields:
- *
- * | | time |
- * |---|---|
- * | `coerceToType` + appender (this path) | **510 ms** |
- * | `DataFrame.fromJSON` (ends at a DataFrame) | 573 ms |
- * | `COPY TO` parquet zstd | 30 ms |
- * | `read_parquet` on the far side, no coercion | **12 ms** |
- *
- * An earlier design serialized records to ndjson and used `read_json` plus a
- * hand-written SQL coercion layer. It was the same speed, needed ~2,000 lines
- * reimplementing `coerceToType`, and carried 11 documented divergences. It was deleted.
- * See `ingest-findings.md` in datamate-spaces - read the STOP block, not the chronology.
- *
- * Free functions rather than methods because none of them touches the frame: each takes the
- * connection the append owns (its own, for the transaction - see `appendInTransaction`), the
- * table, and what is going in. Separating them keeps `TealFrame.ts` about the frame.
+ * These are free functions because none of them needs the frame. Each takes the append's own
+ * connection (see `appendInTransaction`), the table name and the input.
 */
 
-/** Row count that never throws: used while reporting a failure, where throwing again
- * would replace the real error with a worse one. */
+/** Counts a table's rows without throwing. Used while reporting a failure, where a second
+ * error would hide the original one. */
 export async function countQuietly(
     connection: DuckDBConnection, table: string
 ): Promise<number | undefined> {
@@ -54,13 +36,13 @@ export async function countQuietly(
 }
 
 /**
- * `INSERT ... BY NAME`, **not positional** - measured: a plain `INSERT ... SELECT *` fails
- * outright when a payload's column order differs from the table's (`Could not convert
- * string 'z' to INT32`), and separate api-server responses are not worth trusting to agree
- * on column order.
+ * Appends Parquet files with `INSERT ... BY NAME`.
  *
- * No coercion: Parquet is typed and schema-carrying, and these values were already
- * validated by `fromRecords` on the producer side.
+ * Columns are matched by name because a positional `INSERT ... SELECT *` fails when a file's
+ * column order differs from the table's, and separately produced files may not agree on order.
+ *
+ * No coercion is needed: Parquet is typed, and the values were coerced by `fromRecords` when
+ * the file was written.
 */
 export async function appendParquet(
     connection: DuckDBConnection, table: string, paths: string | readonly string[]
@@ -74,12 +56,10 @@ export async function appendParquet(
 }
 
 /**
- * Coerces with `coerceToType` - the SAME function the regular builder uses, so parity is by
- * construction - and appends the values through a typed DuckDB appender.
+ * Coerces records with `coerceToType` and appends them through a typed DuckDB appender.
  *
- * `strict` (the default) fails on the FIRST bad value, matching `DataFrame`, whose Builder
- * throws out of `valueFrom` with nothing catching it. `lenient` nulls the value and collects
- * every failing field with counts and an example.
+ * `strict` (the default) throws on the first bad value, as `DataFrame`'s builder does.
+ * `lenient` stores null instead and collects each failing field with a count and an example.
 */
 export async function appendRecords(
     connection: DuckDBConnection,
@@ -92,7 +72,7 @@ export async function appendRecords(
     const lenient = (options.mode ?? 'strict') === 'lenient';
     const failures = new Map<string, CoercionFailure>();
 
-    /** Records one failure. In strict mode this throws immediately - see above. */
+    /** Records one failure. In strict mode this throws immediately. */
     const recordFailure = (name: string, fieldType: string, value: unknown): null => {
         const existing = failures.get(name);
         if (existing) {
@@ -141,7 +121,7 @@ export async function appendRecords(
 
         appender.flushSync();
     } finally {
-        // closed even on the failure path, so the rollback is not racing an open appender
+        // close on failure too, so the rollback does not run while the appender is open
         appender.closeSync();
     }
 
@@ -149,18 +129,15 @@ export async function appendRecords(
 }
 
 /**
- * `TealFrame.append`'s transaction: ONE append, atomic, on its own connection.
+ * Runs one `TealFrame.append` as an atomic transaction on its own connection.
  *
- * **Its own connection is a correctness requirement, not tuning.** A DuckDB transaction belongs to
- * a CONNECTION, and the shared one is shared process-wide - so on it, a second concurrent append's
- * `BEGIN` throws `cannot start a transaction within a transaction`, its `ROLLBACK` then discards
- * the FIRST append's rows, and every later statement on that connection fails with `Current
- * transaction is aborted`. All three measured. Concurrent fetchers appending to one frame is the
- * normal case, so each append is isolated.
+ * **The separate connection is required for correctness.** A DuckDB transaction belongs to a
+ * connection, and the shared connection is used by the whole process. If two appends shared it,
+ * the second `BEGIN` would throw, its `ROLLBACK` would discard the first append's rows, and every
+ * later statement would fail with `Current transaction is aborted`.
  *
- * Concurrency is then genuinely safe AND fast, measured: 10 concurrent appends into the SAME table
- * from 10 connections all succeeded, no write conflict, 500k rows in 25 ms. DuckDB's MVCC handles
- * append-vs-append; there are no row conflicts to lose.
+ * With one connection per append, concurrent appends to the same table are safe: DuckDB's MVCC
+ * lets appends proceed without write conflicts.
 */
 export async function appendInTransaction(
     instance: DuckDBInstance,
@@ -187,8 +164,8 @@ export async function appendInTransaction(
                 table,
                 source: source.records === undefined ? 'parquet' : 'records',
                 describedSource: describeSource(source),
-                // counted AFTER the rollback, so it reports what actually survived - and only
-                // here, so a successful append never pays for it
+                // counted after the rollback, so it reports what is left; a successful
+                // append never pays for the count
                 rowsRemaining: await countQuietly(connection, table),
             }, err);
         }

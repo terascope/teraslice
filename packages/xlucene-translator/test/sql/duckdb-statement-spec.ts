@@ -8,11 +8,11 @@ import { QueryAccess } from '../../src/index.js';
 import { DuckTestDB } from './duckdb-helpers.js';
 
 /**
- * The statement `restrictSQLQuery` builds, executed as it was handed over.
+ * The statement `restrictSQLQuery` builds, executed as returned.
  *
  * `restrictSearchQuery` takes an `index` and a `size` and returns something
- * `client.search()` accepts unchanged; this is the same bargain in SQL, and these tests only
- * pass if the string needs nothing done to it.
+ * `client.search()` accepts unchanged. `restrictSQLQuery` does the same for SQL, so these
+ * tests run the string without changing it.
 */
 describe('sql statements (duckdb)', () => {
     const table = 'statement_test';
@@ -75,8 +75,8 @@ describe('sql statements (duckdb)', () => {
         });
 
         /**
-         * A table name is quoted a segment at a time, so a reserved word is an ordinary name -
-         * `order` and `group` are real table names and a parser error unquoted.
+         * A table name is quoted one segment at a time, so reserved words like `order` and
+         * `group` work as table names.
         */
         it('quotes a table whose name is a reserved word', async () => {
             await db.createTable('order', dataType, searchData.slice(0, 1));
@@ -96,9 +96,8 @@ describe('sql statements (duckdb)', () => {
 
     describe('the relation', () => {
         /**
-         * **The teal-frame case.** The rows live in Parquet files rather than a table, and no
-         * identifier can name them - so the source is an expression the caller writes and this
-         * uses verbatim.
+         * The TealFrame case: the rows live in Parquet files, not a table, so the source is an
+         * expression the caller writes and it is used as given.
         */
         it('selects from a parquet file', async () => {
             const file = path.join(tempDir, 'rows.parquet');
@@ -141,8 +140,8 @@ describe('sql statements (duckdb)', () => {
         });
 
         /**
-         * A `LIMIT` cannot be parameterised, so the number is written into the statement -
-         * which makes checking it the difference between a limit and an injection point.
+         * A `LIMIT` cannot be parameterized, so the number is written into the statement and
+         * must be validated to prevent injection.
         */
         it.each([
             ['a negative size', { size: -1 }],
@@ -166,12 +165,11 @@ describe('sql statements (duckdb)', () => {
         });
 
         /**
-         * **The direction is checked for the same reason `size` is.**
+         * The direction is validated for the same reason `size` is.
          *
-         * It arrives from a caller's request and goes into the statement as a keyword, so an
-         * unchecked one is an injection point sitting next to a carefully checked `LIMIT`. The
-         * expression beside it is the caller's own SQL - a geo-distance sort is a function
-         * call - and is deliberately not.
+         * It comes from a caller's request and goes into the statement as a keyword. The sort
+         * expression is the caller's own SQL (a geo-distance sort is a function call), so it is
+         * not validated.
         */
         it.each([
             ['an unknown direction', 'ascending'],
@@ -204,8 +202,8 @@ describe('sql statements (duckdb)', () => {
 
     describe('field restrictions', () => {
         /**
-         * The reason the statement is built here rather than by the caller: this is the piece
-         * a caller composing `SELECT * FROM …` leaves out.
+         * The statement is built here, not by the caller, because a caller writing
+         * `SELECT * FROM …` would leave out the restriction.
         */
         it('bakes an exclude into the projection', async () => {
             const restricted = new QueryAccess({

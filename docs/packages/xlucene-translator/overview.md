@@ -11,141 +11,141 @@ Opensearch has a limitation on the degree of precision based on how they store [
 
 ## SQL
 
-`QueryAccess.restrictSQLQuery` is the SQL counterpart of `restrictSearchQuery`: that one takes
-`params` and returns search params a client accepts unchanged, and this takes `params` and
-returns a **statement a client accepts unchanged**.
+xLucene queries can be translated to SQL as well as to the Elasticsearch DSL. DuckDB is the
+default engine; PostgreSQL is also available.
+
+### A complete statement
+
+`QueryAccess.restrictSQLQuery` is the SQL counterpart of `restrictSearchQuery`. It returns a
+complete statement, with the access rules and field restrictions already applied, that you can
+run as-is:
 
 ```ts
+import { xLuceneFieldType } from '@terascope/types';
+import { QueryAccess } from 'xlucene-translator';
+
+const access = new QueryAccess({
+    excludes: ['secret'],
+    type_config: {
+        id: xLuceneFieldType.String,
+        bar: xLuceneFieldType.String,
+        secret: xLuceneFieldType.String,
+        num: xLuceneFieldType.Integer,
+    },
+});
+
 const sql = await access.restrictSQLQuery('bar:hello', {
     params: { table: 'events', size: 100 }
 });
-// SELECT * FROM "events" WHERE ("bar" = 'hello') LIMIT 100
+// SELECT "id", "bar", "num" FROM "events" WHERE ("bar" = 'hello') LIMIT 100
 
 await connection.run(sql);
 ```
 
-Neither method asks the caller to assemble anything, and for the same reason: the part a caller
-forgets to assemble is the field restriction.
+`params` maps to the statement like this:
 
-| `restrictSearchQuery` param | `restrictSQLQuery` param | becomes |
+| `restrictSearchQuery` param | `restrictSQLQuery` param | SQL |
 |---|---|---|
-| `index` | `table` | `FROM "events"`, quoted a segment at a time |
-| — | `relation` | `FROM …` **verbatim** — `read_parquet([…])`, a sub-select, a join |
+| `index` | `table` | `FROM "events"`, quoted one dot-separated segment at a time |
+| | `relation` | `FROM …`, used as-is: `read_parquet([…])`, a subquery or a join |
 | `size` | `size` | `LIMIT` |
 | `from` | `from` | `OFFSET` |
-| `sort` | `sort` | `ORDER BY`, after whatever the query itself asked for |
+| `sort` | `sort` | `ORDER BY`, after any sort the query itself produces |
 | `_source_includes` / `_source_excludes` | `includes` / `excludes` | the `SELECT` list |
 
-`table` is quoted, so a reserved word like `order` is an ordinary table name; `relation` is the
-caller's own SQL and is used as written, so it must never be built from input the caller did not
-write. `size` and `from` cannot be parameterised in a statement, so they are checked to be
-non-negative integers rather than interpolated, and a `sort` entry's `order` is checked to be
-`asc` or `desc` for the same reason — it reaches the statement as a keyword. Its `expression`
-beside it is caller-written SQL like `relation`, because a geo-distance sort is a function call
-and nothing narrower would admit one; a field name coming from a request wants
-`dialect.fieldRef(field)` around it first.
+Exactly one of `table` or `relation` is required.
 
-Field restrictions are **applied**, into the projection. `select` is `*` when nothing is
-restricted, an explicit column list when something is, and `NULL` when nothing may be read at
-all — which returns the rows and none of their data, as Elasticsearch returns hits with an empty
-`_source`. A column the type config does not declare is not projected once any restriction is in
-play: `QueryAccess` cannot reason about a field it was never told about, and withholding it
-matches the answer it already gives when one is queried.
+**`relation` and each sort `expression` are used without escaping**, so never build them from
+untrusted input. Wrap a field name from a request with `dialect.fieldRef(field)` before using it
+as a sort expression. `size`, `from` and each sort `order` are validated before they are written
+into the statement.
 
-### Composing your own statement
+Field restrictions become the `SELECT` list:
 
-A caller that already has a relation — a frame, say — wants the pieces instead:
+- With no includes or excludes, the statement selects `*`.
+- With a restriction, it selects only the readable columns declared in the type config. A
+  column the type config does not declare is not selected.
+- When nothing is readable, it selects `NULL`: rows are still returned, but with no data, as
+  Elasticsearch returns hits with an empty `_source`.
+
+### Building your own statement
+
+If you already have a source to query and want to build the statement yourself, use
+`restrictSQLParts` to get the pieces:
 
 ```ts
 const { where, select, sort, columns } = await access.restrictSQLParts('bar:hello');
-frame.filter(where);
 ```
 
-**A caller here owes the restriction**: using `where` and ignoring `select` returns every
-excluded column. That is why the method returning a finished statement is the one with the
-ordinary name.
+**You must apply `select`.** Using only `where` returns columns the access rules exclude.
 
-`Translator.toSQL()` is a level below both, and mirrors `toElasticsearchDSL` — it returns the
-`query` expression and any `sort`, with no notion of access rules:
+### Translator.toSQL
+
+`Translator.toSQL()` mirrors `toElasticsearchDSL()`. It returns a `WHERE` expression and any
+sort the query implies, with no access rules:
 
 ```ts
+import { Translator } from 'xlucene-translator';
+
 new Translator('bar:hello AND num:>50', { type_config }).toSQL();
 // { query: '(("bar" = \'hello\') AND ("num" > 50))' }
 ```
 
 ### Dialects
 
-Engines differ on regular expressions, IP containment and every geo predicate, so the emission
-goes through a dialect:
+Pass `dialect` to choose the engine:
 
 ```ts
-translator.toSQL({ dialect: 'postgres' });
+import { SQLDialectName } from '@terascope/types';
+
+translator.toSQL({ dialect: SQLDialectName.postgres });
+
+await access.restrictSQLQuery('bar:hello', {
+    dialect: SQLDialectName.postgres,
+    params: { table: 'events' }
+});
 ```
 
-`duckdb` is the default and the one verified against a running engine. A caller whose storage
-differs from a dialect's assumptions subclasses it and overrides the method concerned, then
-passes the instance as `dialect`.
+You can also pass a dialect object, such as a subclass of `DuckDBDialect` or `PostgresDialect`
+that overrides methods for a different storage layout. The dialects come from
+`@terascope/sql-builder` and are re-exported by this package.
+
+Each dialect assumes a storage layout:
 
 | | DuckDB | PostgreSQL |
 |---|---|---|
-| a dotted field | a `STRUCT` path, `"a"."b"` — what `DataType.toDuckDB` builds | one column named `a.b` |
+| a dotted field | a `STRUCT` path, `"a"."b"`, as built by `DataType.toDuckDB` | one column named `a.b` |
 | `geo-point` | `STRUCT(lat DOUBLE, lon DOUBLE)` | a PostGIS `geometry(Point, 4326)` |
-| `geo-json` | `JSON`, through `ST_GeomFromGeoJSON` | text or `json`/`jsonb`, likewise |
-| a regular expression | `regexp_full_match` | `~` against an anchored pattern |
-| an IP | `TRY_CAST(… AS INET)` | `CAST(… AS inet)`, with no `TRY_` to fall back on |
-| a distance | `ST_Distance_Sphere` | `ST_DWithin` over `geography` |
-| a partly-readable column | `struct_pack`, rebuilding the struct | the excluded column is simply left out |
+| `geo-json` | `GEOMETRY` | text or `json`/`jsonb`, read with `ST_GeomFromGeoJSON` |
+| `ip`, `ip_range` | text, cast with `TRY_CAST(… AS INET)` | text, cast with `CAST(… AS inet)` |
+| a regular expression | `regexp_full_match` | `~` with an anchored pattern |
+| a distance | `ST_Distance_Sphere` | `ST_DWithin` on `geography` |
+| a partly readable column | rebuilt with `struct_pack` | the excluded column is left out |
 
-**DuckDB needs two extensions and neither is statically linked.** `inet` autoloads on first use;
-`spatial` does **not**, so a geo query without a `LOAD spatial` at bootstrap is a catalog error
-rather than a slow path.
+DuckDB loads the `inet` extension automatically, but not `spatial`. Run `LOAD spatial` before
+running a geo query, or it fails with a catalog error.
 
-The IP emissions are **not** in either dialect — they are in the base, because both engines have
-the same problem with them. An `INET` orders by (family, address) in DuckDB and PostgreSQL alike,
-so every IPv4 address sorts before every IPv6 one, while Elasticsearch stores an `ip` as 128 bits
-with IPv4 mapped into IPv6 and orders by the value. Every address on both sides of every
-comparison is therefore mapped into `::ffff:` form first — which is also what lets
-`ip:"::ffff:8.8.8.8"` find a stored `8.8.8.8` — and a CIDR's prefix gains the 96 bits that moved
-in front of it. An `ip_range` column is compared by its block's first and last address rather
-than with `<<=`, since a containment operator answers `false` across families.
+IP addresses are compared the way Elasticsearch compares them. DuckDB and PostgreSQL both sort every IPv4
+address before every IPv6 address, while Elasticsearch stores every `ip` as 128 bits with IPv4
+mapped into IPv6. The generated SQL maps IPv4 values into `::ffff:` form first, so ranges compare
+numerically and `ip:"::ffff:8.8.8.8"` matches a stored `8.8.8.8`.
 
-### Where SQL does not answer the way Elasticsearch does
+### Differences from Elasticsearch
 
-Most of the translation matches the DSL exactly — `test/sql/` runs the same queries as
-`test/query/` against a real DuckDB and asserts the same results. Four places differ, all of them
-deliberate:
+The SQL translation returns the same results as the Elasticsearch DSL, with these exceptions:
 
-- **A missing field under `NOT`.** `must_not` matches a document whose field is absent, and SQL's
-  three-valued logic would drop that row, so every negation is emitted as
-  `COALESCE(NOT (…), TRUE)`.
-- **An analyzed string is compared whole.** There is no analyzer, so `~string` fields are matched
-  by equality rather than by tokens.
-- **A query with no field, or a field pattern**, becomes the same comparison against every
-  configured field *whose type could hold the value*. Elasticsearch's `multi_match` needs no such
-  filter; in SQL, comparing `'hello'` to an integer column is a cast error rather than a
-  non-match.
-- **A shape contains itself.** `ST_Contains` and `ST_Within` apply OGC semantics, where a geometry
-  contains an identical geometry; OpenSearch's `geo_shape` answers differently for some of those
-  pairs, for the precision reason described above.
+- **Analyzed strings are compared whole.** There is no analyzer, so analyzed string fields are
+  matched by equality rather than by token.
+- **Queries with no field, or with a field pattern**, are compared only against configured
+  fields whose type can hold the value, because comparing `'hello'` with an integer column is a
+  SQL error.
+- **A shape contains an identical shape.** `ST_Contains` and `ST_Within` follow OGC rules, where
+  a geometry contains an identical geometry. OpenSearch may answer differently for some of these
+  shapes; see the precision note above.
+- **`knn` is not supported** and throws an error.
 
-`knn` has no SQL equivalent and raises rather than emitting something that would answer wrongly.
+Negation matches Elasticsearch: `NOT bar:hello` also matches rows where `bar` is NULL, because
+each negation is written as `COALESCE(NOT (…), TRUE)`.
 
-One more thing both engines refuse alike, and it is worth knowing which layer refuses it: a `*`
-bound on an `ip` field. `parseRange` turns an open end into `Infinity` and the `ip` field type
-validates every bound as an address, so `ip:[* TO *]` fails in the **parser** and never reaches
-either translator. `_exists_:ip` asks what it would have asked. An `ip_range` field is not
-validated the same way, and `net:[* TO *]` works.
-
-### How that is checked
-
-`test/query/engine-parity-spec.ts` runs one corpus and one list of queries against a real
-OpenSearch and a real DuckDB, and compares **both** to the ids the case declares rather than to
-each other — two engines can agree on a wrong answer, and one silently changing to match the
-other would pass a test that only asked them to match. The cases live in `test/cases/` and cover
-the conjunctions, disjunctions and groups three deep; every negation spelling, each over records
-that have no value for the negated field; all four bracket spellings of a range over numbers,
-dates, keywords, addresses and address blocks; and the IPv4/IPv6 boundary.
-
-Field restrictions are checked the same way in `test/query/sql-parity-spec.ts`, over ten
-include/exclude combinations, sub-object exclusions included. `test/sql/duckdb-query-access-spec.ts`
-covers the `QueryAccess` options that refuse a query rather than change it.
+An open-ended range on an `ip` field, such as `ip:[* TO *]`, is rejected by the parser for both
+engines. Use `_exists_:ip` instead. Open-ended ranges on `ip_range` fields work.

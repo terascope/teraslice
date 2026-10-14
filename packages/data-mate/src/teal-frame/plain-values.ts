@@ -3,49 +3,36 @@ import { toISO8601 } from '@terascope/core-utils';
 import { wkbToGeoShape } from './wkb.js';
 
 /**
- * Turns a value read out of DuckDB into the plain JS shape the response path expects.
+ * Converts values read from DuckDB into the plain JS values `rows()` returns.
  *
- * `rows()` is the OUTPUT path - the QPL engine hands these records straight to the response -
- * so anything DuckDB-shaped leaking through would reach users. Found by the FieldType sweep in
- * `type-sweep-spec.ts`; nothing had covered arrays, structs or dates through `rows()` before,
- * because the older specs read them via `query()` with explicit casts, which bypasses all of
- * this. The leaks:
+ * `rows()` results are sent straight to callers, so no DuckDB value class may leak through:
  *
- * - **LIST** -> `DuckDBListValue`, not an array. Would serialize as `{"items":[...]}`.
- * - **TIMESTAMP** -> `DuckDBTimestampValue`, not a date. Rendered via `toISO8601`, which is
- *   what `DateVector.toJSONCompatibleValue` uses, so the two frames agree.
- * - **GEOMETRY** -> `DuckDBGeometryValue`, WKB bytes. Decoded back to the GeoShape a `GeoJSON`
- *   field holds.
- * - **BIGINT / HUGEINT** -> a JS `bigint`, and **`JSON.stringify` THROWS on bigint**
- *   ("Do not know how to serialize a BigInt"), so every Integer or Long column broke the
- *   response. Converted by `bigIntToPlain` below, giving a number when it fits exactly and an
- *   exact decimal string once it does not.
+ * - LIST arrives as a `DuckDBListValue`, which would serialize as `{"items":[...]}`. It becomes
+ *   an array.
+ * - TIMESTAMP arrives as a `DuckDBTimestampValue`. It is rendered with `toISO8601`, as
+ *   `DateVector.toJSONCompatibleValue` does.
+ * - GEOMETRY arrives as WKB bytes. It is decoded back to the GeoShape a `GeoJSON` field holds.
+ * - BIGINT and HUGEINT arrive as a JS `bigint`, which `JSON.stringify` cannot serialize.
+ *   `bigIntToPlain` returns a number when the value fits exactly and a decimal string otherwise.
  *
- * **BIGINT is converted HERE, not by `core-utils`' `bigIntToJSON`** - see DEF-BIGINT,
- * tracked as terascope/teraslice#4555.
- * That helper is broken in two ways, and neither is safe on this path:
+ * `core-utils`' `bigIntToJSON` is not used, because it is wrong for values read from DuckDB
+ * (#4555). It subtracts 1 from every positive value above the safe limit, to cancel a `+1` that
+ * core-utils' parser adds, so a value that was never parsed comes back one too low. Its bound
+ * is also a signed comparison, so large negative values lose precision instead of becoming
+ * strings.
  *
- * - it subtracts 1 from every positive value above the safe limit, to cancel a matching `+1`
- *   in `toBigInt`. A value read out of DuckDB never went through `toBigInt`, so it takes the
- *   `-1` alone and comes back one too low.
- * - its bound is a SIGNED comparison, so every negative falls into the lossy branch with no
- *   string fallback: `-9223372036854775808` comes back as `-9223372036854776000`.
- *
- * The rule below is `export-json.ts`' rule - `abs(value) > MAX_SAFE` becomes an exact decimal
- * string, anything smaller becomes a number - so **`rows()` and `ndjson()` agree by
- * construction**, which is the invariant `teal-frame-spec.ts` pins. The wider fix belongs in
- * `core-utils` and is tracked separately; this path does not wait for it.
+ * The rule here is the same as in `export-json.ts` (`abs(value) > MAX_SAFE` becomes a decimal
+ * string, anything smaller a number), so `rows()` and `ndjson()` always agree.
 */
 export /** The largest whole number JSON can carry without `JSON.parse` rounding it. */
 const MAX_SAFE_BIGINT = 9007199254740991n;
 
 /**
- * A bigint as the plain JSON value it should be: a number while it fits exactly, an exact
- * decimal string once it does not.
+ * Converts a bigint to a number when it fits exactly, or to an exact decimal string when it
+ * does not.
  *
- * The bound is on the MAGNITUDE, so it is symmetric - the same rule `export-json.ts` emits as
- * `abs(x) > 9007199254740991`. No arithmetic is applied to the value; `toString(10)` on a
- * bigint is exact at any size, which is the whole reason the type exists.
+ * The bound applies to the magnitude, matching `abs(x) > 9007199254740991` in `export-json.ts`.
+ * No arithmetic is applied to the value.
 */
 function bigIntToPlain(value: bigint): number | string {
     if (value > MAX_SAFE_BIGINT || value < -MAX_SAFE_BIGINT) return value.toString(10);
@@ -81,9 +68,8 @@ export function toPlainValue(value: unknown): unknown {
 }
 
 /**
- * A JSON column's text as the value it encodes. **Decoding the storage format, not undoing a step
- * of our own:** `Any` and untyped `Object` are stored as JSON (VARIANT was measured and rejected,
- * DF16), so text is what DuckDB holds and hands back.
+ * Parses a JSON column's text into the value it encodes. `Any` and untyped `Object` fields are
+ * stored as DuckDB JSON columns, which DuckDB returns as text.
 */
 export function parseJSONText(value: unknown): unknown {
     return typeof value === 'string' ? JSON.parse(value) : value;

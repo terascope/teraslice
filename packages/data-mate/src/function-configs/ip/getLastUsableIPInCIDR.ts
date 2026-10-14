@@ -41,8 +41,8 @@ export const getLastUsableIPInCIDRConfig: FieldTransformConfig = {
         return getLastUsableIPInCIDR;
     },
     /**
-     * Broadcast - 1 for IPv4, the broadcast itself for IPv6 - which has no broadcast concept - and
-     * for a single-address block either way.
+     * The broadcast address - 1 for IPv4. For IPv6, which has no broadcast address, and for a
+     * single-address block in either family, it is the last address itself.
     */
     sql: {
         needs_udf_fallback: true,

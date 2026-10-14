@@ -4,8 +4,8 @@ import { once } from 'node:events';
 /** Helpers over a stream of rendered JSON lines, shared by `ndjson`, `rows` and `writeNDJSON`. */
 
 /**
- * Lines with each repeat after the first removed, in order - `rowsWithoutDuplicates`, which
- * compares whole rendered rows. Holds one entry per distinct line.
+ * Yields each distinct line once, in order. Backs `rowsWithoutDuplicates`, which compares
+ * whole rendered rows. Keeps every distinct line in memory.
 */
 export async function* distinctLines(lines: AsyncIterable<string>): AsyncIterableIterator<string> {
     const seen = new Set<string>();
@@ -22,7 +22,7 @@ export async function* parseLines(
     for await (const line of lines) yield JSON.parse(line) as Record<string, unknown>;
 }
 
-/** Writes lines to a file, each followed by a newline - the bytes `COPY` writes. */
+/** Writes lines to a file, each followed by a newline, matching what `COPY` writes. */
 export async function writeLines(path: string, lines: AsyncIterable<string>): Promise<void> {
     const out = createWriteStream(path);
     try {

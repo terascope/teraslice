@@ -93,21 +93,20 @@ export const toNumberConfig: FieldTransformConfig = {
     },
     sql: {
         /**
-         * `create` branches on the COLUMN TYPE, and so does this - three of its four branches have
-         * an exact native form and the fourth does not.
+         * `create` picks a conversion by column type, and so does this. Every type except String
+         * has an exact SQL form.
          *
-         * | column | what `create` returns | emission |
+         * | column | what `create` returns | SQL |
          * |---|---|---|
-         * | `Date` | `parseDateValue(v, epoch_millis)` | `epoch_ms(v)` - exact, four instants |
-         * | `IP` | `ipToInt` | the IPv4 arithmetic, IPv6 to the UDF - `ipToInt`'s own shape |
-         * | `Long` | `toBigIntOrThrow` | identity: a BIGINT column already holds one |
-         * | `Byte`/`Short`/`Integer` | `toNumber` | identity: no integer is `NaN` |
-         * | `Float`/`Double`/`Number` | `toNumber`, THROWS on `NaN` | identity, `NaN` to UDF |
+         * | `Date` | `parseDateValue(v, epoch_millis)` | `epoch_ms(v)` |
+         * | `IP` | `ipToInt` | IPv4 arithmetic; IPv6 uses the UDF |
+         * | `Long` | `toBigIntOrThrow` | unchanged: the column is already BIGINT |
+         * | `Byte`/`Short`/`Integer` | `toNumber` | unchanged: an integer is never `NaN` |
+         * | `Float`/`Double`/`Number` | `toNumber`, throws on `NaN` | unchanged; `NaN` to the UDF |
          *
-         * **A String column keeps the UDF, deliberately.** `convertToNumber` is `Number(input)`,
-         * and `Number('')` is `0`, `Number('0x10')` is `16` and `Number(' 12 ')` is `12` -
-         * measured, no DuckDB cast reproduces that set, and the failure mode is a wrong number
-         * rather than an error.
+         * A String column keeps the UDF. `convertToNumber` is `Number(input)`, so `''` is `0`,
+         * `'0x10'` is `16` and `' 12 '` is `12`. No DuckDB cast matches that, and a mismatch would
+         * return a wrong number rather than an error.
         */
         needs_udf_fallback: true,
         types: [FieldType.Date, FieldType.IP, FieldType.Number],
@@ -123,7 +122,7 @@ export const toNumberConfig: FieldTransformConfig = {
                 return `CASE WHEN ${isIPv4Sql(value)}`
                     + ` THEN ${ipv4ToIntSql(value)} ELSE ${udf(value)} END`;
             }
-            // `convertToNumber` THROWS on NaN, and only a floating-point column can hold one
+            // `convertToNumber` throws on NaN, and only a floating-point column can hold one
             if (NAN_CAPABLE.includes(type as FieldType)) {
                 return `CASE WHEN isnan(${value}) THEN ${udf(value)} ELSE ${value} END`;
             }

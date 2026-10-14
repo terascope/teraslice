@@ -4,7 +4,7 @@ import {
 } from '@terascope/types';
 import {
     parseGeoPoint, parseGeoDistance, geoPointWithinRangeFP,
-    geoDistanceToMetres
+    geoDistanceToMeters
 } from '@terascope/geo-utils';
 import * as i from '../../interfaces.js';
 import { getFieldValue, logger } from '../../utils.js';
@@ -90,25 +90,23 @@ const geoDistance: i.FunctionDefinition = {
         }
 
         /**
-         * The same query as a SQL predicate, plus the distance expression to sort on.
+         * The query as a SQL predicate, plus the distance expression to sort on.
          *
-         * **A SQL engine measures in metres**, so the unit is resolved here rather than
-         * being handed down: `geoDistanceToMetres` uses turf's factors, the same ones
-         * `match` reaches through `makeGeoCircle`.
+         * SQL distance functions work in meters, so the distance is converted here with
+         * `geoDistanceToMeters`, which uses the same turf factors as `match`.
          *
-         * This is also more accurate than `match` is, deliberately. `makeGeoCircle` builds a
-         * 64-sided polygon and tests point-in-polygon, which under-approximates the circle by
-         * about `r * (1 - cos(pi/64))` - ~1.2 km at 1000 km - while a distance test has no
-         * such band.
+         * The SQL is more precise than `match`: `makeGeoCircle` approximates the circle with
+         * a 64-sided polygon, which falls short of the radius by up to `r * (1 - cos(pi/64))`
+         * (about 1.2 km at 1000 km). The SQL compares the actual distance.
         */
         function toSQLQuery(field: string, options: i.FunctionSQLOptions) {
             const { dialect } = options;
             const unit = (paramUnit || options.geo_sort_unit || 'meters') as GeoDistanceUnit;
             const fieldExpr = dialect.fieldRef(field);
-            const metres = geoDistanceToMetres(distance, unit);
+            const meters = geoDistanceToMeters(distance, unit);
 
             return {
-                query: dialect.geoPointWithinDistance(fieldExpr, { lat, lon }, metres),
+                query: dialect.geoPointWithinDistance(fieldExpr, { lat, lon }, meters),
                 sort: {
                     expression: dialect.geoPointDistance(fieldExpr, { lat, lon }),
                     order: options.geo_sort_order ?? 'asc'

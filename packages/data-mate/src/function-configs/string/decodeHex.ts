@@ -33,13 +33,13 @@ export const decodeHexConfig: FieldTransformConfig = {
         return (input: unknown) => Buffer.from(input as string, 'hex').toString('utf8');
     },
     /**
-     * `coalesce(try(decode(unhex(x))), udf(x))` - `try` does the whole job.
+     * `coalesce(try(decode(unhex(x))), udf(x))`.
      *
-     * Three ways this throws in DuckDB and does not in JavaScript: a non-hex digit, an odd length,
-     * and valid hex whose bytes are not valid UTF-8 (`'0123456789'` decodes to a byte `0x89`). Each
-     * would abort the query, while `Buffer.from(x, 'hex')` stops at the first bad pair - `'hello'`
-     * gives `''`, `'686'` gives `'h'` - and replaces bad bytes with U+FFFD. `try` turns all three
-     * into NULL, and the UDF then reproduces today's answer exactly.
+     * DuckDB throws on a non-hex digit, on an odd length, and on hex whose bytes are not valid
+     * UTF-8 (`'0123456789'` decodes to a byte `0x89`). JavaScript does not throw: `Buffer.from(x,
+     * 'hex')` stops at the first bad pair (`'hello'` gives `''`, `'686'` gives `'h'`) and replaces
+     * invalid bytes with U+FFFD. `try` turns each DuckDB error into NULL, and the UDF supplies the
+     * JavaScript result.
     */
     sql: {
         needs_udf_fallback: true,

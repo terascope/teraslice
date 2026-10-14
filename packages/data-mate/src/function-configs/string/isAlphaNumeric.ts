@@ -86,7 +86,7 @@ export const isAlphaNumericConfig: FieldValidateConfig<IsAlphaNumericArgs> = {
         }
     },
     examples,
-    /** `validator`'s `en-US` alphanumeric set, `/^[0-9A-Za-z]+$/`. Same reasoning as `isAlpha`. */
+    /** `validator`'s `en-US` alphanumeric set, `/^[0-9A-Za-z]+$/`. Default locale only. */
     sql: {
         applies: (args) => defaultLocale(args.locale),
         expression: ({ value }) => `regexp_matches(${value}, '${ALPHANUMERIC_LOCALES}')`,

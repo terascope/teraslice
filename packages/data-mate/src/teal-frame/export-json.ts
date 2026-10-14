@@ -4,39 +4,27 @@ import { SerializeOptions } from '../vector/interfaces.js';
 import { dateJson } from './date-value.js';
 
 /**
- * Builds the SQL that renders a frame's rows as JSON **byte-identical to what `DataFrame`
- * produces**.
+ * Builds the SQL that renders a frame's rows as JSON, byte-identical to what `DataFrame`
+ * produces.
  *
- * DuckDB's own `to_json` is NOT that, and shipping it would silently change the output format.
- * Measured against `DataFrame.toJSON` with the options spaces actually uses
- * (`qpl-engine/src/v3/execute/run.ts:174`), these things diverge:
+ * DuckDB's own `to_json` output differs from `DataFrame.toJSON` in these ways:
  *
  * | | `DataFrame` | DuckDB native |
  * |---|---|---|
  * | `Date` | `"2026-01-10T00:00:00.000Z"` (`toISO8601`) | `"2026-01-10 00:00:00"` |
- * | `Long` past `MAX_SAFE_INTEGER` | a STRING | a number `JSON.parse` rounds |
+ * | `Long` past `MAX_SAFE_INTEGER` | a string | a number `JSON.parse` rounds |
  * | a nil field, element or empty object | per `SerializeOptions`, see `Renderer` | `null` |
  * | an integral float | `5` | `5.0` |
  * | `-0` | `0` | `-0.0` |
- * | a non-finite float | `null` | `Infinity` - **not valid JSON at all** |
+ * | a non-finite float | `null` | `Infinity`, which is not valid JSON |
+ * | a number at or above `1e21` | `1e+21` | `1e21` |
  *
- * The null one is the widest, and it is not one rule but seven options - `DataFrame`'s
- * `SerializeOptions`, which spaces sets from `remove_null_fields` (`run.ts:174`; true by default,
- * false via `@preserveNullFields`). Every record with a nullable field would otherwise differ.
+ * Null handling is the widest difference, governed by the seven `SerializeOptions` flags rather
+ * than one rule. The non-finite case is the only one that breaks the output: `JSON.parse`
+ * rejects a bare `Infinity` or `NaN`, so one such value would make a whole line unreadable.
  *
- * The non-finite one is the only one that is not merely cosmetic - DuckDB writes a bare
- * `Infinity`/`NaN` token that `JSON.parse` rejects, so one infinite value would make a whole
- * exported line unreadable.
- *
- * All of them are corrected HERE, in SQL, before anything is written - so the export stays inside
- * DuckDB and no file needs post-processing.
- *
- * **One known residue.** At `abs(x) >= 1e21` both engines switch to exponential form, but
- * `JSON.stringify` writes `1e+21` where DuckDB writes `1e21`. That cannot be corrected through
- * the JSON type, which re-normalises any number it is given (`CAST('1e+21' AS JSON)` renders back
- * as `1e21`). Negative exponents already agree, because they carry their sign. **Now fixable
- * cheaply** - rows are built as text since 2026-09-29, so a `CASE WHEN abs(x) >= 1e21` rewrite of
- * that one branch would do it - but not done: it is number formatting, not fields and nulls.
+ * Each difference is corrected in the generated SQL, so the export runs entirely inside DuckDB
+ * and no file needs post-processing.
 */
 
 /** Above this, `bigIntToJSON` switches to a string, because `JSON.parse` would round it. */
@@ -45,8 +33,8 @@ const MAX_SAFE = '9007199254740991';
 /**
  * The magnitude at which `JSON.stringify` switches a number to exponential form.
  *
- * Below it, an integral double must be written WITHOUT a decimal point (`5`, not `5.0`); at or
- * above it, the exponential rendering is left to DuckDB - see the residue note above.
+ * Below it, an integral double is written without a decimal point (`5`, not `5.0`). At or
+ * above it, DuckDB's exponential form is used with a `+` added to the exponent.
 */
 const EXPONENTIAL_THRESHOLD = '1e21';
 
@@ -58,8 +46,8 @@ const BIG_INTEGER_TYPES: ReadonlySet<string> = new Set([
 /**
  * Types stored as a DuckDB `DOUBLE`.
  *
- * `Float` is included deliberately: it maps to DOUBLE, not FLOAT, because the value is a JS
- * number - see `data-types`' `float.ts`.
+ * `Float` is included because it maps to DOUBLE, not FLOAT: the value is a JS number. See
+ * `float.ts` in `data-types`.
 */
 const DOUBLE_TYPES: ReadonlySet<string> = new Set([
     FieldType.Float, FieldType.Double, FieldType.Number, FieldType.Vector,
@@ -71,13 +59,14 @@ const GEO_POINT_TYPES: ReadonlySet<string> = new Set([
 ]);
 
 /**
- * How an export renders fields and nulls: `DataFrame`'s own `SerializeOptions`, with the same
- * meaning, plus spaces' one flag as a shorthand for its two presets. See {@link resolveRules}.
+ * How an export renders fields and nulls: `DataFrame`'s `SerializeOptions`, with the same
+ * meaning, plus `removeNullFields` as a shorthand for two common presets. See
+ * {@link resolveRules}.
 */
 export interface JsonExportOptions extends SerializeOptions {
     /**
-     * spaces' `remove_null_fields` - which defaults to **true**; `@preserveNullFields` is what
-     * sets it to false. Selects that preset; explicit flags override it.
+     * Selects a preset: `true` omits null fields and empty objects, `false` writes null fields
+     * as `null`. Explicit `SerializeOptions` flags override the preset.
     */
     removeNullFields?: boolean;
 }
@@ -91,11 +80,11 @@ interface FieldNode {
 }
 
 /**
- * Folds the flat, dot-notation `DataTypeConfig` into a tree.
+ * Folds the flat, dot-notation `DataTypeConfig` fields into a tree.
  *
- * The config declares `metadata` and `metadata.source` as siblings; a JSON value needs them
- * nested, and needs to recurse - a `Date` three levels down is still rendered SQL-shaped by
- * `to_json` and still has to be corrected.
+ * The config declares `metadata` and `metadata.source` as siblings, but the JSON value nests
+ * them, and the corrections must reach nested values too (a `Date` three levels down still
+ * needs rendering as ISO 8601).
 */
 function buildTree(fields: DataTypeFields): Record<string, FieldNode> {
     const tree: Record<string, FieldNode> = {};
@@ -156,10 +145,10 @@ const FLAGS = [
 ] as const satisfies readonly (keyof Rules)[];
 
 /**
- * spaces' two presets, from its one flag (`qpl-engine/src/v3/execute/run.ts:174`):
- * `remove_null_fields` true is the default, false is `@preserveNullFields`.
+ * The two presets selected by `removeNullFields`: `true` omits null fields and empty objects,
+ * `false` writes null fields as `null`.
 */
-function spacesPreset(removeNullFields: boolean): Rules {
+function nullFieldsPreset(removeNullFields: boolean): Rules {
     return {
         useNullForUndefined: !removeNullFields,
         skipNilValues: removeNullFields,
@@ -172,37 +161,35 @@ function spacesPreset(removeNullFields: boolean): Rules {
 }
 
 /**
- * The rules an export follows.
+ * Resolves the rules an export follows.
  *
- * **Any flag given means `DataFrame.toJSON`'s semantics exactly**: an unset flag is false, as it is
- * there. `removeNullFields` selects one of spaces' presets, and explicit flags override it; with
- * NEITHER, the default is spaces' own - `remove_null_fields` true - because that is what every
- * caller of this means by "the output".
+ * If any `SerializeOptions` flag is given, the flags mean exactly what they mean to
+ * `DataFrame.toJSON`, and an unset flag is false. `removeNullFields` selects a preset that
+ * explicit flags override. With neither, the default is the `removeNullFields: true` preset.
 */
 export function resolveRules(options: JsonExportOptions = {}): Rules {
     const given = FLAGS.filter((flag) => options[flag] != null);
     const usePreset = options.removeNullFields != null || given.length === 0;
     const base: Rules = usePreset
-        ? spacesPreset(options.removeNullFields ?? true)
+        ? nullFieldsPreset(options.removeNullFields ?? true)
         : Object.fromEntries(FLAGS.map((flag) => [flag, false])) as unknown as Rules;
     return { ...base, ...Object.fromEntries(given.map((flag) => [flag, Boolean(options[flag])])) };
 }
 
 /**
- * `JSON.stringify`'s rendering of a JS number, in SQL.
+ * SQL that renders a double the way `JSON.stringify` renders a JS number.
  *
- * DuckDB's `to_json` already prints the SHORTEST digits that round-trip, as JavaScript does
- * (measured across the exponent boundary); four corrections make the text the same:
+ * DuckDB's `to_json` already prints the shortest digits that round-trip, as JavaScript does.
+ * Four corrections make the text identical:
  *
- * - **non-finite becomes `null` - and is NOT nil.** `FloatVector` has no `toJSONCompatibleValue`,
- *   so `DataFrame` keeps a `NaN` as a value (its key survives null removal) and `JSON.stringify`
- *   writes `null`. DuckDB would write a bare `Infinity`/`NaN`, which is not valid JSON at all.
- * - **`-0` becomes `0`.**
- * - **past `1e21` the exponent gets its `+`**: DuckDB writes `1e21`, JavaScript `1e+21`. Both
+ * - A non-finite value becomes `null`, but is not treated as nil: `DataFrame` keeps a `NaN` as
+ *   a value, so its key survives null removal, and `JSON.stringify` writes `null`.
+ * - `-0` becomes `0`.
+ * - At or above `1e21` the exponent gets a `+`: DuckDB writes `1e21`, JavaScript `1e+21`. Both
  *   switch to exponential form at the same magnitude, and negative exponents already agree.
- * - **an integral value loses its `.0`**: `to_json(5.0)` is `5.0`. The digits are DuckDB's shortest
- *   form, NOT the exact value - the HUGEINT cast this used before wrote `99999999999999991611392`
- *   for the double JavaScript writes as `99999999999999980000`.
+ * - An integral value loses its `.0` (`to_json(5.0)` is `5.0`). The digits stay DuckDB's
+ *   shortest form rather than the exact value, which an integer cast would print (for
+ *   example `99999999999999991611392` where JavaScript writes `99999999999999980000`).
 */
 function doubleJson(accessor: string): string {
     const text = `to_json(${accessor})::VARCHAR`;
@@ -215,11 +202,11 @@ function doubleJson(accessor: string): string {
 }
 
 /**
- * `bigIntToJSON`: a number while it fits, a string once `JSON.parse` would round it.
+ * SQL matching `bigIntToJSON`: a number while it is a safe integer, a string once `JSON.parse`
+ * would round it.
  *
- * **Two comparisons, not `abs(x) > MAX_SAFE`.** A Long is a BIGINT, and `abs` of the int64 minimum
- * has no BIGINT result - DuckDB raises `Overflow on abs(-9223372036854775808)` and the whole export
- * fails on one row.
+ * It uses two comparisons rather than `abs(x) > MAX_SAFE`, because `abs` of the smallest BIGINT
+ * overflows and would fail the whole export.
 */
 function bigIntegerJson(accessor: string): string {
     return `CASE WHEN ${accessor} IS NULL THEN NULL`
@@ -245,35 +232,35 @@ function member(accessor: string, name: string): string {
 }
 
 /**
- * Renders fields as JSON TEXT, following `DataFrame`'s `SerializeOptions` rule for rule.
+ * Builds SQL that renders fields as JSON text, following each of `DataFrame`'s
+ * `SerializeOptions` rules.
  *
- * Every value renders to JSON text, or to SQL NULL for **nil** - `DataFrame`'s `nilValue`, a value
- * that is either omitted or written as `null` depending on where it sits. Where each rule lives in
- * `DataFrame`, so they can be checked against it:
+ * Every value renders to JSON text, or to SQL NULL for a nil value (`DataFrame`'s `nilValue`),
+ * which is omitted or written as `null` depending on where it is. The rules, with the method
+ * here and the `DataFrame` code each one follows:
  *
- * - **A nil TOP-LEVEL field** is `null` if `useNullForUndefined`, else omitted - `skipNilValues`
- *   has NO effect at this level. `row`; `DataFrame.getRow` / `_getRowOptimized`.
- * - **A nil NESTED field** is `null` only if `useNullForUndefined` AND NOT `skipNilValues`.
+ * - A nil top-level field is `null` under `useNullForUndefined`, otherwise omitted;
+ *   `skipNilValues` has no effect at this level. `row`; `DataFrame.getRow`.
+ * - A nil nested field is `null` only under `useNullForUndefined` without `skipNilValues`.
  *   `object`; `ObjectVector.toJSONCompatibleValue`.
- * - **An object, or a row, with no non-nil field** is nil under `skipEmptyObjects`. Both.
- * - **An undeclared object** is written as it was stored; only `{}` becomes nil, under
+ * - An object or row with no non-nil field is nil under `skipEmptyObjects`.
+ * - An undeclared object is written as stored; only `{}` becomes nil, under
  *   `skipEmptyObjects`. `leaf`; `ObjectVector` with no child fields.
- * - **A list**: nil elements are `null`, filtered under `skipNilListValues` - or, for OBJECT
- *   elements, `skipNilObjectValues`; object elements are de-duplicated under
- *   `skipDuplicateObjects`; an empty result is nil under `skipEmptyArrays`. `list`;
+ * - In a list, nil elements are `null`, and are removed under `skipNilListValues` (or
+ *   `skipNilObjectValues` for object elements). Object elements are de-duplicated under
+ *   `skipDuplicateObjects`, and an empty result is nil under `skipEmptyArrays`. `list`;
  *   `ListVector.toJSONCompatibleValue`.
- * - **A tuple**: nil positions are `null`; nil under `skipEmptyArrays` when EVERY position is.
- *   `tuple`; `TupleVector` - see its defect below.
+ * - In a tuple, nil positions are `null`, and the tuple is nil under `skipEmptyArrays` when
+ *   every position is. `tuple`; `TupleVector`.
  *
- * **Text, not `json_object`.** A member is `CASE WHEN v IS NOT NULL THEN '"k":' || v END`, and
- * `concat_ws` skips a NULL member, so a key is present or absent per the rules without a second
- * pass. The previous `json_merge_patch('{}', ...)` could only strip EVERY null key, which is right
- * for neither preset in every place.
+ * Objects are built as text rather than with `json_object`: each member is `'"k":' || v`,
+ * which is NULL when `v` is, and `concat_ws` skips NULL members, so each key is present or
+ * absent per the rules in one pass.
  *
- * **One `DataFrame` defect is not reproduced**: under `skipEmptyArrays` `TupleVector` counts a
- * position as non-nil only if its vector has a `toJSONCompatibleValue`, which `Float`, `String`,
- * `Int`, `Boolean` and `IP` do not - so it drops `[1.5, "a"]` as "empty". Here a tuple is empty
- * only when every position is nil. No spaces preset sets `skipEmptyArrays`.
+ * One `DataFrame` bug is not reproduced. Under `skipEmptyArrays`, `TupleVector` treats a
+ * position as nil unless its vector has a `toJSONCompatibleValue`, which `Float`, `String`,
+ * `Int`, `Boolean` and `IP` lack, so it drops `[1.5, "a"]` as empty. Here a tuple is empty
+ * only when every position is nil.
 */
 class Renderer {
     constructor(private readonly rules: Rules) {}
@@ -285,13 +272,13 @@ class Renderer {
     }
 
     /**
-     * A predicate true for a row this export writes, or undefined when every row is written.
+     * A predicate that is true for each row the export writes, or undefined when every row is
+     * written.
      *
-     * **Decided from the columns' NULL structure, never from the rendered JSON.** Filtering on the
-     * rendered row made DuckDB render it twice - the filter's alias is inlined - which measured
-     * 2x slower on 1M rows. This reads only NULL flags and struct members, and rendering then runs
-     * for the rows that survive. It mirrors the renderer's nil rules, and
-     * `serialize-options-spec.ts` compares the result with `DataFrame` across all 128 option sets.
+     * It is decided from the columns' NULL structure, never from the rendered JSON: filtering
+     * on the rendered row would make DuckDB render every row twice (about 2x slower), because
+     * the filter's alias is inlined. It mirrors the renderer's nil rules, and
+     * `serialize-options-spec.ts` checks it against `DataFrame` for all 128 option combinations.
     */
     rowFilter(tree: Record<string, FieldNode>): string | undefined {
         if (!this.rules.skipEmptyObjects) return undefined;
@@ -301,8 +288,8 @@ class Renderer {
     }
 
     /**
-     * A LIST column's elements, each rendered - NULL for a nil one, nothing filtered - for
-     * `ListVector.getRowIterator`, which applies its own nil rule as it streams.
+     * A LIST column's elements, each rendered, with NULL for a nil element and nothing removed.
+     * The caller applies the nil rules as it streams, as `ListVector.getRowIterator` does.
     */
     listElements(node: FieldNode, accessor: string): string {
         const element = this.value({ ...node, isArray: false }, 'v0', 1);
@@ -313,7 +300,7 @@ class Renderer {
     /** True when a value renders as something other than nil - see {@link rowFilter}. */
     private present(node: FieldNode, accessor: string, depth: number): string {
         // an empty list or tuple is nil only under skipEmptyArrays, and whether it is empty
-        // depends on its rendered elements - so that one rule asks the renderer
+        // depends on its rendered elements, so this case renders it
         if (this.rules.skipEmptyArrays && (node.isArray || node.type === FieldType.Tuple)) {
             return `(${this.node(node, accessor, depth)}) IS NOT NULL`;
         }
@@ -324,8 +311,8 @@ class Renderer {
                 .join(' OR ');
             return `(${accessor} IS NOT NULL AND (${children}))`;
         }
-        // every other leaf renders non-nil whenever it is non-NULL - a NaN included, which is
-        // `null` but not nil - except an undeclared object that is `{}` under skipEmptyObjects
+        // every other leaf is non-nil whenever it is non-NULL (including NaN, which renders as
+        // `null` but is not nil), except an undeclared `{}` object under skipEmptyObjects
         if (node.type === FieldType.Object) return `(${this.leaf(node, accessor)}) IS NOT NULL`;
         return `${accessor} IS NOT NULL`;
     }
@@ -360,9 +347,9 @@ class Renderer {
             field,
             value: this.node(field, member(accessor, field.name), depth),
         }));
-        // `'"k":' || v` is NULL exactly when `v` is nil - `||` propagates NULL - so each value is
-        // rendered ONCE. Testing `v IS NOT NULL` first renders it twice, and nesting compounds
-        // that at every level: measured 2x slower on 1M rows.
+        // `'"k":' || v` is NULL exactly when `v` is nil, because `||` propagates NULL, so each
+        // value is rendered once. Testing `v IS NOT NULL` first would render it twice, and
+        // nesting would compound that at every level.
         const present = values.map(({ field, value }) => `${keyText(field.name)} || (${value})`);
         const parts = nilAsNull
             ? present.map((part, i) => (
@@ -372,12 +359,12 @@ class Renderer {
         const inner = `concat_ws(',', ${parts.join(', ')})`;
 
         if (!this.rules.skipEmptyObjects) return `'{' || ${inner} || '}'`;
-        // with nil members omitted, "no non-nil member" is an empty member list: `nullif` makes
-        // it NULL and `||` carries that out, still in one pass
+        // with nil members omitted, an object with no non-nil member has an empty member list:
+        // `nullif` turns it into NULL and `||` propagates that, still in one pass
         if (!nilAsNull) return `'{' || nullif(${inner}, '') || '}'`;
 
-        // nil members written as null AND empty objects dropped - no spaces preset does this, and
-        // it is the one case that has to look at the values twice
+        // nil members written as null and empty objects dropped: the one combination that has
+        // to evaluate the values twice
         const empty = values.map(({ value }) => `(${value}) IS NULL`).join(' AND ');
         return `CASE WHEN ${empty} THEN NULL ELSE '{' || ${inner} || '}' END`;
     }
@@ -394,9 +381,9 @@ class Renderer {
     }
 
     /**
-     * A LIST. `variable` is unique per nesting depth, so a list inside an object inside a list
-     * never shadows the outer lambda's binding. **`lambda x : ...`, never `x -> ...`**: DuckDB v2.0
-     * disables the single-arrow syntax by default and v2.1 removes the flag that restores it.
+     * A LIST. The lambda variable is named per nesting depth, so a list nested inside another
+     * list never shadows the outer binding. It uses `lambda x : ...` rather than `x -> ...`,
+     * because DuckDB v2.0 disables the arrow syntax by default and v2.1 removes it.
     */
     private list(node: FieldNode, accessor: string, depth: number): string {
         const v = `v${depth}`;
@@ -423,15 +410,16 @@ class Renderer {
     private leaf(node: FieldNode, accessor: string): string {
         // toISO8601 of `{ ms, tz_offset }` - see `date-value.ts`
         if (node.type === FieldType.Date) return dateJson(accessor);
-        // a Boundary is ITSELF `STRUCT(lat, lon)[]`, and `GeoBoundaryVector` writes it as it is -
-        // none of the list rules apply to it
+        // a Boundary is stored as `STRUCT(lat, lon)[]`, and `GeoBoundaryVector` writes it as
+        // is, so none of the list rules apply to it
         if (node.type === FieldType.Boundary) {
             return `CASE WHEN ${accessor} IS NULL THEN NULL ELSE '[' || array_to_string(`
                 + `list_transform(${accessor}, lambda p : ${geoPointJson('p')}), ',') || ']' END`;
         }
         if (GEO_POINT_TYPES.has(node.type)) return geoPointJson(accessor);
         if (node.type === FieldType.GeoJSON) {
-            // a GEOMETRY. `1` renders as `1.0` - the same number, accepted. Needs `spatial`
+            // a GEOMETRY, which needs the `spatial` extension. `1` renders as `1.0`, which is
+            // the same number
             return `ST_AsGeoJSON(${accessor})::VARCHAR`;
         }
         if (DOUBLE_TYPES.has(node.type)) return doubleJson(accessor);
@@ -446,16 +434,8 @@ class Renderer {
 }
 
 /**
- * A SQL expression producing ONE JSON string per row, byte-identical to `DataFrame.toJSON` with the
- * same options - or NULL for a row `skipEmptyObjects` drops, which the caller filters out.
- *
- * `skipDuplicateObjects` on ROWS is not in here: it compares whole rendered rows in order, which
- * the caller does on the stream (`TealFrame.ndjson`), exactly as `rowsWithoutDuplicates` does.
- * Nor is the row filter - see {@link buildJsonRowFilter}.
-*/
-/**
- * One LIST column's elements rendered as JSON text - see `TealFrame.listValues` - and whether they
- * are objects, which decides the `skipNilObjectValues` rule.
+ * SQL rendering one LIST column's elements as JSON text (see `TealFrame.listValues`), and
+ * whether the elements are objects, which decides whether `skipNilObjectValues` applies.
 */
 export function buildJsonListElements(
     config: DataTypeConfig | ReadonlyDataTypeConfig,
@@ -473,8 +453,8 @@ export function buildJsonListElements(
 }
 
 /**
- * The predicate for rows the export writes, or undefined when it writes all of them. Kept apart
- * from {@link buildJsonExpression} so the filter never has to evaluate the rendered row.
+ * The predicate for the rows an export writes, or undefined when it writes all of them. It is
+ * separate from {@link buildJsonExpression} so the filter never evaluates the rendered row.
 */
 export function buildJsonRowFilter(
     config: DataTypeConfig | ReadonlyDataTypeConfig,
@@ -484,6 +464,14 @@ export function buildJsonRowFilter(
     return new Renderer(resolveRules(options)).rowFilter(tree);
 }
 
+/**
+ * A SQL expression producing one JSON string per row, byte-identical to `DataFrame.toJSON` with
+ * the same options, or NULL for a row that `skipEmptyObjects` drops.
+ *
+ * Two things are left to the caller: removing duplicate rows under `skipDuplicateObjects`,
+ * which compares whole rendered rows in order and is done on the stream (`TealFrame.ndjson`),
+ * and filtering rows, which uses {@link buildJsonRowFilter}.
+*/
 export function buildJsonExpression(
     config: DataTypeConfig | ReadonlyDataTypeConfig,
     options: JsonExportOptions = {}

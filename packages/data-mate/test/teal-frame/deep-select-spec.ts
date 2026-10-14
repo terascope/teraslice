@@ -4,9 +4,9 @@ import { isEmpty } from '@terascope/core-utils';
 import { Column, DataFrame, TealFrame, closeDuckDatabase } from '../../src/index.js';
 
 /**
- * `TealFrame.deepSelect` and `pruneEmptyObjects` against `DataFrame.deepSelect` and the QPL
- * engine's SELECT node (`table-nodes/index.ts`), which runs `deepSelect` and then drops every
- * `_skip_if_empty` Object column left with no children.
+ * Compares `TealFrame.deepSelect` and `pruneEmptyObjects` with `DataFrame.deepSelect` followed by
+ * dropping every `_skip_if_empty` Object column left with no children, which is how a select
+ * step uses them.
 */
 
 const CONFIG: DataTypeConfig = {
@@ -112,7 +112,7 @@ describe('TealFrame.deepSelect', () => {
     });
 
     describe('pruneEmptyObjects', () => {
-        /** The engine's SELECT node: `deepSelect`, then drop the empty `_skip_if_empty` Objects. */
+        /** A select step: `deepSelect`, then drop the empty `_skip_if_empty` Objects. */
         function engineSelect(selectors: string[]): DataFrame<Record<string, any>> {
             const selected = dataFrame.deepSelect(selectors);
             const columns: Column[] = selected.columns.filter((col) => !(

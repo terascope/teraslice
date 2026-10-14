@@ -6,10 +6,7 @@ import { isCIDR, isIP } from '@terascope/ip-utils';
 import { xLuceneFieldType } from '@terascope/types';
 
 /**
- * What a field type can hold, and how a value should be rendered for it.
- *
- * This is the one place SQL emission reasons about xLucene's type system rather than about
- * SQL text.
+ * Helpers for deciding which values an xLucene field type can hold and how to render them.
 */
 
 const NUMERIC_TYPES: readonly xLuceneFieldType[] = [
@@ -34,11 +31,10 @@ export function isTextFieldType(fieldType?: xLuceneFieldType): boolean {
 }
 
 /**
- * The field type to render a value as when the node carries none.
+ * Infer a field type from a value's JavaScript type, for nodes that have no `field_type`.
  *
- * A term built from an array variable has no `field_type` at all (measured - the parser
- * expands `some:$array` into a field group whose terms carry only a value), so the value's
- * own JavaScript type is the only thing left to go on.
+ * The parser expands `some:$array` into terms that carry only a value, so the value's type
+ * is all there is to go on.
 */
 export function inferFieldType(value: unknown): xLuceneFieldType {
     if (typeof value === 'boolean') return xLuceneFieldType.Boolean;
@@ -47,16 +43,12 @@ export function inferFieldType(value: unknown): xLuceneFieldType {
 }
 
 /**
- * Whether a value could be a value of this field type at all.
+ * Whether a value can be a value of this field type.
  *
- * **This is only asked when a query names no field, or names a pattern of them** - a query
- * that names its field has already been coerced by the parser, which throws on a value the
- * type cannot hold. An expansion has no such protection: `ba*:hello` can land on an integer
- * column, where `"num" = 'hello'` is not a non-match but a cast error that fails the whole
- * query.
- *
- * A field this returns false for contributes nothing to the expansion, which is the same
- * answer Elasticsearch gives - it simply cannot match.
+ * Used when a query names no field or a field pattern. A query that names its field was
+ * already checked by the parser, but `ba*:hello` can expand to an integer column, where
+ * `"num" = 'hello'` is a cast error that fails the whole query. Fields that return false
+ * are left out of the expansion; in Elasticsearch they could not match either.
 */
 export function canRenderValueAs(value: unknown, fieldType?: xLuceneFieldType): boolean {
     if (value == null) return false;

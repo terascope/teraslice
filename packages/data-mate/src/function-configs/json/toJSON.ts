@@ -94,21 +94,11 @@ export const toJSONConfig: FieldTransformConfig = {
     },
     sql: {
         /**
-         * **`to_json` is `JSON.stringify`, for most column types.** Measured over 13 values across
-         * six types (`tools/probe/remaining-26.mjs`): every VARCHAR case byte-equal including
-         * quotes, tabs, backslashes and astral input; BIGINT, BOOLEAN and non-integral DOUBLE
-         * equal; STRUCT and LIST equal including key ORDER.
+         * `to_json`, which matches `JSON.stringify` for the column types in `JSON_SQL_TYPES`,
+         * including the escaping of quotes, tabs, backslashes and astral characters.
+         * `JSON_SQL_TYPES` explains which types stay on the UDF and why.
          *
-         * Two type families are declined for measured reasons, not caution:
-         *
-         * - **floating point.** `to_json(2.0)` is `'2.0'` where `JSON.stringify(2)` is `'2'`, and
-         *   `to_json(1e21)` is `'1e21'` where JavaScript writes `'1e+21'`. That is JavaScript's
-         *   number-to-string algorithm, not a formatting option, so it stays on the UDF.
-         * - **Date.** `to_json` on a TIMESTAMP gives `"2026-01-02 03:04:05.678"` - no `T`, no `Z` -
-         *   where `JSON.stringify(new Date(...))` gives the ISO form.
-         *
-         * An array column is declined because `output_type` declares the result `array: false`
-         * while `list_transform` would hand back a list.
+         * An array column is declined because `output_type` declares a non-array result.
         */
         applies: (_args, inputConfig) => !inputConfig.field_config.array
             && JSON_SQL_TYPES.includes(inputConfig.field_config.type as FieldType),

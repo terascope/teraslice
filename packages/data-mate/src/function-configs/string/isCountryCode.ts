@@ -92,14 +92,13 @@ export const isCountryCodeConfig: FieldValidateConfig = {
     },
     sql: {
         /**
-         * **A 249-entry set lookup on `upper(x)`** - that is the entire function, see
-         * `ISO_3166_ALPHA2`. `core-utils` does not pass `userAssignedCodes`, so nothing else in
-         * `validator.isISO31661Alpha2` is reachable. Calling it a "locale table" put it in the same
-         * bucket as `isPostalCode`, which really is one.
+         * A lookup of `upper(x)` in the 249 codes of `ISO_3166_ALPHA2`. That is all of
+         * `validator.isISO31661Alpha2` as `core-utils` calls it, since it does not pass
+         * `userAssignedCodes`.
          *
-         * ASCII only, and the reason is specific: JavaScript's `toUpperCase` is FULL case mapping
-         * and can change a string's LENGTH, so `'\ufb01'` uppercases to `'FI'` - a real country
-         * code - where DuckDB's simple mapping leaves it as one character.
+         * Non-ASCII values keep the UDF. JavaScript's `toUpperCase` uses full case mapping and can
+         * change a string's length, so `'ﬁ'` uppercases to `'FI'`, a real country code, while
+         * DuckDB's simple mapping leaves it as one character.
         */
         needs_udf_fallback: true,
         expression: ({ value, udf }) => `CASE WHEN NOT ${isAsciiSql(value)} THEN ${udf(value)}`

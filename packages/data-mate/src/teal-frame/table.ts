@@ -5,17 +5,17 @@ import { DataType } from '@terascope/data-types';
 import { quoteIdentifier } from '@terascope/sql-builder';
 import { getChildDataTypeConfig } from '../core/utils.js';
 import { coerceToType } from '../builder/type-coercion.js';
-import { makeValueConverter, makeBigIntInputNormaliser } from './duck-values.js';
+import { makeValueConverter, makeBigIntInputNormalizer } from './duck-values.js';
 import { DuckContext } from './DuckContext.js';
 import { CreatedTable, FieldPlan, FrameConfig } from './interfaces.js';
 
 /**
- * Creating the table a frame's rows live in, and resolving how each field gets into it.
+ * Creates the table that holds a frame's rows, and plans how each field is coerced into it.
 */
 
 let tableCounter = 0;
 
-/** Table names come from us, never from user data, so a counter suffices. */
+/** Returns a unique table name. Names never come from user data, so a counter is enough. */
 export function nextTableName(name?: string): string {
     tableCounter += 1;
     const base = (name ?? 'teal_frame').replace(/[^A-Za-z0-9_]/g, '_');
@@ -46,25 +46,23 @@ export function buildPlan(config: FrameConfig): FieldPlan[] {
 }
 
 /**
- * `coerceToType`, fed a value it coerces EXACTLY.
- *
- * Coercion itself is shared with `DataFrame` and stays so; the normaliser only changes the FORM
- * of a large bigint input so it takes the same path as a string. See `makeBigIntInputNormaliser`.
+ * Returns `coerceToType` for a field, with large bigint inputs first rewritten as strings so
+ * they are coerced exactly. See `makeBigIntInputNormalizer`.
 */
 function exactCoerce(
     fieldConfig: DataTypeFieldConfig,
     children?: DataTypeFields
 ): (value: unknown) => unknown {
     const coerce = coerceToType(fieldConfig, children);
-    const normalise = makeBigIntInputNormaliser(fieldConfig, children);
-    return normalise ? (value) => coerce(normalise(value)) : coerce;
+    const normalize = makeBigIntInputNormalizer(fieldConfig, children);
+    return normalize ? (value) => coerce(normalize(value)) : coerce;
 }
 
 /**
- * Creates the table for a config, and reports the column set it declared.
+ * Creates the table for a config and returns its name and columns.
  *
- * Shared by `fromRecords` (which then appends records) and `empty` (which is then filled by
- * `appendParquet`), so one DDL path serves both ingest tiers.
+ * Used by both `fromRecords` (which then appends records) and `empty` (which is then filled by
+ * `appendParquet`).
 */
 export async function createTable(
     context: DuckContext,

@@ -41,8 +41,8 @@ export const getFirstIPInCIDRConfig: FieldTransformConfig = {
         return getFirstIPInCIDR;
     },
     /**
-     * The network address. Throws for a non-CIDR, so anything that is not one goes to the UDF and
-     * throws there - see the throw contract in `sql-utils.ts`.
+     * The network address. Anything that is not a CIDR goes to the UDF, which throws; see
+     * "How the IP transforms handle bad input" in `sql-utils.ts`.
     */
     sql: {
         needs_udf_fallback: true,

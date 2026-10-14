@@ -5,13 +5,11 @@ import { QueryAccess, QueryAccessConfig } from '../../src/index.js';
 import { DuckTestDB } from './duckdb-helpers.js';
 
 /**
- * **Every `QueryAccess` option, on the SQL path.**
+ * Every `QueryAccess` option on the SQL path.
  *
- * The options are the whole reason `QueryAccess` exists rather than `Translator`, and each
- * one has to survive the trip to a statement. Some of them refuse a query and some of them
- * change it, and the difference matters: a restriction that is REPORTED rather than applied
- * is not a restriction, so the ones that change a query are checked by running the statement
- * and looking at the rows rather than by reading what came back beside them.
+ * Some options refuse a query and some change it. The ones that change it are checked by
+ * running the statement and inspecting the rows, because a restriction that is only reported
+ * alongside the result is not applied.
 */
 describe('query access options (duckdb)', () => {
     const table = 'access_test';
@@ -69,8 +67,8 @@ describe('query access options (duckdb)', () => {
     }
 
     /**
-     * A constraint is AND-ed onto whatever was asked, including onto nothing at all - which
-     * is the case that makes it a security control rather than a default filter.
+     * A constraint is AND-ed onto every query, including an empty one, which makes it a
+     * security control and not just a default filter.
     */
     describe('a constraint', () => {
         it('narrows a query that was asked', async () => {
@@ -97,7 +95,7 @@ describe('query access options (duckdb)', () => {
         });
     });
 
-    /** **It defaults to TRUE**, so an empty query is answered unless it is turned off. */
+    /** It defaults to `true`, so an empty query is answered unless it is turned off. */
     describe('allow_empty_queries', () => {
         it('refuses an empty query when it is off', async () => {
             const access = accessWith({ allow_empty_queries: false });
@@ -129,9 +127,9 @@ describe('query access options (duckdb)', () => {
     });
 
     /**
-     * A leading wildcard has to read every term in the field, and the regular expressions
-     * refused here are the ones that can match nothing - both are a way to ask an engine for
-     * the whole index while looking like a filter.
+     * A leading wildcard must read every term in the field, and the regular expressions
+     * refused here can match the empty string. Both read the whole index while looking like a
+     * filter.
     */
     describe('prevent_prefix_wildcard', () => {
         const access = accessWith({ prevent_prefix_wildcard: true });
@@ -146,9 +144,9 @@ describe('query access options (duckdb)', () => {
         });
 
         /**
-         * `h*` and `h{0,1}` can both match the empty string, so neither guarantees the `h` -
-         * which is the same whole-index read a leading wildcard asks for, one character in.
-         * `hel*` does require its prefix and is allowed.
+         * `h*` and `h{0,1}` can both match the empty string, so neither requires the `h` and
+         * both read the whole index like a leading wildcard. `hel*` requires its prefix and is
+         * allowed.
         */
         it.each([
             ['a quantifier that can match nothing', 'bar:/h*/'],
@@ -168,10 +166,10 @@ describe('query access options (duckdb)', () => {
     });
 
     /**
-     * **A restricted field is refused as a QUERY, not just withheld from the answer.**
+     * A restricted field is refused in the query, not just withheld from the result.
      *
-     * Withholding it alone would leak it anyway: `secret:s1` returning one row and `secret:s2`
-     * returning another tells a caller both values without either ever being projected.
+     * Otherwise it would leak: `secret:s1` returning one row and `secret:s2` returning another
+     * tells a caller both values without either being projected.
     */
     describe('field restrictions on the query', () => {
         it('refuses an excluded field', async () => {
@@ -190,10 +188,9 @@ describe('query access options (duckdb)', () => {
         });
 
         /**
-         * **A field the type config never mentioned is restricted too**, and that is what
-         * keeps the statement honest: SQL has no unmapped field, so an undeclared name would
-         * reach the engine as a column and fail the whole query rather than matching nothing
-         * the way Elasticsearch does. `QueryAccess` refuses it before either happens.
+         * A field missing from the type config is restricted too. SQL has no unmapped fields,
+         * so an undeclared name would reach the engine as a column and fail the whole query
+         * instead of matching nothing as Elasticsearch does. `QueryAccess` refuses it first.
         */
         it('refuses a field the type config does not declare', async () => {
             const access = accessWith({});
@@ -211,9 +208,9 @@ describe('query access options (duckdb)', () => {
         });
 
         /**
-         * The projection is the only place SQL can withhold a field, and a partly-readable
-         * object has to be rebuilt rather than dropped - dropping the column would withhold
-         * the readable member too, and selecting it would leak the excluded one.
+         * The projection is the only place SQL can withhold a field, so a partly readable
+         * object is rebuilt. Dropping the column would also withhold the readable member, and
+         * selecting it whole would leak the excluded one.
         */
         it('rebuilds an object that is only partly readable', async () => {
             const access = accessWith({ excludes: ['nested.secret'] });
@@ -230,8 +227,8 @@ describe('query access options (duckdb)', () => {
     });
 
     /**
-     * The pieces, for a caller that already has a relation. **They are pieces of the same
-     * answer**, so `where` on its own has to select the same rows the whole statement does.
+     * The statement's parts, for a caller that already has a relation. `where` on its own
+     * must select the same rows as the whole statement.
     */
     describe('restrictSQLParts', () => {
         it('hands back a where a caller can run, and the projection that goes with it', async () => {
@@ -259,7 +256,7 @@ describe('query access options (duckdb)', () => {
                 params: { includes: ['id', 'bar'] }
             });
 
-            // the projection follows the TYPE CONFIG's field order, not the request's
+            // the projection follows the type config's field order, not the request's
             expect(select).toEqual('"bar", "id"');
             expect(columns).toEqual(['bar', 'id']);
             expect(includes).toEqual(['id', 'bar']);
@@ -267,8 +264,8 @@ describe('query access options (duckdb)', () => {
     });
 
     /**
-     * `QueryAccess` caches the parse and the translation by query text, so a cache that is
-     * cleared has to rebuild rather than answer from nothing.
+     * `QueryAccess` caches the parse and translation by query text, so after the cache is
+     * cleared it must rebuild them.
     */
     it('keeps answering the same way after its cache is cleared', async () => {
         const access = accessWith({});

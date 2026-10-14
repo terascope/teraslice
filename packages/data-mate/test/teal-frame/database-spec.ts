@@ -34,10 +34,9 @@ describe('duck database', () => {
     });
 
     describe('`:memory:` versus a file path', () => {
-        // MEASURED, and it bit us: a bare name and the `:memory:<name>` form BOTH write a
-        // database file into the working directory. Only the exact string `:memory:` is
-        // in-memory. These tests pin that so nobody "isolates" a test by naming a database
-        // and quietly litters the repo root.
+        // A bare name and the `:memory:<name>` form both write a database file into the
+        // working directory; only the exact string `:memory:` is in-memory. These tests pin
+        // that so nobody isolates a test by naming a database and litters the repo root.
         it('writes no file for the default `:memory:` database', async () => {
             const before = readdirSync(scratch);
             const frame = await TealFrame.fromRecords(CONFIG, RECORDS, {});
@@ -64,7 +63,7 @@ describe('duck database', () => {
             );
 
             // the first frame's table is still there, with its rows.
-            // NOTE query() is JSON-rendered, so a BIGINT count comes back as a string.
+            // query() renders JSON, so a BIGINT count comes back as a string.
             expect(await reopened.rawRows(`SELECT count(*) FROM ${table}`)).toEqual([['2']]);
             await closeDuckDatabase(path);
         });
@@ -115,8 +114,8 @@ describe('duck database', () => {
             );
 
             expect(await setting(frame, 'temp_directory')).toEqual(spill);
-            // NOTE DuckDB reads `GB` as 10^9 and reports in GiB, so '2GB' comes back as
-            // '1.8 GiB'. Binary units are used here so the assertion is unambiguous.
+            // DuckDB reads `GB` as 10^9 and reports in GiB ('2GB' comes back as '1.8 GiB'),
+            // so binary units keep the assertion unambiguous.
             expect(await setting(frame, 'max_temp_directory_size')).toEqual('2.0 GiB');
             expect(await setting(frame, 'memory_limit')).toEqual('512.0 MiB');
 

@@ -5,24 +5,23 @@ import { isDateTuple, toISO8601 } from '@terascope/core-utils';
 import { quoteLiteral } from '@terascope/sql-builder';
 
 /**
- * How TealFrame stores a `Date`: as `DataFrame` holds one.
+ * How TealFrame stores a `Date` field, matching what `DataFrame` holds.
  *
- * `DataFrame` keeps epoch milliseconds, or a `DateTuple` - `[epochMillis, offsetMinutes]` - once
- * `setTimezone`, `toTimeZone` or `toTimeZoneUsingLocation` attached a display offset, and decides
- * per VALUE which it has. Every `Date` column here is the same pair:
+ * `DataFrame` stores epoch milliseconds, or a `DateTuple` (`[epochMillis, offsetMinutes]`) once
+ * `setTimezone`, `toTimeZone` or `toTimeZoneUsingLocation` has attached a display offset. The
+ * choice is made per value. Here every `Date` column has one type:
  *
- *     STRUCT(ms BIGINT, tz_offset SMALLINT)        tz_offset NULL unless one was set
+ *     STRUCT(ms BIGINT, tz_offset SMALLINT)        tz_offset is NULL unless an offset was set
  *
- * One shape for every date, so nothing - not the adapter, not a filter, not a Parquet reader - has
- * to know whether some earlier step attached an offset; each row says so itself. A plain date
- * renders `...Z`, exactly as before.
+ * With one shape for every date, readers never need to know whether an earlier step attached an
+ * offset. A date without an offset renders with a `Z` suffix.
  *
- * Measured against a TIMESTAMP at 100M rows: the file is 32%
- * SMALLER (milliseconds compress better than a TIMESTAMP's microseconds), a 50% range filter is
- * 23% faster and a write 21% faster; a date function pays ~19% for the per-row offset branch.
+ * Compared with a TIMESTAMP column, the file is about a third smaller (milliseconds compress
+ * better than microseconds) and range filters and writes are faster. Date functions pay a small
+ * cost for the per-row offset check.
  *
- * **DuckDB does not treat a number as a date** - `hour(BIGINT)` does not bind and there is no
- * BIGINT -> TIMESTAMP cast - so every date expression reads `epoch_ms(...)` of the member.
+ * DuckDB does not treat a number as a date (`hour(BIGINT)` does not bind and there is no
+ * BIGINT to TIMESTAMP cast), so every date expression wraps the member in `epoch_ms(...)`.
 */
 
 export const DATE_MS = 'ms';
@@ -34,8 +33,8 @@ const MINUTE_MS = 60_000;
 export const DATE_TYPE = STRUCT({ [DATE_MS]: BIGINT, [DATE_OFFSET]: SMALLINT });
 
 /**
- * A JS date value as the struct: epoch millis (what `coerceToType` produces for a plain date), or
- * a `DateTuple`, whose offset is kept.
+ * Converts a JS date value to the struct. Accepts epoch millis (what `coerceToType` produces for
+ * a plain date) or a `DateTuple`, whose offset is kept.
 */
 export function toDateValue(value: unknown): DuckDBStructValue | null {
     if (value == null) return null;
@@ -48,7 +47,7 @@ export function toDateValue(value: unknown): DuckDBStructValue | null {
     });
 }
 
-/** The struct back as `DataFrame` holds it: a `DateTuple`, or plain epoch millis. */
+/** Converts the struct back to `DataFrame`'s form: a `DateTuple`, or plain epoch millis. */
 export function fromDateValue(value: unknown): unknown {
     const entries = (value as { entries?: Record<string, unknown> } | null)?.entries;
     if (entries == null) return value;
@@ -60,8 +59,8 @@ export function fromDateValue(value: unknown): unknown {
 }
 
 /**
- * The struct as `rows()` sees it - `toPlainValue` has already made it `{ ms, tz_offset }` of
- * numbers - rendered as `DataFrame`'s `toISO8601` renders the same value. Anything else passes.
+ * Renders a plain `{ ms, tz_offset }` object (the struct after `toPlainValue`) the way
+ * `DataFrame`'s `toISO8601` renders the same value. Other values are returned unchanged.
 */
 export function renderPlainDate(value: unknown): unknown {
     if (value == null || typeof value !== 'object' || Array.isArray(value)) return value;
@@ -74,23 +73,23 @@ export function renderPlainDate(value: unknown): unknown {
     return toISO8601(offset == null ? Number(millis) : [Number(millis), Number(offset)]);
 }
 
-/** The instant, as a TIMESTAMP - what a date function reads when it ignores the offset. */
+/** SQL for the instant as a TIMESTAMP, for date functions that ignore the offset. */
 export function instantSQL(accessor: string): string {
     return `epoch_ms(${accessor}.${DATE_MS})`;
 }
 
 /**
- * The LOCAL wall time, as a TIMESTAMP: the instant shifted by the offset, or the instant itself
- * when there is none. This is `getValidDateWithTimezone` - what `DataFrame`'s date functions read
- * from a `DateTuple` - and it is how the per-row "is this a tuple?" check costs one `coalesce`.
+ * SQL for the local wall time as a TIMESTAMP: the instant shifted by the offset, or the instant
+ * itself when there is none. This matches `getValidDateWithTimezone`, which `DataFrame`'s date
+ * functions use on a `DateTuple`. The per-row offset check is a single `coalesce`.
 */
 export function localSQL(accessor: string): string {
     return `epoch_ms(${accessor}.${DATE_MS} + coalesce(${accessor}.${DATE_OFFSET}, 0) * ${MINUTE_MS})`;
 }
 
 /**
- * A TIMESTAMP result back into a date value, with no offset - a date function that returns a
- * date returns plain epoch millis in `DataFrame` too, tuple input or not.
+ * SQL that turns a TIMESTAMP back into a date value with no offset. In `DataFrame`, a date
+ * function that returns a date also returns plain epoch millis, even for tuple input.
 */
 export function fromTimestampSQL(expression: string): string {
     return `CASE WHEN (${expression}) IS NULL THEN NULL ELSE`
@@ -98,8 +97,9 @@ export function fromTimestampSQL(expression: string): string {
 }
 
 /**
- * The date rendered as JSON text in SQL, byte-equal to `toISO8601`: no offset, or 0, is UTC with
- * a `Z`; any other is the LOCAL wall time followed by `+HH:MM` / `-HH:MM`.
+ * SQL that renders the date as JSON text, byte-for-byte equal to `toISO8601`. A missing or zero
+ * offset renders as UTC with a `Z`; any other offset renders the local wall time followed by
+ * `+HH:MM` or `-HH:MM`.
 */
 export function dateJson(accessor: string): string {
     const offset = `${accessor}.${DATE_OFFSET}`;

@@ -1,9 +1,10 @@
 /**
  * Renders the report from `.results.json`, whatever is in it.
  *
- * Separate from `run.js` because a large enough `DataFrame` case kills the process outright
- * (V8's `Ineffective mark-compacts` is not catchable), so rendering must not depend on a run
- * having finished. Run each scale in its own process, then render once:
+ * Separate from `run.js` because a large `DataFrame` case can kill the process (V8's
+ * `Ineffective mark-compacts` abort cannot be caught), so rendering cannot depend on a run
+ * finishing. `sweep.js` calls this automatically; to do it by hand, run each scale in its own
+ * process, then render once:
  *
  *     for s in 1000 5000 10000 50000 100000 500000 1000000 3000000 5000000; do
  *         SCALES=$s node --max-old-space-size=24576 bench/comparison/run.js || true

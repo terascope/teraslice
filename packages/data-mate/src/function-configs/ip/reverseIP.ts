@@ -42,10 +42,10 @@ export const reverseIPConfig: FieldTransformConfig = {
         return reverseIP;
     },
     /**
-     * IPv4 only: the octets in reverse, which is the PTR form.
+     * IPv4 only: the octets in reverse order, which is the PTR form.
      *
-     * IPv6 reverses NIBBLES from the fully expanded address - a different algorithm, and one with
-     * no native equivalent - so it goes to the UDF.
+     * IPv6 reverses the nibbles of the fully expanded address, which has no native equivalent, so
+     * it goes to the UDF.
     */
     sql: {
         needs_udf_fallback: true,

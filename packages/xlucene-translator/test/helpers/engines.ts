@@ -7,12 +7,12 @@ import { DuckTestDB } from '../sql/duckdb-helpers.js';
 const { makeClient, populateIndex, cleanupIndex } = ElasticsearchTestHelpers;
 
 /**
- * One engine, asked a question the same way both engines are asked it.
+ * One engine, queried the same way as the other.
  *
- * `QueryAccess` is the entry point on both sides - `restrictSearchQuery` there,
- * `restrictSQLQuery` here - and each returns something its client runs unchanged. **Neither
- * implementation may assemble anything**: the moment a harness adds a clause of its own, the
- * thing under test stops being what a caller would actually execute.
+ * `QueryAccess` is the entry point on both sides (`restrictSearchQuery` for OpenSearch,
+ * `restrictSQLQuery` for DuckDB), and each returns something its client runs unchanged.
+ * Implementations must not add clauses of their own, or the test no longer runs what a
+ * caller would execute.
 */
 export interface ParityEngine {
     readonly name: string;
@@ -23,7 +23,7 @@ export interface ParityEngine {
     close(): Promise<void>;
 }
 
-/** Ids come back in whatever order an engine felt like; the ANSWER is the set. */
+/** Engines return ids in no particular order, so the answer is compared as a set. */
 function sortIds(ids: string[]): string[] {
     return [...ids].sort();
 }

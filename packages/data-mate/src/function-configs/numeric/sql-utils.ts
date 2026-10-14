@@ -2,22 +2,20 @@ import { FieldType } from '@terascope/types';
 import { DataTypeFieldAndChildren } from '../interfaces.js';
 
 /**
- * Helpers shared by the `sql` emissions on the numeric function configs.
+ * Helpers shared by the SQL expressions on the numeric function configs.
 */
 
 /**
- * True when the column really is an array, which is the only shape the `*Values` reducers fold.
+ * True when the column is an array, the only shape the `*Values` reducers fold.
  *
- * They are `FULL_VALUES` functions that return a scalar column's value UNCHANGED - `addValuesFn`
- * short-circuits on a number - and `list_sum` of a scalar is not an expression at all. So the
- * emission claims the array column and the scalar one keeps the UDF, where it costs one call per
- * row and returns the row.
+ * On a scalar column these functions return the value unchanged, and `list_sum` of a scalar is
+ * not valid SQL, so scalar columns keep the UDF.
 */
 export function isArrayColumn(_args: unknown, inputConfig?: DataTypeFieldAndChildren): boolean {
     return inputConfig?.field_config?.array === true;
 }
 
-/** The list with its nulls removed - what every one of the reducers folds over. */
+/** The list with its nulls removed, which is what the reducers fold over. */
 function withoutNulls(value: string): string {
     return `list_filter(${value}, lambda x : x IS NOT NULL)`;
 }
@@ -25,13 +23,11 @@ function withoutNulls(value: string): string {
 /**
  * A left fold over the non-null elements, or NULL when there are none.
  *
- * **The emptiness guard is not defensive, it is required.** Measured: `list_reduce` over an empty
- * list raises `Parameter Not Allowed Error: Cannot perform list_reduce on an empty input list`,
- * where the JavaScript reducer starts from `null` and simply returns `null` - so an all-null array,
- * or an empty one, would abort the query instead of producing a null.
+ * The empty check is required: `list_reduce` raises an error on an empty list, while the
+ * JavaScript reducer returns `null`.
  *
- * `lambda a, b : ...` rather than `(a, b) -> ...`: the single-arrow form is disabled by default in
- * DuckDB v2.0 and removed in v2.1.
+ * Uses `lambda a, b : ...` because the `(a, b) -> ...` form is disabled by default in DuckDB
+ * v2.0 and removed in v2.1.
 */
 export function foldList(value: string, operator: string): string {
     const list = withoutNulls(value);
@@ -40,36 +36,28 @@ export function foldList(value: string, operator: string): string {
 }
 
 /**
- * The numeric field types `setPrecision`'s emission claims - where rounding means anything.
+ * The numeric field types `setPrecision` handles in SQL: the ones that can hold a fraction.
  *
- * An `Integer`/`Long`/`Byte`/`Short` column is already whole, so `setPrecision` is identity there -
- * but `validateAccepts` treats `[Number]` as every numeric width, so `types` cannot express this
- * and an `applies` has to.
+ * `validateAccepts` treats `[Number]` as every numeric width, so `types` cannot exclude the
+ * integer types and `applies` checks this list instead.
 */
 export const FRACTIONAL_FIELD_TYPES: readonly string[] = [
     FieldType.Number, FieldType.Float, FieldType.Double,
 ];
 
 /**
- * `parseFloat(value.toFixed(digits))`, in SQL - and **`round()` is not it**.
+ * `parseFloat(value.toFixed(digits))` in SQL.
  *
- * Measured over 84 value/digit pairs:
+ * `toFixed` rounds the value's exact binary expansion, so `(2.675).toFixed(2)` is `'2.67'`
+ * (the stored value is 2.67499999...). DuckDB's `round(2.675, 2)` and a `DECIMAL` cast both give
+ * `2.68`. `printf('%.{d}f', v)` also rounds the exact value and agrees with `toFixed` except at
+ * exact ties, where `printf` rounds half to even and `toFixed` rounds half away from zero
+ * (`%.0f` of 2.5 is `2`, `toFixed(0)` is `'3'`).
  *
- * - **`round(2.675, 2)` is `2.68` and `toFixed(2)` is `'2.67'`.** `toFixed` rounds the value's
- *   EXACT binary expansion, which is 2.67499999999999982..., while `round` rounds the decimal it
- *   looks like. One divergence in 84, on the shape money takes, so `round` is out.
- * - **`CAST(v AS DECIMAL(38, d))` gets it wrong the same way** - also 2.68 - so the decimal cast is
- *   out too, and it throws on `nan` and overflows above 10^38 besides.
- * - **`printf('%.{d}f', v)` works on the exact value, like `toFixed`.** Over the same 84 pairs
- *   plus
- *   12 exact ties it agrees everywhere but the ties: `printf` rounds half to EVEN and `toFixed`
- *   rounds half AWAY FROM ZERO, so `%.0f` of 2.5 is `2` where `toFixed(0)` is `'3'`.
- *
- * Hence the guard, and it is exact rather than conservative-in-name-only: a tie means the exact
- * value terminates at digit `d + 1` with a `5`, so rendering at `d + 1` digits and finding
- * something other than `5` at the end PROVES it is not a tie - and away from a tie the two
- * roundings cannot differ. Non-finite input keeps the UDF too, because `setPrecision` returns `NaN`
- * and the infinities unchanged and `printf` renders them as the text `nan`/`inf`.
+ * `notAtRoundingTie` excludes those ties. A tie means the exact value ends with a `5` at digit
+ * `d + 1`, so if the rendering at `d + 1` digits does not end in `5` it is not a tie and the two
+ * roundings agree. Non-finite values also keep the UDF, because `setPrecision` returns them
+ * unchanged and `printf` renders them as `nan`/`inf`.
 */
 export function toFixedSql(value: string, digits: number): string {
     return `CAST(printf('%.${digits}f', ${value}) AS DOUBLE)`;
@@ -81,12 +69,11 @@ export function notAtRoundingTie(value: string, digits: number): string {
 }
 
 /**
- * `truncateNumber`, in SQL: render at `digits + 5`, then KEEP the first `digits` decimals.
+ * `truncateNumber` in SQL: render at `digits + 5` decimals, then keep the first `digits`.
  *
- * A transliteration of the JavaScript rather than `trunc(v * 10^d) / 10^d`, which is wrong -
- * `8.29 * 100` is 828.99999999999989, so truncating the product gives 8.28 where the function gives
- * 8.29. Agreed with `truncateNumber` on all 84 pairs. The `digits + 5` rendering can itself land on
- * a tie whose rounding cascades into the kept digits, so it carries the same guard.
+ * `trunc(v * 10^d) / 10^d` would be wrong: `8.29 * 100` is 828.99999999999989, so it gives 8.28
+ * where `truncateNumber` gives 8.29. The `digits + 5` rendering can itself round up at a tie and
+ * change the kept digits, so callers apply the same `notAtRoundingTie` guard.
 */
 export function truncateToDigitsSql(value: string, digits: number): string {
     const rendered = `printf('%.${digits + 5}f', ${value})`;

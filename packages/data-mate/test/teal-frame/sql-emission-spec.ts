@@ -7,22 +7,19 @@ import {
 } from '../../src/index.js';
 
 /**
- * **The promotion gate for `sql` emissions.**
+ * Checks every function's `sql` expression against its own UDF.
  *
- * A function may declare a `sql` emission so the query runs it natively instead of calling a
- * JavaScript UDF once per value. That is worth 18x-125x, and it is also a chance to silently
- * change every answer the function has ever given - so nothing is promoted by inspection. This
- * runs the SAME function BOTH ways over the same values and requires them to agree exactly.
+ * A function may declare a `sql` expression so the query runs it natively instead of calling a
+ * JavaScript UDF once per value, which is 18x-125x faster. It can also silently change the
+ * function's answers, so this runs each function both ways over the same values and requires
+ * them to agree exactly. Two examples of what it catches:
  *
- * It is not a theoretical risk. Divergences this gate has actually caught:
- *
- * - `trim` as `trim(x)` differs whenever the value has a tab or a newline, because DuckDB's
- *   one-argument form strips only spaces while JavaScript strips all Unicode whitespace.
+ * - `trim` as `trim(x)` differs on a tab or a newline, because DuckDB's one-argument form strips
+ *   only spaces while JavaScript strips all Unicode whitespace.
  * - `toUpperCase` as `upper(x)` differs on `'ß'` (`SS` vs `ẞ`) and `'ﬁ'` (`FI` vs `ﬁ`), because
  *   JavaScript applies full case mapping and DuckDB applies simple mapping.
  *
- * A function that fails here does not get a workaround - it stays a UDF, and the reason is recorded
- * on its `sql` config so the next person does not re-litigate it.
+ * A function that cannot agree stays a UDF, and the reason is recorded on its `sql` config.
 */
 
 const repo = functionConfigRepository as unknown as Record<
@@ -43,12 +40,11 @@ const NUMBER_EDGES = [0.1, 1e-7, 1e21, -1e21, 9007199254740991, -900719925474099
 const ORDINARY_INTEGERS = [0, 1, -1, 2, -2, 7, -7, 100, -100];
 
 /**
- * The battery per input type: every value that has produced a divergence, plus the ordinary
- * cases and the edges of the type.
+ * Test values per input type: every value known to expose a difference between SQL and
+ * JavaScript, plus ordinary cases and the edges of the type.
  *
- * `null` is in every battery deliberately: `INDIVIDUAL_VALUES` means the UDF is never called for
- * nil and nil passes through, so an emission has to be null-safe on its own. That is the easiest
- * property to get wrong with a `CASE` expression.
+ * Every list includes `null`. Under `INDIVIDUAL_VALUES` the UDF is never called for nil, so a SQL
+ * expression must be null-safe on its own, which is easy to get wrong with a `CASE` expression.
 */
 const BATTERIES: Partial<Record<FieldType, readonly unknown[]>> = {
     [FieldType.Keyword]: [
@@ -60,9 +56,8 @@ const BATTERIES: Partial<Record<FieldType, readonly unknown[]>> = {
         '\t x \n',
         ' nbsp ',
         '　ideographic　',
-        // a LEADING U+FEFF is stripped on ingest and again when a UDF returns one, so a value
-        // carrying it cannot round-trip through the engine, where `DataFrame` keeps it.
-        // A trailing one survives, and stays here.
+        // a leading U+FEFF is stripped on ingest and when a UDF returns one, so it cannot
+        // round-trip the way it does in `DataFrame`. A trailing one survives, so it is tested.
         'zwnbsp﻿',
         'ß',
         'ﬁ',
@@ -86,9 +81,9 @@ const BATTERIES: Partial<Record<FieldType, readonly unknown[]>> = {
     [FieldType.Double]: [...ORDINARY_NUMBERS, 0.1, 1e-7, 1e21, null],
     [FieldType.Boolean]: [true, false, null],
     /**
-     * One date per weekday, both leap and non-leap years, a century and a 400-year boundary,
-     * the epoch and the last millisecond of a year - so the weekday, leap-year and truncation
-     * emissions are actually exercised rather than nominally covered.
+     * One date per weekday, leap and non-leap years, a century and a 400-year boundary, the
+     * epoch and the last millisecond of a year, so the weekday, leap-year and truncation
+     * expressions are all exercised.
     */
     [FieldType.Date]: [
         '2026-01-02T03:04:05.678Z',
@@ -107,11 +102,11 @@ const BATTERIES: Partial<Record<FieldType, readonly unknown[]>> = {
     ],
     [FieldType.IP]: ['1.2.3.4', '255.255.255.255', '0.0.0.0', '::1', 'fe80::1', null],
     /**
-     * Points around the `[{lat:1,lon:0}, {lat:0,lon:1}]` box used by the `inGeoBoundingBox` case -
-     * centre, all four EDGES, all four CORNERS, and one outside on each side.
+     * Points around the `[{lat:1,lon:0}, {lat:0,lon:1}]` box used by the `inGeoBoundingBox` case:
+     * the center, all four edges, all four corners, and one outside on each side.
      *
-     * The edges and corners are the point: turf includes them and `ST_Within` does not, so a
-     * battery of interior points would pass with the wrong emission.
+     * The edges and corners matter most: turf includes them and `ST_Within` does not, so only
+     * interior points would let a wrong SQL expression pass.
     */
     [FieldType.GeoPoint]: [
         { lat: 0.5, lon: 0.5 },
@@ -130,17 +125,15 @@ const BATTERIES: Partial<Record<FieldType, readonly unknown[]>> = {
         null,
     ],
     /**
-     * Only what a `GeoJSON` column can actually HOLD.
+     * Only values a `GeoJSON` column can hold.
      *
-     * Measured: `coerceToType` REJECTS a malformed shape outright - `{ type: 'Point' }`,
-     * `{ coordinates: [...] }`, a `LineString`, `{}` all throw at ingest - and it NORMALISES the
-     * type to title case, so `'point'` is stored as `'Point'`. A near-miss battery therefore cannot
-     * reach the column at all; the emission's structural checks are correct but unreachable here,
-     * and testing them would mean testing coercion instead.
+     * `coerceToType` rejects a malformed shape at ingest (`{ type: 'Point' }`,
+     * `{ coordinates: [...] }`, a `LineString`, `{}`) and normalizes the type to title case, so
+     * `'point'` is stored as `'Point'`. Malformed values therefore never reach the column, and the
+     * expression's structural checks cannot be exercised here.
      *
-     * `'POINT'` stays, and is the interesting one: coercion passes it through unchanged, it
-     * satisfies `isGeoJSON` (which lowercases) and FAILS `isGeoShapePoint` (which compares
-     * exactly).
+     * `'POINT'` is included because coercion passes it through unchanged: it satisfies
+     * `isGeoJSON` (which lowercases) and fails `isGeoShapePoint` (which compares exactly).
     */
     [FieldType.GeoJSON]: [
         // shapes for the spatial predicates: inside, touching, overlapping, disjoint, holed
@@ -168,24 +161,20 @@ const BATTERIES: Partial<Record<FieldType, readonly unknown[]>> = {
 };
 
 /**
- * **The one input where a GEOMETRY and `DataFrame` must disagree.** `DataFrame` stores a `GeoJSON`
- * value as the object that arrived, so `{ type: 'POINT' }` keeps a spelling `geo-utils` compares
- * case-exactly: the same point is "disjoint" spelled `'Point'` or `'point'` and NOT disjoint
- * spelled `'POINT'`. A GEOMETRY stores the shape, not the
- * spelling, so SQL answers for the point - consistently, whatever it was called.
+ * The one input where a GEOMETRY and `DataFrame` must disagree. `DataFrame` stores a `GeoJSON`
+ * value as it arrived, and `geo-utils` compares the `type` case-exactly, so the same point is
+ * disjoint when spelled `'Point'` or `'point'` and not disjoint when spelled `'POINT'`. A GEOMETRY
+ * stores the shape, not the spelling, so SQL answers the same for every spelling.
 */
 const POINT_SPELLING = 'a GEOMETRY stores the shape, not the type spelling; JS answers differently for POINT than for Point';
 
 /**
- * The IP battery, fed through a **Keyword** column rather than an `IP` one.
+ * IP test values, fed through a Keyword column rather than an `IP` one.
  *
- * The IP functions accept `String` as well as `IP`, and a `String` column is the only one that can
- * hold the inputs that matter here: coercion into an `IP` field rejects a malformed address before
- * the function ever sees it, so an `IP`-typed battery can only contain values every predicate
- * answers the same way about. Everything below is a shape where `ip-utils` and the `inet` extension
- * could disagree - leading zeros, a prefix on an address, a scope ID, both IPv4-in-IPv6 spellings,
- * and one member of every reserved range - and they are here because differencing the two
- * implementations found the first three of them disagreeing.
+ * The IP functions accept `String` as well as `IP`, and only a string column can hold malformed
+ * input: coercion into an `IP` field rejects it before the function sees it. Every value below is
+ * a shape where `ip-utils` and the `inet` extension could disagree: leading zeros, a prefix on an
+ * address, a scope ID, both IPv4-in-IPv6 spellings, and one member of every reserved range.
 */
 const IP_BATTERY: readonly unknown[] = [
     // ordinary, and one from each family
@@ -227,7 +216,7 @@ const IP_BATTERY: readonly unknown[] = [
     '01.02.03.04',
     '010.1.1.1',
     '1.2.3.04',
-    // a prefix makes it a CIDR, not an IP - INET casts it either way
+    // a prefix makes it a CIDR, not an IP, but INET casts it either way
     '1.2.3.4/24',
     '1.2.3.4/32',
     '10.0.0.0/8',
@@ -274,20 +263,16 @@ const IP_BATTERY: readonly unknown[] = [
     null,
 ];
 
-/** Every IP predicate gets the same battery, through a String column. See `IP_BATTERY`. */
+/** Every IP predicate gets the same values, through a String column. See `IP_BATTERY`. */
 const IP_CASE = { type: FieldType.Keyword, battery: IP_BATTERY };
 
 /**
- * **A TRANSFORM cannot be given the predicate battery, because a transform THROWS.**
+ * Transforms get only valid input, because a transform throws on invalid input.
  *
- * The failure contract is that a throwing transform aborts the whole query, as
- * it does in `DataFrame`. So a battery with one bad value in it kills the query on BOTH paths and
- * there is nothing left to compare - the run fails for the right reason, which is useless as a
- * parity check.
- *
- * The contract is therefore asserted in two halves: these batteries hold only inputs the function
- * accepts, and `throwsOn` names one it does not, which is checked separately for the same failure
- * on both paths.
+ * A throwing transform aborts the whole query, as it does in `DataFrame`, so one bad value would
+ * fail both paths and leave nothing to compare. These lists therefore hold only inputs the
+ * function accepts, and `throwsOn` names one it rejects, which is checked separately for the same
+ * failure on both paths.
 */
 const VALID_CIDRS: readonly unknown[] = [
     '10.0.0.0/8',
@@ -327,9 +312,9 @@ const IP_TRANSFORM_CASE = { type: FieldType.Keyword, battery: VALID_IPS, throwsO
 /**
  * Which of a function's accepted types to feed it.
  *
- * Order matters and getting it wrong looks like a bug in the emission when it is not - IP functions
- * list `String` first, so a naive first-match would feed `getCIDRMin` a sentence. Semantic types
- * first, numerics next, generic strings last. Same reasoning as `function-sweep-spec.ts`.
+ * A wrong order looks like a bug in the SQL expression: IP functions list `String` first, so a
+ * plain first match would feed `getCIDRMin` a sentence. Semantic types come first, then numerics,
+ * then generic strings, as in `function-sweep-spec.ts`.
 */
 const TYPE_PREFERENCE: readonly FieldType[] = [
     FieldType.GeoPoint,
@@ -345,17 +330,15 @@ const TYPE_PREFERENCE: readonly FieldType[] = [
 ];
 
 /**
- * Per-function overrides: argument sets, the input type when preference is wrong, and the battery
- * itself where the shared one contains values the function's DECLARED OUTPUT TYPE cannot hold.
+ * Per-function overrides: argument sets, the input type when the preference order is wrong, and
+ * the test values where the shared ones include values the declared output type cannot hold.
  *
- * That last case is `ceil`/`floor`/`round`: their `output_type` is `Integer`, so at `1e21`
- * both paths produce a wrapped BIGINT and differ only in how the
- * garbage renders - a string on one side, a double on the other. Comparing them there measures
- * the overflow defect, not the emission, so the battery is narrowed to what an `Integer` can
- * represent and the guard on those emissions keeps the UDF for everything outside it.
+ * That last case is `ceil`/`floor`/`round`: their `output_type` is `Integer`, so at `1e21` both
+ * paths overflow and differ only in how the wrapped value renders. Their values are limited to
+ * what an `Integer` can represent, and the guard on those expressions keeps the UDF outside it.
 */
 /**
- * Postal codes: a sample for every locale's pattern, both cases, and every rewritten edge - the
+ * Postal codes: a sample for every locale's pattern, in both cases, and every rewritten edge: the
  * lookaheads (IE, IN, IR, NL), `\\s` as a vertical tab, a newline inside a code, and non-ASCII
  * whitespace, which goes to the UDF.
 */
@@ -484,57 +467,50 @@ const TZ_EDGES = [
 const CASES: Record<string, {
     args?: readonly Record<string, unknown>[];
     /**
-     * The input type to feed, when preference picks the wrong one - or SEVERAL types, when the
-     * emission BRANCHES on the column type and testing one branch proves nothing about the others.
+     * The input type to feed when the preference order picks the wrong one, or several types when
+     * the SQL expression branches on the column type.
      *
-     * `isBooleanLike` and `toBoolean` declare `accepts: []` and mean a different thing per type: a
+     * `isBooleanLike` and `toBoolean` declare `accepts: []` and do something different per type: a
      * constant for a `Boolean` column, a lookup in two tables for a string, a comparison for a
-     * number. Each branch is a separate emission in all but name and gets its own case.
+     * number. Each branch is effectively a separate expression and gets its own case.
     */
     type?: FieldType | readonly FieldType[];
     battery?: readonly unknown[];
     /**
-     * The emission only exists for an ARRAY column, so the case runs on one.
+     * The SQL expression exists only for an array column, so the case runs on one.
      *
      * `addValues` and its five siblings are `FULL_VALUES` reducers: on a scalar column they return
-     * the value unchanged, and `list_sum` of a scalar is not an expression - so their emission
-     * declines via `applies` and the scalar column keeps the UDF, correctly.
-     *
-     * Until 2026-10-07 these, every geo function, `split` and `extract` were compared against
-     * `config.create()` called directly, because their UDF could not bind a LIST, STRUCT, JSON or
-     * GEOMETRY type (known-defects DF4, DF7). The UDF layer now builds those types, so every case
-     * is compared against its real UDF.
+     * the value unchanged, and `list_sum` of a scalar is not valid, so their `applies` declines a
+     * scalar column and it keeps the UDF.
     */
     arrayOnly?: boolean;
     /**
-     * An input this TRANSFORM rejects, so the throw contract can be asserted rather than assumed.
+     * An input this transform rejects, used to check that both paths throw.
      *
-     * Both paths must fail, and with the SAME message - which is the point of emitting
-     * `CASE WHEN <valid> THEN <native> ELSE udf(x) END` instead of `error('...')`: the UDF is
-     * reached for exactly the values the native branch declines, and it raises the function's own
-     * error rather than a DuckDB approximation of it.
+     * Both paths must fail with the same message. That is why the SQL is
+     * `CASE WHEN <valid> THEN <native> ELSE udf(x) END` rather than `error('...')`: the UDF runs
+     * for exactly the values the native branch declines, and it raises the function's own error.
     */
     throwsOn?: unknown;
     /**
-     * Argument sets the emission must DECLINE, asserted through `applies` rather than by running.
+     * Argument sets the SQL expression must decline, checked by calling `applies`.
      *
-     * A declined set runs the UDF on both sides, so comparing them proves nothing about the guard.
-     * Calling `applies` directly proves it without a query, which is what a decline actually is.
+     * A declined set runs the UDF on both sides, so comparing the output says nothing about the
+     * guard. Calling `applies` directly checks it without a query.
     */
     declines?: readonly Record<string, unknown>[];
     /**
-     * Inputs where the SQL is deliberately DIFFERENT from the JavaScript, with the correct answer.
+     * Inputs where the SQL deliberately differs from the JavaScript, with the correct answer.
      *
      * Used only where SQL is the more correct of the two and that has been accepted as the
-     * behaviour - the geo predicates, whose `booleanIntersects`-based hole test treats a shape
-     * merely TOUCHING a hole as being inside it. Each entry names an input and what SQL must
-     * answer, so the gate still proves two things: everything else agrees exactly, and these cases
-     * give the stated correct value. A NEW divergence still fails.
+     * behavior, such as the geo predicates, whose `booleanIntersects`-based hole test treats a
+     * shape that merely touches a hole as inside it. Each entry names an input and the answer SQL
+     * must give. Every other input must still agree exactly, so an unlisted difference fails.
     */
     knownDivergences?: readonly {
         /**
-         * The argument set this applies to - a divergence is a property of the PAIR, not the
-         * input on its own.
+         * The argument set this applies to, since a difference belongs to the input and the
+         * arguments together.
         */
         args: Record<string, unknown>;
         input: unknown;
@@ -543,8 +519,8 @@ const CASES: Record<string, {
     }[];
 }> = {
     ceil: { battery: [...ORDINARY_NUMBERS, 1e6, -1e6, 2147483646, -2147483646, null] },
-    // a temperature, so the battery is temperatures: the conversion rounds to two decimals, and
-    // `floor(v * 100 + 0.5) / 100` loses precision at magnitudes no thermometer produces
+    // the input is a temperature, so the values are temperatures: the conversion rounds to two
+    // decimals, and `floor(v * 100 + 0.5) / 100` loses precision only at unrealistic magnitudes
     toCelsius: { battery: [...ORDINARY_NUMBERS, 212, 98.6, -40, 1e6, null] },
     toFahrenheit: { battery: [...ORDINARY_NUMBERS, 100, 37.78, -40, 1e6, null] },
     floor: { battery: [...ORDINARY_NUMBERS, 1e6, -1e6, 2147483646, -2147483646, null] },
@@ -584,11 +560,11 @@ const CASES: Record<string, {
     isGreaterThanOrEqualTo: { args: [{ value: 0 }, { value: -1 }, { value: 100 }] },
     isLessThan: { args: [{ value: 0 }, { value: -1 }, { value: 100 }] },
     isLessThanOrEqualTo: { args: [{ value: 0 }, { value: -1 }, { value: 100 }] },
-    // `size` must be positive - the function rejects 0 itself
+    // `size` must be positive; the function rejects 0 itself
     truncate: { args: [{ size: 3 }, { size: 1 }, { size: 100 }] },
     /**
-     * Date setters: one ordinary value and one that FORCES the rollover, because that is the only
-     * place a naive emission and `Date` disagree - `setUTCDate(31)` on a February date is March 3.
+     * Date setters: one ordinary value and one that forces a rollover, the only place a naive SQL
+     * expression and `Date` disagree (`setUTCDate(31)` on a February date is March 3).
     */
     setMilliseconds: { args: [{ value: 0 }, { value: 999 }] },
     setSeconds: { args: [{ value: 0 }, { value: 59 }] },
@@ -602,11 +578,11 @@ const CASES: Record<string, {
     isBetween: {
         args: [{ start: '2026-01-03T00:00:00.000Z', end: '2026-01-07T00:00:00.000Z' }],
     },
-    // FULL_VALUES reducers - see `arrayOnly`
+    // FULL_VALUES reducers; see `arrayOnly`
     join: { arrayOnly: true, type: FieldType.Keyword, args: [{ delimiter: '-' }, {}] },
     addValues: { arrayOnly: true },
     hypot: { arrayOnly: true },
-    // exactly two elements: `getCoordinates` THROWS for any other length
+    // exactly two elements: `getCoordinates` throws for any other length
     atan2: { arrayOnly: true, battery: [3, 4] },
     subtractValues: { arrayOnly: true },
     multiplyValues: { arrayOnly: true },
@@ -614,10 +590,9 @@ const CASES: Record<string, {
     maxValues: { arrayOnly: true },
     minValues: { arrayOnly: true },
     /**
-     * `accepts: []` means every type, and these three MEAN something different per type - so the
-     * gate runs each of them against a boolean, a string, a double and an integer column. The
-     * integer one is there for `isnan`, which would have been a plausible place to find no
-     * overload - it has one, but only the test says so.
+     * `accepts: []` means every type, and these three behave differently per type, so each runs
+     * against a boolean, a string, a double and an integer column. The integer column checks that
+     * DuckDB's `isnan` has an integer overload.
     */
     isGeoJSON: { type: FieldType.GeoJSON },
     isGeoPoint: { type: FieldType.GeoPoint },
@@ -625,8 +600,9 @@ const CASES: Record<string, {
      * The spatial predicates.
      *
      * `geoIntersects` and `geoDisjoint` agree with `geo-utils` everywhere. `geoContains`,
-     * `geoWithin`, `geoRelation` and `geoContainsPoint` do NOT, on hole-touching inputs, and those
-     * are listed in `knownDivergences` with the correct SQL answer - see known-defects DF8.
+     * `geoWithin`, `geoRelation` and `geoContainsPoint` differ on inputs that touch a hole, because
+     * `geo-utils` treats touching a hole as being inside it. Those inputs are listed in
+     * `knownDivergences` with the correct SQL answer.
     */
     geoIntersects: {
         type: FieldType.GeoJSON,
@@ -652,7 +628,7 @@ const CASES: Record<string, {
         args: [
             { value: { type: 'Polygon', coordinates: [[[2, 2], [2, 8], [8, 8], [8, 2], [2, 2]]] } },
             { value: { type: 'Point', coordinates: [5, 5] } },
-            // TOUCHES the hole of the holed polygon at (4,4) - the divergence, see below
+            // touches the hole of the holed polygon at (4,4), the known difference below
             { value: { type: 'Polygon', coordinates: [[[0, 0], [0, 4], [4, 4], [4, 0], [0, 0]]] } },
         ],
         knownDivergences: [{
@@ -670,7 +646,7 @@ const CASES: Record<string, {
             sql: true,
             why: 'the 0..4 square meets the hole only at (4,4); geo-utils asks '
                 + 'booleanIntersects against the hole, which is boundary-inclusive, and calls it '
-                + 'not-contained. ST_Contains says contained, which is right. known-defects DF8',
+                + 'not-contained. ST_Contains says contained, which is right.',
         }],
     },
     geoWithin: {
@@ -706,8 +682,9 @@ const CASES: Record<string, {
         args: [{ point: { lat: 5, lon: 5 } }, { point: { lat: 0, lon: 5 } }],
     },
     /**
-     * A true distance test where JavaScript uses a 64-gon, so EVERY point in the band between the
-     * polygon and the circle diverges. The battery is points around a 1000km range from (0,0).
+     * SQL runs a true distance test where JavaScript uses a 64-sided polygon, so every point in
+     * the band between the polygon and the circle differs. The values are points around a 1000km
+     * range from (0,0).
     */
     geoPointWithinRange: {
         type: FieldType.GeoPoint,
@@ -729,17 +706,17 @@ const CASES: Record<string, {
     isGeoShapePolygon: { type: FieldType.GeoJSON },
     isGeoShapeMultiPolygon: { type: FieldType.GeoJSON },
     /**
-     * A non-empty delimiter only - the default `''` splits into UTF-16 code units.
+     * A non-empty delimiter only, because the default `''` splits into UTF-16 code units.
     */
     split: {
         args: [{ delimiter: '-' }, { delimiter: 'l' }, { delimiter: ' ' }, {}],
     },
-    // the emission claims a String column; `accepts` also lists Number, which keeps the UDF
+    // the SQL expression claims a String column; `accepts` also lists Number, which keeps the UDF
     isPort: { type: FieldType.Keyword },
     /**
-     * `isBase64` is one of the cases where SQL is CORRECT and the JavaScript is not - see DF9. The
-     * battery holds valid base64 whose decoded bytes are not UTF-8, which is what `core-utils`
-     * wrongly rejects, and each is listed with the right answer.
+     * `isBase64` is a case where SQL is correct and the JavaScript is not: `core-utils` rejects
+     * valid base64 whose decoded bytes are not UTF-8. Those inputs are listed with the right
+     * answer.
     */
     isBase64: {
         battery: ['aGVsbG8=',
@@ -782,8 +759,8 @@ const CASES: Record<string, {
             null],
     },
     /**
-     * The case converters: the shared Keyword battery, PLUS plain inputs that take lodash's ASCII
-     * word splitter, since the shared one is almost entirely unicode-path strings.
+     * The case converters: the shared Keyword values plus plain inputs that take lodash's ASCII
+     * word splitter, since the shared values are almost all strings that take the Unicode path.
     */
     ...Object.fromEntries(
         ['toCamelCase', 'toPascalCase', 'toKebabCase', 'toSnakeCase', 'toTitleCase'].map(
@@ -801,7 +778,7 @@ const CASES: Record<string, {
                         '   ',
                         '123 456',
                         'Foo Bar Baz',
-                        // unicode-path inputs, which the emission declines
+                        // Unicode-path inputs, which the SQL expression declines
                         'XMLHttpRequest',
                         'fooBar',
                         'a-b_c.d',
@@ -815,7 +792,7 @@ const CASES: Record<string, {
                 }]
         )
     ),
-    // one branch per starting type - see the emission
+    // one branch per starting type; see the SQL expression
     toString: {
         type: [FieldType.Keyword,
             FieldType.Date,
@@ -851,9 +828,9 @@ const CASES: Record<string, {
         args: [{}, { version: '4' }, { version: 'loose' }, { version: 'nil' }, { version: 'max' }],
     },
     /**
-     * Anchors, classes, quantifiers and both flags - plus the two shapes the emission declines: a
-     * lookahead, which RE2 cannot compile at all, and a `$1` replacement, which means a capture
-     * group in JavaScript and a literal in SQL.
+     * Anchors, classes, quantifiers and both flags, plus the two shapes the SQL expression
+     * declines: a lookahead, which RE2 cannot compile, and a `$1` replacement, which means a
+     * capture group in JavaScript and a literal in SQL.
     */
     replaceRegex: {
         args: [
@@ -864,8 +841,8 @@ const CASES: Record<string, {
             { regex: '\\d+', replace: '#', global: true },
             { regex: '(?=l)', replace: 'X', global: true },
             { regex: '(l)', replace: '[$1]', global: true },
-            // DF10: `\s` and `.` mean different things to the two engines, and the Keyword
-            // battery holds NBSP, an ideographic space and a tab for exactly this
+            // `\s` and `.` match different characters in RE2 and JavaScript, so the Keyword
+            // values include NBSP, an ideographic space and a tab
             { regex: '\\s', replace: '_', global: true },
             { regex: '\\S', replace: '#', global: true },
             { regex: 'a.c', replace: 'X' },
@@ -874,7 +851,7 @@ const CASES: Record<string, {
     },
     isDate: { type: FieldType.Date, args: [{}, { format: 'iso_8601' }] },
     isISO8601: { type: FieldType.Date },
-    // the battery is all fixed past dates, so plan-time and per-row "now" agree on every one
+    // the values are all fixed past dates, so plan-time and per-row "now" agree on every one
     isFuture: { type: FieldType.Date },
     isPast: { type: FieldType.Date },
     isToday: { type: FieldType.Date },
@@ -882,10 +859,10 @@ const CASES: Record<string, {
     isYesterday: { type: FieldType.Date },
     // real zones, not just UTC: a reversed date_diff still matches UTC and fails everywhere else
     /**
-     * The three that ATTACH an offset (`returns_date_value`). The battery straddles DST changes in
-     * New York, Sydney, Lord Howe (a 30-minute DST) and Paris, where the offset core-utils computes
-     * - at the wall time equal to the instant - differs from the instant's own; see
-     * `timezoneOffsetMinutes`.
+     * The three functions that attach an offset (`returns_date_value`). The values straddle DST
+     * changes in New York, Sydney, Lord Howe (a 30-minute DST) and Paris. There, the offset
+     * core-utils computes at the wall time equal to the instant differs from the instant's own
+     * offset; see `timezoneOffsetMinutes`.
     */
     setTimezone: {
         type: FieldType.Date,
@@ -921,8 +898,8 @@ const CASES: Record<string, {
         args: [{}, ...validator.isPostalCodeLocales.map((locale) => ({ locale }))],
     },
     /**
-     * Inherited property names go to the UDF - see `lookupSQL`; `lookup-sql-spec` covers the
-     * number and integer columns and array tables against `DataFrame`.
+     * Inherited property names go to the UDF (see `lookupSQL`). `lookup-sql-spec` covers number
+     * and integer columns and array tables against `DataFrame`.
     */
     lookup: {
         type: FieldType.Keyword,
@@ -951,7 +928,7 @@ const CASES: Record<string, {
             { start: '2026-01-01T00:00:00.000Z', interval: 'days' },
             { end: '2026-06-01T00:00:00.000Z', interval: 'minutes' },
             { end: '2026-06-01T00:00:00.000Z', interval: 'weeks' },
-            // calendar intervals the emission declines
+            // calendar intervals the SQL expression declines
             { start: '2026-01-01T00:00:00.000Z', interval: 'months' },
             { start: '2026-01-01T00:00:00.000Z', interval: 'calendarDays' },
         ],
@@ -959,8 +936,9 @@ const CASES: Record<string, {
     isEpoch: { args: [{}, { allowBefore1970: false }] },
     isEpochMillis: { args: [{}, { allowBefore1970: false }] },
     /**
-     * Time units only, plus the calendar ones the emission declines and `milliseconds`, which BOTH
-     * paths ignore - `date-fns`' `Duration` has no such key. See `date/sql-utils.ts`.
+     * Time units only, plus the calendar units the SQL expression declines and `milliseconds`,
+     * which both paths ignore because `date-fns`' `Duration` has no such key. See
+     * `date/sql-utils.ts`.
     */
     addToDate: {
         type: FieldType.Date,
@@ -984,7 +962,7 @@ const CASES: Record<string, {
         args: [{}, { ignoreWhitespace: true }],
     },
     equals: { type: [FieldType.Keyword, FieldType.Number], args: [{ value: 'hello' }, { value: 1 }] },
-    // a string column and a string default: the only shape that works on BOTH paths, see DF5
+    // a string column and a string default
     setDefault: { type: FieldType.Keyword, args: [{ value: 'fallback' }] },
     isAlpha: { args: [{}, { locale: 'pl-PL' }] },
     isAlphaNumeric: { args: [{}, { locale: 'pl-PL' }] },
@@ -998,7 +976,7 @@ const CASES: Record<string, {
         type: [FieldType.Boolean, FieldType.Keyword, FieldType.Number, FieldType.Integer],
     },
     isIP: IP_CASE,
-    // valid addresses only - it THROWS otherwise - plus a throwsOn for the contract
+    // valid addresses only, since it throws otherwise, plus a throwsOn for the throw check
     ipToInt: {
         type: FieldType.Keyword,
         battery: ['1.2.3.4',
@@ -1012,14 +990,14 @@ const CASES: Record<string, {
             null],
         throwsOn: 'not-an-ip',
     },
-    // the CIDR transforms - valid input only, plus a `throwsOn`. See `CIDR_CASE`.
+    // the CIDR transforms: valid input only, plus a `throwsOn`. See `CIDR_CASE`.
     getFirstIPInCIDR: CIDR_CASE,
     getLastIPInCIDR: CIDR_CASE,
     getFirstUsableIPInCIDR: CIDR_CASE,
     getLastUsableIPInCIDR: CIDR_CASE,
     getCIDRMin: CIDR_CASE,
     getCIDRMax: CIDR_CASE,
-    // IPv4 only: a v6 block throws, so the battery is the v4 half of `VALID_CIDRS`
+    // IPv4 only: a v6 block throws, so the values are the v4 half of `VALID_CIDRS`
     getCIDRNetwork: {
         type: FieldType.Keyword,
         battery: VALID_CIDRS.filter((v) => v == null || !String(v).includes(':')),
@@ -1031,7 +1009,7 @@ const CASES: Record<string, {
         throwsOn: '2001:db8::/32',
     },
     reverseIP: IP_TRANSFORM_CASE,
-    // it throws for anything that is not a MAPPED address, so that is the whole battery
+    // it throws for anything that is not a mapped address, so only mapped addresses are tested
     extractMappedIPv4: {
         type: FieldType.Keyword,
         battery: ['::ffff:1.2.3.4', '::ffff:8.8.8.8', '::ffff:0.0.0.0', '::1.2.3.4', null],
@@ -1045,8 +1023,8 @@ const CASES: Record<string, {
     isRoutableIP: IP_CASE,
     isNonRoutableIP: IP_CASE,
     /**
-     * A `cidr` from each family and both extremes, plus the `min`/`max` form the emission
-     * declines - which is what makes the `applies` assertion below meaningful rather than nominal.
+     * A `cidr` from each family and both extremes, plus the `min`/`max` form the SQL expression
+     * declines, so the `applies` check below has something to decline.
     */
     inIPRange: {
         ...IP_CASE,
@@ -1060,10 +1038,10 @@ const CASES: Record<string, {
         ],
     },
     /**
-     * `intToIP` - an integer STRING column, because that is the shape the second example uses and
-     * the one where the `BigInt`-versus-cast divergence lives. Version 6 is in the arg list so the
-     * `applies` that declines it is exercised too, and `throwsOn` names an out-of-range value,
-     * which the function rejects with `Invalid IP input`.
+     * `intToIP` on an integer string column, the shape of its second example and the one where
+     * `BigInt` and a SQL cast could disagree. Version 6 is in the argument list so the `applies`
+     * that declines it is exercised, and `throwsOn` names an out-of-range value, which the
+     * function rejects with `Invalid IP input`.
     */
     intToIP: {
         type: FieldType.Keyword,
@@ -1076,22 +1054,22 @@ const CASES: Record<string, {
             '3232235777',
             '4294967295',
             '2130706433',
-            // `TRY_CAST` reads this as 12 and so does `BigInt`, so the digit guard must let it
+            // `TRY_CAST` and `BigInt` both read this as 12, so the digit guard must let it
             // through and the two must agree
             '012',
             null,
         ],
         args: [{ version: 4 }, { version: '4' }, { version: 6 }],
         /**
-         * `isNumberLike` gates `intToIP` before `BigInt` ever runs, so `''` and `'0x10'` - the
-         * shapes where `BigInt` and `TRY_CAST` disagree - are THROWS rather than values, and a
-         * transform battery cannot hold them. `4294967296` is the range check on the other side.
+         * `isNumberLike` gates `intToIP` before `BigInt` runs, so `''` and `'0x10'`, where `BigInt`
+         * and `TRY_CAST` disagree, throw and cannot be test values. `4294967296` checks the upper
+         * end of the range.
         */
         throwsOn: '4294967296',
     },
     /**
-     * `encode` - every algorithm the emission claims plus the two it declines (`sha512`, which
-     * DuckDB does not have, and a `latin1` digest, which is not one of the two it can produce).
+     * `encode`: every algorithm the SQL expression claims plus the two it declines (`sha512`,
+     * which DuckDB does not have, and a `latin1` digest, which it cannot produce).
     */
     encode: {
         args: [
@@ -1108,15 +1086,15 @@ const CASES: Record<string, {
         ],
     },
     /**
-     * `createID` - a scalar string column, the only shape the emission claims. The array and tuple
-     * shapes in its own examples go through `toString(...).join('')`, which the emission declines.
+     * `createID` on a scalar string column, the only shape the SQL expression claims. The array
+     * and tuple shapes in its examples go through `toString(...).join('')`, which it declines.
     */
     createID: {
         type: FieldType.Keyword,
         args: [{}, { hash: 'sha256' }, { hash: 'sha1', digest: 'base64' }, { hash: 'sha512' }],
     },
     /**
-     * `extract` - both modes, both `global` settings, and every guard.
+     * `extract`: both modes, both `global` settings, and every guard.
     */
     extract: {
         type: FieldType.Keyword,
@@ -1134,8 +1112,8 @@ const CASES: Record<string, {
             'hello',
             ' nbsp ',
             'tab\tinside',
-            // astral and combining input BETWEEN the markers: RE2's `.*?` counts code points and
-            // the state machine counts code units, and the extracted text must be the same anyway
+            // astral and combining input between the markers: RE2's `.*?` counts code points and
+            // the state machine counts code units, but the extracted text must be the same
             '<👍𝔘 ok>',
             'e\u0301<abc>',
             '',
@@ -1153,7 +1131,7 @@ const CASES: Record<string, {
             { regex: '^H' },
         ],
         /**
-         * Every guard, asserted as a refusal. In order: a multi-character marker, which the state
+         * Every guard, checked as a decline. In order: a multi-character marker, which the state
          * machine can never match; the four class constructs whose meaning differs between the
          * engines; the `/pattern/flags` form, which `formatRegex` accepts and RE2 does not; a
          * lookahead RE2 cannot compile; and two capture groups, which `regexp_extract_all` cannot
@@ -1172,9 +1150,9 @@ const CASES: Record<string, {
         ],
     },
     /**
-     * `setPrecision` - a Float column, which is the only shape the emission claims, and the digit
-     * counts where `printf` and `toFixed` could part company. 2.675 is here on purpose: it is the
-     * value that ruled out `round()` and the DECIMAL cast.
+     * `setPrecision` on a Float column, the only shape the SQL expression claims, with the digit
+     * counts where `printf` and `toFixed` could differ. 2.675 is included because `round()` and a
+     * DECIMAL cast both get it wrong.
     */
     setPrecision: {
         type: FieldType.Float,
@@ -1215,16 +1193,17 @@ const CASES: Record<string, {
         ],
     },
     /**
-     * `toNumber` - one entry per branch of `create`, because each has its own emission. The String
-     * column is deliberately absent from `type`: `Number('')` is `0` and `Number('0x10')` is `16`,
+     * `toNumber`: one entry per branch of `create`, because each has its own SQL expression. The
+     * String column is absent from `type` because `Number('')` is `0` and `Number('0x10')` is `16`,
      * so that branch keeps the UDF and there is nothing to compare.
     */
     toNumber: {
         type: [FieldType.Date, FieldType.IP, FieldType.Double, FieldType.Integer, FieldType.Long],
     },
     /**
-     * The four predicates that turned out NOT to be `validator`-shaped walls. Each battery holds
-     * the real thing, the near misses, and the case/whitespace shapes that decide the guard.
+     * `isEmail`, `isMACAddress`, `isMIMEType` and `isCountryCode`, which wrap `validator` and
+     * still have a SQL expression. Each list holds valid values, near misses, and the case and
+     * whitespace shapes the guard decides on.
     */
     isEmail: {
         type: FieldType.Keyword,
@@ -1324,7 +1303,7 @@ const CASES: Record<string, {
             'U',
             'USA',
             '',
-            // the guard: `'\ufb01'.toUpperCase()` is 'FI', a real code, and DuckDB's `upper`
+            // for the guard: `'\ufb01'.toUpperCase()` is 'FI', a real code, and DuckDB's `upper`
             // leaves the ligature alone
             '\ufb01',
             '\u0131d',
@@ -1333,8 +1312,8 @@ const CASES: Record<string, {
         ],
     },
     /**
-     * `entropy` - the algorithm argument it accepts and the one it THROWS on, over strings whose
-     * character distributions differ. Astral input is in the battery to prove the guard, not the
+     * `entropy`: the algorithm argument it accepts and the one it throws on, over strings with
+     * different character distributions. Astral input is included to test the guard, not the
      * formula.
     */
     entropy: {
@@ -1361,12 +1340,12 @@ const CASES: Record<string, {
         declines: [{ algo: 'other' }],
     },
     /**
-     * `isPhoneNumberLike` - it counts DIGITS, so the battery is about how many digits survive
-     * stripping, not about phone numbers. The boundaries are 7 and 20, inclusive.
+     * `isPhoneNumberLike` counts digits, so the values vary how many digits survive stripping
+     * rather than looking like phone numbers. The boundaries are 7 and 20, inclusive.
     */
     /**
-     * `formatDate` - one argument set per branch of `formatDateValue`, plus the date-fns custom
-     * format that is declined. The Date battery already spans a century, a leap year, the epoch and
+     * `formatDate`: one argument set per branch of `formatDateValue`, plus the date-fns custom
+     * format that is declined. The Date values already span a century, a leap year, the epoch and
      * the last millisecond of a year.
     */
     formatDate: {
@@ -1388,14 +1367,13 @@ const CASES: Record<string, {
         declines: [{ format: 'epoch' }, { format: 'seconds' }, { format: 'yyyy-MM-dd' }],
     },
     /**
-     * `toJSON` - one column type per family it claims, and the two it declines for measured
-     * rendering differences.
+     * `toJSON`: one column type per family the SQL expression claims.
     */
     toJSON: {
         type: [FieldType.Keyword, FieldType.Boolean],
         /**
-         * `Integer` and `Long` are absent because `toJSON`'s own UDF cannot run on them - see
-         * known-defects DF11 - so there is nothing for the gate to compare an emission against.
+         * `Integer` and `Long` are absent because the SQL expression does not claim them (see
+         * `JSON_SQL_TYPES`).
         */
     },
     isPhoneNumberLike: {
@@ -1418,7 +1396,7 @@ const CASES: Record<string, {
     },
 };
 
-/** Every input type a function's cases ask for - one unless the emission branches on type. */
+/** Every input type a function's cases ask for: one, unless the SQL branches on type. */
 function inputTypesFor(name: string, config: FunctionDefinitionConfig<any>): readonly FieldType[] {
     const override = CASES[name]?.type;
     if (Array.isArray(override)) return override;
@@ -1430,7 +1408,7 @@ function inputTypeFor(name: string, config: FunctionDefinitionConfig<any>): Fiel
     if (override) return Array.isArray(override) ? override[0] : override as FieldType;
 
     const usable = new Set(config.accepts.filter((type) => BATTERIES[type] != null));
-    // a String-accepting function takes Keyword, which is the battery we have
+    // a String-accepting function takes Keyword, which has the string test values
     if (config.accepts.includes(FieldType.String)) usable.add(FieldType.Keyword);
     if (config.accepts.includes(FieldType.Number)) usable.add(FieldType.Number);
 
@@ -1453,11 +1431,11 @@ const ULP_TOLERANCE = Number.EPSILON * 4;
 /**
  * Compares the two paths' output, exactly by default.
  *
- * **Approximate comparison is allowed ONLY for a function that declares it**, and only between two
- * finite numbers. Everything else - nulls, strings, booleans, a null against a number - still
- * has to match exactly, so `approximate` cannot hide a structural difference, only a last-bit one.
+ * Approximate comparison applies only to a function that declares it, and only between two
+ * finite numbers. Nulls, strings, booleans and a null against a number must still match exactly,
+ * so `approximate` can only hide a last-bit difference, not a structural one.
 */
-/** Which entries of a validated list survived - a validation's whole contract. */
+/** Which entries of a validated list survived, which is all a validation decides. */
 function expectSurvivors(values: readonly unknown[], expected: readonly boolean[]) {
     expect(values.map((value) => value != null)).toEqual(expected);
 }
@@ -1482,10 +1460,9 @@ function expectSame(sql: unknown[], udf: unknown[], approximate: boolean | undef
 }
 
 /**
- * Runs one function over its battery, either way, and returns what came out.
+ * Runs one function over its test values on either path and returns the output.
  *
- * The projection is forced by draining `rows()`, so what is compared is the values a caller would
- * actually receive rather than the SQL text.
+ * Draining `rows()` compares the values a caller would receive rather than the SQL text.
 */
 async function run(
     name: string,
@@ -1532,14 +1509,13 @@ async function run(
     }
 }
 
-describe('sql emissions on the function configs', () => {
+describe('SQL expressions on the function configs', () => {
     afterAll(async () => {
         await closeDuckDatabase();
     });
 
     it('reports how much of the surface is promoted', () => {
-        // Moving this UP is the work. It must never move up without the parity cases below going
-        // green, which is the whole point of the gate.
+        // This number should only grow, and only when the comparison cases below pass.
         expect(FIELD_FUNCTIONS.length).toEqual(205);
         expect(PROMOTED.length).toBeGreaterThanOrEqual(5);
     });
@@ -1550,19 +1526,16 @@ describe('sql emissions on the function configs', () => {
         const onArray = { array: arrayOnly };
 
         /**
-         * Whether the emission claims this column and these arguments.
+         * Whether the SQL expression claims this column and these arguments.
          *
-         * Used to prune the type-by-argument matrix below. A case that declares SEVERAL types is
-         * declaring several BRANCHES, and its argument sets belong to particular ones - a numeric
-         * default is for the numeric branch of `setDefault`, not for the string column. The cross
-         * product would pair them anyway, and where the emission declines BOTH paths are the UDF,
-         * so the comparison proves nothing about the emission. Worse, it can fail for reasons that
-         * have nothing to do with it: `setDefault` returning a number into a VARCHAR column is
-         * `Invalid Input Error: A string was expected` on the UDF path today.
+         * Used to prune the type-by-argument matrix below. A case that declares several types is
+         * declaring several branches, and its argument sets belong to particular ones: a numeric
+         * default is for the numeric branch of `setDefault`, not for the string column. Where the
+         * SQL declines, both paths are the UDF, so the comparison says nothing about the SQL and
+         * can fail for unrelated reasons.
          *
          * Only multi-type cases are pruned. A single-type case keeps every argument set, including
-         * the ones the emission declines - `encodeSHA` with `sha512` has to stay, because checking
-         * that a decline still works is the point of it.
+         * declined ones such as `encodeSHA` with `sha512`, to check that the decline still works.
         */
         const claims = (args: Record<string, unknown>, type: FieldType, array = false) => {
             const field_config = { type, ...(array ? { array: true } : {}) };
@@ -1570,16 +1543,16 @@ describe('sql emissions on the function configs', () => {
         };
 
         /**
-         * The guards, as refusals.
+         * The guards, checked as declines.
          *
-         * `applies` is a pure function of the arguments and the column, so this needs no query -
-         * and it is the only way to assert a decline for a function whose UDF path is broken.
+         * `applies` is a pure function of the arguments and the column, so this needs no query,
+         * and it works even for a function whose UDF path cannot run.
         */
         const declined = CASES[name]?.declines ?? [];
         if (declined.length) {
             const declineType = inputTypeFor(name, config);
             it.each(declined.map((args) => [JSON.stringify(args), args]))(
-                'declines the emission for %s',
+                'declines the SQL expression for %s',
                 (_label, args) => {
                     const inputConfig = { field_config: { type: declineType } };
                     expect(config.sql?.applies?.(args as any, inputConfig)).toBe(false);
@@ -1597,7 +1570,7 @@ describe('sql emissions on the function configs', () => {
             );
 
             it.each(matrix)(
-                'is byte-equal to its own UDF over the battery, %s',
+                'is byte-equal to its own UDF over its test inputs, %s',
                 async (_label, args, type) => {
                     const one = args as Record<string, unknown>;
                     const where = { ...onArray, type: type as FieldType };
@@ -1610,12 +1583,11 @@ describe('sql emissions on the function configs', () => {
 
                     if (accepted.length) {
                         /**
-                         * A case where the SQL is deliberately MORE CORRECT than the UDF.
+                         * A case where the SQL is deliberately more correct than the UDF.
                          *
-                         * Compared on which rows SURVIVED, with the listed inputs overridden to
-                         * the correct answer - the same shape the JavaScript comparison uses, and
-                         * the whole of a validation's contract. Everything not listed must still
-                         * match the UDF exactly, so an unrecorded divergence fails.
+                         * Compared on which rows survived, with the listed inputs overridden to
+                         * the correct answer. Everything not listed must still match the UDF
+                         * exactly, so an unlisted difference fails.
                         */
                         expect(isFieldValidation(config)).toBeTrue();
                         const battery = (
@@ -1637,11 +1609,10 @@ describe('sql emissions on the function configs', () => {
                     expect(udf.dispatch).toEqual('udf');
 
                     /**
-                 * The two paths must really BE different paths, or this proves nothing - except
-                 * where the emission declares `applies` and legitimately declines for these
-                 * arguments, which is the whole point of that field. `encodeSHA` with
-                 * `hash: 'sha512'` has no native form, so both sides are the UDF and agreeing is
-                 * trivially true; the case below asserts that at least one argument set IS native.
+                 * The SQL path must be native, except where the SQL expression declares `applies`
+                 * and declines these arguments. `encodeSHA` with `hash: 'sha512'` has no native
+                 * form, so both sides are the UDF; the case below checks that at least one
+                 * argument set is native.
                 */
                     const allowed = config.sql?.applies
                         ? ['sql', 'sql+udf', 'udf']
@@ -1652,11 +1623,11 @@ describe('sql emissions on the function configs', () => {
             );
         }
 
-        // a reducer folds the list into ONE value - the matrix above runs it on an array column
+        // a reducer folds the list into one value; the matrix above runs it on an array column
         /**
-         * Skipped when the emission does not CLAIM an array column: `setDefault` and `join` both
-         * decline one, so SQL and the UDF would be the same path. Validations run here too since
-         * DF1 was fixed - each element is nulled or kept, on both paths.
+         * Skipped when the SQL expression does not claim an array column: `setDefault` and `join`
+         * both decline one, so SQL and the UDF would be the same path. Validations run here too;
+         * each element is nulled or kept, on both paths.
         */
         const skipArray = arrayOnly
             || !claims(argSets[0] as Record<string, unknown>, inputTypeFor(name, config), true);
@@ -1667,7 +1638,7 @@ describe('sql emissions on the function configs', () => {
             const sql = await run(name, config, args, true, { array: true });
             const udf = await run(name, config, args, false, { array: true });
 
-            // one row whose value is the whole battery as a list, so compare element-wise
+            // one row whose value is all the test values as a list, so compare element-wise
             const sqlList = (sql.values[0] ?? []) as unknown[];
             const udfList = (udf.values[0] ?? []) as unknown[];
             const accepted = (CASES[name]?.knownDivergences ?? []).filter(
@@ -1675,8 +1646,8 @@ describe('sql emissions on the function configs', () => {
             );
 
             if (accepted.length) {
-                // per element, the same override the scalar matrix applies - `knownDivergences`.
-                // `run` builds the list from the battery's non-null entries, so this does too
+                // per element, the same `knownDivergences` override the scalar matrix applies.
+                // `run` builds the list from the non-null test values, so this does too.
                 const battery = (
                     (CASES[name]?.battery ?? BATTERIES[inputTypeFor(name, config)] ?? []) as
                         readonly unknown[]
@@ -1695,12 +1666,11 @@ describe('sql emissions on the function configs', () => {
         }, 60_000);
 
         /**
-         * **The throw contract, asserted rather than assumed.**
+         * Checks that both paths throw the same error for rejected input.
          *
-         * A transform throws for input it cannot handle, and that aborts the whole query - the same
-         * as `DataFrame`. An emission must reproduce that, and it must reproduce the MESSAGE too:
-         * `error('...')` would abort with DuckDB's wording, where the guarded shape reaches the UDF
-         * and raises the function's own error. This checks that both paths fail, and identically.
+         * A transform throws for input it cannot handle, which aborts the whole query, as in
+         * `DataFrame`. The SQL must throw the same message: `error('...')` would use DuckDB's
+         * wording, while the guarded `CASE` reaches the UDF and raises the function's own error.
         */
         if (CASES[name]?.throwsOn !== undefined) {
             it('fails the query the same way on both paths, for input it rejects', async () => {
@@ -1724,7 +1694,7 @@ describe('sql emissions on the function configs', () => {
         }
 
         it('is native for at least one argument set', async () => {
-            // a `applies` emission that never fires for any tested argument set is dead code
+            // an `applies` guard that declines every tested argument set leaves dead SQL
             const dispatches: string[] = [];
             for (const type of inputTypesFor(name, config)) {
                 for (const args of argSets) {
@@ -1742,7 +1712,7 @@ describe('sql emissions on the function configs', () => {
             expect(dispatches.some((d) => d === 'sql' || d === 'sql+udf')).toBeTrue();
         }, 30_000);
 
-        it('registers a udf only when the emission needs one', async () => {
+        it('registers a udf only when the SQL expression needs one', async () => {
             const type = inputTypeFor(name, config);
             const result = await tealFrameAdapter(config, {
                 field: 'field',
@@ -1752,20 +1722,20 @@ describe('sql emissions on the function configs', () => {
             });
 
             if (result.dispatch === 'udf') {
-                // declined for these arguments - `applies` is the only way that can happen here
+                // declined for these arguments, which only `applies` can do here
                 expect(config.sql?.applies).toBeDefined();
             } else if (config.sql?.needs_udf_fallback) {
                 expect(result.dispatch).toEqual('sql+udf');
                 expect(result.functionName).toBeString();
             } else {
-                // the whole point: no JS boundary at all, so there is nothing to marshal
+                // fully native, so no JS function is called
                 expect(result.dispatch).toEqual('sql');
                 expect(result.functionName).toBeUndefined();
             }
         });
     });
 
-    it('falls back to the UDF for a type the emission does not claim', async () => {
+    it('falls back to the UDF for a type the SQL expression does not claim', async () => {
         const config = {
             ...repo.toUpperCase,
             sql: { ...repo.toUpperCase.sql!, types: [FieldType.Date] },
@@ -1780,7 +1750,7 @@ describe('sql emissions on the function configs', () => {
         expect(result.dispatch).toEqual('udf');
     });
 
-    it('throws at plan time if an emission calls ctx.udf without declaring the fallback', async () => {
+    it('throws at plan time if a SQL expression calls ctx.udf without declaring the fallback', async () => {
         const config = {
             ...repo.trim,
             sql: {
@@ -1788,8 +1758,8 @@ describe('sql emissions on the function configs', () => {
             },
         } as FunctionDefinitionConfig<any>;
 
-        // loud, and at plan time - the alternative is SQL referencing a function that was never
-        // registered, which fails later and further from its cause
+        // fail at plan time; otherwise the SQL would reference a function that was never
+        // registered and fail later, further from the cause
         await expect(tealFrameAdapter(config, {
             field: 'field',
             inputConfig: { field_config: { type: FieldType.Keyword } },

@@ -85,9 +85,10 @@ export const setTimezoneConfig: FieldTransformConfig<SetTimezoneArgs> = {
         throw new Error('Expected timezone to be a string or a number');
     },
     /**
-     * The instant, with a constant offset attached - `_makeDateTuple`. A zone NAME is turned into
-     * an offset once, as `setTimezoneFP` does, with `timezoneToOffset`: the zone's offset NOW, not
-     * at the date. A Date column only; a String or Number one has to be PARSED, which the UDF does.
+     * The instant with a constant offset attached, like `_makeDateTuple`. A zone name is turned
+     * into an offset once with `timezoneToOffset`, as `setTimezoneFP` does, so it is the zone's
+     * current offset rather than its offset at the date. Only a `Date` column is handled;
+     * `String` and `Number` input is parsed by the UDF.
     */
     sql: {
         types: [FieldType.Date],

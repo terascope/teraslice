@@ -7,20 +7,19 @@ import { sqlLiteral } from '../sql-helpers.js';
 /**
  * `lookup` as a `CASE` over its constant table.
  *
- * core-utils' `lookup` is `table[key]`, so it inherits JavaScript's property-access rules, and the
- * emission reproduces them rather than SQL's:
+ * core-utils' `lookup` is `table[key]`, so the SQL follows JavaScript's property-access rules:
  *
- * - **An object key is a STRING.** A number column matches the key that equals `String(value)`:
- *   `8910` finds `"8910"`, `1.5` finds `"1.5"`, and `"01"` or `"1.50"` match nothing. An integer
- *   column (a `bigint` in JavaScript) matches only plain integer keys, exactly, past 2^53 too.
- * - **An array table is indexed by number**, so it is only claimed for a number column.
- * - **`table[key]` also finds INHERITED properties** - `toString`, `constructor`, `__proto__` -
- *   for a string key. Those values go to the UDF, which returns exactly what `DataFrame` does.
- * - **A string table** (`"1:foo\n2:bar"`) is parsed by a helper core-utils does not export, so it
- *   keeps the UDF rather than a second copy of that parser.
+ * - Object keys are strings. A number column matches the key equal to `String(value)`: `8910` finds
+ *   `"8910"` and `1.5` finds `"1.5"`, while `"01"` and `"1.50"` match nothing. An integer column (a
+ *   `bigint` in JavaScript) matches only plain integer keys, exactly, including values past 2^53.
+ * - An array table is indexed by number, so it is only handled for a number column.
+ * - `table[key]` also finds inherited properties such as `toString`, `constructor` and `__proto__`.
+ *   For a string column those values are sent to the UDF.
+ * - A string table (`"1:foo\n2:bar"`) is parsed by a helper core-utils does not export, so it keeps
+ *   the UDF.
  *
- * Each table value is written as the JSON text the UDF path would store for it: the `Any` result
- * goes through the same `coerceToType` and `JSON.stringify`.
+ * Each table value is written as the JSON text the UDF would store for it, using the same
+ * `coerceToType` and `JSON.stringify`.
 */
 
 const INTEGER_TYPES: ReadonlySet<string> = new Set([
@@ -37,7 +36,7 @@ const toAny = coerceToType({ type: FieldType.Any });
 
 type Entry = readonly [key: string, value: unknown];
 
-/** The table as key/value pairs, or undefined for a shape the emission does not claim. */
+/** The table as key/value pairs, or undefined for a shape the SQL path does not handle. */
 function entries(table: unknown, numeric: boolean): Entry[] | undefined {
     if (Array.isArray(table)) {
         return numeric ? table.map((value, index) => [String(index), value]) : undefined;
@@ -53,7 +52,7 @@ function columnKind(inputConfig: DataTypeFieldAndChildren): 'integer' | 'double'
     return 'string';
 }
 
-/** Whether the emission claims this table and column. */
+/** Whether the SQL path handles this table and column. */
 export function lookupApplies(table: unknown, inputConfig: DataTypeFieldAndChildren): boolean {
     if (inputConfig.field_config.array) return false;
     return entries(table, columnKind(inputConfig) !== 'string') !== undefined;

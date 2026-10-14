@@ -1,14 +1,12 @@
 /**
- * The corpus for the DataFrame-vs-TealFrame comparison: 30 fields, deterministic.
+ * The corpus for the DataFrame-vs-TealFrame comparison: 30 fields, generated deterministically.
  *
- * **Deterministic on purpose.** A seeded LCG, not `Math.random()`, so every run of every scale
- * gets byte-identical records. Two engines being compared must be given the same data, and a
- * number recorded today has to mean the same thing tomorrow.
+ * Records come from a seeded PRNG, not `Math.random()`, so every run of every scale gets identical
+ * records and both engines are given the same data.
  *
- * **Values stay inside their type's range on purpose too.** `Byte` and `Short` bounds, and
- * `Long` above `MAX_SAFE_INTEGER`, are known divergences between the two engines. Feeding those
- * here would measure error paths instead of throughput, and would make one engine fail where the
- * other does not.
+ * Values stay inside their type's range. The engines handle out-of-range `Byte`/`Short` values
+ * and `Long` values above `MAX_SAFE_INTEGER` differently, so including them would measure error
+ * paths and make one engine fail where the other does not.
 */
 
 /** 30 fields, spread across the type system rather than 30 keywords. */
@@ -37,7 +35,7 @@ export const CONFIG = {
         created: { type: 'Date' },
         updated: { type: 'Date' },
         expires: { type: 'Date' },
-        // network (2). `subnet` is declared but NEVER populated - see EMPTY_FIELDS.
+        // network (2). `subnet` is declared but never populated; see EMPTY_FIELDS.
         ip: { type: 'IP' },
         subnet: { type: 'Keyword' },
         // geo (1)
@@ -62,19 +60,14 @@ export const CONFIG = {
 };
 
 /**
- * Two columns are deliberately sparse, because real data always has some and the two engines
- * take completely different paths for a null than for a value - DuckDB carries a validity mask
- * per vector, `DataFrame` branches per value.
+ * Two columns are sparse on purpose. Real data has sparse columns, and the engines handle nulls
+ * differently: DuckDB keeps a validity mask per vector, while `DataFrame` branches per value.
+ * Other columns share both types, so no type loses coverage.
  *
- * Both are **redundant types**, so nothing else in the corpus loses coverage:
- *
- * - `subnet` (Keyword, and there are five other Keywords) is null in **every** record. A wholly
- *   empty column is extremely common in practice: the field is declared in the DataType because
- *   some other index populates it. It is also the cheapest possible column for either engine, so
- *   it shows what an all-null column actually costs.
- * - `expires` (Date, and there are two other Dates) is null in **half** the records, on the even
- *   ones. Half-null is the interesting case: neither engine can take an all-or-nothing shortcut,
- *   so per-value branching shows up.
+ * - `subnet` (Keyword) is null in every record. Fully empty columns are common when a DataType
+ *   declares a field that only some indices populate.
+ * - `expires` (Date) is null in the even records. With half the values null, neither engine can
+ *   take an all-or-nothing shortcut, so per-value branching shows up.
 */
 export const EMPTY_FIELDS = { allNull: 'subnet', halfNull: 'expires' };
 
@@ -87,10 +80,8 @@ const SOURCES = ['api', 'batch', 'stream', 'manual'];
 const KINDS = ['request', 'response', 'event'];
 
 /**
- * Mulberry32 - a small, fast, well-distributed seeded PRNG.
- *
- * Fast matters: generating 5M records must not dominate the benchmark's wall clock, and
- * generation time is excluded from every measurement anyway.
+ * Mulberry32, a small, fast seeded PRNG. Speed matters because generating 5M records should not
+ * dominate the benchmark's wall-clock time.
 */
 function rng(seed) {
     let state = seed >>> 0;
@@ -104,10 +95,8 @@ function rng(seed) {
 }
 
 /**
- * `count` records against `CONFIG`.
- *
- * ~2% of nullable fields are null, because real data is not dense and both engines take a
- * different path for a null than for a value.
+ * Generates `count` records matching `CONFIG`. About 2% of `amount` values are null, since both
+ * engines handle a null differently from a value.
 */
 export function makeRecords(count, seed = 1) {
     const random = rng(seed);
@@ -138,11 +127,11 @@ export function makeRecords(count, seed = 1) {
 
             created: `2026-0${1 + (i % 9)}-1${i % 9}T0${i % 9}:00:00.000Z`,
             updated: `2026-0${1 + (i % 9)}-2${i % 8}T1${i % 9}:30:00.000Z`,
-            // HALF NULL, on the even records - see EMPTY_FIELDS
+            // null on the even records; see EMPTY_FIELDS
             expires: i % 2 === 0 ? null : `2027-0${1 + (i % 9)}-0${1 + (i % 8)}T00:00:00.000Z`,
 
             ip: `10.${i % 255}.${(i * 3) % 255}.${(i * 7) % 255}`,
-            // ALWAYS NULL - a declared field that nothing ever populates
+            // always null: a declared field that nothing populates
             subnet: null,
 
             location: { lat: -90 + ((i % 1800) / 10), lon: -180 + ((i % 3600) / 10) },

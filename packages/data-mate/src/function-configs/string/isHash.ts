@@ -70,8 +70,7 @@ export const isHashConfig: FieldValidateConfig<IsHashArgs> = {
         );
     },
     /**
-     * `validator.isHash` is only `^[a-fA-F0-9]{N}$` with N from a length table - no version bits,
-     * no TLD list, nothing the name hides. Transliterated from its source, not inferred.
+     * `validator.isHash` is `^[a-fA-F0-9]{N}$`, with N taken from a per-algorithm length table.
     */
     sql: {
         applies: (args) => HASH_LENGTHS[String(args.algo)] != null,

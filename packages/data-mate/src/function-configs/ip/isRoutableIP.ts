@@ -54,12 +54,12 @@ export const isRoutableIPConfig: FieldValidateConfig = {
         return isRoutableIP;
     },
     /**
-     * A disjunction of `<<=` tests against the reserved-range tables, because the extension has no
-     * classification predicate of its own.
+     * Containment tests against the non-routable range tables, since the `inet` extension has no
+     * classification function.
      *
-     * The arm order matters and is `IPAddress.isRoutable`'s: a mapped address is judged by its
-     * embedded IPv4 BEFORE the IPv6 table is consulted, so `::ffff:8.8.8.8` is routable even though
-     * `::ffff:0:0/96` is itself non-routable.
+     * The checks run in the same order as `IPAddress.isRoutable`: a mapped address is judged by its
+     * embedded IPv4 before the IPv6 table is checked, so `::ffff:8.8.8.8` is routable even though
+     * `::ffff:0:0/96` itself is non-routable.
     */
     sql: {
         expression: ({ value }) => isRoutableSql(value),

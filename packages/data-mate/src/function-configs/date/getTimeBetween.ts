@@ -87,11 +87,11 @@ export const getTimeBetweenConfig: FieldTransformConfig<GetTimeBetweenArgs> = {
     },
     required_arguments: ['interval'],
     /**
-     * The epoch-based intervals only, as a TRUNCATED elapsed time rather than `date_diff`.
+     * Handles the fixed-length intervals only, as a truncated elapsed time.
      *
-     * `date_diff` counts boundaries crossed and `differenceInHours` truncates, so they disagree
-     * whenever the endpoints are not aligned. The calendar intervals stay on the UDF - see
-     * `sql-utils.ts` for why.
+     * This does not use `date_diff`, which counts boundaries crossed, while `differenceInHours`
+     * and its siblings truncate; the two disagree whenever the endpoints are not aligned.
+     * Calendar intervals keep the UDF; see `INTERVAL_SECONDS` in `sql-utils.ts`.
     */
     sql: {
         types: [FieldType.Date],

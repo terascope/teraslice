@@ -6,15 +6,14 @@ import { FieldType, DataTypeConfig } from '@terascope/types';
 import { TealFrame, closeDuckDatabase, DataFrame } from '../../src/index.js';
 
 /**
- * **The export must match `DataFrame` byte for byte.** The output format is a public contract,
- * and DuckDB's native `to_json` does NOT match it - so `DataFrame` itself is the oracle here,
- * not a hand-written expectation that could drift from it.
+ * The export must match `DataFrame` byte for byte. The output format is a public contract and
+ * DuckDB's native `to_json` does not match it, so `DataFrame` itself is the reference rather than
+ * a hand-written expectation that could drift from it.
  *
- * The options are the ones spaces really uses, from `qpl-engine/src/v3/execute/run.ts:174`.
- * `remove_null_fields` defaults to TRUE (`create-execution-plan.ts:94`), so the default output
- * OMITS null fields; `@preserveNullFields` is what turns that off.
+ * The options are the two common presets: `remove_null_fields` true, the default, which omits
+ * null fields, and `remove_null_fields` false, which keeps them.
 */
-const SPACES_DEFAULT = {
+const REMOVE_NULL_FIELDS_DEFAULT = {
     useNullForUndefined: false,
     skipNilValues: true,
     skipEmptyObjects: true,
@@ -64,8 +63,8 @@ const RECORDS = [
         flags: 12,
         age: 44,
         count: 1000,
-        // a STRING, which DataFrame coerces exactly; a bigint input it gets wrong by one
-        // (DEF-BIGINT, #4555), which is pinned separately below against the exact value
+        // a string, which DataFrame coerces exactly. DataFrame is off by one for a bigint input
+        // (#4555), so that case is tested separately below against the exact value.
         total: '9007199254740993',
         score: 1.5,
         ratio: 0.25,
@@ -100,7 +99,7 @@ const RECORDS = [
     },
 ];
 
-/** What `DataFrame` produces - the reference every assertion is made against. */
+/** What `DataFrame` produces, the reference every assertion is made against. */
 function reference(options: Record<string, boolean>): string[] {
     return DataFrame.fromJSON(CONFIG, RECORDS)
         .toJSON(options)
@@ -133,9 +132,9 @@ describe('TealFrame JSON export', () => {
     }
 
     describe('parity with DataFrame', () => {
-        it('should match DataFrame exactly, with nulls omitted (the spaces default)', async () => {
+        it('should match DataFrame exactly, with nulls omitted (the removeNullFields default)', async () => {
             expect(normalize(await collectNdjson())).toEqual(
-                normalize(reference(SPACES_DEFAULT))
+                normalize(reference(REMOVE_NULL_FIELDS_DEFAULT))
             );
         });
 
@@ -164,7 +163,7 @@ describe('TealFrame JSON export', () => {
             const native = await frame.rawRows(`SELECT to_json(t)::VARCHAR FROM ${frame.from} AS t`);
 
             expect(JSON.parse(first).created).toBe('2026-08-14T01:02:03.456Z');
-            // what it would have been without the correction - see `date-value.ts`
+            // the stored form, which native to_json would write; see `date-value.ts`
             expect(JSON.parse(String(native[0][0])).created)
                 .toEqual({ ms: 1786669323456, tz_offset: null });
         });
@@ -182,7 +181,7 @@ describe('TealFrame JSON export', () => {
         it('should render a Long past MAX_SAFE_INTEGER as a STRING', async () => {
             const [first] = await collectNdjson();
 
-            // A STRING is the point: as a bare number, JSON.parse would round it
+            // it must be a string, because JSON.parse would round a bare number
             expect(first).toInclude('"9007199254740993"');
             expect(JSON.parse(first).total).toBe('9007199254740993');
             expect(typeof JSON.parse(first).total).toBe('string');
@@ -230,17 +229,17 @@ describe('TealFrame JSON export', () => {
     });
 
     /**
-     * **`writeNDJSON` writes with the CSV writer, not `FORMAT JSON`.**
+     * `writeNDJSON` writes with the CSV writer, not `FORMAT JSON`.
      *
-     * It has to. The lines are already JSON strings, so `COPY ... (FORMAT JSON)` would encode
-     * them a SECOND time - `{"json":"{\\"a\\":1}"}` - and DuckDB's own row JSON is not
-     * `DataFrame`'s anyway. So it writes `FORMAT CSV` with `QUOTE ''`, `ESCAPE ''` and a BEL
-     * delimiter, using the CSV writer purely as a line writer.
+     * The lines are already JSON strings, so `COPY ... (FORMAT JSON)` would encode them a second
+     * time (`{"json":"{\\"a\\":1}"}`), and DuckDB's own row JSON differs from `DataFrame`'s. So
+     * it writes `FORMAT CSV` with `QUOTE ''`, `ESCAPE ''` and a BEL delimiter, using the CSV writer
+     * only as a line writer.
      *
-     * That is only safe while no rendered line can CONTAIN a byte the CSV writer treats as
-     * structural - the BEL delimiter, a newline, or a carriage return. JSON escaping is what
-     * guarantees it, and this is the test that says so: without it, one control character in one
-     * string field would split a row across two lines in an S3 export, silently.
+     * That is safe only while no rendered line contains a byte the CSV writer treats as
+     * structural: the BEL delimiter, a newline or a carriage return. JSON escaping guarantees
+     * that, and these tests check it. Otherwise one control character in a string field would
+     * split a row across two lines in the export.
     */
     describe('values that could break the line writer', () => {
         const HOSTILE: Record<string, string> = {
@@ -315,7 +314,7 @@ describe('TealFrame JSON export', () => {
             for await (const line of hostile.ndjson()) lines.push(line);
 
             const expected = DataFrame.fromJSON(HOSTILE_CONFIG, HOSTILE_RECORDS)
-                .toJSON(SPACES_DEFAULT)
+                .toJSON(REMOVE_NULL_FIELDS_DEFAULT)
                 .map((row) => JSON.stringify(row));
 
             expect(normalize(lines)).toEqual(normalize(expected));
@@ -323,17 +322,15 @@ describe('TealFrame JSON export', () => {
     });
 
     /**
-     * **Number rendering follows `JSON.stringify`, not DuckDB's.**
+     * Number rendering follows `JSON.stringify`, not DuckDB.
      *
      * `to_json` writes an integral double as `5.0`, keeps the sign on `-0`, and writes a bare
-     * `Infinity`/`NaN` token that `JSON.parse` REJECTS outright. `DataFrame` goes through
-     * `JSON.stringify`, which writes `5`, `0` and `null`.
+     * `Infinity`/`NaN` token that `JSON.parse` rejects. `DataFrame` goes through `JSON.stringify`,
+     * which writes `5`, `0` and `null`.
      *
-     * The fixture at the top of this file could not catch any of it, because every float in it
-     * (`0.25`, `1.5`) is fractional. It surfaced only when the 30-field BENCHMARK corpus was
-     * exported, where `GeoPoint` lat/lon land on whole degrees - 57 of 500 lines differed. So
-     * every case here is a **byte** comparison against `DataFrame` itself rather than against a
-     * literal, which is the only kind of assertion that would have failed.
+     * The fixture at the top of this file cannot catch this because every float in it is
+     * fractional, so these cases use whole numbers (such as `GeoPoint` coordinates on whole
+     * degrees) and compare bytes against `DataFrame` itself.
     */
     describe('number rendering', () => {
         /** Byte-compares the whole export against `DataFrame`, and hands back the lines. */
@@ -349,7 +346,7 @@ describe('TealFrame JSON export', () => {
 
                 expect(lines).toEqual(
                     DataFrame.fromJSON(config, records)
-                        .toJSON(SPACES_DEFAULT)
+                        .toJSON(REMOVE_NULL_FIELDS_DEFAULT)
                         .map((row) => JSON.stringify(row))
                 );
 
@@ -382,7 +379,7 @@ describe('TealFrame JSON export', () => {
                 nested: { ratio: 3 },
             }]);
 
-            // the shape that used to be `5.0`, everywhere it can appear
+            // an integral double, which to_json writes as `5.0`, everywhere it can appear
             expect(line).toInclude('"aDouble":5');
             expect(line).toInclude('"aFloat":2');
             expect(line).toInclude('"aNumber":7');
@@ -424,8 +421,8 @@ describe('TealFrame JSON export', () => {
                 [{ v: points }]
             );
 
-            // a Boundary is `STRUCT(lat, lon)[]` in its OWN right - the type is the array, so it
-            // needs the list treatment even though `array` is not set on the field
+            // a Boundary is itself `STRUCT(lat, lon)[]`, so it needs the list treatment even
+            // though `array` is not set on the field
             const [asBoundary] = await expectBytesToMatch(
                 { version: 1, fields: { v: { type: FieldType.Boundary } } },
                 [{ v: points }]
@@ -445,10 +442,10 @@ describe('TealFrame JSON export', () => {
         });
 
         /**
-         * **Deliberately NOT byte-compared against DataFrame.** For a bigint INPUT past the safe
-         * limit `DataFrame` writes one too low - `toBigIntOrThrow` returns the bigint untouched
-         * and `bigIntToJSON` subtracts 1 regardless (DEF-BIGINT, #4555). TealFrame is exact, and
-         * this pins the exact value rather than the defect.
+         * Deliberately not byte-compared against `DataFrame`. For a bigint input past the safe
+         * limit `DataFrame` writes one too low: `toBigIntOrThrow` returns the bigint untouched
+         * and `bigIntToJSON` subtracts 1 regardless (#4555). TealFrame is exact, and this test
+         * checks the exact value.
         */
         it('should write a big bigint INPUT exactly, where DataFrame loses one', async () => {
             const config: DataTypeConfig = {
@@ -462,7 +459,7 @@ describe('TealFrame JSON export', () => {
             await subject.destroy();
 
             expect(lines).toEqual(['{"v":["9007199254740993",5]}']);
-            expect(DataFrame.fromJSON(config, records).toJSON(SPACES_DEFAULT))
+            expect(DataFrame.fromJSON(config, records).toJSON(REMOVE_NULL_FIELDS_DEFAULT))
                 .toEqual([{ v: ['9007199254740992', 5] }]);
         });
 
@@ -483,19 +480,16 @@ describe('TealFrame JSON export', () => {
                 const lines: string[] = [];
                 for await (const value of subject.ndjson()) lines.push(value);
 
-                // the point: every line PARSES. Before the correction these were
-                // `{"v":Infinity}`, `{"v":-Infinity}` and `{"v":NaN}`, and `JSON.parse` threw on
-                // all three - a single infinite value made an exported line unreadable.
+                // every line must parse; native to_json would write `{"v":Infinity}`,
+                // `{"v":-Infinity}` and `{"v":NaN}`, which JSON.parse rejects
                 for (const value of lines) expect(() => JSON.parse(value)).not.toThrow();
 
-                // and it matches DataFrame in the default mode too: a non-finite number is NOT nil
-                // to DataFrame (`FloatVector` has no `toJSONCompatibleValue`), so the key survives
-                // null removal and is written as null. This was a pinned divergence while null
-                // stripping was `json_merge_patch`, which deletes every null key; the renderer now
-                // follows DataFrame's rules instead (`serialize-options-spec.ts`).
+                // it matches DataFrame in the default mode too: a non-finite number is not nil to
+                // DataFrame (`FloatVector` has no `toJSONCompatibleValue`), so the key survives
+                // null removal and is written as null (see `serialize-options-spec.ts`)
                 expect(lines).toEqual(['{"v":null}', '{"v":null}', '{"v":null}']);
                 expect(lines).toEqual(
-                    DataFrame.fromJSON(config, NON_FINITE).toJSON(SPACES_DEFAULT)
+                    DataFrame.fromJSON(config, NON_FINITE).toJSON(REMOVE_NULL_FIELDS_DEFAULT)
                         .map((row) => JSON.stringify(row))
                 );
             } finally {
@@ -528,13 +522,12 @@ describe('TealFrame JSON export', () => {
         });
 
         /**
-         * **Every double renders as `JSON.stringify` renders it** - fixed 2026-09-30, both halves:
+         * Every double renders as `JSON.stringify` renders it:
          *
-         * - past `1e21` the exponent lost its `+` (`1e21` for `1e+21`) - a pinned divergence while
-         *   rows were JSON-typed, which re-normalises numbers; rows are text now.
-         * - an INTEGRAL double between 2^53 and 1e21 was written as its exact binary value
-         *   through a HUGEINT cast, where JavaScript writes the SHORTEST digits that round-trip:
-         *   `99999999999999980000`, not `99999999999999991611392`.
+         * - Past `1e21` the exponent keeps its `+` (`1e+21`, not `1e21`).
+         * - An integral double between 2^53 and 1e21 is written as the shortest digits that
+         *   round-trip, as JavaScript does (`99999999999999980000`), not its exact binary value
+         *   (`99999999999999991611392`).
         */
         const DOUBLES = [
             1e21,

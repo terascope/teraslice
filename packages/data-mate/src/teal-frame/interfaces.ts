@@ -2,11 +2,7 @@ import { DataTypeConfig, ReadonlyDataTypeConfig } from '@terascope/types';
 import { ValueConverter } from './duck-values.js';
 
 /**
- * Everything the DuckDB frame is configured or described BY.
- *
- * The frame's own config type is an alias rather than the union written out, because the
- * union appeared in eight signatures and a caller holding a `ReadonlyDataTypeConfig` should
- * not have to discover that it is accepted.
+ * Option and result types for TealFrame and its database.
 */
 
 /** A DataType configuration, however the caller happens to hold it. */
@@ -29,31 +25,31 @@ export interface CreatedTable {
 /** Spill and resource settings for a database. All are runtime `SET`s. */
 export interface DuckDatabaseSettings {
     /**
-     * Directory DuckDB spills to when a query exceeds `memoryLimit`. **Required for the
-     * whole-dataset-plus-file-overflow strategy** - without it, an over-limit query fails
-     * rather than overflowing to disk.
+     * Directory DuckDB spills to when a query exceeds `memoryLimit`. Without it, a query over
+     * the limit fails instead of spilling to disk.
     */
     tempDirectory?: string;
     /** Cap on the spill directory, e.g. `'30GB'`. */
     maxTempDirectorySize?: string;
-    /** e.g. `'48GB'`. **Set this BELOW the container's cap** - see `applySettings`. */
+    /** DuckDB's memory limit, e.g. `'48GB'`. Set it below the container's memory cap. */
     memoryLimit?: string;
     threads?: number;
     /**
      * Where DuckDB looks for extensions. Defaults to `DUCKDB_EXTENSION_DIRECTORY`, then
-     * DuckDB's own `~/.duckdb/extensions`. **Fixed once the database opens** - see
-     * `extensions.ts` for why the environment is the normal way to set it.
+     * DuckDB's own `~/.duckdb/extensions`. It cannot be changed once the database is open,
+     * which is why the environment variable is the usual way to set it (see `extensions.ts`).
     */
     extensionDirectory?: string;
     /**
      * Whether a missing extension may be downloaded. Defaults to
-     * `DUCKDB_AUTOINSTALL_EXTENSIONS`, then true. An image sets it false.
+     * `DUCKDB_AUTOINSTALL_EXTENSIONS`, then true. A container image with bundled extensions
+     * sets it to false.
     */
     autoinstallExtensions?: boolean;
 }
 
 export interface DuckDatabaseOptions extends DuckDatabaseSettings {
-    /** Path, or `:memory:`. See `FrameOptions.database` for the file-vs-memory trap. */
+    /** A file path, or `:memory:`. See `FrameOptions.database` for how the string is read. */
     database?: string;
 }
 
@@ -61,11 +57,10 @@ export interface DuckDatabaseOptions extends DuckDatabaseSettings {
 export type Source
     = | { kind: 'table'; table: string }
         /**
-         * `ordered` means this relation's rows come out in a defined order - it ends in an
-         * `ORDER BY`, or derives from one through an operator that preserves it. It exists so
-         * `join` and an aggregating `select` can refuse to discard that ordering silently;
-         * see `orderBy`. A table is never ordered: row order in a table is not a property
-         * anything may rely on.
+         * `ordered` means the relation's rows come out in a defined order: it ends in an
+         * `ORDER BY`, or derives from one through an operator that preserves order. `join` and
+         * an aggregating `select` use it to refuse to discard that order silently; see
+         * `orderBy`. A table is never ordered, because nothing may rely on a table's row order.
         */
         | { kind: 'relation'; sql: string; ordered?: boolean };
 
@@ -74,28 +69,27 @@ export interface CoercionFailure {
     field: string;
     fieldType: string;
     failedCount: number;
-    /** The original value, which is the only useful thing to report. */
+    /** An original value that failed to convert. */
     exampleValue: string;
 }
 
 export type CoercionMode
-    /** ingest: a value that fails to convert is corruption, and is raised */
+    /** For ingest: a value that fails to convert is an error, and is raised. */
     = | 'strict'
-    /** QPL pipeline: a value that fails to convert is the answer, and is nulled */
+    /** For transforms: a value that fails to convert becomes null. */
         | 'lenient';
 
 export interface FrameOptions {
     /**
      * Database path. Defaults to the process-wide `:memory:` database.
      *
-     * There is one database per process, so this exists for a file-backed database and for
-     * giving a test an isolated catalogue - NOT for callers to route frames around. Frames
-     * from different databases cannot see each other's tables and so cannot be joined.
+     * Use it for a file-backed database or to give a test an isolated catalog. Frames in
+     * different databases cannot see each other's tables, so they cannot be joined.
      *
-     * **Only the exact string `:memory:` is in-memory.** Anything else is a FILE PATH -
-     * measured: both a bare `'my-test'` AND the `:memory:<name>` form each wrote a database
-     * file into the working directory. Tests do not need this option at all: jest gives every
-     * test file its own module registry, so each already gets its own default context.
+     * **Only the exact string `:memory:` is in-memory.** Anything else, including a bare name
+     * like `'my-test'` or the `:memory:<name>` form, is a file path and writes a database file.
+     * Tests rarely need this option: jest gives each test file its own module registry, and
+     * so its own default database.
     */
     database?: string;
     /** Used for the table or relation name. */
@@ -116,19 +110,19 @@ export interface AppendFailure {
     /** What was being added, in words: `3 records`, or the paths. */
     describedSource: string;
     /**
-     * Rows in the table AFTER the failed append - i.e. what survived. Counted on the failure
-     * path only, so a successful append pays nothing for it. Undefined if even that count
-     * failed, which means the table itself is in doubt.
+     * Rows in the table after the failed append, that is, the rows that survived. Counted only
+     * on failure, so a successful append does not pay for it. Undefined if the count itself
+     * failed, which means the table's state is unknown.
     */
     rowsRemaining?: number;
 }
 
 /**
- * What to add to a frame. Records on the api-server, Parquet on the worker - two shapes of the
- * same act, which is why `append` is one method and not two.
+ * What to add to a frame: parsed records, or Parquet files. Both go through the one `append`
+ * method.
 */
 export type AppendSource
-    /** Parsed JS objects, as an Elasticsearch response yields them. Coerced on the way in. */
+    /** Parsed JS objects, such as Elasticsearch documents. Coerced on the way in. */
     = | { records: readonly Record<string, unknown>[]; parquet?: never }
     /** One path, a list of paths, or a glob. Already typed and validated, so not re-coerced. */
         | { parquet: string | readonly string[]; records?: never };
@@ -139,17 +133,17 @@ export interface AppendOptions {
 }
 
 /**
- * A `SELECT` list, in either of the two shapes a caller holds one.
+ * A `SELECT` list, either as a map or as verbatim SQL.
  *
- * A map is what code composing a projection writes, and its keys become the output names. A
- * STRING is the list verbatim - which is what `QueryAccess.restrictSQLParts` hands back, and
- * it cannot be turned into a map without losing the restriction: the DuckDB dialect rebuilds
- * a partly-readable STRUCT with `struct_pack`, so its projection and its `columns` are
- * deliberately not one-to-one.
+ * In the map form, `{ outputName: sqlExpression }`, the keys become the output column names.
+ * A string is used verbatim, as `QueryAccess.restrictSQLParts` returns it. That string cannot
+ * be turned into a map without losing the field restriction: the DuckDB dialect rebuilds a
+ * partly readable STRUCT with `struct_pack`, so its expressions and its `columns` do not
+ * correspond one to one.
 */
 export type SelectList = string | Readonly<Record<string, string>>;
 
-/** Options for {@link TealFrame.select}, gathered so the two optional ones are named. */
+/** Options for {@link TealFrame.select}. */
 export interface SelectOptions {
     /** The result's declared field types. Defaults to the frame's own. */
     config?: FrameConfig;

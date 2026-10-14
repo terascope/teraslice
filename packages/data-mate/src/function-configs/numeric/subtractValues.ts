@@ -99,8 +99,8 @@ export const subtractValuesConfig: FieldTransformConfig = {
     },
     argument_schema: {},
     /**
-     * A LEFT FOLD, not `first - list_sum(rest)`: the reducer takes the first non-null value as the
-     * accumulator and subtracts each later one, so `[1, null, 10, 3]` is `-12`.
+     * A left fold, not `first - list_sum(rest)`: the reducer starts from the first non-null value
+     * and subtracts each later one, so `[1, null, 10, 3]` is `-12`.
     */
     sql: {
         applies: isArrayColumn,

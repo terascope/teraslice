@@ -48,8 +48,8 @@ const geoContainsPoint: i.FunctionDefinition = {
         /**
          * Whether the shape in the column contains the point.
          *
-         * `isPointColumn` decides how the column becomes a geometry; a `geo-point` column
-         * can only "contain" the same point, which is what an equality of geometries gives.
+         * `isPointColumn` decides how the column is converted to a geometry. A `geo-point`
+         * column only contains the point if it is the same point.
         */
         function toSQLQuery(field: string, options: i.FunctionSQLOptions) {
             const { dialect, type_config: typeConfig } = options;

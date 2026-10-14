@@ -11,26 +11,23 @@ import { prefixWildcardCases, termCases } from '../cases/terms.js';
 import { makeDuckDBEngine, makeOpenSearchEngine, type ParityEngine } from '../helpers/engines.js';
 
 /**
- * **The same query, the same records, both engines, one expected answer.**
+ * The same query over the same records in both engines, checked against one expected answer.
  *
- * `test/query/` proves the DSL works and `test/sql/` proves the SQL works, but neither can
- * show that the two AGREE - and agreement is the contract, because a caller swapping
- * `restrictSearchQuery` for `restrictSQLQuery` is not asking for a different answer. So every
- * case here is answered by a real OpenSearch and a real DuckDB and both are compared to the
- * ids the case declares, which is a stronger assertion than comparing them to each other:
- * two engines can agree on the wrong answer, and one of them silently changing to match the
- * other would pass a test that only asked them to match.
+ * `test/query/` covers the DSL and `test/sql/` covers the SQL, but neither shows that the two
+ * agree. A caller switching from `restrictSearchQuery` to `restrictSQLQuery` expects the same
+ * records. Each case runs against a real OpenSearch and a real DuckDB, and both results are
+ * compared to the ids the case declares, so two engines agreeing on a wrong answer still fails.
  *
- * What is deliberately NOT here, and why:
+ * Not covered here:
  *
- * - **Analyzed text.** There is no analyzer in SQL, so a `text` field is matched whole rather
- *   than by token. Every field in the corpus is a `keyword` for that reason.
- * - **`geo_shape` relations.** OpenSearch stores a shape at limited precision and answers
- *   `within`/`contains` differently from OGC semantics for some pairs; that is a property of
- *   the storage, not of the translation. `test/sql/duckdb-geo-spec.ts` covers the SQL side.
- * - **Fieldless queries.** `multi_match` searches every field; SQL compares only the fields
- *   whose type could hold the value, so the two agree on the records but not on the reason.
- * - **`knn`**, which has no SQL equivalent and raises instead of emitting one.
+ * - Analyzed text. SQL has no analyzer, so a `text` field is matched whole instead of by
+ *   token. Every field in the corpus is a `keyword` for that reason.
+ * - `geo_shape` relations. OpenSearch stores shapes at limited precision and answers
+ *   `within`/`contains` differently from OGC semantics for some pairs. That comes from the
+ *   storage, not the translation. `test/sql/duckdb-geo-spec.ts` covers the SQL side.
+ * - Fieldless queries. `multi_match` searches every field, while SQL compares only fields
+ *   whose type could hold the value, so the records match but the reasons differ.
+ * - `knn`, which has no SQL equivalent and throws instead of generating SQL.
 */
 describe('query parity, opensearch vs duckdb', () => {
     const index = 'query_parity_';
@@ -59,10 +56,8 @@ describe('query parity, opensearch vs duckdb', () => {
     });
 
     /**
-     * Both answers keyed by engine, compared in one assertion.
-     *
-     * Asserting them separately would report the first failure and say nothing about whether
-     * the other engine agreed with it, which is the thing worth knowing.
+     * Both answers keyed by engine, compared in one assertion so a failure shows what each
+     * engine returned.
     */
     async function answers(
         query: string, using: QueryAccess<any> = access
@@ -100,8 +95,8 @@ describe('query parity, opensearch vs duckdb', () => {
     });
 
     /**
-     * A leading wildcard is refused by the `QueryAccess` above, so these get one that permits
-     * it - the translation still has to be right for a deployment that allows them.
+     * The `QueryAccess` above refuses a leading wildcard, so these cases use one that permits
+     * it. The translation must still be right for a deployment that allows them.
     */
     describe('given a leading wildcard', () => {
         const permissive = new QueryAccess({
@@ -121,15 +116,14 @@ describe('query parity, opensearch vs duckdb', () => {
     });
 
     /**
-     * **An `ip` field cannot take a `*` bound, and that is the PARSER, not the translation.**
+     * The parser, not the translator, rejects a `*` bound on an `ip` field.
      *
      * `parseRange` turns an open end into `Infinity`, and the `ip` field type validates every
-     * bound as an address - so `ip:[* TO *]`, `ip:[a TO *]` and `ip:[* TO b]` all fail before
-     * either translator is reached, and both engines are equally unable to answer them. An
-     * `ip_range` field is not validated the same way and `net:[* TO *]` works, which is why
-     * only one of the two is pinned here.
+     * bound as an address, so `ip:[* TO *]`, `ip:[a TO *]` and `ip:[* TO b]` fail before
+     * either translator runs. An `ip_range` field is not validated this way, so
+     * `net:[* TO *]` works and only `ip` is pinned here.
      *
-     * `_exists_:ip` is the query that asks what the unbounded range would have asked.
+     * Use `_exists_:ip` for what the unbounded range would have asked.
     */
     it.each([
         ['both ends open', 'ip:[* TO *]'],
@@ -140,7 +134,7 @@ describe('query parity, opensearch vs duckdb', () => {
         await expect(access.restrictSQLQuery(query, { params: { table } })).toReject();
     });
 
-    /** The corpus is only worth anything if both engines actually hold all of it. */
+    /** Checks that both engines hold the whole corpus. */
     it('loaded every record into both engines', async () => {
         const expected = records.map(({ id }) => id as string).sort();
 

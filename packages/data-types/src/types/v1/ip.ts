@@ -45,9 +45,9 @@ export default class IPType extends BaseType {
 
     /**
      * The DuckDB column type for this field.
-     * VARCHAR rather than INET on purpose: INET needs a runtime-installed extension,
-     * and data-mate is the stricter of the two anyway - it rejects `01.02.03.04` where
-     * DuckDB reads it as `1.2.3.4`. Keeping VARCHAR leaves strictness in our coercion.
+     * VARCHAR, not INET, because INET needs an extension installed at runtime and is
+     * more lenient than data-mate (it reads `01.02.03.04` as `1.2.3.4`, which data-mate
+     * rejects). Validation stays in data-mate's coercion.
      */
     toDuckDB(): DuckDBTypeConfig {
         return this._formatDuckDB('VARCHAR');

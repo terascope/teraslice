@@ -55,12 +55,11 @@ export const isGeoPointConfig: FieldValidateConfig = {
         return isGeoPoint;
     },
     /**
-     * A constant on a `GeoPoint` column: the DuckDB type is `STRUCT(lat DOUBLE, lon DOUBLE)` and
-     * coercion rejects anything that is not a valid point at ingest, so `parseGeoPoint` cannot
-     * fail for a stored value.
+     * Always true on a `GeoPoint` column. The column is a `STRUCT(lat DOUBLE, lon DOUBLE)` and
+     * ingest rejects anything that is not a valid point, so every stored value is one.
      *
-     * `noUdfPath` territory - a STRUCT cannot be a UDF parameter (DF7) - so this is the only way
-     * the function runs at all.
+     * A STRUCT cannot be a UDF parameter, so on such a column this is the only way the function
+     * runs.
     */
     sql: {
         applies: (_args, inputConfig) => isScalarColumn(inputConfig)

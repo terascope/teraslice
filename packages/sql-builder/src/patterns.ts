@@ -1,15 +1,14 @@
 /**
- * Turning an xLucene wildcard value into a SQL `LIKE` pattern.
+ * Converts xLucene wildcard values into SQL `LIKE` patterns.
 */
 
 const LIKE_SPECIAL = /[\\%_]/g;
 
 /**
- * An xLucene wildcard value as a `LIKE` pattern.
+ * Convert an xLucene wildcard value to a `LIKE` pattern.
  *
- * `*` and `?` become `%` and `_`; a literal `%`, `_` or `\` in the value is escaped, which
- * is why the emission always carries `ESCAPE '\'`. Without the escaping, `bar:100%` would
- * match `100anything` - the value's own `%` would become a wildcard it never was.
+ * `*` and `?` become `%` and `_`. A literal `%`, `_` or `\` in the value is escaped, so the
+ * generated SQL always includes `ESCAPE '\'`. Otherwise `bar:100%` would match `100anything`.
 */
 export function wildcardToLikePattern(value: string): string {
     return value
@@ -18,7 +17,7 @@ export function wildcardToLikePattern(value: string): string {
         .replace(/\?/g, '_');
 }
 
-/** Whether a wildcard value matches anything at all, which needs no pattern match. */
+/** Whether a wildcard value matches any value, so no pattern match is needed. */
 export function isMatchAllWildcard(value: unknown): boolean {
     return value === '*';
 }

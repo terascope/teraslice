@@ -5,19 +5,17 @@ import { QueryAccess } from 'xlucene-translator';
 import { TealFrame, closeDuckDatabase } from '../../src/index.js';
 
 /**
- * **A `QueryAccess` statement, RUN on a frame.**
+ * Runs `QueryAccess` statements on a frame.
  *
- * This is the shape spaces actually has: every query and execution plan is driven by
- * `QueryAccess`, which hands back a complete statement with the field restrictions already
- * applied, and the frame's job is to execute it rather than to rebuild it from parts. So
- * these tests assert on the ROWS, not on the SQL - a restriction that is reported beside the
- * output is not a restriction, and only running it can tell the difference.
+ * `QueryAccess` returns a complete statement with the field restrictions already applied, and the
+ * frame executes it rather than rebuilding it from parts. These tests assert on the rows, not on
+ * the SQL, because only running the statement shows that a restriction is enforced.
 */
 describe('TealFrame with QueryAccess', () => {
     /**
-     * ONE config, read two ways: the frame builds its table from the DataType config and
+     * One config, read two ways: the frame builds its table from the DataType config and
      * `QueryAccess` parses the same fields from the xLucene one. Deriving both from a single
-     * declaration is the point - two hand-written configs are two things to drift.
+     * declaration keeps them from drifting apart.
     */
     const config: DataTypeConfig = {
         version: LATEST_VERSION,
@@ -72,9 +70,8 @@ describe('TealFrame with QueryAccess', () => {
     });
 
     /**
-     * **The restriction has to reach the rows.** `excludes` becomes a projection, and a
-     * caller that used `where` and ignored `select` would return the excluded column - which
-     * is why the statement is what the frame executes.
+     * `excludes` becomes a projection, so a caller that used only `where` and ignored `select`
+     * would return the excluded column. The frame executes the whole statement for that reason.
     */
     it('should withhold an excluded column from the rows themselves', async () => {
         const access = new QueryAccess({ type_config: typeConfig, excludes: ['secret'] });
@@ -105,10 +102,9 @@ describe('TealFrame with QueryAccess', () => {
     });
 
     /**
-     * **The reason the clause builder is shared.** A sort that went through `QueryAccess` and
-     * the same sort built by `frame.orderBy` used to place nulls at opposite ends of an
-     * ascending page - the translator left DuckDB's `NULLS LAST` default standing, the frame
-     * emitted `DataFrame`'s rule. Now one builder renders both.
+     * A sort through `QueryAccess` and the same sort built by `frame.orderBy` must place nulls
+     * at the same end. One shared clause builder renders both, using `DataFrame`'s null rule
+     * rather than DuckDB's `NULLS LAST` default.
     */
     describe('null placement', () => {
         it('should agree between a translated statement and the frame\'s own orderBy', async () => {
@@ -161,12 +157,12 @@ describe('TealFrame with QueryAccess', () => {
     });
 
     /**
-     * The other half of the API: `restrictSQLParts` for a caller composing its own statement.
+     * `restrictSQLParts`, for a caller composing its own statement.
      *
-     * **Its `select` is a pre-joined string and cannot be turned back into a map** - the
-     * DuckDB dialect rebuilds a partly-readable STRUCT with `struct_pack`, so the projection
-     * and `columns` are deliberately not one-to-one. Rebuilding from `columns` would drop the
-     * restriction, which is why `select` takes a verbatim list.
+     * Its `select` is a pre-joined string and cannot be turned back into a map. The DuckDB
+     * dialect rebuilds a partly-readable STRUCT with `struct_pack`, so the projection and
+     * `columns` are not one-to-one, and rebuilding from `columns` would drop the restriction.
+     * That is why `select` takes a verbatim list.
     */
     describe('->restrictSQLParts', () => {
         it('should take the projection verbatim, restriction and all', async () => {
@@ -209,8 +205,8 @@ describe('TealFrame with QueryAccess', () => {
     });
 
     /**
-     * Two generated statements, joined. Each becomes a frame, and `join` composes them -
-     * there is no separate concept for "combine two statements".
+     * Two generated statements, joined. Each becomes a frame and `join` composes them; there is
+     * no separate API for combining two statements.
     */
     it('should join two generated statements', async () => {
         const access = new QueryAccess({ type_config: typeConfig });
@@ -236,9 +232,9 @@ describe('TealFrame with QueryAccess', () => {
     });
 
     /**
-     * **A statement that names its source twice wants a TABLE.** A relation is textual, so
-     * each mention re-executes the subquery; a table name is evaluated once however often it
-     * appears. `searchParams` reports whichever the frame has.
+     * A statement that names its source twice should run against a table. A relation is
+     * textual, so each mention re-executes the subquery, while a table is read once however
+     * often it appears. `searchParams` reports whichever the frame has.
     */
     describe('->searchParams', () => {
         it('should report a table by name, so a repeated reference costs nothing', () => {

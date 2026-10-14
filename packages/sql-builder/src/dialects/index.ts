@@ -8,26 +8,23 @@ export * from './duckdb.js';
 export * from './postgres.js';
 
 /**
- * One instance per engine, shared.
- *
- * A dialect holds no state - every method is a pure function of its arguments - so there is
- * nothing to isolate between translations and nothing to reset between them.
+ * One shared instance per engine. Dialects hold no state, so sharing them is safe.
 */
 const DIALECTS: Readonly<Record<SQLDialectName, SQLDialect>> = Object.freeze({
     [SQLDialectName.duckdb]: new DuckDBDialect(),
     [SQLDialectName.postgres]: new PostgresDialect(),
 });
 
-/** The engines this knows how to emit for. */
+/** The names of the supported SQL dialects. */
 export function getAvailableSQLDialects(): string[] {
     return Object.keys(DIALECTS);
 }
 
 /**
- * Resolve the `dialect` option.
+ * Resolve the `dialect` option to a dialect, defaulting to DuckDB.
  *
- * An object passes straight through, so a caller can hand in a subclass - or an overridden
- * copy of a built-in - without one being registered here first.
+ * A dialect object is returned unchanged, so callers can pass their own subclass without
+ * registering it.
 */
 export function getSQLDialect(input?: SQLDialectName | SQLDialect): SQLDialect {
     if (input == null) return DIALECTS[SQLDialectName.duckdb];

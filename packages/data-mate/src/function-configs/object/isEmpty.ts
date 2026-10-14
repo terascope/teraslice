@@ -45,16 +45,14 @@ export const isEmptyConfig: FieldValidateConfig<EmptyArgs> = {
     description: 'Returns the input if it is empty, otherwise returns null.',
     examples,
     /**
-     * **A CONSTANT for a number or a boolean, and `x = ''` for a string** - which is what the
-     * implementation actually does, not what the name suggests.
+     * A constant `TRUE` for a number or boolean column, and `x = ''` for a string column.
      *
-     * `isEmpty` starts with `if (!_val) return true`, then looks for `.size`, `.length`, an Error,
-     * a Buffer, an iterator, an object - and if none of those match, `return true`. A number that
-     * is not zero reaches that last line, so `isEmpty(5)` is TRUE; so is `isEmpty(true)`. Only a
-     * string has a `.length` for the check to consult, which makes it the one type where the
-     * answer depends on the value.
+     * This follows the implementation rather than the name. `isEmpty` returns true for a falsy
+     * value, then checks `.size`, `.length`, errors, buffers, iterators and objects, and returns
+     * true when none of those apply. So `isEmpty(5)` and `isEmpty(true)` are both true, and only a
+     * string's result depends on its value.
      *
-     * `ignoreWhitespace` trims first, and `JS_WHITESPACE` is passed explicitly because DuckDB's
+     * With `ignoreWhitespace` the string is trimmed first, passing `JS_WHITESPACE` because DuckDB's
      * one-argument `trim` strips only spaces.
     */
     sql: {

@@ -7,26 +7,23 @@ import { parseJSONText } from './plain-values.js';
 import { renderPlainDate } from './date-value.js';
 
 /**
- * The output shape `rows()` cannot get from a value alone, because it depends on the CONFIG.
+ * Shapes `rows()` output where the right shape depends on the field config, not the value.
  *
- * `toPlainValue` turns every STRUCT into an object - right for an `Object`, wrong for a `Tuple`,
- * which is stored as `STRUCT("0" ..., "1" ...)` (a DuckDB LIST cannot hold positions of different
- * types) and which `DataFrame` yields as an ARRAY. Only the config says which STRUCT is which.
+ * - `toPlainValue` turns every STRUCT into an object. A `Tuple` is stored as
+ *   `STRUCT("0" ..., "1" ...)` (a DuckDB LIST cannot mix element types), but `DataFrame`
+ *   returns it as an array, so it is converted back.
+ * - A `Date` is stored as `{ ms, tz_offset }` and rendered as `toISO8601` renders it. See
+ *   `date-value.ts`.
+ * - A JSON column (`Any`, or an `Object`/`Tuple` with no declared children) arrives as text and is
+ *   parsed, so `{x: 1}` is returned as an object rather than the string `'{"x":1}'`.
  *
- * A `Date` is `{ ms, tz_offset }` and is rendered as `toISO8601` renders the same value - `...Z`,
- * or local time and `+HH:MM` when an offset was set; see `date-value.ts`.
- *
- * Likewise a JSON column - `Any`, or an `Object`/`Tuple` with no declared children - reaches JS as
- * its TEXT, and `DataFrame` yields the value. Without this `{x: 1}` came out as `'{"x":1}'` and
- * `5` as `'5'` (DF20); `ndjson()` was right all along, because DuckDB splices JSON in unquoted.
- *
- * Built once per `rows()` call, per column; a column with no `Tuple` anywhere in it gets no
- * shaper and costs nothing per row.
+ * Shapers are built once per `rows()` call. A column that needs no shaping gets none and costs
+ * nothing per row.
 */
 
 export type ValueShaper = (value: unknown) => unknown;
 
-/** A shaper for each top-level column that needs one, keyed by column name. */
+/** Returns a shaper for each top-level column that needs one, keyed by column name. */
 export function makeRowShapers(
     config: DataTypeConfig | ReadonlyDataTypeConfig
 ): ReadonlyMap<string, ValueShaper> {
@@ -55,7 +52,7 @@ function fieldShaper(
     return (value) => (Array.isArray(value) ? value.map(element) : value);
 }
 
-/** Whether the column is stored as JSON text - `toDuckDB` maps these to `JSON`. */
+/** Whether the column is stored as JSON (`toDuckDB` maps these types to `JSON`). */
 export function isJSONColumn(
     type: FieldType,
     childConfig?: DataTypeFields | ReadonlyDataTypeFields
@@ -76,7 +73,7 @@ function elementShaper(
     return objectShaper(type, childConfig);
 }
 
-/** The shapers for each declared child, by name - only the children that need one. */
+/** Returns `[name, shaper]` for each direct child; the shaper is undefined when not needed. */
 function childShapers(
     childConfig?: DataTypeFields | ReadonlyDataTypeFields
 ): [name: string, shape: ValueShaper | undefined][] {
@@ -93,8 +90,8 @@ function childShapers(
 }
 
 /**
- * `{"0": a, "1": b}` to `[a, b]`, in position order, each position shaped in turn. A position
- * DuckDB holds as NULL stays `null` inside the array, as `DataFrame` has it.
+ * Converts `{"0": a, "1": b}` to `[a, b]` in position order, shaping each position. A NULL
+ * position stays `null` in the array, as in `DataFrame`.
 */
 function tupleShaper(childConfig?: DataTypeFields | ReadonlyDataTypeFields): ValueShaper {
     const positions = childShapers(childConfig)
@@ -111,8 +108,8 @@ function tupleShaper(childConfig?: DataTypeFields | ReadonlyDataTypeFields): Val
 }
 
 /**
- * An `Object` whose declared children contain a Tuple or a JSON column somewhere; a new object,
- * never mutated.
+ * Shapes an `Object` whose children need shaping (for example a Tuple or JSON child). Returns a
+ * new object and never mutates the input.
 */
 function objectShaper(
     type: FieldType,

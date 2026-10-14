@@ -81,14 +81,14 @@ export const setMillisecondsConfig: FieldTransformConfig<SetMillisecondsArgs> = 
     },
     required_arguments: ['value'],
     /**
-     * Second boundary plus the new milliseconds. No rollover is possible - the argument is
-     * validated to 0-999, so it always lands inside the same second.
+     * Second boundary plus the new milliseconds. The argument is validated to 0-999, so it
+     * always lands inside the same second.
     */
     sql: {
         types: [FieldType.Date],
         applies: (args) => Number.isInteger(args.value)
             && args.value >= 0 && args.value <= 999,
-        // the INSTANT: core-utils' `setUTCMilliseconds` ignores a DateTuple's offset
+        // use the instant: core-utils' `setUTCMilliseconds` ignores a DateTuple's offset
         expression: ({ value, instant, args }) => `(date_trunc('second', ${instant ?? value})`
             + ` + INTERVAL (${args.value}) MILLISECOND)`,
     },

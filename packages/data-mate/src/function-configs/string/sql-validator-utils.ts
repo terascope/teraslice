@@ -2,46 +2,38 @@ import { JS_WHITESPACE_CLASS } from './sql-regex-utils.js';
 import { sqlLiteral } from '../sql-helpers.js';
 
 /**
- * The predicate rules of `core-utils` and `validator`, transliterated.
+ * Predicate rules from `core-utils` and `validator`, rewritten as RE2 patterns.
  *
- * **Read the wrapper in `core-utils`, not the library it appears to call.** `isEmail` and
- * `isMACAddress` never reach `validator`, and both were written off as walls on the strength of
- * `validator`'s implementation - `isEmail` for being 173 procedural lines, `isMACAddress` for a
- * separator backreference RE2 cannot compile. The versions this codebase calls are one regex and
- * five fixed regexes: read the wrapper this codebase calls, not the library underneath it.
+ * `isEmail` and `isMACAddress` in `core-utils` do not call `validator`; they use their own, simpler
+ * patterns, which is what these reproduce.
 */
 /**
- * `core-utils`' own `isEmail`, transliterated - and it is NOT `validator.isEmail`.
+ * `core-utils`' own `isEmail` pattern, which is not `validator.isEmail`.
  *
  * ```
  * const EmailRegex = /^[A-Z0-9._%+-@]{1,64}@(?:[A-Z0-9-]{1,63}\.){1,8}[A-Z]{2,63}$/i;
  * export function isEmail(input) { return isString(input) && EmailRegex.test(input); }
  * ```
  *
- * One regex, no lookaround, no backreference - RE2 compiles it. Its own comment says it is "not an
- * exhaustive email regex, which is impossible, but will catch obvious errors".
+ * It has no lookaround or backreference, so RE2 compiles it.
  *
- * **The `i` flag is expanded by hand rather than passed to DuckDB**, and that is the whole trick:
- * JavaScript's `i` outside unicode mode uses simple canonicalisation, while RE2's does full Unicode
- * case folding - so `[A-Z]` with `i` matches KELVIN SIGN and LATIN SMALL LETTER LONG S in RE2 and
- * not in JavaScript. Writing `[A-Za-z]` removes case folding from the picture entirely, so no guard
- * and no UDF fallback is needed.
+ * The `i` flag is expanded by hand rather than passed to DuckDB. Without the `u` flag JavaScript's
+ * `i` uses simple case folding, while RE2 uses full Unicode folding, so `[A-Z]` with `i` matches
+ * KELVIN SIGN and LATIN SMALL LETTER LONG S in RE2 but not in JavaScript. Writing `[A-Za-z]` avoids
+ * case folding entirely, so no guard or UDF fallback is needed.
  *
- * `+-@` is a RANGE (U+002B to U+0040), not three literals - it also admits `,`, `.`, `/`, the
- * digits, `:`, `;`, `<`, `=`, `>` and `?`. Copied as written; RE2 reads a class range the same way.
+ * `+-@` is a range (U+002B to U+0040), not three literals, so it also admits `,`, `.`, `/`, the
+ * digits, `:`, `;`, `<`, `=`, `>` and `?`. It is copied as written, and RE2 reads the range the
+ * same way.
 */
 export const EMAIL_SQL_PATTERN = '^[A-Za-z0-9._%+-@]{1,64}@(?:[A-Za-z0-9-]{1,63}\\.){1,8}'
     + '[A-Za-z]{2,63}$';
 /**
- * `core-utils`' `macAddressDelimiters`, transliterated - and this is NOT `validator.isMACAddress`.
+ * `core-utils`' `macAddressDelimiters`, which is not `validator.isMACAddress`.
  *
- * The claim that this function is blocked on a backreference was about `validator`'s
- * implementation, which `core-utils` never calls. What it has is five FIXED regexes, one per
- * delimiter, and `'any'` is `Object.values(...).some(...)` - so there is no separator-consistency
- * problem to solve and nothing here needs a backreference.
- *
- * `space` is the one that needed care: its `\s` is JavaScript's, so it gets
- * `JS_WHITESPACE_CLASS` rather than RE2's narrower `\s`.
+ * There is one fixed regex per delimiter, and `'any'` tries each in turn, so no backreference is
+ * needed to keep the separators consistent. `space` uses `JS_WHITESPACE_CLASS` because its `\s` is
+ * JavaScript's.
 */
 export const MAC_SQL_PATTERNS: Record<string, string> = {
     colon: '^([0-9a-fA-F][0-9a-fA-F]:){5}([0-9a-fA-F][0-9a-fA-F])$',
@@ -56,12 +48,11 @@ export function matchesAny(value: string, patterns: readonly string[]): string {
 }
 
 /**
- * `validator.isMimeType`'s three regexes, transliterated with the `i` flag and `\s` expanded.
+ * `validator.isMimeType`'s three regexes, with the `i` flag and `\s` expanded.
  *
- * This one IS `validator`, and it is still only three patterns: a simple type from a fixed list of
- * nine top-level types, `text/*` with an optional charset, and `multipart/*` with up to two
- * boundary or charset parameters. No lookaround, no backreference, no locale table - which is what
- * separates it from `isURL` and `isPostalCode`.
+ * They match a simple type from a fixed list of nine top-level types, `text/*` with an optional
+ * charset, and `multipart/*` with up to two boundary or charset parameters. None of them use
+ * lookaround or backreferences.
 */
 const MIME_CHARS = 'a-zA-Z0-9\\.\\-\\+';
 const MIME_QUOTED = `("[${MIME_CHARS}${JS_WHITESPACE_CLASS.slice(1, -1)}]{0,70}"|[${MIME_CHARS}]{0,70})`;
@@ -75,15 +66,14 @@ export const MIME_SQL_PATTERNS: readonly string[] = [
     + `(?i:boundary|charset)=${MIME_QUOTED}${MIME_COMMENT}){0,2}$`,
 ];
 /**
- * `validator.isISO31661Alpha2`'s country set, verbatim - 249 codes, generated from its own source.
+ * `validator.isISO31661Alpha2`'s 249 country codes, generated from its source.
  *
- * This is the whole function: a `Set` lookup on `str.toUpperCase()`. `core-utils` does not pass the
- * `userAssignedCodes` option, so nothing else in `validator`'s implementation is reachable. Calling
- * it a "locale table" put it in the same bucket as `isPostalCode`, and it is not in that bucket.
+ * The function is a `Set` lookup on `str.toUpperCase()`. `core-utils` does not pass
+ * `userAssignedCodes`, so nothing else in it is reachable.
  *
- * The one guard it needs is ASCII: JavaScript's `toUpperCase` is FULL case mapping and can change
- * a string's LENGTH, so `'\ufb01'` (LATIN SMALL LIGATURE FI) uppercases to `'FI'` - a real country
- * code - where DuckDB's simple mapping leaves it alone. Non-ASCII therefore keeps the UDF.
+ * Non-ASCII values keep the UDF. JavaScript's `toUpperCase` uses full case mapping and can change a
+ * string's length, so `'ﬁ'` (LATIN SMALL LIGATURE FI) uppercases to `'FI'`, a real country code,
+ * where DuckDB's simple mapping leaves it unchanged.
 */
 export const ISO_3166_ALPHA2: readonly string[] = [
     'AD',

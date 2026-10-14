@@ -3,23 +3,21 @@ import {
 } from '@terascope/types';
 
 /**
- * GeoJSON <-> WKB, for a `GeoJSON` column stored as a DuckDB `GEOMETRY`.
+ * Converts between GeoJSON and WKB for `GeoJSON` fields, which are stored as DuckDB `GEOMETRY`.
  *
- * **Why this exists.** A `GEOMETRY` column is WKB underneath, and the node binding can write one
- * only as WKB bytes through a data-chunk vector - its single-value `createValue` has no GEOMETRY
- * case, because DuckDB's C API has no geometry constructor. So ingest encodes here, and `rows()`
- * decodes here. Everything spatial after that is DuckDB's.
+ * The node binding can only write a `GEOMETRY` value as WKB bytes through a data-chunk vector
+ * (DuckDB's C API has no geometry constructor). So ingest encodes here and `rows()` decodes here.
  *
- * ISO WKB, 2D, little-endian on the way out; either byte order on the way in. The shapes are the
- * three a `GeoShape` can be - `toGeoJSONOrThrow` produces nothing else - so a type outside them is
- * a `TypeError`, which ingest records as a coercion failure rather than storing something else.
+ * Output is ISO WKB, 2D, little-endian; input may use either byte order. Only Point, Polygon and
+ * MultiPolygon are supported, the shapes `toGeoJSONOrThrow` produces. Any other type throws a
+ * `TypeError`, which ingest records as a coercion failure.
 */
 
 const WKB_POINT = 1;
 const WKB_POLYGON = 3;
 const WKB_MULTI_POLYGON = 6;
 
-/** `GeoShapeType` by its lowercase spelling, so Elasticsearch's `'polygon'` is the same shape. */
+/** WKB type codes keyed by lowercase `GeoShapeType`, so Elasticsearch's `'polygon'` matches. */
 const SHAPE_TYPES: Readonly<Record<string, number>> = {
     point: WKB_POINT,
     polygon: WKB_POLYGON,
@@ -32,7 +30,7 @@ const POINT_BYTES = 16; // two float64
 type Ring = readonly CoordinateTuple[];
 type Polygon = readonly Ring[];
 
-/** Encodes a GeoShape as little-endian ISO WKB - the bytes DuckDB's `ST_AsWKB` would write. */
+/** Encodes a GeoShape as little-endian ISO WKB, the same bytes DuckDB's `ST_AsWKB` writes. */
 export function geoShapeToWKB(shape: GeoShape): Uint8Array {
     const code = SHAPE_TYPES[String(shape?.type).toLowerCase()];
     if (code == null) {
@@ -116,8 +114,8 @@ function toPolygon(value: unknown): Polygon {
 }
 
 /**
- * A 2D position. **A third ordinate is rejected, not dropped** - `CoordinateTuple` is 2D, and
- * silently storing a different shape than the one given is the one outcome this must not have.
+ * Validates a 2D position. A third ordinate is rejected rather than dropped, so a different
+ * shape is never stored silently.
 */
 function toPosition(value: unknown): CoordinateTuple {
     const position = toList(value, 'a position');

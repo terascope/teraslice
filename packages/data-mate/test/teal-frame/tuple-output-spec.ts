@@ -3,13 +3,12 @@ import { FieldType, DataTypeConfig } from '@terascope/types';
 import { DataFrame, TealFrame } from '../../src/index.js';
 
 /**
- * A `Tuple` field is output as an ARRAY, as `DataFrame` outputs it.
+ * A `Tuple` field is output as an array, as `DataFrame` outputs it.
  *
- * It is stored as a `STRUCT("0" ..., "1" ...)` - a DuckDB LIST cannot hold positions of different
- * types - and before 2026-09-29 both `rows()` and `ndjson()` handed that struct back as an object,
- * `{"0":1.5,"1":"a"}`, instead of `[1.5,"a"]`. **A missing position is `null` INSIDE the array
- * in both modes** - `DataFrame` writes `[2,null]` even when null fields are removed, because a
- * position is not a field.
+ * It is stored as a `STRUCT("0" ..., "1" ...)` because a DuckDB LIST cannot hold positions of
+ * different types, so `rows()` and `ndjson()` must turn `{"0":1.5,"1":"a"}` back into
+ * `[1.5,"a"]`. A missing position is `null` inside the array in both modes: `DataFrame` writes
+ * `[2,null]` even when null fields are removed, because a position is not a field.
 */
 const CONFIG: DataTypeConfig = {
     version: 1,
@@ -39,7 +38,7 @@ const RECORDS = [
     { _key: 'c' },
 ];
 
-const SPACES_DEFAULT = {
+const REMOVE_NULL_FIELDS_DEFAULT = {
     useNullForUndefined: false,
     skipNilValues: true,
     skipEmptyObjects: true,
@@ -85,7 +84,9 @@ describe('TealFrame Tuple output', () => {
 
     it('should write a Tuple as an array in ndjson(), byte-equal to DataFrame', async () => {
         const lines = await collect(frame.ndjson());
-        expect(lines).toEqual(reference.toJSON(SPACES_DEFAULT).map((row) => JSON.stringify(row)));
+        const expected = reference.toJSON(REMOVE_NULL_FIELDS_DEFAULT)
+            .map((row) => JSON.stringify(row));
+        expect(lines).toEqual(expected);
     });
 
     it('should write a Tuple as an array with @preserveNullFields, byte-equal to DataFrame', async () => {

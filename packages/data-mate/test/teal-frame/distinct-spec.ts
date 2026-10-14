@@ -3,8 +3,8 @@ import { FieldType, DataTypeConfig } from '@terascope/types';
 import { TealFrame, closeDuckDatabase } from '../../src/index.js';
 
 /**
- * Arrays and objects are in here on purpose: these configs routinely carry them, and a dedup
- * that could not compare a LIST or a STRUCT would be useless for real data.
+ * The records include arrays and objects on purpose: real data routinely carries them, so the
+ * dedup must compare LIST and STRUCT values too.
 */
 const CONFIG: DataTypeConfig = {
     version: 1,
@@ -71,8 +71,8 @@ describe('TealFrame->distinct', () => {
     });
 
     it('should compare LIST and STRUCT columns rather than choking on them', async () => {
-        // 'a' differs from its duplicate ONLY by the array, and only by the object, in the
-        // last two records - so both complex types must take part in the comparison.
+        // In the last two records 'a' differs from its duplicate only by the array, and only
+        // by the object, so both complex types must take part in the comparison.
         const rows = await collect(frame.distinct());
         const tagShapes = new Set(rows.map((row) => JSON.stringify(row.tags)));
         const metaShapes = new Set(rows.map((row) => JSON.stringify(row.meta)));

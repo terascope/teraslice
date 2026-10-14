@@ -82,7 +82,7 @@ export const setDateConfig: FieldTransformConfig<SetDateArgs> = {
     },
     required_arguments: ['value'],
     /**
-     * Month boundary plus `value - 1` days, which **rolls over exactly as `setUTCDate` does**:
+     * Start of the month plus `value - 1` days, which rolls over the same way `setUTCDate` does:
      * day 31 of a February is March 3, not an error and not February 28.
     */
     sql: {

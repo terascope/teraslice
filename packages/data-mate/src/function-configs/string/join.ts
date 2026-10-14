@@ -103,15 +103,13 @@ export const joinConfig: FieldTransformConfig<JoinArgs> = {
         return joinFn(delimiter);
     },
     /**
-     * `array_to_string` over the non-null elements, which is `input.filter(isNotNil).join(d)`.
+     * `array_to_string` over the non-null elements, which is
+     * `input.filter(isNotNil).join(delimiter)`.
      *
-     * Verified against the JavaScript: an empty list and an all-null list both give `''` on either
-     * side, and an empty delimiter concatenates. `applies` claims only a STRING-element array -
-     * for numbers and booleans `join` uses `String(x)` and SQL would use DuckDB's cast, and there
-     * is no reason to assume those agree on something like `1e21`.
-     *
-     * Array-only for the same reason as the `*Values` reducers, plus one of its own: on a scalar
-     * column `_join` returns `String(input)`, which is a cast rather than a join.
+     * An empty list and an all-null list both give `''`, and an empty delimiter concatenates. Only
+     * arrays of strings are handled: for numbers and booleans `join` uses `String(x)`, which may
+     * not match DuckDB's cast (for example on `1e21`). A scalar column keeps the UDF because
+     * `_join` returns `String(input)` there, which is a cast rather than a join.
     */
     sql: {
         applies: (_args, inputConfig) => inputConfig?.field_config?.array === true

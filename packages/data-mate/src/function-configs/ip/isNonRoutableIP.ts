@@ -54,10 +54,8 @@ export const isNonRoutableIPConfig: FieldValidateConfig = {
         return isNonRoutableIP;
     },
     /**
-     * Not routable, AND an IP at all.
-     *
-     * The second half is not redundant: `isRoutableSql` answers false for a non-address, and
-     * negating that alone would call `'not-an-ip'` a non-routable IP.
+     * An IP that is not routable. The `isIPSql` check is needed because `isRoutableSql` answers
+     * false for a non-address, so negating it alone would call `'not-an-ip'` non-routable.
     */
     sql: {
         expression: ({ value }) => `(${isIPSql(value)} AND NOT (${isRoutableSql(value)}))`,

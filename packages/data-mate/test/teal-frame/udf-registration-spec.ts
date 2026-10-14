@@ -6,11 +6,10 @@ import {
 } from '../../src/index.js';
 
 /**
- * **A UDF registration is permanent** - DuckDB cannot unregister a scalar function - so the number
- * of registrations must be bounded by the CODE and the data types, never by what users type. Each
- * UDF used to be specialised to one argument set and named by it, so every new `lookup` table,
- * regex or format added a function that lived as long as the process: a long-running worker grew
- * without bound. Arguments are now a parameter of one UDF per (function, types).
+ * A UDF registration is permanent because DuckDB cannot unregister a scalar function, so the
+ * number of registrations must be bounded by the code and the data types, never by user input.
+ * Arguments are therefore a parameter of one UDF per (function, types). A UDF specialized to each
+ * `lookup` table, regex or format would grow a long-running process without bound.
 */
 
 const repo = functionConfigRepository as Record<string, FunctionDefinitionConfig<any>>;

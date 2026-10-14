@@ -33,7 +33,7 @@ export const getCIDRNetworkConfig: FieldTransformConfig = {
     create() {
         return getCIDRNetwork;
     },
-    /** IPv4 only - the implementation throws for a v6 block, so v6 goes to the UDF and throws. */
+    /** IPv4 only. The function throws for an IPv6 block, so IPv6 goes to the UDF and throws. */
     sql: {
         needs_udf_fallback: true,
         expression: ({ value, udf }) => `CASE WHEN ${isIPv4CIDRSql(value)}`

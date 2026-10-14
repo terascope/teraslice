@@ -10,75 +10,70 @@ import {
 import { inspect } from 'node:util';
 import { quoteIdentifier, quoteLiteral } from '@terascope/sql-builder';
 import { ScalarFunctionImpl } from '../../teal-frame/scalar-function.js';
-import { registerScalarFunction, makeBigIntInputNormaliser } from '../../teal-frame/index.js';
+import { registerScalarFunction, makeBigIntInputNormalizer } from '../../teal-frame/index.js';
 import { coerceToType } from '../../builder/type-coercion.js';
 import { instantSQL, localSQL, fromTimestampSQL } from '../../teal-frame/date-value.js';
 
 export interface TealFrameAdapterOptions<T extends Record<string, any>> {
     /** The column the function applies to. */
     field: string;
-    /** The column's CURRENT field config - what the plan says it is at this step. */
+    /** The column's field config at this step. */
     inputConfig: DataTypeFieldAndChildren;
     /**
      * Function arguments, bound once at registration.
      *
-     * The same choice `dataFrameAdapter` makes for its static-args path: a directive's args are
-     * constants for the whole query, so `create()` is called once and the resulting closure is
-     * the UDF body. **Per-row args are NOT supported** - the JS adapter handles those with
-     * `args: (rowIndex) => ...`, which has no analogue here because a UDF's inputs are columns.
-     * A row-dependent argument has to become an extra column, which the caller must arrange.
+     * As with `dataFrameAdapter`'s static arguments, they are constant for the whole query, so
+     * `create()` is called once and its closure becomes the UDF body. Per-row arguments
+     * (`args: (rowIndex) => ...` in `dataFrameAdapter`) are not supported; a row-dependent
+     * argument would have to be passed as an extra column.
     */
     args?: T;
     /** Database to register on. Defaults to the process-wide one. */
     database?: string;
     /**
-     * Use a function's `sql` emission when it declares one. Defaults to TRUE.
+     * Use the function's `sql` definition when it has one. Defaults to true.
      *
-     * **An off switch is a requirement, not a convenience.** The parity gate has to run the same
-     * function both ways to compare them, the benches have to time both paths, and a bad emission
-     * found in production has to be switchable off without shipping a new build.
+     * Setting it to false forces the UDF path, so tests can compare the two paths, benchmarks
+     * can time both, and a faulty SQL definition can be bypassed without a new release.
     */
     preferSql?: boolean;
 }
 
 export interface TealFrameAdapterResult {
     /**
-     * The SQL expression that applies the function to the column. Drop it straight into
+     * The SQL expression that applies the function to the column, ready to use as
      * `select({ [name]: expression }, config)`.
     */
     expression: string;
     /**
-     * The field config the column has AFTER this step - from the function's own `output_type`.
-     * Thread it into the next step; this is how the plan tracks a field changing type.
+     * The column's field config after this step, from the function's `output_type`. Pass it as
+     * the next step's `inputConfig` to track a field whose type changes.
     */
     outputConfig: DataTypeFieldAndChildren;
     /**
-     * The registered UDF name, or undefined when no UDF was needed - `ProcessMode.NONE`, or a
-     * `sql` emission that does not need a fallback.
+     * The registered UDF name, or undefined when no UDF was needed (an unchanged
+     * `ProcessMode.NONE` cast, or a `sql` definition without a UDF fallback).
     */
     functionName?: string;
     /**
-     * How the expression computes the value: native SQL, SQL with a UDF fallback for the values
-     * SQL cannot do, or the UDF for every value.
+     * How the expression computes the value: native SQL, SQL with a UDF fallback for values SQL
+     * cannot handle, or the UDF for every value.
      *
-     * Exposed because it is the thing worth asserting in a test and reporting in a benchmark - a
-     * silently un-promoted function looks exactly like a promoted one from the outside.
+     * Exposed so tests and benchmarks can check which path ran; the results look the same
+     * either way.
     */
     dispatch: 'sql' | 'sql+udf' | 'udf' | 'none';
 }
 
 /**
- * Runs a `FunctionDefinitionConfig` against a DuckDB column - the DuckDB sibling of
+ * Applies a `FunctionDefinitionConfig` to a DuckDB column; the DuckDB counterpart of
  * `dataFrameAdapter`.
  *
- * The function configs ARE the definition of these behaviours: name, aliases, argument schema,
- * accepted types, the `output_type` that says what the field becomes, and the implementation.
- * They are also what spaces turns into GraphQL directives, so they are the public surface. This
- * adapter therefore reuses them rather than restating any of it, for exactly the reason
- * `fromRecords` reuses `coerceToType`: one implementation of each behaviour, so nothing can
- * drift.
+ * The function configs define each function's name, aliases, arguments, accepted types,
+ * `output_type` and implementation. This adapter reuses them instead of restating any of it,
+ * so both frames behave the same.
  *
- * Every decision below mirrors `dataFrameAdapter` deliberately. If that changes, change this.
+ * The behavior mirrors `dataFrameAdapter`. Keep the two in sync.
  */
 export async function tealFrameAdapter<T extends Record<string, any> = Record<string, unknown>>(
     fnDef: FunctionDefinitionConfig<T>,
@@ -102,8 +97,8 @@ async function adaptTransform<T extends Record<string, any>>(
     const { field, inputConfig } = options;
     const args = resolveArgs(fnDef, options.args);
 
-    // A transform THROWS on a type mismatch, where a validation clears the column.
-    // That asymmetry is dataFrameAdapter's, not ours.
+    // A transform throws on a type mismatch, while a validation clears the column,
+    // matching dataFrameAdapter.
     const err = acceptsError(fnDef, inputConfig);
     if (err) throw err;
 
@@ -120,8 +115,8 @@ async function adaptTransform<T extends Record<string, any>>(
     const fullValues = fnDef.process_mode === ProcessMode.FULL_VALUES;
     const emission = emissionFor(fnDef, inputConfig, options.preferSql, args);
 
-    // pure SQL: no UDF is registered at all, so the JS boundary - 178 ns per value, single
-    // threaded - is not merely made cheaper, it is gone
+    // pure SQL: no UDF is registered, so there is no JS call per value (~178 ns each,
+    // single-threaded)
     if (emission && !emission.needs_udf_fallback) {
         return {
             expression: applyToValues(
@@ -139,7 +134,7 @@ async function adaptTransform<T extends Record<string, any>>(
 
     const resultConfig = udfResult(fnDef, args, inputConfig, outputConfig, fullValues);
     const parameter = udfParameter(inputConfig, fullValues);
-    /** One argument set's implementation, its result coerced as a `DataFrame` Builder would. */
+    /** Builds one argument set's implementation, coercing results as a `DataFrame` Builder does. */
     const implFor = (a: T): ScalarFunctionImpl => {
         const out = fnDef.output_type ? fnDef.output_type(inputConfig, a) : inputConfig;
         return coercingResult(
@@ -178,16 +173,15 @@ async function adaptTransform<T extends Record<string, any>>(
 }
 
 /**
- * `ProcessMode.NONE` - `cast`, the only one - changes the field's CONFIG, and the values follow.
+ * Handles `ProcessMode.NONE` (only `cast` uses it), which changes the field's config.
  *
- * The JS adapter runs it as `copyVectorToBuilder`, copying each value into a Builder for the NEW
- * config, and the Builder coerces: `cast` to Integer turns `'21.223'` into `21`, to an array wraps
- * it as `[21]`, and to an invalid IP throws. So where the shape changes this is a UDF over the
- * SAME `coerceToType` - one implementation of the semantics, as `fromRecords` does it. Returning
- * the column untouched left `'21.223'` in a column whose config said Integer.
+ * `dataFrameAdapter` copies each value into a Builder for the new config, and the Builder coerces
+ * it: casting `'21.223'` to Integer gives `21`, casting to an array gives `[21]`, and casting an
+ * invalid IP throws. So when the type changes, this registers a UDF that runs the same
+ * `coerceToType`.
  *
- * Where only metadata changes (`description`, `locale`...) the values are already right, so the
- * column is copied as before and no UDF is registered.
+ * When only metadata changes (`description`, `locale` and so on) the values are already correct,
+ * so the column is returned unchanged and no UDF is registered.
 */
 async function adaptTypeChange<T extends Record<string, any>>(
     fnDef: FieldTransformConfig<T>,
@@ -202,7 +196,7 @@ async function adaptTypeChange<T extends Record<string, any>>(
     }
 
     const coerce = resultCoercion(outputConfig);
-    // the coercion depends on the two configs alone, so they - not the arguments - name it
+    // the coercion depends only on the two configs, so they (not the arguments) name the UDF
     const functionName = await registerScalarFunction({
         name: udfName(fnDef.name, [
             'type change',
@@ -228,25 +222,24 @@ async function adaptTypeChange<T extends Record<string, any>>(
 }
 
 /**
- * Coerces a value into a config exactly as a `DataFrame` Builder does - every Builder's
- * `_valueFrom` is `coerceToType(config)` - so a result that disagrees with its `output_type` is
- * converted, or throws, the same way: `setDefault`/`toJSON` on an Integer column give `"5"`, and
- * `ceil(1e21)` into an Integer throws. Without it DuckDB was handed the raw result and failed with
- * `A string was expected` (DF2, DF5, DF11).
+ * Coerces a function result into its output config as a `DataFrame` Builder does (every
+ * Builder's `_valueFrom` is `coerceToType(config)`). A result that does not match its
+ * `output_type` is converted or throws the same way: `setDefault` or `toJSON` on an Integer
+ * column gives `"5"`, and `ceil(1e21)` into an Integer throws.
  *
- * The bigint normaliser goes first for the reason it exists on ingest (DF15): `toBigIntOrThrow`
- * adds 1 to a value it PARSES past 2^53 and returns a bigint untouched, and the value converter
- * undoes the `+1` - so a bigint result has to be handed over as its decimal string to stay exact.
+ * The bigint normalizer runs first, as on ingest: `toBigIntOrThrow` adds 1 to a value it parses
+ * past 2^53 but returns a bigint unchanged, and the value converter later subtracts 1. Passing a
+ * large bigint as a decimal string keeps it exact. See `makeBigIntInputNormalizer`.
 */
 function resultCoercion(config: DataTypeFieldAndChildren): (value: unknown) => unknown {
     const fieldConfig = config.field_config as DataTypeFieldConfig;
     const childConfig = config.child_config as DataTypeFields | undefined;
     const coerce = coerceToType(fieldConfig, childConfig);
-    const normalise = makeBigIntInputNormaliser(fieldConfig, childConfig);
+    const normalize = makeBigIntInputNormalizer(fieldConfig, childConfig);
 
     return (value) => {
         if (value == null) return value;
-        return coerce(normalise ? normalise(value) : value);
+        return coerce(normalize ? normalize(value) : value);
     };
 }
 
@@ -258,7 +251,7 @@ function coercingResult(
     return (value, index) => coerce(impl(value, index));
 }
 
-/** What decides the stored values: type, array-ness and children, and nothing else. */
+/** A key for the parts of a config that affect stored values: type, `array` and children. */
 function typeShape({ field_config, child_config }: DataTypeFieldAndChildren): string {
     const shape = (config: Pick<DataTypeFieldConfig, 'type' | 'array'>) => [
         config.type, config.array === true,
@@ -279,14 +272,13 @@ async function adaptValidation<T extends Record<string, any>>(
     const args = resolveArgs(fnDef, options.args);
     const column = quoteIdentifier(field);
 
-    // A validation on a mismatched type CLEARS the column rather than throwing - see
-    // `validateColumnData`, which returns `column.clearAll()`.
+    // A validation on a mismatched type clears the column rather than throwing, as
+    // `validateColumnData` does with `column.clearAll()`.
     if (acceptsError(fnDef, inputConfig)) {
         return { expression: 'NULL', outputConfig: inputConfig, dispatch: 'none' };
     }
 
-    // A validation never changes the field type: the JS adapter builds the output with
-    // `column.vector.config`, the input's own config.
+    // A validation never changes the field type; dataFrameAdapter keeps the input's config.
     const outputConfig = inputConfig;
 
     const fullValues = fnDef.process_mode === ProcessMode.FULL_VALUES;
@@ -340,15 +332,13 @@ async function adaptValidation<T extends Record<string, any>>(
 }
 
 /**
- * Failing validation NULLS the value and keeps the row - `validatorTransformFN`:
- * `if (fn(value)) return value; return null`. Expressed in SQL so the nulling is visible rather
- * than hidden inside a UDF, and identical on both dispatch paths - the emission replaces only the
- * PREDICATE, never the shape around it.
+ * Wraps a validation predicate so a failing value becomes null and the row is kept, like
+ * `validatorTransformFN` (`if (fn(value)) return value; return null`).
  *
- * Where SQL maps over a list, the nulling is per ELEMENT and the list is kept, as `DataFrame`
- * does it: `contains('e')` over `['hello', 'sky']` is `['hello', null]`, an empty list stays empty.
- * Wrapping the mapped predicate - a `BOOLEAN[]` - in one `CASE WHEN` was DF1, `Unimplemented type
- * for cast (BOOLEAN[] -> BOOLEAN)` on every validation of an array field.
+ * The nulling is done in SQL so it is the same whether the predicate is a UDF call or native
+ * SQL. For an array column checked per element, each failing element becomes null and the list
+ * is kept, as in `DataFrame`: `contains('e')` over `['hello', 'sky']` gives `['hello', null]`,
+ * and an empty list stays empty.
 */
 function nullUnlessValid(
     predicate: (value: string) => string,
@@ -362,15 +352,14 @@ function nullUnlessValid(
 }
 
 /**
- * How a per-value expression is applied to the column.
+ * Applies a per-value expression to the column.
  *
- * For an array column under `INDIVIDUAL_VALUES`, SQL does the element-wise mapping via
- * `list_transform` - which is what the JS adapter's `_mapValue` does when it maps over an
- * array and skips nil elements. That keeps the per-value expression scalar, so no DuckDB LIST
- * parameter type is needed and a `sql` emission needs no array handling of its own.
+ * For an array column under `INDIVIDUAL_VALUES`, `list_transform` maps over the elements, as
+ * `dataFrameAdapter`'s `_mapValue` does. The per-value expression stays scalar, so neither the
+ * UDF nor a `sql` definition needs its own array handling.
  *
- * `build` takes the value expression rather than being a fixed function call, which is what lets
- * a UDF call and a spliced SQL expression go through exactly the same wrapping.
+ * `build` receives the value expression, so a UDF call and a native SQL expression are wrapped
+ * the same way.
  */
 function applyToValues(
     build: (value: string) => string,
@@ -379,26 +368,24 @@ function applyToValues(
     fullValues: boolean
 ): string {
     if (inputConfig.field_config.array && !fullValues) {
-        // `lambda x : ...`, not `x -> ...`: DuckDB v2.0 disables the single-arrow syntax by
-        // default and v2.1 removes the `lambda_syntax` flag that would bring it back.
+        // use `lambda x : ...`, not `x -> ...`: DuckDB v2.0 disables the single-arrow syntax
+        // by default and v2.1 removes the `lambda_syntax` flag that re-enables it
         return `list_transform(${column}, lambda x : ${build('x')})`;
     }
     return build(column);
 }
 
 /**
- * The function's SQL emission, if it has one that applies here and the caller wants it.
+ * Returns the function's `sql` definition if it applies to this column and arguments and the
+ * caller has not turned it off.
  *
- * `types` NARROWS an emission to the accepted types it is actually correct for, because a
- * function that accepts both `String` and `Number` may have a native equivalent for only one of
- * them. With no `types` the emission applies wherever the function does - the caller has already
- * checked `accepts`.
+ * `types` limits the SQL to the accepted types it is correct for, since a function that accepts
+ * both `String` and `Number` may have a native equivalent for only one. Without `types` it applies
+ * wherever the function does (the caller has already checked `accepts`).
  *
- * **The narrowing check goes through `validateAccepts`, not a plain `includes`.** Membership is
- * not literal in this codebase: `accepts: [FieldType.String]` also admits `Keyword`, `Text` and
- * the rest of the string family, and `[FieldType.Number]` admits every numeric width. A
- * hand-rolled `includes` silently declined the emission for every `Keyword` column, which is
- * most columns - and it looked exactly like the descriptor not existing.
+ * The check uses `validateAccepts`, not `includes`, because type membership is by family:
+ * `FieldType.String` also admits `Keyword`, `Text` and the rest, and `FieldType.Number` admits
+ * every numeric width.
 */
 function emissionFor<T extends Record<string, any>>(
     fnDef: FunctionDefinitionConfig<T>,
@@ -410,7 +397,7 @@ function emissionFor<T extends Record<string, any>>(
 
     const { types, applies } = fnDef.sql;
     if (types?.length && typesError(types, inputConfig)) return undefined;
-    // narrowing by ARGUMENT, for a native that exists only for some of them - see `applies`
+    // `applies` limits the SQL by argument, when it is only correct for some arguments
     if (applies && !applies(args, inputConfig)) return undefined;
 
     return fnDef.sql;
@@ -426,18 +413,16 @@ interface EmittedOptions<T extends Record<string, any>> {
 }
 
 /**
- * One value through an emission.
+ * Builds the SQL expression for one value from the function's `sql` definition.
  *
- * **A `Date` is `{ ms, tz_offset }`** (`date-value.ts`), and every date emission is written over a
- * TIMESTAMP. So the emission is handed the LOCAL wall time as `value` - the instant shifted by the
- * row's offset, or the instant itself when there is none, which is what `DataFrame`'s date
- * functions read from a `DateTuple` - and the bare instant as `instant`, for a function that
- * ignores the offset. A per-row "is this a tuple?" check costs one `coalesce`, and no step has to
- * know whether an earlier one attached an offset. A transform's TIMESTAMP result goes back into a
- * date value with NO offset, as `DataFrame` returns plain millis from those functions too.
+ * A `Date` is stored as `{ ms, tz_offset }` (see `date-value.ts`), while date SQL is written
+ * against a TIMESTAMP. So `value` is the local wall time (the instant shifted by the row's
+ * offset, which is what `DataFrame`'s date functions read from a `DateTuple`), and `instant` is
+ * the unshifted instant for functions that ignore the offset. A transform's TIMESTAMP result is
+ * turned back into a date value with no offset, as `DataFrame` returns plain millis.
  *
- * The emission's `udf` is called with the RAW value: the UDF takes the date value, not the
- * TIMESTAMP the emission works over.
+ * `udf` is called with the raw date value, because the UDF takes the stored date, not a
+ * TIMESTAMP.
 */
 function emitted<T extends Record<string, any>>(
     emission: SqlEmission<T>,
@@ -461,16 +446,16 @@ function emitted<T extends Record<string, any>>(
 }
 
 /**
- * The `udf` an emission gets when no UDF was registered.
+ * The `udf` callback passed to a `sql` definition when no UDF was registered.
  *
- * It throws instead of returning something, because the alternative is SQL that references a
- * function that does not exist - a runtime binder error at query time, far from its cause. An
- * emission that calls `udf` must declare `needs_udf_fallback`.
+ * It throws, because otherwise the SQL would reference a function that does not exist and fail
+ * at query time, far from the cause. A `sql` definition that calls `udf` must set
+ * `needs_udf_fallback`.
 */
 function noUdf(name: string): (value: string) => string {
     return () => {
         throw new Error(
-            `"${name}" has a sql emission that calls ctx.udf but does not set`
+            `"${name}" has a sql expression that calls ctx.udf but does not set`
             + ' `needs_udf_fallback: true`, so no UDF was registered'
         );
     };
@@ -492,8 +477,8 @@ function acceptsError<T extends Record<string, any>>(
 }
 
 /**
- * `validateAccepts` against one column's config - family-aware, so `Keyword` satisfies
- * `String`.
+ * Runs `validateAccepts` against one column's config. Types match by family, so `Keyword`
+ * satisfies `String`.
 */
 function typesError(
     types: readonly FieldType[],
@@ -519,18 +504,16 @@ function elementOf(config: DataTypeFieldAndChildren): DataTypeFieldConfig {
 }
 
 /**
- * Whether SQL maps the function over the column's elements, so the UDF sees ONE element at a
- * time - an array column under `INDIVIDUAL_VALUES`, which `applyToValues` wraps in
- * `list_transform`.
+ * Whether the function is applied to each element of an array column (`INDIVIDUAL_VALUES`), so
+ * the UDF receives one element at a time. `applyToValues` wraps these in `list_transform`.
 */
 function perElement(inputConfig: DataTypeFieldAndChildren, fullValues: boolean): boolean {
     return inputConfig.field_config.array === true && !fullValues;
 }
 
 /**
- * The UDF's parameter config: the element when SQL maps over the list, otherwise the whole
- * column - which for a `FULL_VALUES` function over an array column is the LIST it folds.
- * Registering the element type there was DF4: `dm_addvalues(DOUBLE)` for a `DOUBLE[]` column.
+ * The UDF's parameter config: the element type when the function runs per element, otherwise the
+ * whole column. For a `FULL_VALUES` function over an array column that is the whole list.
 */
 function udfParameter(
     inputConfig: DataTypeFieldAndChildren,
@@ -542,13 +525,12 @@ function udfParameter(
 }
 
 /**
- * The UDF's result config: what ONE call returns.
+ * The UDF's result config: what one call returns.
  *
- * Where SQL maps over the list, one call sees one element, so the result is the function's own
- * `output_type` applied to the ELEMENT - not the column's output with `array` dropped, which is
- * wrong for any function whose per-element result is itself an array (`split` on a `Keyword[]`).
- * Everywhere else one call sees the whole value, so its result is the column's output. Dropping
- * `array` unconditionally was DF4: `split` promised VARCHAR and returned a list.
+ * When the function runs per element, the result is `output_type` applied to the element. It is
+ * not the column's output config with `array` removed, which would be wrong when the per-element
+ * result is itself an array (`split` on a `Keyword[]`). Otherwise one call sees the whole value,
+ * so the result is the column's output config.
 */
 function udfResult<T extends Record<string, any>>(
     fnDef: FieldTransformConfig<T>,
@@ -567,22 +549,19 @@ function udfResult<T extends Record<string, any>>(
 }
 
 /**
- * A UDF name unique to this function and its TYPES - never its arguments, never the field.
+ * Returns a UDF name unique to the function and its types, not its arguments or field.
  *
- * **DuckDB cannot unregister a scalar function**, so every name is permanent. A name that included
- * the arguments made every new `lookup` table, regex or format a new function for the life of the
- * process - measured, 300 tables made 300 registrations in a worker that could only grow. The
- * arguments are a parameter instead (`udfCall`), so the count is bounded by the functions and data
- * types in use.
+ * DuckDB cannot unregister a scalar function, so every registered name is permanent. Arguments
+ * are passed as a parameter (`udfCall`) instead of being part of the name, so the number of
+ * registrations is bounded by the functions and types in use.
  *
- * **The types ARE part of it, and leaving the column type out was a real collision.** A
- * registration declares its parameter and result types, so `isBoolean` over a `Boolean` column and
- * over a `Keyword` column are two DuckDB functions; sharing a name meant the second query failed
- * to bind - `No function matches ... 'dm_isboolean_hk1m0p(VARCHAR)'`. The WHOLE config is hashed,
- * because `Number` and `Number[]`, or two Objects with different members, differ too.
+ * The types must be part of the name, because a registration declares its parameter and result
+ * types: `isBoolean` over a `Boolean` column and over a `Keyword` column are different DuckDB
+ * functions. The whole config is hashed, since `Number` and `Number[]`, or Objects with different
+ * members, also differ.
  *
- * `specialisedArgs` is the one unbounded path: arguments JSON cannot carry (see `argumentsText`),
- * which then specialise the UDF as before. None of the 767 example argument sets needs it.
+ * `specialisedArgs` is set only for arguments JSON cannot represent (see `argumentsText`); they
+ * are then included in the name, which is not bounded.
 */
 function udfName(name: string, types: readonly unknown[], specialisedArgs?: unknown): string {
     const specialised = specialisedArgs === undefined
@@ -592,9 +571,9 @@ function udfName(name: string, types: readonly unknown[], specialisedArgs?: unkn
 }
 
 /**
- * The validated arguments as the JSON text a UDF receives as its second parameter, or undefined
- * when JSON cannot carry them exactly - a non-finite number, a Date, a bigint. GraphQL arguments
- * are JSON, so in practice they always can.
+ * Returns the validated arguments as the JSON text a UDF receives as its second parameter, or
+ * undefined when JSON cannot represent them exactly (a non-finite number, a Date, a bigint).
+ * GraphQL arguments are JSON, so in practice this always succeeds for them.
 */
 function argumentsText(args: Record<string, unknown>): string | undefined {
     return isJSON(args) ? JSON.stringify(args) : undefined;
@@ -607,7 +586,7 @@ function isJSON(value: unknown): boolean {
     return Object.getPrototypeOf(value) === Object.prototype && Object.values(value).every(isJSON);
 }
 
-/** The registration's implementation: per argument set when they travel as JSON, else fixed. */
+/** The UDF implementation: built per argument set when arguments are passed as JSON. */
 function implementation<T>(
     args: T,
     argsText: string | undefined,
@@ -617,14 +596,14 @@ function implementation<T>(
     return { fnForArgs: (text) => implFor(JSON.parse(text) as T) };
 }
 
-/** SQL calling the UDF on `value` - the arguments its second parameter, when it takes them. */
+/** Returns SQL that calls the UDF on `value`, with the arguments JSON as a second parameter. */
 function udfCall(functionName: string, argsText: string | undefined): (value: string) => string {
     if (argsText === undefined) return (value) => `${functionName}(${value})`;
     const argsLiteral = quoteLiteral(argsText);
     return (value) => `${functionName}(${value}, ${argsLiteral})`;
 }
 
-/** Small stable string hash - only needs to avoid collisions between type signatures. */
+/** A small, stable string hash; it only needs to avoid collisions between type signatures. */
 function hash(input: string): string {
     let h = 5381;
     for (let i = 0; i < input.length; i++) {

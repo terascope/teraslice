@@ -10,12 +10,11 @@ import {
 } from '../../src/index.js';
 
 /**
- * `setTimezone`, `toTimeZone` and `toTimeZoneUsingLocation` return a `DateTuple` -
- * `[epochMillis, offsetMinutes]` - and `DataFrame` keeps it: the output renders in local time
- * (`...17:41:50.172+02:00`), and every later date function reads the offset (`getHours` answers
- * 17, not 15). TealFrame stored a TIMESTAMP and dropped it, so 121 of 250 chains below differed.
- * Every date is now `{ ms, tz_offset }` (`date-value.ts`), and the date SQL emissions read the
- * row's own offset - so these chains run as SQL, not through the UDF.
+ * `setTimezone`, `toTimeZone` and `toTimeZoneUsingLocation` return a `DateTuple`,
+ * `[epochMillis, offsetMinutes]`, and `DataFrame` keeps the offset: the output renders in local
+ * time (`...17:41:50.172+02:00`) and every later date function reads it (`getHours` answers 17,
+ * not 15). TealFrame stores every date as `{ ms, tz_offset }` (`date-value.ts`) and the date SQL
+ * expressions read the row's own offset, so these chains run as SQL rather than through the UDF.
 */
 
 const repo = functionConfigRepository as Record<string, FunctionDefinitionConfig<any>>;
@@ -121,8 +120,7 @@ describe('a DateTuple offset travels through TealFrame', () => {
         it('renders the offset in ndjson(), byte-equal to rows()', async () => {
             const { frame: chained } = await tealChain([[producer, producerArgs]]);
             const lines: string[] = [];
-            // every row written, so the lines line up with rows(); the default drops an all-null
-            // one
+            // write every row so the lines line up with rows(); the default drops an all-null row
             for await (const line of chained.ndjson({ removeNullFields: false })) lines.push(line);
             const fromRows: unknown[] = [];
             for await (const row of chained.rows()) fromRows.push(row.d);
@@ -191,8 +189,8 @@ describe('a DateTuple offset travels through TealFrame', () => {
     });
 
     /**
-     * A worker hands results between processes as Parquet. The struct is written as it is, and the
-     * reader renders it from the column TYPE - its config says `Date` either way.
+     * Results pass between processes as Parquet. The struct is written as it is, and the reader
+     * renders it from the column type, since its config says `Date` either way.
     */
     it('survives writeParquet -> fromParquet with the offset intact', async () => {
         const dir = await mkdtemp(join(tmpdir(), 'tz-offset-'));

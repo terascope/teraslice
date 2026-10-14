@@ -45,10 +45,10 @@ export const isYesterdayConfig: FieldValidateConfig = {
     ],
     description: 'Returns the input if it is on the day before (utc-time), otherwise returns null',
     /**
-     * Within yesterday's local day.
+     * True when the date falls on yesterday in the local timezone.
      *
-     * **"now" is resolved ONCE, at plan time**, where the UDF reads it per row - the accepted
-     * behaviour change recorded in `sql-utils.ts`.
+     * "Now" is read once when the query is planned, not per row as the UDF does; see
+     * `sql-utils.ts`.
     */
     sql: {
         types: [FieldType.Date],

@@ -9,7 +9,7 @@ const repo = functionConfigRepository as unknown as Record<
     string, FunctionDefinitionConfig<any>
 >;
 
-/** Every field-level function - the ones spaces exposes as GraphQL directives. */
+/** Every field-level function, the set exposed as GraphQL directives. */
 const FIELD_FUNCTIONS = Object.entries(repo)
     .filter(([, config]) => isFieldTransform(config) || isFieldValidation(config))
     .map(([name, config]) => ({ name, config }));
@@ -20,7 +20,7 @@ const SAMPLE: Partial<Record<FieldType, unknown>> = {
     [FieldType.Keyword]: 'Some Value',
     [FieldType.Text]: 'Some Value',
     // 0.5, not 12.5: acos/asin/atanh are only defined on [-1, 1] and return NaN (-> null)
-    // outside it, which is correct behaviour but makes the sweep look like it found a bug.
+    // outside it, which is correct but would look like a failure in the sweep.
     [FieldType.Number]: 0.5,
     [FieldType.Integer]: 12,
     [FieldType.Float]: 0.5,
@@ -40,12 +40,11 @@ const SAMPLE: Partial<Record<FieldType, unknown>> = {
 /**
  * Preference order for choosing which of a function's `accepts` types to feed it.
  *
- * Order matters a lot, and getting it wrong looks like an adapter bug when it is not:
- * - IP/CIDR functions list `String` first, so first-match feeds `getCIDRMin` `'Some Value'`
- * - date functions list `Number` before `Date`, so preferring "specific" feeds `toDate` `12.5`
+ * A wrong order makes the function reject the sample, which looks like an adapter bug:
+ * - IP/CIDR functions list `String` first, so first-match feeds `getCIDRMin` `'Some Value'`.
+ * - Date functions list `Number` before `Date`, so a numeric preference feeds `toDate` `12.5`.
  *
- * In both cases the FUNCTION correctly rejects the value. Semantic types come first, then
- * numerics, then the generic string types last.
+ * Semantic types therefore come first, then numerics, then the generic string types.
  */
 const TYPE_PREFERENCE: readonly FieldType[] = [
     FieldType.Date,
@@ -81,13 +80,11 @@ type Outcome
         | { kind: 'unmapped_type'; message: string }
         | { kind: 'no_sample' }
     /**
-     * The FUNCTION rejected the value - its own validation fired inside SQL. Not an adapter
-     * problem, and a meaningful positive: real field semantics are running in the query.
+     * The function rejected the value: its own validation fired inside SQL. That is not an
+     * adapter problem; it shows the real field semantics run in the query.
      *
-     * It does mean a throwing transform **aborts the whole query**, since the error propagates
-     * out of the UDF. That matches `DataFrame`, where a transform also throws and nothing
-     * catches it - so parity holds - but it is exactly the failure policy recorded as DEFERRED
-     * (flag-and-continue vs fail the batch).
+     * A throwing transform aborts the whole query, because the error propagates out of the UDF.
+     * `DataFrame` behaves the same way.
     */
         | { kind: 'rejected_input'; message: string }
         | { kind: 'failed'; message: string };
@@ -155,15 +152,15 @@ describe('every field function through tealFrameAdapter', () => {
     });
 
     it('covers the whole field-function surface', () => {
-        // if this number moves, a function was added or removed - the GraphQL directive
-        // surface changed, which is a public API change
+        // if this number changes, a function was added or removed, which changes the public
+        // set of GraphQL directives
         expect(FIELD_FUNCTIONS.length).toEqual(205);
         expect(outcomes.size).toEqual(FIELD_FUNCTIONS.length);
     });
 
     it('never fails for an UNEXPECTED reason', () => {
-        // Every failure must be one of the known, explained categories. A new kind of failure
-        // is a real gotcha and should be understood before it is added here.
+        // Every failure must fall into a known category. A new kind of failure should be
+        // understood before it is added here.
         const unexpected = [...outcomes.entries()]
             .filter(([, o]) => o.kind === 'failed')
             .map(([name, o]) => `${name}: ${(o as any).message}`);
@@ -177,31 +174,29 @@ describe('every field function through tealFrameAdapter', () => {
             return acc;
         }, {});
 
-        // A snapshot of where the port stands. Moving these numbers UP for `ran` is progress;
-        // moving them down is a regression.
+        // A snapshot of the outcomes. A higher `ran` count is progress; a lower one is a
+        // regression.
         expect(byKind).toEqual({
             // ran end-to-end: adapter -> UDF -> SQL -> rows(), with a real value out
             ran: 148,
             // declare required_arguments a sweep cannot invent (a regex, format, timezone...)
             needs_args: 48,
-            // the FUNCTION rejected the sample this harness chose - see `rejected_input`
+            // the function rejected the sample this sweep chose; see `rejected_input`
             rejected_input: 9,
         });
 
-        // **ZERO adapter failures across all 205 field functions.** Every non-`ran` outcome is
+        // No adapter failures across all the field functions. Every non-`ran` outcome is
         // either an argument the sweep cannot guess or the function's own validation firing.
         expect(byKind.failed ?? 0).toEqual(0);
     });
 
     it('produces a non-null result for every TRANSFORM that ran', () => {
-        // A transform that runs but nulls a perfectly good value is doing the wrong thing -
-        // that is how the null-skip and the missing value-conversion showed up.
+        // A transform that runs but nulls a valid value is doing the wrong thing.
         //
-        // Validations are excluded on purpose: they null by design when the predicate is false,
-        // and plenty legitimately are - `isMonday` on a Friday, `isFuture` on a past date.
-        // Domain-limited: no single numeric sample satisfies every inverse-trig domain at
-        // once - acos/asin/atanh need [-1, 1] while acosh needs [1, inf). Out of domain they
-        // return NaN, which becomes null. Correct, not a defect.
+        // Validations are excluded because they null by design when the predicate is false
+        // (`isMonday` on a Friday, `isFuture` on a past date). DOMAIN_LIMITED covers the
+        // inverse-trig functions: acos/asin/atanh need [-1, 1] while acosh needs [1, inf), so no
+        // single sample fits all of them, and out of domain they correctly return NaN (null).
         const DOMAIN_LIMITED = new Set(['acosh']);
 
         const nulled = [...outcomes.entries()]
@@ -215,11 +210,9 @@ describe('every field function through tealFrameAdapter', () => {
     });
 
     it('shows a throwing transform aborts the query, as it does in DataFrame', () => {
-        // The `rejected_input` cases prove real field semantics run inside SQL - including the
-        // throw. Nothing catches it, so one bad value kills the whole query. That MATCHES
-        // DataFrame (transforms throw there too and `mapVectorEachValue` has no try/catch), so
-        // parity holds - but the failure policy is still deferred: flag-and-continue versus
-        // failing the batch.
+        // The `rejected_input` cases show field semantics run inside SQL, including the throw.
+        // Nothing catches it, so one bad value aborts the whole query. DataFrame does the same:
+        // transforms throw there too and `mapVectorEachValue` has no try/catch.
         const rejected = [...outcomes.entries()]
             .filter(([, o]) => o.kind === 'rejected_input')
             .map(([name]) => name);

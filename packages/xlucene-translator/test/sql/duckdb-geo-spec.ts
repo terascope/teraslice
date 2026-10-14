@@ -7,10 +7,9 @@ import { DuckTestDB } from './duckdb-helpers.js';
 /**
  * The geo queries from `test/query/geo-spec.ts`, on the same shapes, run against DuckDB.
  *
- * **These need the `spatial` extension, which does NOT autoload** - a geo query without it
- * is a catalog error, not a slow path - and they are where the two engines are most likely
- * to disagree, because each brings its own geometry implementation. Where an expectation
- * differs from the OpenSearch one, the comment says why.
+ * These need the `spatial` extension, which does not autoload; without it a geo query fails
+ * with a catalog error. Each engine has its own geometry implementation, so where an
+ * expectation differs from the OpenSearch one, the comment says why.
 */
 describe('geo queries (duckdb)', () => {
     const table = 'geo_search';
@@ -95,7 +94,7 @@ describe('geo queries (duckdb)', () => {
         });
 
         /**
-         * A box is boundary-INCLUSIVE, which is why it is emitted as arithmetic: DuckDB's
+         * A bounding box includes its boundary, so it is generated as arithmetic. DuckDB's
          * `ST_Within` excludes the boundary and would drop this record.
         */
         it('includes a point on the boundary', async () => {
@@ -128,12 +127,12 @@ describe('geo queries (duckdb)', () => {
             });
 
             /**
-             * **A shape contains itself, and record 5 IS the query square.**
+             * A shape contains itself, and record 5 is the query square.
              *
-             * OpenSearch answers this one with the big polygon alone; `ST_Contains` applies OGC
-             * semantics, where a geometry contains an identical geometry. The SQL answer is the
-             * geometrically correct one, and this is the first of two places these tests assert
-             * it over the OpenSearch answer - the other is `within` with a holed polygon.
+             * OpenSearch returns only the big polygon. `ST_Contains` follows OGC semantics,
+             * where a geometry contains an identical geometry, which is the geometrically
+             * correct answer. This and `within` with a holed polygon are the two places these
+             * tests expect a different answer from OpenSearch.
             */
             it('with a polygon', async () => {
                 await expect(search('geoShape:geoPolygon(points:$shape, relation: contains)', { shape: polygon }))
@@ -188,9 +187,9 @@ describe('geo queries (duckdb)', () => {
             /**
              * Record 7 is the query shape itself, and a shape is within itself.
              *
-             * OpenSearch leaves it out here while including the identical shape in the test
-             * above, which is its own inconsistency about holes in a QUERY shape; `ST_Within`
-             * treats both the same way.
+             * OpenSearch leaves it out here but includes the identical shape in the test above,
+             * an inconsistency in how it handles holes in a query shape. `ST_Within` treats
+             * both the same way.
             */
             it('with a polygon that has holes', async () => {
                 await expect(search('geoShape:geoPolygon(points:$shape, relation: within)', { shape: holed }))
@@ -198,7 +197,7 @@ describe('geo queries (duckdb)', () => {
             });
         });
 
-        /** A points list, rather than a GeoJSON shape, is the other way to write one. */
+        /** A polygon can also be written as a points list instead of a GeoJSON shape. */
         it('takes a list of points', async () => {
             await expect(search('geoShape:geoPolygon(points:["0,0", "0,100", "60,100", "60,0"])'))
                 .resolves.toEqual(['3', '4', '5', '6', '7']);

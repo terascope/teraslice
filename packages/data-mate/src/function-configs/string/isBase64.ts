@@ -62,17 +62,13 @@ export const isBase64Config: FieldValidateConfig = {
         return isBase64;
     },
     /**
-     * **The SQL is correct where the JavaScript is not**, so the SQL is the behaviour.
+     * RFC 4648 base64 with padding, `validator.isBase64`'s default. This intentionally differs from
+     * the JavaScript implementation.
      *
-     * `core-utils`' `isBase64` calls `validator.isBase64` and then requires the value to survive
-     * `Buffer.from(x, 'base64').toString('utf8')` re-encoded back to base64. That round trip is
-     * lossy for any byte sequence that is not valid UTF-8, so the function **rejects 99.3% of
-     * valid base64-encoded binary** while accepting 100% of base64-encoded ASCII text - measured,
-     * 2,000 random payloads each. Base64 exists to carry binary, so the check fails at its own
-     * purpose.
-     *
-     * The emission is RFC 4648 with padding, which is `validator`'s default and the right answer.
-     * Every divergence is listed in the gate with the correct value.
+     * `core-utils`' `isBase64` calls `validator.isBase64` and then requires the value to survive a
+     * round trip through `Buffer.from(x, 'base64').toString('utf8')`. That round trip loses any
+     * bytes that are not valid UTF-8, so it rejects nearly all valid base64-encoded binary while
+     * accepting base64-encoded text. The SQL checks the base64 itself and accepts both.
     */
     sql: {
         expression: ({ value }) => isBase64Sql(value),

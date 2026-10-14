@@ -40,7 +40,7 @@ export const getCIDRMaxConfig: FieldTransformConfig = {
     create() {
         return getCIDRMax;
     },
-    /** The deprecated alias for `getLastUsableIPInCIDR`, and the same emission. */
+    /** The deprecated alias for `getLastUsableIPInCIDR`, with the same SQL. */
     sql: {
         needs_udf_fallback: true,
         expression: ({ value, udf }) => `CASE WHEN NOT ${isCIDRSql(value)}`

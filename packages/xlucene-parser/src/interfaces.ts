@@ -357,7 +357,7 @@ export interface FunctionMethodsResults {
 /**
  * What a function node produces when the query is translated to SQL.
  *
- * `query` is a boolean SQL expression, safe to inline into a larger one.
+ * `query` is a boolean SQL expression that is safe to embed in a larger one.
 */
 export interface FunctionSQLResults {
     query: string;
@@ -365,11 +365,10 @@ export interface FunctionSQLResults {
 }
 
 /**
- * The options a function node is given when emitting SQL.
+ * The options passed to a function node when generating SQL.
  *
- * Everything engine-specific is reached through `dialect`, so a function describes WHAT it
- * needs - a distance, a bounding box, a shape relation - and never how a particular engine
- * spells it.
+ * Engine-specific SQL comes from `dialect`, so a function says what it needs (a distance, a
+ * bounding box, a shape relation) without knowing the engine.
 */
 export type FunctionSQLOptions
     = {
@@ -390,8 +389,8 @@ export interface FunctionMethods {
         options: FunctionElasticsearchOptions
     ): FunctionMethodsResults;
     /**
-     * Optional because not every function has a SQL equivalent - `knn` has none, and a
-     * translator reports that as an unsupported query rather than emitting something wrong.
+     * Optional because not every function has a SQL equivalent (`knn` does not). The
+     * translator reports such a query as unsupported.
     */
     toSQLQuery?(
         field: string,

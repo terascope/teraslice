@@ -1,15 +1,13 @@
 /**
- * The result file, and the in-flight marker that makes a FATAL abort reportable.
+ * The result file, and the in-flight marker that lets a fatal abort be reported.
  *
- * Shared by `run.js` (which measures) and `sweep.js` (which supervises), because both have to
- * agree on the shape byte for byte.
+ * Shared by `run.js`, which measures, and `sweep.js`, which supervises, so both use the same
+ * format.
  *
- * **Why a marker file exists at all.** A big enough `DataFrame` case does not throw - V8 prints
- * `FATAL ERROR: Ineffective mark-compacts near heap limit` and aborts the process. Nothing
- * in-process can catch that, so the only way to record WHICH case died is to have written it
- * down before starting it. `sweep.js` reads the marker after a non-zero exit and turns it into an
- * `OOM` cell, which is the difference between the report saying "DataFrame cannot do this at 5M"
- * and the report having a hole where its best evidence should be.
+ * A large enough `DataFrame` case does not throw: V8 prints `FATAL ERROR: Ineffective
+ * mark-compacts near heap limit` and aborts the process. The only way to know which case died is
+ * to write it down before starting it. After a non-zero exit, `sweep.js` reads the marker and
+ * records that case as `OOM` instead of leaving it blank.
 */
 import fs from 'node:fs';
 import path from 'node:path';
@@ -17,7 +15,7 @@ import path from 'node:path';
 export const RESULTS_FILE = process.env.RESULTS || 'bench/comparison/.results.json';
 export const INFLIGHT_FILE = process.env.INFLIGHT || 'bench/comparison/.inflight.json';
 
-/** One row per scale+group+case, holding BOTH engines' halves. */
+/** One row per scale, group and case, holding both engines' results. */
 export const keyOf = (scale, group, name) => `${scale}::${group}::${name}`;
 
 export function loadResults(file = RESULTS_FILE) {
@@ -37,10 +35,8 @@ export function saveResults(state, file = RESULTS_FILE) {
 export const NOT_RUN = { ms: null, rows: null, note: 'not run' };
 
 /**
- * Indexes the rows by key so two processes can fill the same row from either side.
- *
- * A per-engine process only ever knows its own half, so replacing a scale's rows - which the
- * runner used to do - discarded the other engine's numbers the moment the second process ran.
+ * Indexes the rows by key, so that separate per-engine processes each fill in their own half of
+ * the same row without overwriting the other's.
 */
 export function indexRows(rows) {
     return new Map(rows.map((row) => [keyOf(row.scale, row.group, row.name), row]));
@@ -54,10 +50,8 @@ export function rowFor(index, { scale, group, name }) {
 }
 
 /**
- * Recomputes the row-count check ACROSS the two halves, whichever process measured them.
- *
- * `SKIPPED` and failed halves report `rows: null`, which is not a mismatch - only two real
- * counts that disagree are.
+ * Recomputes the row-count check across both halves, whichever process measured them. Skipped
+ * and failed halves report `rows: null`, which never counts as a mismatch.
 */
 export function withMismatch(row) {
     row.mismatch = row.df.rows != null && row.duck.rows != null && row.df.rows !== row.duck.rows
@@ -68,7 +62,7 @@ export function withMismatch(row) {
 
 // ------------------------------------------------------------------ in-flight marker
 
-/** Written BEFORE a half is measured, so a process death can be attributed to it. */
+/** Written before a half is measured, so a process death can be attributed to it. */
 export function markInflight(entry, file = INFLIGHT_FILE) {
     fs.mkdirSync(path.dirname(file), { recursive: true });
     fs.writeFileSync(file, JSON.stringify(entry));
