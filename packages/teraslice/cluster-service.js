@@ -45,9 +45,9 @@ async function main() {
     context.logger = makeLogger(context, 'cluster-service');
     const cmd = new Service(context);
 
-    cmd.shutdownHandler = shutdownHandler(context, () => {
+    cmd.shutdownHandler = shutdownHandler(context, (deadline) => {
         if (!cmd.instance) return Promise.resolve();
-        return cmd.instance.shutdown();
+        return cmd.instance.shutdown(deadline);
     });
 
     try {

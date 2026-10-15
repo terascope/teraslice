@@ -10,6 +10,7 @@ describe('ExecutionController', () => {
         let testContext: TestContext;
         let exController: ExecutionController;
         let executionStorage!: ExecutionStorage;
+        const shutdownTimeout = 4000;
 
         beforeEach(async () => {
             const port = await findPort();
@@ -34,9 +35,11 @@ describe('ExecutionController', () => {
 
             executionStorage = testContext.stores.executionStorage as ExecutionStorage;
 
-            testContext.attachCleanup(() => exController.shutdown().catch(() => {
-                /* ignore-error */
-            }));
+            testContext.attachCleanup(
+                () => exController.shutdown(Date.now() + shutdownTimeout).catch(() => {
+                    /* ignore-error */
+                })
+            );
         });
 
         afterEach(() => testContext.cleanup());
@@ -90,6 +93,7 @@ describe('ExecutionController', () => {
         let executionStorage: ExecutionStorage;
         let exController: ExecutionController;
         const probationWindow = 500;
+        const shutdownTimeout = 4000;
 
         beforeEach(async () => {
             const port = await findPort();
@@ -114,9 +118,11 @@ describe('ExecutionController', () => {
             await testContext.addExStore();
             executionStorage = testContext.stores.executionStorage as ExecutionStorage;
 
-            testContext.attachCleanup(() => exController.shutdown().catch(() => {
-                /* ignore-error */
-            }));
+            testContext.attachCleanup(
+                () => exController.shutdown(Date.now() + shutdownTimeout).catch(() => {
+                    /* ignore-error */
+                })
+            );
         });
 
         afterEach(() => testContext.cleanup());
@@ -247,9 +253,7 @@ describe('ExecutionController', () => {
                 expect(exController.slicerFailed).toBeTrue();
 
                 expect(setStatus).toHaveBeenCalledWith(testContext.exId, 'failed', errMeta);
-                const errMsg = `TSError: slicer for ex ${
-                    testContext.exId
-                } had an error, shutting down execution, caused by Uh oh`;
+                const errMsg = `TSError: slicer for ex ${testContext.exId} had an error, shutting down execution, caused by Uh oh`;
                 expect(executionMetaData.mock.calls[0][0]).toEqual(stats);
                 expect(executionMetaData.mock.calls[0][1]).toStartWith(errMsg);
 
@@ -278,11 +282,12 @@ describe('ExecutionController', () => {
     describe('when testing shutdown', () => {
         let testContext: TestContext;
         let exController: ExecutionController;
+        const shutdownTimeout = 100;
 
         beforeEach(async () => {
             testContext = new TestContext({
                 assignment: 'execution_controller',
-                shutdownTimeout: 100
+                shutdownTimeout
             });
 
             await testContext.initialize();
@@ -292,15 +297,17 @@ describe('ExecutionController', () => {
                 testContext.executionContext as any
             );
 
-            testContext.attachCleanup(() => exController.shutdown().catch(() => {
-                /* ignore-error */
-            }));
+            testContext.attachCleanup(
+                () => exController.shutdown(Date.now() + shutdownTimeout).catch(() => {
+                    /* ignore-error */
+                })
+            );
         });
 
         afterEach(() => testContext.cleanup());
 
         describe('when not initialized', () => {
-            it('should resolve', () => expect(exController.shutdown()).resolves.toBeNil());
+            it('should resolve', () => expect(exController.shutdown(Date.now() + shutdownTimeout)).resolves.toBeNil());
         });
 
         describe('when initialized', () => {
@@ -312,21 +319,22 @@ describe('ExecutionController', () => {
             describe('when controller is already being shutdown', () => {
                 beforeEach(() => {
                     // @ts-expect-error
-                    exController.isShuttingDown = true;
+                    exController.shutdownDeadline = Date.now() + shutdownTimeout;
                 });
 
                 it('should resolve when shutdown passes', async () => {
                     setTimeout(() => {
                         exController.events.emit('worker:shutdown:complete');
                     });
-                    await expect(exController.shutdown()).resolves.toBeNil();
+                    await expect(exController.shutdown(Date.now() + shutdownTimeout))
+                        .resolves.toBeNil();
                 });
 
                 it('should reject when shutdown fails', async () => {
                     setTimeout(() => {
                         exController.events.emit('worker:shutdown:complete', new Error('Uh oh'));
                     });
-                    await expect(exController.shutdown()).rejects.toThrow('Uh oh');
+                    await expect(exController.shutdown(Date.now() + shutdownTimeout)).rejects.toThrow('Uh oh');
                 });
             });
 
@@ -354,7 +362,7 @@ describe('ExecutionController', () => {
                     };
                     // @ts-expect-error
                     exController.scheduler = {
-                        stop: () => {},
+                        stop: () => { },
                         shutdown: () => Promise.reject(new Error('Scheduler Error'))
                     };
                     // @ts-expect-error
@@ -370,7 +378,7 @@ describe('ExecutionController', () => {
                 it('should reject with all of the errors', async () => {
                     expect.hasAssertions();
                     try {
-                        await exController.shutdown();
+                        await exController.shutdown(Date.now() + shutdownTimeout);
                     } catch (err) {
                         const errMsg = err.toString();
                         expect(errMsg).toStartWith('Error: Failed to shutdown correctly');
@@ -395,11 +403,12 @@ describe('ExecutionController', () => {
         describe('when there is no log_level set in either job configuration or terafoundation', () => {
             let testContext: TestContext;
             let exController: ExecutionController;
+            const shutdownTimeout = 100;
 
             beforeEach(async () => {
                 testContext = new TestContext({
                     assignment: 'execution_controller',
-                    shutdownTimeout: 100
+                    shutdownTimeout
                 });
 
                 await testContext.initialize();
@@ -409,9 +418,11 @@ describe('ExecutionController', () => {
                     testContext.executionContext as any
                 );
 
-                testContext.attachCleanup(() => exController.shutdown().catch(() => {
-                    /* ignore-error */
-                }));
+                testContext.attachCleanup(
+                    () => exController.shutdown(Date.now() + shutdownTimeout).catch(() => {
+                        /* ignore-error */
+                    })
+                );
             });
 
             it('should have a logger with log_level info', async () => {
@@ -424,11 +435,12 @@ describe('ExecutionController', () => {
         describe('when no log_level is set in job configuration and terafoundation log level is error', () => {
             let testContext: TestContext;
             let exController: ExecutionController;
+            const shutdownTimeout = 100;
 
             beforeEach(async () => {
                 testContext = new TestContext({
                     assignment: 'execution_controller',
-                    shutdownTimeout: 100,
+                    shutdownTimeout,
                     log_level_terafoundation: 'error'
                 });
 
@@ -439,9 +451,11 @@ describe('ExecutionController', () => {
                     testContext.executionContext as any
                 );
 
-                testContext.attachCleanup(() => exController.shutdown().catch(() => {
-                    /* ignore-error */
-                }));
+                testContext.attachCleanup(
+                    () => exController.shutdown(Date.now() + shutdownTimeout).catch(() => {
+                        /* ignore-error */
+                    })
+                );
             });
 
             it('should have a logger with log_level error', async () => {
@@ -470,9 +484,13 @@ describe('ExecutionController', () => {
                     testContext.executionContext as any
                 );
 
-                testContext.attachCleanup(() => exController.shutdown().catch(() => {
-                    /* ignore-error */
-                }));
+                testContext.attachCleanup(
+                    () => exController.shutdown(
+                        Date.now() + testContext.sysconfig.teraslice.shutdown_timeout
+                    ).catch(() => {
+                        /* ignore-error */
+                    })
+                );
             });
 
             it('should have a logger with log_level trace', async () => {

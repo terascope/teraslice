@@ -8,12 +8,12 @@ import {
     TSError, includes, get,
     pDelay, getFullErrorStack, logError,
     pWhile, type Logger, debounce, throttle,
-    makeISODate
+    makeISODate, msUntilUnixTime
 } from '@terascope/core-utils';
 import {
     Context, SlicerExecutionContext, Slice, isPromAvailable
 } from '@terascope/job-components';
-import { waitForWorkerShutdown } from '../helpers/worker-shutdown.js';
+import { waitForWorkerShutdown, getPhaseDeadline } from '../helpers/worker-shutdown.js';
 import { StateStorage, ExecutionStorage, SliceState } from '../../storage/index.js';
 import { makeLogger, generateWorkerId } from '../helpers/terafoundation.js';
 import { ExecutionAnalytics } from './execution-analytics.js';
@@ -50,6 +50,7 @@ export class ExecutionController {
     readonly workerId: string;
     readonly exId: string;
     private readonly shutdownTimeout: number;
+    private shutdownDeadline?: number;
     private readonly workerDisconnectTimeout: number;
     private readonly collectAnalytics: boolean;
     private slicerAnalytics!: SliceAnalytics;
@@ -419,7 +420,12 @@ export class ExecutionController {
         await this._endExecution();
     }
 
-    async shutdown(eventType?: string, shutdownError?: Error, block: boolean = true) {
+    async shutdown(
+        deadline: number,
+        eventType?: string,
+        shutdownError?: Error,
+        block: boolean = true
+    ) {
         if (eventType === 'error' && shutdownError) {
             /// Add errors to this list as needed. Errors not in this list won't cleanup resources
             const errorList = [
@@ -452,7 +458,13 @@ export class ExecutionController {
 
         if (this.isShutdown) return;
         if (!this.isInitialized) return;
-        if (this.isShuttingDown) {
+        // TODO: This only happens when shutdown() is called a second time.
+        // This happens in testing, but I see no way that it could
+        // happen on a real teraslice instance. Should we remove this?
+        // Switched to shutdownDeadline because it is set before the first
+        // await below, while isShuttingDown is set later so dispatching continues
+        // while the scheduler stops
+        if (this.shutdownDeadline !== undefined) {
             const msgs = [
                 'execution',
                 `shutdown was called for ${this.exId}`,
@@ -461,12 +473,19 @@ export class ExecutionController {
             ];
             this.logger.debug(msgs.join(' '));
 
+            // Only reachable when shutdown() is called directly, as in the tests.
+            // In production shutdownHandler() only calls shutdown() once.
             if (block) {
-                await waitForWorkerShutdown(this.context, 'worker:shutdown:complete');
+                await waitForWorkerShutdown(
+                    this.shutdownDeadline,
+                    this.context,
+                    'worker:shutdown:complete'
+                );
             }
             return;
         }
 
+        this.shutdownDeadline = deadline;
         this.logger.debug(`execution shutdown was called for ex ${this.exId}`);
 
         const shutdownErrs: Error[] = [];
@@ -474,11 +493,18 @@ export class ExecutionController {
             shutdownErrs.push(err);
         };
 
+        // the pending slices must be written and the execution must finish by this time,
+        // leaving the rest for the analytics push, server close delay, scheduler,
+        // and stores to shutdown
+        const phaseDeadline = getPhaseDeadline(
+            deadline, this.shutdownTimeout, 'execution_controller'
+        );
+
         // allow clients to go immediately from disconnect to offline
         this.server.isShuttingDown = true;
 
         // tell the scheduler to stop producing slices
-        await this.scheduler.stop();
+        await this.scheduler.stop(phaseDeadline);
 
         // remove any listeners
         for (const [event, handler] of this._handlers.entries()) {
@@ -496,7 +522,7 @@ export class ExecutionController {
         clearTimeout(this.workerDisconnectTimeoutId);
         clearInterval(this.verifyStoresInterval);
 
-        await this._waitForExecutionFinished();
+        await this._waitForExecutionFinished(phaseDeadline);
 
         await Promise.all([
             (async () => {
@@ -506,29 +532,32 @@ export class ExecutionController {
             })(),
             (async () => {
                 // the execution analytics must be shutdown
-                // before the message client
-                await this.executionAnalytics.shutdown().catch(pushError);
+                // before the message client. Leave time for the
+                // client shutdown message to be sent.
+                await this.executionAnalytics.shutdown(
+                    msUntilUnixTime(deadline - 500)
+                ).catch(pushError);
 
                 await this.client.shutdown().catch(pushError);
             })(),
             (async () => {
-                await this.scheduler.shutdown().catch(pushError);
+                await this.scheduler.shutdown(deadline).catch(pushError);
             })(),
             (async () => {
-                await this.server.shutdown().catch(pushError);
+                await this.server.shutdown(msUntilUnixTime(deadline, 100)).catch(pushError);
             })(),
             (async () => {
                 await Promise.all([
                     (async () => {
                         try {
-                            await this.stateStorage.shutdown(true);
+                            await this.stateStorage.shutdown(true, msUntilUnixTime(deadline));
                         } catch (err) {
                             pushError(err);
                         }
                     })(),
                     (async () => {
                         try {
-                            await this.executionStorage.shutdown(true);
+                            await this.executionStorage.shutdown(true, msUntilUnixTime(deadline));
                         } catch (err) {
                             pushError(err);
                         }
@@ -733,7 +762,7 @@ export class ExecutionController {
 
     async _endExecution() {
         this.isExecutionDone = true;
-        await this.scheduler.shutdown();
+        await this.scheduler.shutdown(Date.now() + this.shutdownTimeout);
     }
 
     _updateExecutionStatsNow() {
@@ -906,9 +935,8 @@ export class ExecutionController {
         await checkPendingSlices();
     }
 
-    _waitForExecutionFinished() {
-        const timeout = Math.round(this.shutdownTimeout * 0.8);
-        const shutdownAt = timeout + Date.now();
+    _waitForExecutionFinished(deadline: number) {
+        const timeout = msUntilUnixTime(deadline);
 
         const logShuttingDown = throttle(() => {
             this.logger.debug('shutdown is waiting for execution to finish...');
@@ -923,13 +951,13 @@ export class ExecutionController {
             if (!this.client.ready) return null;
 
             const now = Date.now();
-            if (now > shutdownAt) {
+            if (now > deadline) {
                 this.logger.error(
                     `Shutdown timeout of ${ms(timeout)} waiting for execution ${
                         this.exId
                     } to finish...`
                 );
-                this.logger.debug(`Execution controller state vars at timeout:\nisExecutionDone: ${this.isExecutionDone}\nclient.ready: ${this.client.ready}\n`
+                this.logger.info(`Execution controller state vars at timeout:\nisExecutionDone: ${this.isExecutionDone}\nclient.ready: ${this.client.ready}\n`
                     + `onlineClientCount: ${this.server.onlineClientCount}\nserver.isShuttingDown: ${this.server.isShuttingDown}`
                     + `isShuttingDown: ${this.isShuttingDown}\nisShutdown: ${this.isShutdown}\n`
                     + `isDoneDispatching: ${this.isDoneDispatching}\npendingDispatches: ${this.pendingDispatches}\n`

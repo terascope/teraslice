@@ -33,7 +33,9 @@ describe('Worker', () => {
 
         const worker = new Worker(testContext.context, testContext.executionContext as any);
 
-        testContext.attachCleanup(() => worker.shutdown());
+        testContext.attachCleanup(
+            () => worker.shutdown(Date.now() + worker.shutdownTimeout)
+        );
 
         return { server, worker, testContext };
     }
@@ -60,12 +62,12 @@ describe('Worker', () => {
 
             server.onSliceSuccess((workerId, _msg) => {
                 sliceSuccess = _msg;
-                shutdownPromise = worker.shutdown();
+                shutdownPromise = worker.shutdown(Date.now() + worker.shutdownTimeout);
             });
 
             server.onSliceFailure((workerId, _msg) => {
                 sliceFailure = _msg;
-                shutdownPromise = worker.shutdown();
+                shutdownPromise = worker.shutdown(Date.now() + worker.shutdownTimeout);
             });
 
             await worker.run();
@@ -321,7 +323,7 @@ describe('Worker', () => {
 
         it('should not have a shutdown err', async () => {
             const promise = server.sendExecutionFinishedToAll(testContext.exId);
-            await expect(worker.shutdown()).resolves.toBeNil();
+            await expect(worker.shutdown(Date.now() + worker.shutdownTimeout)).resolves.toBeNil();
             expect(workerShutdownEvent).toHaveBeenCalled();
             await promise;
         });
@@ -350,7 +352,7 @@ describe('Worker', () => {
 
             let shutdown;
             worker.events.once('slice:initialize', () => {
-                shutdown = worker.shutdown().catch((err) => {
+                shutdown = worker.shutdown(Date.now() + worker.shutdownTimeout).catch((err) => {
                     shutdownErr = err;
                 });
             });
@@ -362,9 +364,10 @@ describe('Worker', () => {
         afterEach(() => testContext.cleanup());
 
         it('shutdown should throw an error', () => {
-            const errMsg = 'Error: Failed to shutdown correctly: Error: Worker shutdown timeout after 0.5 seconds, forcing shutdown';
+            // shutdown_timeout 500 - finalPhaseReserve 150 = ~0.35 seconds
+            const errMsg = /^Error: Failed to shutdown correctly: Error: Worker shutdown timeout after 0\.3\d* seconds while waiting for slice to finish, forcing shutdown/;
             expect(shutdownErr).not.toBeNil();
-            expect(shutdownErr.toString()).toStartWith(errMsg);
+            expect(shutdownErr.toString()).toMatch(errMsg);
         });
     });
 
@@ -392,7 +395,7 @@ describe('Worker', () => {
         afterEach(() => testContext.cleanup());
 
         describe('when not initialized', () => {
-            it('should resolve', () => expect(worker.shutdown()).resolves.toBeNil());
+            it('should resolve', () => expect(worker.shutdown(Date.now() + worker.shutdownTimeout)).resolves.toBeNil());
         });
 
         describe('when initialized', () => {
@@ -409,14 +412,15 @@ describe('Worker', () => {
                     setTimeout(() => {
                         worker.events.emit('worker:shutdown:complete');
                     });
-                    await expect(worker.shutdown()).resolves.toBeNil();
+                    await expect(worker.shutdown(Date.now() + worker.shutdownTimeout))
+                        .resolves.toBeNil();
                 });
 
                 it('should reject when shutdown fails', async () => {
                     setTimeout(() => {
                         worker.events.emit('worker:shutdown:complete', new Error('Uh oh'));
                     });
-                    await expect(worker.shutdown()).rejects.toThrow('Uh oh');
+                    await expect(worker.shutdown(Date.now() + worker.shutdownTimeout)).rejects.toThrow('Uh oh');
                 });
             });
 
@@ -445,7 +449,7 @@ describe('Worker', () => {
                 it('should reject with all of the errors', async () => {
                     expect.hasAssertions();
                     try {
-                        await worker.shutdown();
+                        await worker.shutdown(Date.now() + worker.shutdownTimeout);
                     } catch (err) {
                         const errMsg = err.toString();
                         expect(errMsg).toStartWith('Error: Failed to shutdown correctly');

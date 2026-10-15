@@ -266,6 +266,17 @@ export function isUnixTimeFP(allowBefore1970?: boolean) {
 }
 
 /**
+ * Returns the number of milliseconds until a Unix timestamp
+ * will be reached or a minimum value (floor)
+*/
+export function msUntilUnixTime(timestamp: number, floor = 1000): number {
+    if (!isUnixTime(timestamp)) {
+        throw new Error(`Timestamp ${timestamp} is not a valid unix time`);
+    }
+    return Math.max(timestamp - Date.now(), floor);
+}
+
+/**
  * Checks to see if an input is a ISO 8601 date
 */
 export function isISO8601(input: unknown): input is string {
