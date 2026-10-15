@@ -230,7 +230,7 @@ export class WorkerExecutionContext
         }, retryOptions);
     }
 
-    async flush(): Promise<RunSliceResult | undefined> {
+    async flush(deadline?: number): Promise<RunSliceResult | undefined> {
         if (!this.sliceState) return;
         if (this.sliceState.status === 'failed') return;
         if (this.status === 'shutdown') return;
@@ -246,9 +246,13 @@ export class WorkerExecutionContext
 
         if (this.processingSlice) {
             this.logger.info(`waiting until slice ${this._sliceId} is finished before flushing`, { position });
-
-            const workerShutdown = this.context.sysconfig.teraslice.shutdown_timeout;
-            const timeoutMs = Math.round(workerShutdown * 0.8);
+            const shutdownTimeout = deadline
+                ? ts.msUntilUnixTime(deadline, 100)
+                : this.context.sysconfig.teraslice.shutdown_timeout;
+            // time left for the flush run below. This is not enforced here,
+            // the caller is responsible for timing out at the deadline
+            const FLUSH_RESERVE = shutdownTimeout * 0.2;
+            const processSliceTimeout = Math.round(shutdownTimeout - FLUSH_RESERVE);
 
             await new Promise<void>((resolve) => {
                 const startTime = Date.now();
@@ -259,12 +263,12 @@ export class WorkerExecutionContext
                     }
 
                     const elapsed = Date.now() - startTime;
-                    if (elapsed >= timeoutMs) {
+                    if (elapsed >= processSliceTimeout) {
                         this.logger.error(
                             new ts.TSError('Timeout waiting for slice to finish before flushing', {
                                 context: {
                                     start: new Date(startTime),
-                                    timeoutMs,
+                                    timeoutMs: processSliceTimeout,
                                     sliceState: this.sliceState,
                                 },
                             })

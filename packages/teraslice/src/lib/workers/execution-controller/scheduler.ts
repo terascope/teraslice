@@ -1,7 +1,7 @@
 import {
     noop, pDelay, get, toString,
     logError, pWhile, Logger,
-    Queue, makeISODate
+    Queue, makeISODate, msUntilUnixTime
 } from '@terascope/core-utils';
 import type { EventEmitter } from 'node:events';
 import type {
@@ -23,6 +23,7 @@ export class Scheduler {
     recovering: boolean;
     readonly autorecover: boolean;
     private _creating = 0;
+    private _writingSlices = new Set<Slice>();
     ready = false;
     paused = true;
     stopped = false;
@@ -144,7 +145,7 @@ export class Scheduler {
         this.paused = false;
     }
 
-    async stop() {
+    async stop(deadline: number) {
         if (this.stopped) return;
 
         this.logger.debug('stopping scheduler...');
@@ -158,7 +159,30 @@ export class Scheduler {
         this._resolveRun();
         this._resolveRun = noop;
 
-        await drain;
+        let timeoutId: NodeJS.Timeout | undefined;
+        const timedOut = await Promise.race([
+            drain.then(() => false),
+            new Promise<boolean>((resolve) => {
+                timeoutId = setTimeout(() => resolve(true), msUntilUnixTime(deadline, 100));
+                timeoutId.unref();
+            })
+        ]).finally(() => clearTimeout(timeoutId));
+
+        if (!timedOut) return;
+
+        // the drain keeps running in the background, so a
+        // late failure must not become an unhandled rejection
+        drain.catch((err) => {
+            logError(this.logger, err, 'failure draining pending slices after stop timeout');
+        });
+
+        const sliceIds = [...this._writingSlices].map((slice) => slice.slice_id);
+        this.logger.error(
+            `timed out waiting for pending slices to be written to the state store, `
+            + `${sliceIds.length} slices may not have been recorded and `
+            + `${this.pendingSlicerCount} slices remain in the slicer queue. `
+            + `slice_ids: ${sliceIds.join(', ')}`
+        );
     }
 
     pause() {
@@ -215,12 +239,12 @@ export class Scheduler {
         return this.ready && this.recovering;
     }
 
-    async shutdown() {
-        await this.stop();
+    async shutdown(deadline: number) {
+        await this.stop(deadline);
 
         if (this.recover) {
             try {
-                await this.recover.shutdown();
+                await this.recover.shutdown(deadline);
             } catch (err) {
                 logError(this.logger, err, 'failed to shutdown recovery');
             }
@@ -415,6 +439,7 @@ export class Scheduler {
         if (!slices.length) return;
 
         this._creating += slices.length;
+        for (const slice of slices) this._writingSlices.add(slice);
 
         try {
             const count = await this.stateStorage.createSlices(this.exId, slices);
@@ -427,6 +452,8 @@ export class Scheduler {
             } else {
                 logError(this.logger, err, 'failure creating slices');
             }
+        } finally {
+            for (const slice of slices) this._writingSlices.delete(slice);
         }
     }
 

@@ -96,9 +96,9 @@ export class AnalyticsStorage {
         return this.backend.remove(recordId, index);
     }
 
-    async shutdown(forceShutdown: boolean) {
+    async shutdown(forceShutdown: boolean, timeout?: number) {
         this.logger.info('shutting down.');
-        return this.backend.shutdown(forceShutdown);
+        return this.backend.shutdown(forceShutdown, timeout);
     }
 
     async refresh() {

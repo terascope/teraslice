@@ -190,10 +190,13 @@ describe('ExecutionController Test Cases', () => {
 
             const {
                 network_latency_buffer: networkLatencyBuffer,
-                action_timeout: actionTimeout
+                action_timeout: actionTimeout,
+                shutdown_timeout: shutdownTimeout
             } = testContext.context.sysconfig.teraslice;
 
-            testContext.attachCleanup(() => exController.shutdown());
+            testContext.attachCleanup(
+                () => exController.shutdown(Date.now() + shutdownTimeout)
+            );
 
             const opCount = testContext.executionContext.config.operations.length;
 

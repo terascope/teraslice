@@ -1,5 +1,6 @@
 import {
-    pRaceWithTimeout, logError, Logger, Queue
+    pRaceWithTimeout, logError, Logger, Queue,
+    msUntilUnixTime
 } from '@terascope/core-utils';
 import type {
     Context, ExecutionContext, RecoveryCleanupType,
@@ -24,7 +25,6 @@ export class RecoveryModule {
     private recoverExecution: string | undefined;
     private readonly exId: string;
     private stateStore!: StateStorage;
-    private readonly timeout: number;
 
     constructor(context: Context, executionContext: ExecutionContext) {
         const { exId } = executionContext;
@@ -37,7 +37,6 @@ export class RecoveryModule {
         this.autorecover = Boolean(executionContext.config.autorecover);
         this.exId = exId;
         this.logger = makeLogger(context, 'execution_recovery');
-        this.timeout = context.sysconfig.teraslice.shutdown_timeout;
     }
 
     initialize(stateStore: StateStorage) {
@@ -150,8 +149,9 @@ export class RecoveryModule {
         return this.recoveryQueue.size();
     }
 
-    async shutdown() {
+    async shutdown(deadline: number) {
         let checkInterval;
+        const timeout = msUntilUnixTime(deadline);
 
         try {
             await pRaceWithTimeout(
@@ -162,7 +162,7 @@ export class RecoveryModule {
                         }
                     }, 100);
                 }),
-                this.timeout,
+                timeout,
                 (err) => {
                     logError(this.logger, err);
                 }

@@ -474,9 +474,11 @@ export class TerasliceElasticsearchStorage {
         return true;
     }
 
-    async shutdown(forceShutdown = false) {
+    async shutdown(
+        forceShutdown = false,
+        timeout = this.context.sysconfig.teraslice.shutdown_timeout
+    ) {
         const startTime = Date.now();
-        this.logger.trace(`shutdown store, took ${ms(Date.now() - startTime)}`);
 
         clearInterval(this.flushInterval);
 
@@ -485,9 +487,8 @@ export class TerasliceElasticsearchStorage {
         }
 
         const destroy = this._destroy.bind(this);
-        const timeout = this.context.sysconfig.teraslice.shutdown_timeout;
 
-        this.logger.trace(`attempting to shutdown, will destroy in ${timeout}`);
+        this.logger.trace(`attempting to shutdown, will destroy in ${ms(timeout)}`);
         setTimeout(destroy, timeout).unref();
 
         try {
@@ -495,6 +496,8 @@ export class TerasliceElasticsearchStorage {
             this._destroy();
         } catch (err) {
             this._destroy(err);
+        } finally {
+            this.logger.trace(`shutdown store, took ${ms(Date.now() - startTime)}`);
         }
     }
 
