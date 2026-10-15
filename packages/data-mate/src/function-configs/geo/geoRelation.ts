@@ -7,6 +7,10 @@ import {
     FieldValidateConfig, ProcessMode, FunctionDefinitionType,
     FunctionDefinitionCategory, FunctionDefinitionExample
 } from '../interfaces.js';
+import {
+    isGeoColumn, isGeoArg, asGeometry, constantGeometry, tryPredicate, relationFunction,
+    isScalarColumn
+} from './sql-utils.js';
 
 export interface GeoRelationArgs {
     value: GeoInput;
@@ -100,6 +104,20 @@ export const geoRelationConfig: FieldValidateConfig<GeoRelationArgs> = {
     description: `Returns the input if it relates, as specified in the relation argument, to the argument value (defaults to "${GeoShapeRelation.Within}"), otherwise returns null`,
     create({ args: { value, relation = GeoShapeRelation.Within } }) {
         return geoRelationFP(value, relation);
+    },
+    /**
+     * Uses the same `ST_*` function as the matching predicate, so it gives the same answers:
+     * `intersects` and `disjoint` match `geo-utils`, while `within` and `contains` differ for
+     * shapes that touch a hole's edge. See `geoContains`.
+    */
+    sql: {
+        applies: (args, inputConfig) => isScalarColumn(inputConfig)
+            && isGeoColumn(inputConfig)
+            && isGeoArg(args.value)
+            && relationFunction(args.relation) != null,
+        expression: ({ value, args, inputConfig }) => tryPredicate(
+            `${relationFunction(args.relation)}(${asGeometry(value, inputConfig)}, ${constantGeometry(args.value)})`
+        ),
     },
     accepts: [
         FieldType.GeoJSON,

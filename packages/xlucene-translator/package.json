@@ -1,7 +1,7 @@
 {
     "name": "xlucene-translator",
     "displayName": "xLucene Translator",
-    "version": "2.23.0",
+    "version": "2.24.0",
     "description": "Translate xlucene query to database queries",
     "homepage": "https://github.com/terascope/teraslice/tree/master/packages/xlucene-translator#readme",
     "repository": {
@@ -34,10 +34,13 @@
     "dependencies": {
         "@terascope/core-utils": "workspace:~",
         "@terascope/geo-utils": "workspace:~",
+        "@terascope/ip-utils": "workspace:~",
+        "@terascope/sql-builder": "workspace:~",
         "@terascope/types": "workspace:~",
         "xlucene-parser": "workspace:~"
     },
     "devDependencies": {
+        "@duckdb/node-api": "1.5.5-r.3",
         "@terascope/data-types": "workspace:~",
         "@terascope/opensearch-client": "workspace:~",
         "jest-extended": "catalog:"

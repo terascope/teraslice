@@ -5,6 +5,7 @@ import {
     FunctionDefinitionType,
     FunctionDefinitionCategory,
 } from '../interfaces.js';
+import { finiteOrNull } from '../sql-helpers.js';
 import { runMathFn } from './utils.js';
 
 export const absConfig: FieldTransformConfig = {
@@ -27,6 +28,10 @@ export const absConfig: FieldTransformConfig = {
     ],
     create() {
         return runMathFn(Math.abs);
+    },
+    /** Native `abs`, keeping `runMathFn`'s rule that a non-finite result is null. */
+    sql: {
+        expression: ({ value }) => finiteOrNull(`abs(${value})`),
     },
     accepts: [
         FieldType.Number,

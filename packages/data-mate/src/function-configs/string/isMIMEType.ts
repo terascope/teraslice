@@ -4,6 +4,7 @@ import {
     FieldValidateConfig, ProcessMode, FunctionDefinitionExample,
     FunctionDefinitionType, FunctionDefinitionCategory
 } from '../interfaces.js';
+import { matchesAny, MIME_SQL_PATTERNS } from './sql-validator-utils.js';
 
 const examples: FunctionDefinitionExample<Record<string, unknown>>[] = [
     {
@@ -70,6 +71,15 @@ export const isMIMETypeConfig: FieldValidateConfig = {
     process_mode: ProcessMode.INDIVIDUAL_VALUES,
     category: FunctionDefinitionCategory.STRING,
     examples,
+    sql: {
+        /**
+         * The three regexes of `validator.isMimeType`: a fixed list of nine top-level types,
+         * `text/*` with an optional charset, and `multipart/*` with up to two parameters. See
+         * `MIME_SQL_PATTERNS`, where the `i` flags become explicit classes and `\s` becomes
+         * JavaScript's whitespace set.
+        */
+        expression: ({ value }) => matchesAny(value, MIME_SQL_PATTERNS),
+    },
     accepts: [FieldType.String],
     create() {
         return isMIMEType;

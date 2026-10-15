@@ -5,6 +5,7 @@ import {
     FieldValidateConfig, ProcessMode, FunctionDefinitionType,
     FunctionDefinitionCategory
 } from '../interfaces.js';
+import { isRoutableSql } from './sql-utils.js';
 
 export const isRoutableIPConfig: FieldValidateConfig = {
     name: 'isRoutableIP',
@@ -51,6 +52,17 @@ export const isRoutableIPConfig: FieldValidateConfig = {
     description: 'Returns the input if it is a routable IPv4 or IPv6 address.  See https://www.iana.org/assignments/iana-ipv4-special-registry/iana-ipv4-special-registry.xhtml and https://www.iana.org/assignments/iana-ipv6-special-registry/iana-ipv6-special-registry.xhtml',
     create() {
         return isRoutableIP;
+    },
+    /**
+     * Containment tests against the non-routable range tables, since the `inet` extension has no
+     * classification function.
+     *
+     * The checks run in the same order as `IPAddress.isRoutable`: a mapped address is judged by its
+     * embedded IPv4 before the IPv6 table is checked, so `::ffff:8.8.8.8` is routable even though
+     * `::ffff:0:0/96` itself is non-routable.
+    */
+    sql: {
+        expression: ({ value }) => isRoutableSql(value),
     },
     accepts: [FieldType.String, FieldType.IP],
 };

@@ -6,6 +6,7 @@ import {
     FunctionDefinitionType,
     FunctionDefinitionCategory
 } from '../interfaces.js';
+import { isGeoJSONColumn, isGeoShapeSql } from './sql-utils.js';
 
 export const isGeoShapeMultiPolygonConfig: FieldValidateConfig = {
     name: 'isGeoShapeMultiPolygon',
@@ -58,6 +59,11 @@ export const isGeoShapeMultiPolygonConfig: FieldValidateConfig = {
     description: 'Returns the input if it is a valid geo-json multi-polygon, otherwise returns null',
     create() {
         return isGeoShapeMultiPolygon;
+    },
+    /** The stored geometry's type. See `isGeoShapeSql` for where this departs from `DataFrame`. */
+    sql: {
+        applies: (_args, inputConfig) => isGeoJSONColumn(inputConfig),
+        expression: ({ value }) => isGeoShapeSql(value, 'MULTIPOLYGON'),
     },
     accepts: [
         FieldType.GeoJSON,

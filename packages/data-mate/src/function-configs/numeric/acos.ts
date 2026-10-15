@@ -5,6 +5,7 @@ import {
     FunctionDefinitionType,
     FunctionDefinitionCategory,
 } from '../interfaces.js';
+import { finiteOrNull, inDomain } from '../sql-helpers.js';
 import { runMathFn } from './utils.js';
 
 export const acosConfig: FieldTransformConfig = {
@@ -27,6 +28,17 @@ export const acosConfig: FieldTransformConfig = {
     ],
     create() {
         return runMathFn(Math.acos);
+    },
+    /**
+     * `acos`, with its domain checked first.
+     *
+     * `Math.acos` outside [-1, 1] is NaN, which becomes null; DuckDB raises an error instead.
+    */
+    sql: {
+        // DuckDB and V8 can differ in the last bit of a transcendental result, which
+        // IEEE 754 allows, so `approximate` compares results to within a few ULP
+        approximate: true,
+        expression: ({ value }) => finiteOrNull(inDomain(`abs(${value}) <= 1`, `acos(${value})`)),
     },
     accepts: [
         FieldType.Number,

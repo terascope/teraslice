@@ -35,6 +35,17 @@ export const isMondayConfig: FieldValidateConfig = {
         },
     ],
     description: 'Returns the the input if it is on a Monday',
+    /**
+     * Runs as `dayofweek(x) = 1`.
+     *
+     * DuckDB's `dayofweek` numbers Sunday as 0, the same as JavaScript's `getUTCDay`.
+     *
+     * Only a `Date` column is handled; `String` and `Number` input is parsed by the UDF.
+    */
+    sql: {
+        types: [FieldType.Date],
+        expression: ({ value }) => `dayofweek(${value}) = 1`,
+    },
     accepts: [
         FieldType.String,
         FieldType.Date,

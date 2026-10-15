@@ -4,6 +4,7 @@ import {
     FieldValidateConfig, ProcessMode, FunctionDefinitionType,
     FunctionDefinitionCategory,
 } from '../interfaces.js';
+import { afterNow } from './sql-utils.js';
 
 export const isFutureConfig: FieldValidateConfig = {
     name: 'isFuture',
@@ -35,6 +36,16 @@ export const isFutureConfig: FieldValidateConfig = {
         },
     ],
     description: 'Returns the the input if it is in the future, otherwise returns null',
+    /**
+     * True when the date is strictly after now, as in `date-fns`' `isFuture`.
+     *
+     * "Now" is read once when the query is planned, not per row as the UDF does; see
+     * `sql-utils.ts`.
+    */
+    sql: {
+        types: [FieldType.Date],
+        expression: ({ value }) => afterNow(value),
+    },
     accepts: [
         FieldType.String,
         FieldType.Date,

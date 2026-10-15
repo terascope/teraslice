@@ -5,6 +5,7 @@ import {
     FunctionDefinitionType,
     FunctionDefinitionCategory,
 } from '../interfaces.js';
+import { finiteOrNull } from '../sql-helpers.js';
 import { runMathFn } from './utils.js';
 
 export const tanConfig: FieldTransformConfig = {
@@ -27,6 +28,13 @@ export const tanConfig: FieldTransformConfig = {
     ],
     create() {
         return runMathFn(Math.tan);
+    },
+    /** Native `tan`. */
+    sql: {
+        // DuckDB and V8 can differ in the last bit of a transcendental result, which
+        // IEEE 754 allows, so `approximate` compares results to within a few ULP
+        approximate: true,
+        expression: ({ value }) => finiteOrNull(`tan(${value})`),
     },
     accepts: [
         FieldType.Number,

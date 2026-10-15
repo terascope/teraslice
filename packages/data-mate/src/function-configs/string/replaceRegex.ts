@@ -4,6 +4,8 @@ import {
     FieldTransformConfig, ProcessMode, FunctionDefinitionType,
     FunctionDefinitionExample, FunctionDefinitionCategory,
 } from '../interfaces.js';
+import { sqlLiteral } from '../sql-helpers.js';
+import { hasPortableEscapes, isLiteralReplacement, isRe2Safe, withClassGuard } from './sql-regex-utils.js';
 
 export interface ReplaceRegexArgs {
     regex: string;
@@ -62,6 +64,38 @@ export const replaceRegexConfig: FieldTransformConfig<ReplaceRegexArgs> = {
         return (input: unknown) => replaceFn(input as string, replace, regex, ignoreCase, global);
     },
     examples,
+    /**
+     * `regexp_replace`, guarded on both the pattern and the replacement.
+     *
+     * RE2 has no lookaround or backreferences and errors on them, and `$1` is a capture group in
+     * JavaScript but literal text in DuckDB. Patterns and replacements that use either keep the
+     * UDF; see `sql-regex-utils.ts`.
+    */
+    sql: {
+        /**
+         * A pattern that compiles in both engines can still match different characters.
+         * JavaScript's `\s` matches 20 characters that RE2's does not (vertical tab, NBSP, the `Zs`
+         * spaces, U+2028, U+2029 and the BOM), `\S` differs on the same 20, and `.` differs on CR,
+         * U+2028 and U+2029. `\w`, `\d` and `\b` agree.
+         *
+         * Patterns using `.`, `\s`, `\S` or a negated class are therefore guarded per value rather
+         * than rejected, since rejecting every pattern with a `.` would exclude most patterns.
+         * Values containing one of the differing characters, or an astral character, go to the UDF;
+         * everything else uses `regexp_replace`. See `withClassGuard`.
+        */
+        needs_udf_fallback: true,
+        applies: (args) => typeof args.regex === 'string'
+            && isRe2Safe(args.regex)
+            && hasPortableEscapes(args.regex)
+            && isLiteralReplacement(String(args.replace ?? '')),
+        expression: ({ value, args, udf }) => {
+            const flags = `${args.ignoreCase ? 'i' : ''}${args.global ? 'g' : ''}`;
+            const rest = flags ? `, ${sqlLiteral(flags)}` : '';
+            const native = `regexp_replace(${value}, ${sqlLiteral(args.regex as string)},`
+                + ` ${sqlLiteral(String(args.replace ?? ''))}${rest})`;
+            return withClassGuard(args.regex as string, value, native, udf);
+        },
+    },
     accepts: [FieldType.String],
     argument_schema: {
         regex: {

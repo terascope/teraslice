@@ -5,6 +5,7 @@ import {
     FunctionDefinitionType,
     FunctionDefinitionCategory,
 } from '../interfaces.js';
+import { finiteOrNull } from '../sql-helpers.js';
 import { runMathFn } from './utils.js';
 
 export const atanConfig: FieldTransformConfig = {
@@ -27,6 +28,13 @@ export const atanConfig: FieldTransformConfig = {
     ],
     create() {
         return runMathFn(Math.atan);
+    },
+    /** Native `atan`, which is defined for every input, so no domain guard is needed. */
+    sql: {
+        // DuckDB and V8 can differ in the last bit of a transcendental result, which
+        // IEEE 754 allows, so `approximate` compares results to within a few ULP
+        approximate: true,
+        expression: ({ value }) => finiteOrNull(`atan(${value})`),
     },
     accepts: [
         FieldType.Number,

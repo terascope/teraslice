@@ -5,6 +5,7 @@ import {
     FunctionDefinitionType,
     FunctionDefinitionCategory,
 } from '../interfaces.js';
+import { finiteOrNull } from '../sql-helpers.js';
 import { runMathFn } from './utils.js';
 
 export const sinhConfig: FieldTransformConfig = {
@@ -47,6 +48,13 @@ export const sinhConfig: FieldTransformConfig = {
     ],
     create() {
         return runMathFn(Math.sinh);
+    },
+    /** Native `sinh`; an overflow becomes null through `finiteOrNull`. */
+    sql: {
+        // DuckDB and V8 can differ in the last bit of a transcendental result, which
+        // IEEE 754 allows, so `approximate` compares results to within a few ULP
+        approximate: true,
+        expression: ({ value }) => finiteOrNull(`sinh(${value})`),
     },
     accepts: [
         FieldType.Number,

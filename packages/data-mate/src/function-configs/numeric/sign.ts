@@ -5,6 +5,7 @@ import {
     FunctionDefinitionType,
     FunctionDefinitionCategory,
 } from '../interfaces.js';
+import { finiteOrNull } from '../sql-helpers.js';
 import { runMathFn } from './utils.js';
 
 export const signConfig: FieldTransformConfig = {
@@ -52,6 +53,10 @@ export const signConfig: FieldTransformConfig = {
     ],
     create() {
         return runMathFn(Math.sign);
+    },
+    /** Native `sign`. */
+    sql: {
+        expression: ({ value }) => finiteOrNull(`sign(${value})`),
     },
     accepts: [
         FieldType.Number,

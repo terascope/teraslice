@@ -7,6 +7,7 @@ import { CIDRBlock } from './utils/cidr-block.js';
 import { IPRange } from './utils/ip-range.js';
 
 export { IPAddress, CIDRBlock, IPRange };
+export { NON_ROUTABLE_IPV4_CIDRS, NON_ROUTABLE_IPV6_CIDRS } from './utils/non-routable.js';
 
 export function isIP(input: unknown): input is string {
     return isString(input) && IPAddress.isValid(input);

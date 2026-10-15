@@ -5,6 +5,7 @@ import {
     FieldValidateConfig, ProcessMode, FunctionDefinitionType,
     FunctionDefinitionCategory
 } from '../interfaces.js';
+import { sqlLiteral, HAS_ASTRAL, allowsNumericArgs } from '../sql-helpers.js';
 
 export interface IsLengthArgs {
     /** Check to see if it exactly matches size */
@@ -19,6 +20,25 @@ export const isLengthConfig: FieldValidateConfig<IsLengthArgs> = {
     process_mode: ProcessMode.INDIVIDUAL_VALUES,
     category: FunctionDefinitionCategory.STRING,
     description: 'Returns the input if it either matches a certain length, or is within the specified range.  Otherwise returns null.',
+    /**
+     * `length()` compared against the arguments, for values without astral characters.
+     *
+     * `isLength` counts UTF-16 code units, so five emoji have a length of 10 where `length()`
+     * returns 5. Astral input keeps the UDF.
+    */
+    sql: {
+        applies: allowsNumericArgs('size', 'min', 'max'),
+        needs_udf_fallback: true,
+        expression: ({ value, args, udf }) => {
+            const parts: string[] = [];
+            if (args.size != null) parts.push(`length(${value}) = ${Number(args.size)}`);
+            if (args.min != null) parts.push(`length(${value}) >= ${Number(args.min)}`);
+            if (args.max != null) parts.push(`length(${value}) <= ${Number(args.max)}`);
+            const check = parts.length ? parts.join(' AND ') : 'TRUE';
+            return `CASE WHEN regexp_matches(${value}, ${sqlLiteral(HAS_ASTRAL)})`
+                + ` THEN ${udf(value)} ELSE ${check} END`;
+        },
+    },
     accepts: [FieldType.String],
     examples: [
         {

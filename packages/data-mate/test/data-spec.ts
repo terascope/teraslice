@@ -1,6 +1,6 @@
 import { isNotNil, times } from '@terascope/core-utils';
 import 'jest-extended';
-import { ReadableData, WritableData } from '../src/core/index.js';
+import { ReadableData, WritableData } from '../src/index.js';
 
 describe('Data', () => {
     describe('when constructing with a size of 8', () => {

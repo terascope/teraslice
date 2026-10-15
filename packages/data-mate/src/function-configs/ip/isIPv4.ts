@@ -5,6 +5,7 @@ import {
     FieldValidateConfig, ProcessMode, FunctionDefinitionType,
     FunctionDefinitionCategory
 } from '../interfaces.js';
+import { isIPv4Sql } from './sql-utils.js';
 
 export const isIPv4Config: FieldValidateConfig = {
     name: 'isIPv4',
@@ -44,6 +45,14 @@ export const isIPv4Config: FieldValidateConfig = {
     description: 'Returns the input if it is a valid IPv4 address in dot notation, otherwise returns null',
     create() {
         return isIPv4;
+    },
+    /**
+     * `IPV4_RE` from `ip-utils`, translated to SQL. The `inet` extension has no `family()`, and the
+     * cast accepts leading-zero octets and a `/prefix` that data-mate rejects, so the regex is the
+     * definition.
+    */
+    sql: {
+        expression: ({ value }) => isIPv4Sql(value),
     },
     accepts: [FieldType.String, FieldType.IP],
 };

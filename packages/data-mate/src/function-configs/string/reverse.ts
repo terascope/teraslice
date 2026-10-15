@@ -7,6 +7,7 @@ import {
     FunctionDefinitionCategory,
     FunctionDefinitionExample
 } from '../interfaces.js';
+import { sqlLiteral, NEEDS_GRAPHEME_REVERSE } from '../sql-helpers.js';
 
 /**
  * Strings containing a surrogate pair, a combining mark, or a zero-width joiner cannot
@@ -91,6 +92,21 @@ export const reverseConfig: FieldTransformConfig = {
     examples,
     create() {
         return _reverse;
+    },
+    /**
+     * `reverse()` for strings that do not need grapheme segmentation, the UDF for those that do,
+     * and NULL for the empty string, which is what `_reverse` returns.
+     *
+     * The guard matches the same strings as `NEEDS_SEGMENTATION` above: an astral code point, a
+     * zero-width joiner or a combining mark. RE2 supports `\p{M}` and `\x{...}`, so it matches the
+     * same strings as the JavaScript regex. The segmentation path is about 11x slower, and this
+     * keeps it to the values that need it.
+    */
+    sql: {
+        needs_udf_fallback: true,
+        expression: ({ value, udf }) => `CASE WHEN ${value} = '' THEN NULL`
+            + ` WHEN regexp_matches(${value}, ${sqlLiteral(NEEDS_GRAPHEME_REVERSE)})`
+            + ` THEN ${udf(value)} ELSE reverse(${value}) END`,
     },
     accepts: [FieldType.String],
 };

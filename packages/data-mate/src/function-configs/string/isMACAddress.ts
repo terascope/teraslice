@@ -4,6 +4,7 @@ import {
     FieldValidateConfig, ProcessMode, FunctionDefinitionType,
     FunctionDefinitionCategory, FunctionDefinitionExample,
 } from '../interfaces.js';
+import { MAC_SQL_PATTERNS, matchesAny } from './sql-validator-utils.js';
 
 const delimiterOptions = ['space', 'colon', 'dash', 'dot', 'none', 'any'];
 
@@ -95,6 +96,24 @@ export const isMACAddressConfig: FieldValidateConfig<IsMACArgs> = {
     create({ args: { delimiter } }) {
         return (input: unknown) => isString(input)
             && isMACAddress(input, delimiter as MACDelimiter);
+    },
+    sql: {
+        /**
+         * Five fixed regexes, one per delimiter; see `MAC_SQL_PATTERNS`. `core-utils` uses its own
+         * `macAddressDelimiters` table rather than `validator.isMACAddress`, and `'any'` tries each
+         * pattern in turn, so no backreference is needed to keep the separators consistent.
+         *
+         * An array `delimiter` is declined because the implementation cannot handle one either:
+         * `macAddressDelimiters[['colon']]` is `undefined` and `.test` throws.
+        */
+        applies: ({ delimiter }) => delimiter == null
+            || (typeof delimiter === 'string'
+                && (delimiter === 'any' || MAC_SQL_PATTERNS[delimiter] != null)),
+        expression: ({ value, args: { delimiter } }) => (
+            delimiter == null || delimiter === 'any'
+                ? matchesAny(value, Object.values(MAC_SQL_PATTERNS))
+                : matchesAny(value, [MAC_SQL_PATTERNS[delimiter as string]])
+        ),
     },
     accepts: [FieldType.String],
     argument_schema: {

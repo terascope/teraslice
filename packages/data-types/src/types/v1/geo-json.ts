@@ -3,7 +3,7 @@ import {
     ClientMetadata, ESTypeMapping
 } from '@terascope/types';
 import BaseType from '../base-type.js';
-import { GraphQLType, TypeESMapping } from '../../interfaces.js';
+import { GraphQLType, TypeESMapping, DuckDBTypeConfig } from '../../interfaces.js';
 
 /**
  * A GeoJSON geometry (point, polygon, or multi-polygon) stored as an
@@ -43,5 +43,17 @@ export default class GeoJSON extends BaseType {
 
     toXlucene(): xLuceneTypeConfig {
         return { [this.field]: xLuceneFieldType.GeoJSON };
+    }
+
+    /**
+     * The DuckDB column type for this field: GEOMETRY.
+     *
+     * Storing the shape as GEOMETRY rather than JSON text means it is parsed once at ingest
+     * instead of on every spatial query, and it is written to Parquet as GeoParquet (WKB).
+     * GEOMETRY is a core DuckDB type, so storing it needs no extension; the spatial
+     * functions that query it need the `spatial` extension.
+     */
+    toDuckDB(): DuckDBTypeConfig {
+        return this._formatDuckDB('GEOMETRY');
     }
 }

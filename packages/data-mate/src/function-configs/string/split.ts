@@ -3,6 +3,7 @@ import {
     FieldTransformConfig, ProcessMode, FunctionDefinitionType,
     FunctionDefinitionExample, FunctionDefinitionCategory,
 } from '../interfaces.js';
+import { sqlLiteral } from '../sql-helpers.js';
 
 export interface SplitArgs {
     delimiter?: string;
@@ -49,6 +50,18 @@ export const splitConfig: FieldTransformConfig<SplitArgs> = {
     examples,
     create({ args: { delimiter = '' } }) {
         return splitFn(delimiter);
+    },
+    /**
+     * `string_split`, for a non-empty delimiter only.
+     *
+     * The default delimiter is `''`, and `String(x).split('')` splits into UTF-16 code units, which
+     * can produce lone surrogates for astral input. `string_split` with an empty delimiter does
+     * not, so that case keeps the UDF.
+    */
+    sql: {
+        applies: (args) => typeof args.delimiter === 'string' && args.delimiter !== '',
+        expression: ({ value, args }) => `string_split(${value},`
+            + ` ${sqlLiteral(args.delimiter as string)})`,
     },
     accepts: [FieldType.String],
     argument_schema: {

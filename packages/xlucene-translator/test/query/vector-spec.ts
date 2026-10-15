@@ -1,7 +1,7 @@
 import { type Client, ElasticsearchTestHelpers, getClientMetadata } from '@terascope/opensearch-client';
 import { FieldType, type ClientMetadata } from '@terascope/types';
 import { DataType, LATEST_VERSION } from '@terascope/data-types';
-import { QueryAccess } from '../../src/query-access/index.js';
+import { QueryAccess } from '../../src/index.js';
 
 const { makeClient, populateIndex, cleanupIndex } = ElasticsearchTestHelpers;
 
@@ -71,6 +71,7 @@ describe('vector searches', () => {
             {
                 variables: { vector: [5, 4] },
                 ...clientMetadata,
+                params: { index, size: searchData.length },
             }
         );
 
@@ -91,7 +92,8 @@ describe('vector searches', () => {
             'foo:"hello" AND someVector:knn(vector:$vector k:3)',
             {
                 variables: { vector: [5, 4] },
-                ...clientMetadata
+                ...clientMetadata,
+                params: { index, size: searchData.length },
             }
         );
 
@@ -112,7 +114,8 @@ describe('vector searches', () => {
             'foo:"hello" OR someVector:knn(vector:$vector k:3)',
             {
                 variables: { vector: [5, 4] },
-                ...clientMetadata
+                ...clientMetadata,
+                params: { index, size: searchData.length },
             }
         );
 
@@ -136,7 +139,8 @@ describe('vector searches', () => {
             'foo:"hello" AND (bool:true AND someVector:knn(vector:$vector k:3))',
             {
                 variables: { vector: [5, 4] },
-                ...clientMetadata
+                ...clientMetadata,
+                params: { index, size: searchData.length },
             }
         );
 

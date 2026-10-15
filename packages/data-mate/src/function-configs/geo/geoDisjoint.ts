@@ -7,6 +7,9 @@ import {
     FunctionDefinitionCategory,
     FunctionDefinitionExample
 } from '../interfaces.js';
+import {
+    isGeoColumn, isGeoArg, asGeometry, constantGeometry, tryPredicate, isScalarColumn
+} from './sql-utils.js';
 
 export interface GeoDisjointArgs {
     value: GeoInput;
@@ -81,6 +84,14 @@ export const geoDisjointConfig: FieldValidateConfig<GeoDisjointArgs> = {
     description: 'Returns the input if it does not have any intersection (overlap) with the argument value, otherwise returns null',
     create({ args: { value } }) {
         return geoDisjointFP(value);
+    },
+    /** `ST_Disjoint`. Gives the same answers as `geoDisjoint`, including for shapes with holes. */
+    sql: {
+        applies: (args, inputConfig) => isScalarColumn(inputConfig)
+            && isGeoColumn(inputConfig) && isGeoArg(args.value),
+        expression: ({ value, args, inputConfig }) => tryPredicate(
+            `ST_Disjoint(${asGeometry(value, inputConfig)}, ${constantGeometry(args.value)})`
+        ),
     },
     accepts: [
         FieldType.GeoJSON,

@@ -3,7 +3,7 @@ import {
     ESTypeMapping
 } from '@terascope/types';
 import BaseType from '../base-type.js';
-import { GraphQLType, TypeESMapping } from '../../interfaces.js';
+import { GraphQLType, TypeESMapping, DuckDBTypeConfig } from '../../interfaces.js';
 
 /**
  * A whole number stored as an Elasticsearch/OpenSearch `long`
@@ -45,5 +45,20 @@ export default class Long extends BaseType {
 
     toXlucene(): xLuceneTypeConfig {
         return { [this.field]: xLuceneFieldType.Integer };
+    }
+
+    /**
+     * The DuckDB column type for this field: BIGINT, a signed 64-bit integer, the same
+     * range as an Elasticsearch `long`.
+     *
+     * Not HUGEINT: Parquet has no 128-bit integer, so DuckDB writes HUGEINT as a DOUBLE and
+     * loses precision past 2^53. BIGINT is written as INT64 and stays exact.
+     *
+     * A value outside the 64-bit range is rejected at ingest. A Long computed inside a query
+     * (for example `ipToInt` on an IPv6 address, which is 128 bits) can still use a wider
+     * SQL type, because it is never stored.
+     */
+    toDuckDB(): DuckDBTypeConfig {
+        return this._formatDuckDB('BIGINT');
     }
 }

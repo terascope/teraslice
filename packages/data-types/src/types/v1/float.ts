@@ -3,7 +3,7 @@ import {
     ESTypeMapping
 } from '@terascope/types';
 import BaseType from '../base-type.js';
-import { GraphQLType, TypeESMapping } from '../../interfaces.js';
+import { GraphQLType, TypeESMapping, DuckDBTypeConfig } from '../../interfaces.js';
 
 /**
  * A floating-point number stored as an Elasticsearch/OpenSearch `float`
@@ -43,5 +43,14 @@ export default class Float extends BaseType {
 
     toXlucene(): xLuceneTypeConfig {
         return { [this.field]: xLuceneFieldType.Float };
+    }
+
+    /**
+     * The DuckDB column type for this field.
+     * DOUBLE, not FLOAT, because a JS number is a 64-bit double. A 32-bit FLOAT would
+     * round large values (9007199254740992 becomes 9007199000000000).
+     */
+    toDuckDB(): DuckDBTypeConfig {
+        return this._formatDuckDB('DOUBLE');
     }
 }

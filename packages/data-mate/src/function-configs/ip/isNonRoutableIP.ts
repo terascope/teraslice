@@ -5,6 +5,7 @@ import {
     FieldValidateConfig, ProcessMode, FunctionDefinitionType,
     FunctionDefinitionCategory
 } from '../interfaces.js';
+import { isIPSql, isRoutableSql } from './sql-utils.js';
 
 export const isNonRoutableIPConfig: FieldValidateConfig = {
     name: 'isNonRoutableIP',
@@ -51,6 +52,13 @@ export const isNonRoutableIPConfig: FieldValidateConfig = {
     description: 'Returns the input if it is a non-routable IP address, handles IPv6 and IPv4 address. See https://www.iana.org/assignments/iana-ipv4-special-registry/iana-ipv4-special-registry.xhtml and https://www.iana.org/assignments/iana-ipv6-special-registry/iana-ipv6-special-registry.xhtml',
     create() {
         return isNonRoutableIP;
+    },
+    /**
+     * An IP that is not routable. The `isIPSql` check is needed because `isRoutableSql` answers
+     * false for a non-address, so negating it alone would call `'not-an-ip'` non-routable.
+    */
+    sql: {
+        expression: ({ value }) => `(${isIPSql(value)} AND NOT (${isRoutableSql(value)}))`,
     },
     accepts: [FieldType.String, FieldType.IP],
 };

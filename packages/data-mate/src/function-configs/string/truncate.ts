@@ -6,6 +6,7 @@ import {
     FunctionDefinitionType,
     FunctionDefinitionCategory
 } from '../interfaces.js';
+import { sqlLiteral, HAS_ASTRAL, needsNumericArgs } from '../sql-helpers.js';
 
 export interface TruncateConfig {
     size: number;
@@ -35,6 +36,20 @@ export const truncateConfig: FieldTransformConfig<TruncateConfig> = {
     ],
     create({ args: { size } }) {
         return truncateFP(size, false) as (value: unknown) => string;
+    },
+    /**
+     * `substring` for values without astral characters, the UDF otherwise.
+     *
+     * `truncateFP` counts UTF-16 code units and `substring` counts characters. Truncating four
+     * thumbs-up emoji to 3 gives one emoji plus a lone surrogate in JavaScript and three whole
+     * emoji in SQL, so astral input keeps the UDF.
+    */
+    sql: {
+        applies: needsNumericArgs('size'),
+        needs_udf_fallback: true,
+        expression: ({ value, args, udf }) => `CASE WHEN regexp_matches(${value},`
+            + ` ${sqlLiteral(HAS_ASTRAL)}) THEN ${udf(value)}`
+            + ` ELSE substring(${value}, 1, ${Number(args.size)}) END`,
     },
     accepts: [FieldType.String],
     required_arguments: ['size'],

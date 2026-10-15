@@ -4,6 +4,8 @@ import {
     FieldValidateConfig, ProcessMode, FunctionDefinitionType,
     FunctionDefinitionCategory, FunctionDefinitionExample
 } from '../interfaces.js';
+import { EMAIL_SQL_PATTERN } from './sql-validator-utils.js';
+import { sqlLiteral } from '../sql-helpers.js';
 
 const examples: FunctionDefinitionExample<Record<string, unknown>>[] = [
     {
@@ -143,6 +145,14 @@ export const isEmailConfig: FieldValidateConfig = {
     examples,
     create() {
         return isEmail;
+    },
+    sql: {
+        /**
+         * One regex: `core-utils`' own `isEmail` pattern, not `validator.isEmail`. It has no
+         * lookaround or backreference, so RE2 compiles it. See `EMAIL_SQL_PATTERN`, where the `i`
+         * flag is expanded by hand.
+        */
+        expression: ({ value }) => `regexp_matches(${value}, ${sqlLiteral(EMAIL_SQL_PATTERN)})`,
     },
     accepts: [FieldType.String],
 };

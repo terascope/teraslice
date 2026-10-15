@@ -49,6 +49,15 @@ export const isWeekdayConfig: FieldValidateConfig = {
         },
     ],
     description: 'Returns the input if it is on a Weekday (Monday-Friday), otherwise returns null',
+    /**
+     * Runs as `dayofweek(x) BETWEEN 1 AND 5`, Monday to Friday.
+     *
+     * Only a `Date` column is handled; `String` and `Number` input is parsed by the UDF.
+    */
+    sql: {
+        types: [FieldType.Date],
+        expression: ({ value }) => `dayofweek(${value}) BETWEEN 1 AND 5`,
+    },
     accepts: [
         FieldType.String,
         FieldType.Date,

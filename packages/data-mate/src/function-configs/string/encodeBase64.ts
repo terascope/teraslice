@@ -33,6 +33,16 @@ export const encodeBase64Config: FieldTransformConfig = {
     create() {
         return bufferEncode('base64');
     },
+    /**
+     * `to_base64(encode(x))`. This uses `encode`, not `x::BLOB`.
+     *
+     * A `VARCHAR` to `BLOB` cast rejects non-ASCII input ("All non-ascii characters must be escaped
+     * with hex codes"). `encode()` converts to UTF-8, so the result matches `Buffer.from(input,
+     * 'utf8').toString('base64')`, including for astral characters.
+    */
+    sql: {
+        expression: ({ value }) => `to_base64(encode(${value}))`,
+    },
     accepts: [FieldType.String],
     output_type(inputConfig: DataTypeFieldAndChildren): DataTypeFieldAndChildren {
         const { field_config, child_config } = inputConfig;

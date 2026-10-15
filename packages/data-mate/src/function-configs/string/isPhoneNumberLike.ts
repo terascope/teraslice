@@ -1,4 +1,6 @@
 import { isPhoneNumberLike } from '@terascope/core-utils';
+import { phoneNumberLikeSql } from './sql-utils.js';
+import { STRING_FIELD_TYPES } from '../sql-helpers.js';
 import { FieldType } from '@terascope/types';
 
 import {
@@ -88,6 +90,18 @@ export const isPhoneNumberLikeConfig: FieldValidateConfig = {
     examples,
     create() {
         return isPhoneNumberLike;
+    },
+    sql: {
+        /**
+         * Strips every non-digit and checks that 7 to 20 digits remain; see `phoneNumberLikeSql`.
+         * This does not use libphonenumber.
+         *
+         * String columns only: for a number the digits come from `toString(input)`, and JavaScript
+         * renders 1e21 as `'1e+21'` (three digits) where DuckDB renders
+         * `'1000000000000000000000.0'` (22).
+        */
+        types: STRING_FIELD_TYPES,
+        expression: ({ value }) => phoneNumberLikeSql(value),
     },
     accepts: [
         FieldType.String,

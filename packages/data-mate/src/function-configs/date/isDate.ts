@@ -73,5 +73,16 @@ Default: iso_8601 for strings and epoch_millis for number`
             return isMatch(primitiveToString(input), format);
         };
     },
+    /**
+     * Always true on a `Date` column, because every non-null `TIMESTAMP` is a valid date.
+     *
+     * A custom `format` keeps the UDF. With one, the function checks whether a string matches a
+     * `date-fns` pattern, which a `TIMESTAMP` column cannot answer.
+    */
+    sql: {
+        types: [FieldType.Date],
+        applies: (args) => args.format == null || args.format in DateFormat,
+        expression: () => 'TRUE',
+    },
     accepts: [FieldType.Date, FieldType.String, FieldType.Number]
 };

@@ -4,6 +4,7 @@ import {
     FieldValidateConfig, ProcessMode, FunctionDefinitionType,
     FunctionDefinitionCategory, FunctionDefinitionExample
 } from '../interfaces.js';
+import { isFQDNSql } from './sql-utils.js';
 
 const examples: FunctionDefinitionExample<Record<string, unknown>>[] = [
     {
@@ -115,6 +116,14 @@ export const isFQDNConfig: FieldValidateConfig = {
     examples,
     create() {
         return isFQDN;
+    },
+    /**
+     * `validator.isFQDN` with its default options, for ASCII input. It has no TLD list, which is
+     * what makes it expressible in SQL. See `isFQDNSql`.
+    */
+    sql: {
+        needs_udf_fallback: true,
+        expression: ({ value, udf }) => isFQDNSql(value, udf),
     },
     accepts: [FieldType.String],
 };

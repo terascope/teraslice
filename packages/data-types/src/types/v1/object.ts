@@ -1,6 +1,6 @@
 import { xLuceneFieldType, ESTypeMapping, xLuceneTypeConfig } from '@terascope/types';
 import BaseType from '../base-type.js';
-import { GraphQLType, TypeESMapping } from '../../interfaces.js';
+import { GraphQLType, TypeESMapping, DuckDBTypeConfig } from '../../interfaces.js';
 
 /**
  * A nested JSON object.
@@ -40,5 +40,14 @@ export default class ObjectType extends BaseType {
 
     toXlucene(): xLuceneTypeConfig {
         return { [this.field]: xLuceneFieldType.Object };
+    }
+
+    /**
+     * The DuckDB column type for this field.
+     * JSON, because an Object with no declared children has no known shape. An Object
+     * with declared children becomes a GroupType, which maps to a STRUCT instead.
+     */
+    toDuckDB(): DuckDBTypeConfig {
+        return this._formatDuckDB('JSON');
     }
 }

@@ -5,6 +5,7 @@ import {
     FunctionDefinitionType,
     FunctionDefinitionCategory,
 } from '../interfaces.js';
+import { finiteOrNull } from '../sql-helpers.js';
 import { runMathFn } from './utils.js';
 
 export const cbrtConfig: FieldTransformConfig = {
@@ -37,6 +38,13 @@ export const cbrtConfig: FieldTransformConfig = {
     ],
     create() {
         return runMathFn(Math.cbrt);
+    },
+    /** Native `cbrt`, which is defined for negatives on both sides. */
+    sql: {
+        // DuckDB and V8 can differ in the last bit of a transcendental result, which
+        // IEEE 754 allows, so `approximate` compares results to within a few ULP
+        approximate: true,
+        expression: ({ value }) => finiteOrNull(`cbrt(${value})`),
     },
     accepts: [
         FieldType.Number,

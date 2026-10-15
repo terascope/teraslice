@@ -32,6 +32,13 @@ export const decodeURLConfig: FieldTransformConfig = {
     create() {
         return (input: unknown) => decodeURIComponent(input as string);
     },
+    /**
+     * `url_decode`, which matches `decodeURIComponent` for spaces, `+`, `%`, non-ASCII and astral
+     * input.
+    */
+    sql: {
+        expression: ({ value }) => `url_decode(${value})`,
+    },
     accepts: [FieldType.String],
     output_type(inputConfig: DataTypeFieldAndChildren): DataTypeFieldAndChildren {
         const { field_config, child_config } = inputConfig;

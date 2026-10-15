@@ -6,6 +6,7 @@ import {
     FunctionDefinitionCategory,
     FunctionDefinitionType
 } from '../interfaces.js';
+import { isGeoJSONColumn, isGeoJSONSql } from './sql-utils.js';
 
 export const isGeoJSONConfig: FieldValidateConfig = {
     name: 'isGeoJSON',
@@ -79,6 +80,11 @@ export const isGeoJSONConfig: FieldValidateConfig = {
     ],
     create() {
         return isGeoJSON;
+    },
+    /** The stored geometry's type - a `GeoJSON` column is a `GEOMETRY`. See `isGeoJSONSql`. */
+    sql: {
+        applies: (_args, inputConfig) => isGeoJSONColumn(inputConfig),
+        expression: ({ value }) => isGeoJSONSql(value),
     },
     accepts: [
         FieldType.GeoJSON,

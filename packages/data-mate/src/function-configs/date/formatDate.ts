@@ -93,6 +93,35 @@ export const formatDateConfig: FieldTransformConfig<FormatDateArgs> = {
             );
         };
     },
+    sql: {
+        /**
+         * Three of `formatDateValue`'s four branches have a single SQL equivalent:
+         *
+         * | `format` | what it returns | SQL |
+         * |---|---|---|
+         * | `epoch_millis`, `milliseconds` | the millis | `epoch_ms(v)` |
+         * | `epoch`, `seconds` | `floor(ms / 1000)` | `floor(epoch_ms(v) / 1000)` |
+         * | absent, or `iso_8601` | `toISO8601(value)` | `strftime(v, '%Y-%m-%dT%H:%M:%S.%gZ')` |
+         * | anything else | `formatDate(ms + offset, format)` | none; keeps the UDF |
+         *
+         * `output_type` already declares Number for the epoch formats and String otherwise, so
+         * the SQL result types match the column.
+         *
+         * Only a `Date` column is handled; `String` and `Number` input is parsed by the UDF.
+        */
+        types: [FieldType.Date],
+        applies: ({ format }) => format == null || format in DateFormat,
+        expression: ({ value, args: { format } }) => {
+            if (format === DateFormat.epoch_millis
+                || format === DateFormat.milliseconds) {
+                return `epoch_ms(${value})`;
+            }
+            if (format === DateFormat.epoch || format === DateFormat.seconds) {
+                return `CAST(floor(epoch_ms(${value}) / 1000) AS BIGINT)`;
+            }
+            return `strftime(${value}, '%Y-%m-%dT%H:%M:%S.%gZ')`;
+        },
+    },
     accepts: [
         FieldType.Date,
         FieldType.String,

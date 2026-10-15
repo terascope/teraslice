@@ -7,6 +7,8 @@ import {
     DataTypeFieldAndChildren,
     FunctionDefinitionCategory,
 } from '../interfaces.js';
+import { shannonEntropySql } from './sql-utils.js';
+import { HAS_ASTRAL, sqlLiteral } from '../sql-helpers.js';
 
 export interface EntropyArgs {
     algo?: string;
@@ -65,6 +67,21 @@ export const entropyConfig: FieldTransformConfig<EntropyArgs> = {
     ],
     create({ args: { algo = StringEntropy.shannon } }) {
         return stringEntropy(algo as StringEntropy);
+    },
+    sql: {
+        /**
+         * Shannon entropy as a scalar SQL expression; see `shannonEntropySql`. The result is exact.
+         *
+         * `shannon` is the only algorithm in `StringEntropyDict` and any other throws, so `applies`
+         * handles only `shannon`. Astral input keeps the UDF: the JavaScript counts frequencies per
+         * code point but divides by `input.length`, which counts UTF-16 code units, and the SQL
+         * does not reproduce that inconsistency.
+        */
+        needs_udf_fallback: true,
+        applies: ({ algo }) => algo == null || algo === StringEntropy.shannon,
+        expression: ({ value, udf }) => `CASE WHEN regexp_matches(${value},`
+            + ` ${sqlLiteral(HAS_ASTRAL)}) THEN ${udf(value)}`
+            + ` ELSE ${shannonEntropySql(value)} END`,
     },
     accepts: [FieldType.String],
     argument_schema: {

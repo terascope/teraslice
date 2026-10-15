@@ -5,6 +5,7 @@ import {
     FunctionDefinitionType,
     FunctionDefinitionCategory,
 } from '../interfaces.js';
+import { finiteOrNull, inDomain } from '../sql-helpers.js';
 import { runMathFn } from './utils.js';
 
 export const log2Config: FieldTransformConfig = {
@@ -48,6 +49,18 @@ export const log2Config: FieldTransformConfig = {
     ],
     create() {
         return runMathFn(Math.log2);
+    },
+    /**
+     * `log2`, with its domain checked first.
+     *
+     * `log2(0)` and negative arguments raise an error in DuckDB, while JavaScript returns
+     * -Infinity and NaN.
+    */
+    sql: {
+        // DuckDB and V8 can differ in the last bit of a transcendental result, which
+        // IEEE 754 allows, so `approximate` compares results to within a few ULP
+        approximate: true,
+        expression: ({ value }) => finiteOrNull(inDomain(`${value} > 0`, `log2(${value})`)),
     },
     accepts: [
         FieldType.Number,

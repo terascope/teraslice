@@ -8,6 +8,8 @@ import {
     FunctionDefinitionType,
     FunctionDefinitionCategory,
 } from '../interfaces.js';
+import { isArrayColumn } from './sql-utils.js';
+import { finiteOrNull } from '../sql-helpers.js';
 
 export const hypotConfig: FieldTransformConfig = {
     name: 'hypot',
@@ -71,6 +73,20 @@ export const hypotConfig: FieldTransformConfig = {
             }
             return value;
         };
+    },
+    /**
+     * `sqrt(sum of squares)` over the list.
+     *
+     * `approximate`, because `Math.hypot` scales by the largest magnitude before squaring to
+     * avoid overflow, while this squares directly. The two agree to a few ULP for ordinary
+     * magnitudes, and `finiteOrNull` turns an overflow into null.
+    */
+    sql: {
+        approximate: true,
+        applies: isArrayColumn,
+        expression: ({ value }) => finiteOrNull(
+            `sqrt(list_sum(list_transform(${value}, lambda x : x * x)))`
+        ),
     },
     accepts: [
         FieldType.Number,

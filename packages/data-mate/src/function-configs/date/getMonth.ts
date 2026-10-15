@@ -67,6 +67,22 @@ export const getMonthConfig: FieldTransformConfig = {
     create() {
         return getMonth;
     },
+    /**
+     * Runs as `date_part('month', x)`.
+     *
+     * Only a `Date` column is handled. The function also accepts `String` and `Number` input,
+     * which the UDF parses first, so those columns keep the UDF.
+     *
+     * The column stores a UTC timestamp and the function returns the UTC part, so no timezone
+     * handling is needed.
+     *
+     * Both sides are 1-based: `getMonth` returns `1` for January (unlike JavaScript's
+     * `Date.getMonth`), and so does `date_part`.
+    */
+    sql: {
+        types: [FieldType.Date],
+        expression: ({ value }) => `date_part('month', ${value})`,
+    },
     accepts: [
         FieldType.Date,
         FieldType.String,

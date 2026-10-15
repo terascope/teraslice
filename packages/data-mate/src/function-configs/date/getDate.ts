@@ -67,6 +67,19 @@ export const getDateConfig: FieldTransformConfig = {
     create() {
         return getDate;
     },
+    /**
+     * Runs as `date_part('day', x)`.
+     *
+     * Only a `Date` column is handled. The function also accepts `String` and `Number` input,
+     * which the UDF parses first, so those columns keep the UDF.
+     *
+     * The column stores a UTC timestamp and the function returns the UTC part, so no timezone
+     * handling is needed.
+    */
+    sql: {
+        types: [FieldType.Date],
+        expression: ({ value }) => `date_part('day', ${value})`,
+    },
     accepts: [
         FieldType.Date,
         FieldType.String,

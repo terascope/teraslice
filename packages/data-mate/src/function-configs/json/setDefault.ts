@@ -10,6 +10,7 @@ import {
     FunctionDefinitionType,
     FunctionDefinitionCategory
 } from '../interfaces.js';
+import { primitiveLiteral, literalMatchesColumn } from '../sql-helpers.js';
 
 export interface SetDefaultArgs {
     value: unknown;
@@ -59,6 +60,22 @@ export const setDefaultConfig: FieldTransformConfig<SetDefaultArgs> = {
             }
             return value != null ? value : args.value;
         };
+    },
+    /**
+     * `coalesce`, for a scalar string column with a string default. Other shapes keep the UDF.
+     *
+     * `output_type` is always `Keyword`, but the implementation returns the value unchanged, so on
+     * any other column type the input, output and default types disagree. The SQL form is limited
+     * to string columns, where all three agree.
+     *
+     * On an array column the function defaults each element and turns a null column into `[value]`,
+     * so arrays also keep the UDF.
+    */
+    sql: {
+        applies: (args, inputConfig) => typeof args.value === 'string'
+            && !inputConfig?.field_config?.array
+            && literalMatchesColumn(args.value, inputConfig.field_config.type as FieldType),
+        expression: ({ value, args }) => `coalesce(${value}, ${primitiveLiteral(args.value)})`,
     },
     accepts: [],
     argument_schema: {

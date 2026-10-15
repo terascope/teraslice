@@ -5,6 +5,7 @@ import {
     FunctionDefinitionType,
     FunctionDefinitionCategory,
 } from '../interfaces.js';
+import { finiteOrNull, inDomain } from '../sql-helpers.js';
 import { runMathFn } from './utils.js';
 
 export const logConfig: FieldTransformConfig = {
@@ -47,6 +48,18 @@ export const logConfig: FieldTransformConfig = {
     ],
     create() {
         return runMathFn(Math.log);
+    },
+    /**
+     * `ln`, with its domain checked first.
+     *
+     * `Math.log` is the natural logarithm while DuckDB's `log()` is base 10, so this uses `ln`.
+     * `ln(0)` and `ln(-1)` raise an error in DuckDB, so the domain check is required.
+    */
+    sql: {
+        // DuckDB and V8 can differ in the last bit of a transcendental result, which
+        // IEEE 754 allows, so `approximate` compares results to within a few ULP
+        approximate: true,
+        expression: ({ value }) => finiteOrNull(inDomain(`${value} > 0`, `ln(${value})`)),
     },
     accepts: [
         FieldType.Number,

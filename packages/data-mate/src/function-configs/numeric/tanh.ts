@@ -5,6 +5,7 @@ import {
     FunctionDefinitionType,
     FunctionDefinitionCategory,
 } from '../interfaces.js';
+import { finiteOrNull } from '../sql-helpers.js';
 import { runMathFn } from './utils.js';
 
 export const tanhConfig: FieldTransformConfig = {
@@ -37,6 +38,13 @@ export const tanhConfig: FieldTransformConfig = {
     ],
     create() {
         return runMathFn(Math.tanh);
+    },
+    /** Native `tanh`. */
+    sql: {
+        // DuckDB and V8 can differ in the last bit of a transcendental result, which
+        // IEEE 754 allows, so `approximate` compares results to within a few ULP
+        approximate: true,
+        expression: ({ value }) => finiteOrNull(`tanh(${value})`),
     },
     accepts: [
         FieldType.Number,

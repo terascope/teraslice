@@ -3,7 +3,7 @@ import {
     indexedRequiredFieldTypes
 } from '@terascope/types';
 import { castArray } from '@terascope/core-utils';
-import { GraphQLType, TypeESMapping } from '../interfaces.js';
+import { GraphQLType, TypeESMapping, DuckDBTypeConfig } from '../interfaces.js';
 import { formatGQLDescription } from '../graphql-helper.js';
 
 export interface IBaseType {
@@ -55,6 +55,7 @@ export default abstract class BaseType {
     abstract toESMapping(config: ClientMetadata): TypeESMapping;
     abstract toGraphQL(options?: ToGraphQLOptions): GraphQLType;
     abstract toXlucene(): xLuceneTypeConfig;
+    abstract toDuckDB(): DuckDBTypeConfig;
 
     /**
      * Build the `{ type, customTypes }` GraphQL result for a field of the given
@@ -77,6 +78,14 @@ export default abstract class BaseType {
             type: formatGQLType(`${this.field}: ${type}`, desc),
             customTypes: makeCustomTypes(customType)
         };
+    }
+
+    /**
+     * Build the `{ [field]: type }` DuckDB result, wrapping the type as a DuckDB list
+     * (`TYPE[]`) when the field is an array. The DuckDB counterpart of `_formatGql`.
+     */
+    protected _formatDuckDB(type: string): DuckDBTypeConfig {
+        return { [this.field]: this.config.array ? `${type}[]` : type };
     }
 
     /**
@@ -104,4 +113,18 @@ function makeCustomTypes(customType?: string|(string[])): string[] {
 export function formatGQLType(type: string, desc?: string): string {
     if (!desc) return type;
     return `${formatGQLDescription(desc)}\n${type}`;
+}
+
+/**
+ * Quote a DuckDB identifier, always. Used for STRUCT member names, which can be any
+ * DataType field name, including reserved words (`inner`, `order`) and tuple positions (`0`).
+ *
+ * Quoting unconditionally is safe because DuckDB matches quoted identifiers
+ * case-insensitively.
+ *
+ * `@terascope/sql-builder` has the same one-liner; it is duplicated so this package does not
+ * depend on a query builder just for one line.
+*/
+export function quoteDuckDBIdentifier(name: string): string {
+    return `"${name.replace(/"/g, '""')}"`;
 }

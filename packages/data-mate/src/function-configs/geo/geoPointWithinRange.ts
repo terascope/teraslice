@@ -5,6 +5,8 @@ import {
     FieldValidateConfig, ProcessMode, FunctionDefinitionType,
     FunctionDefinitionCategory
 } from '../interfaces.js';
+import { parseGeoPoint } from '@terascope/geo-utils';
+import { isGeoPointColumn, rangeInMeters, distanceSphere } from './sql-utils.js';
 
 export interface GeoPointWithinRangeArgs {
     point: GeoPointInput;
@@ -36,6 +38,30 @@ export const geoPointWithinRangeConfig: FieldValidateConfig<GeoPointWithinRangeA
     description: 'Returns the input if it\'s distance to the args point is less then or equal to the args distance.',
     create({ args: { point, distance } }) {
         return geoPointWithinRangeFP(point, distance);
+    },
+    /**
+     * A true distance test. `geoPointWithinRange` approximates the circle with a 64-sided polygon,
+     * so it reports some points just inside the range as out of range: for `1000km`, a point
+     * 998.867 km away is `false` in JavaScript and `true` here.
+     *
+     * `ST_Distance_Sphere` takes (lat, lon); see `distanceSphere`.
+    */
+    sql: {
+        applies: (args, inputConfig) => {
+            if (!isGeoPointColumn(inputConfig)) return false;
+            try {
+                parseGeoPoint(args.point as any);
+                const { distance, unit } = parseGeoDistance(args.distance as string);
+                return rangeInMeters(distance, unit) != null;
+            } catch {
+                return false;
+            }
+        },
+        expression: ({ value, args }) => {
+            const { distance, unit } = parseGeoDistance(args.distance as string);
+            const meters = rangeInMeters(distance, unit);
+            return `(${distanceSphere(value, parseGeoPoint(args.point as any))} <= ${meters})`;
+        },
     },
     accepts: [
         FieldType.GeoJSON,

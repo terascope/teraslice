@@ -34,6 +34,19 @@ export const isLeapYearConfig: FieldValidateConfig = {
         },
     ],
     description: 'Returns the the input if it is in a leap year, otherwise returns null',
+    /**
+     * The Gregorian leap-year rule, written out because DuckDB has no `isleapyear`: divisible by
+     * 4, except centuries, except every 400 years.
+     *
+     * Only a `Date` column is handled; `String` and `Number` input is parsed by the UDF.
+    */
+    sql: {
+        types: [FieldType.Date],
+        expression: ({ value }) => {
+            const year = `date_part('year', ${value})`;
+            return `(mod(${year}, 4) = 0 AND (mod(${year}, 100) != 0 OR mod(${year}, 400) = 0))`;
+        },
+    },
     accepts: [
         FieldType.String,
         FieldType.Date,

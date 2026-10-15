@@ -1,6 +1,6 @@
 import { xLuceneFieldType, ESFieldType, xLuceneTypeConfig } from '@terascope/types';
 import BaseType from '../base-type.js';
-import { GraphQLType, TypeESMapping } from '../../interfaces.js';
+import { GraphQLType, TypeESMapping, DuckDBTypeConfig } from '../../interfaces.js';
 
 /**
  * A case-insensitive keyword that also exposes a tokenized sub-field.
@@ -53,5 +53,12 @@ export default class KeywordTokensCaseInsensitive extends BaseType {
 
     toXlucene(): xLuceneTypeConfig {
         return { [this.field]: xLuceneFieldType.String };
+    }
+
+    /**
+     * The DuckDB column type for this field.
+     */
+    toDuckDB(): DuckDBTypeConfig {
+        return this._formatDuckDB('VARCHAR');
     }
 }

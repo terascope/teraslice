@@ -57,6 +57,17 @@ export const encodeSHAConfig: FieldTransformConfig<EncodeSHAArgs> = {
     create({ args: { hash = hashDefault, digest = digestDefault } }) {
         return cryptoEncode(hash, digest);
     },
+    /**
+     * `sha256` with a hex digest, which are the defaults.
+     *
+     * DuckDB has `md5`, `sha1` and `sha256` but no `sha512`, and its digests are hex. Any other
+     * hash or digest keeps the UDF.
+    */
+    sql: {
+        // `validate_arguments` rejects any hash not starting with `sha`, and DuckDB has no `sha512`
+        applies: (args) => (args.digest ?? 'hex') === 'hex' && (args.hash ?? 'sha256') === 'sha256',
+        expression: ({ value }) => `sha256(${value})`,
+    },
     accepts: [FieldType.String],
     argument_schema: {
         hash: {

@@ -5,6 +5,9 @@ import {
     ProcessMode, FunctionDefinitionType, FunctionDefinitionCategory,
     FieldTransformConfig
 } from '../interfaces.js';
+import {
+    isIPSql, isMappedResult,
+} from './sql-utils.js';
 
 export interface ToCIDRArgs {
     suffix: number | string;
@@ -39,6 +42,24 @@ export const toCIDRConfig: FieldTransformConfig<ToCIDRArgs> = {
         }
     ],
     description: 'Returns a CIDR address based on the provided IP and suffix',
+    /**
+     * The block containing the address at the given suffix, as `network/prefix`.
+     *
+     * `validate_arguments` has already checked that the suffix is in range for the address
+     * family. `applies` sends a non-integer suffix to the UDF. A value that is not an IP also goes
+     * to the UDF and throws.
+    */
+    sql: {
+        needs_udf_fallback: true,
+        applies: (args) => Number.isInteger(Number(args.suffix)),
+        expression: ({ value, args, udf }) => {
+            const suffix = Number(args.suffix);
+            const block = `(${value} || '/${suffix}')::INET`;
+            return `CASE WHEN ${isIPSql(value)} AND NOT ${isMappedResult(value)}`
+                + ` THEN host(network(${block})) || '/${suffix}'`
+                + ` ELSE ${udf(value)} END`;
+        },
+    },
     accepts: [FieldType.String, FieldType.IP],
     create({ args: { suffix } }) {
         return (input: unknown) => toCIDR(input, toString(suffix));

@@ -4,6 +4,9 @@ import { FieldType } from '@terascope/types';
 import {
     ProcessMode, FunctionDefinitionType, FunctionDefinitionCategory, FieldTransformConfig
 } from '../interfaces.js';
+import {
+    isCIDRSql, cidrBroadcast, isMappedResult,
+} from './sql-utils.js';
 
 export const getLastIPInCIDRConfig: FieldTransformConfig = {
     name: 'getLastIPInCIDR',
@@ -36,6 +39,13 @@ export const getLastIPInCIDRConfig: FieldTransformConfig = {
     description: 'Returns the last address of a CIDR range, all inclusive',
     create() {
         return getLastIPInCIDR;
+    },
+    /** The broadcast address - the last IP in the block, inclusive. */
+    sql: {
+        needs_udf_fallback: true,
+        expression: ({ value, udf }) => `CASE WHEN ${isCIDRSql(value)}`
+            + ` AND NOT ${isMappedResult(value)} THEN host(${cidrBroadcast(value)})`
+            + ` ELSE ${udf(value)} END`,
     },
     accepts: [FieldType.String, FieldType.IPRange],
     output_type({ field_config }) {

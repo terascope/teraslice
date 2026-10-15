@@ -4,6 +4,7 @@ import {
     FieldValidateConfig, ProcessMode, FunctionDefinitionType,
     FunctionDefinitionCategory
 } from '../interfaces.js';
+import { isBooleanColumn } from './sql-utils.js';
 
 export const isBooleanConfig: FieldValidateConfig = {
     name: 'isBoolean',
@@ -63,6 +64,16 @@ export const isBooleanConfig: FieldValidateConfig = {
     }],
     create() {
         return isBoolean;
+    },
+    /**
+     * A constant: `TRUE` on a `Boolean` column and `FALSE` on any other.
+     *
+     * `isBoolean` is `typeof input === 'boolean'`, so the answer depends only on the column type.
+     * The validation wrapper turns `FALSE` into a null column, which matches what the UDF returns
+     * row by row.
+    */
+    sql: {
+        expression: ({ inputConfig }) => (isBooleanColumn(inputConfig) ? 'TRUE' : 'FALSE'),
     },
     accepts: [],
 };

@@ -1,3 +1,5 @@
+import { NON_ROUTABLE_IPV4_CIDRS, NON_ROUTABLE_IPV6_CIDRS } from './non-routable.js';
+
 // ---------------------------------------------------------------------------
 // Parsing helpers
 // ---------------------------------------------------------------------------
@@ -156,28 +158,14 @@ function cidr4(
     return { lo: base & mask, hi: (base & mask) | ((1n << hostBits) - 1n) };
 }
 
+function parseCidr4(cidr: string): IPv4Range {
+    const [address, prefix] = cidr.split('/');
+    const [a, b, c, d] = address.split('.').map(Number);
+    return cidr4(a, b, c, d, Number(prefix));
+}
+
 // All IPv4 ranges considered non-routable
-const NON_ROUTABLE_IPV4: IPv4Range[] = [
-    cidr4(0, 0, 0, 0, 8), // unspecified
-    cidr4(10, 0, 0, 0, 8), // private
-    cidr4(100, 64, 0, 0, 10), // carrier-grade NAT
-    cidr4(127, 0, 0, 0, 8), // loopback
-    cidr4(169, 254, 0, 0, 16), // link-local
-    cidr4(172, 16, 0, 0, 12), // private
-    cidr4(192, 0, 0, 0, 24), // reserved (IETF protocol)
-    cidr4(192, 0, 2, 0, 24), // documentation (TEST-NET-1)
-    cidr4(192, 31, 196, 0, 24), // AS112-v4 (RFC 7534)
-    cidr4(192, 52, 193, 0, 24), // AMT (RFC 7450)
-    cidr4(192, 88, 99, 0, 24), // 6to4 relay anycast (deprecated)
-    cidr4(192, 168, 0, 0, 16), // private
-    cidr4(192, 175, 48, 0, 24), // AS112-v4 (RFC 7535)
-    cidr4(198, 18, 0, 0, 15), // benchmarking
-    cidr4(198, 51, 100, 0, 24), // documentation (TEST-NET-2)
-    cidr4(203, 0, 113, 0, 24), // documentation (TEST-NET-3)
-    cidr4(224, 0, 0, 0, 8), // multicast (restricted block)
-    cidr4(240, 0, 0, 0, 4), // reserved (class E)
-    cidr4(255, 255, 255, 255, 32), // broadcast
-];
+const NON_ROUTABLE_IPV4: IPv4Range[] = NON_ROUTABLE_IPV4_CIDRS.map(parseCidr4);
 
 interface IPv6Range {
     lo: bigint;
@@ -197,22 +185,25 @@ function cidr6(groups: number[], prefix: number): IPv6Range {
     return { lo: base & mask, hi: (base & mask) | ((1n << hostBits) - 1n) };
 }
 
+/** Expands an IPv6 address (with at most one `::`) into its eight 16-bit groups. */
+function expandIPv6Groups(address: string): number[] {
+    const [head, tail] = address.split('::');
+    const toGroups = (part: string | undefined) => (
+        part ? part.split(':').map((group) => parseInt(group, 16)) : []
+    );
+    const left = toGroups(head);
+    const right = toGroups(tail);
+    if (tail === undefined) return left;
+    return [...left, ...new Array(8 - left.length - right.length).fill(0), ...right];
+}
+
+function parseCidr6(cidr: string): IPv6Range {
+    const [address, prefix] = cidr.split('/');
+    return cidr6(expandIPv6Groups(address), Number(prefix));
+}
+
 // All IPv6 ranges considered non-routable
-const NON_ROUTABLE_IPV6: IPv6Range[] = [
-    cidr6([0, 0, 0, 0, 0, 0, 0, 0], 128), // unspecified ::
-    cidr6([0, 0, 0, 0, 0, 0, 0, 1], 128), // loopback ::1
-    cidr6([0x64, 0xff9b, 0, 0, 0, 0, 0, 0], 96), // RFC 6052 NAT64
-    cidr6([0x64, 0xff9b, 1, 0, 0, 0, 0, 0], 48), // RFC 8215 local NAT64
-    cidr6([0x100, 0, 0, 0, 0, 0, 0, 0], 64), // discard (RFC 6666)
-    cidr6([0xfc00, 0, 0, 0, 0, 0, 0, 0], 7), // unique local (fc00::/7)
-    cidr6([0xfe80, 0, 0, 0, 0, 0, 0, 0], 10), // link-local
-    cidr6([0xff00, 0, 0, 0, 0, 0, 0, 0], 8), // multicast
-    cidr6([0, 0, 0, 0, 0, 0xffff, 0, 0], 96), // IPv4-mapped (::ffff:0:0/96)
-    cidr6([0x2001, 0, 0, 0, 0, 0, 0, 0], 23), // IANA special (includes teredo, benchmarking, etc.)
-    cidr6([0x2001, 0x0db8, 0, 0, 0, 0, 0, 0], 32), // documentation (RFC 3849)
-    cidr6([0x2002, 0, 0, 0, 0, 0, 0, 0], 16), // 6to4
-    cidr6([0x2620, 0x4f, 0x8000, 0, 0, 0, 0, 0], 48), // AS112-v6
-];
+const NON_ROUTABLE_IPV6: IPv6Range[] = NON_ROUTABLE_IPV6_CIDRS.map(parseCidr6);
 
 function isInRange(
     n: bigint,

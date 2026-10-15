@@ -57,6 +57,20 @@ export const getUTCMinutesConfig: FieldTransformConfig = {
     create() {
         return getUTCMinutes;
     },
+    /**
+     * Runs as `date_part('minute', x)`.
+     *
+     * Only a `Date` column is handled. The function also accepts `String` and `Number` input,
+     * which the UDF parses first, so those columns keep the UDF.
+     *
+     * The column stores a UTC timestamp and the function returns the UTC part, so no timezone
+     * handling is needed.
+    */
+    sql: {
+        types: [FieldType.Date],
+        // use the instant: core-utils' `getUTCMinutes` ignores a DateTuple's offset
+        expression: ({ value, instant }) => `date_part('minute', ${instant ?? value})`,
+    },
     accepts: [
         FieldType.Date,
         FieldType.String,

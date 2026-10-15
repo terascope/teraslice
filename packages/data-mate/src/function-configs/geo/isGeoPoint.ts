@@ -6,6 +6,7 @@ import {
     FunctionDefinitionType,
     FunctionDefinitionCategory,
 } from '../interfaces.js';
+import { isGeoPointColumn, isScalarColumn } from './sql-utils.js';
 
 export const isGeoPointConfig: FieldValidateConfig = {
     name: 'isGeoPoint',
@@ -52,6 +53,18 @@ export const isGeoPointConfig: FieldValidateConfig = {
     ],
     create() {
         return isGeoPoint;
+    },
+    /**
+     * Always true on a `GeoPoint` column. The column is a `STRUCT(lat DOUBLE, lon DOUBLE)` and
+     * ingest rejects anything that is not a valid point, so every stored value is one.
+     *
+     * A STRUCT cannot be a UDF parameter, so on such a column this is the only way the function
+     * runs.
+    */
+    sql: {
+        applies: (_args, inputConfig) => isScalarColumn(inputConfig)
+            && isGeoPointColumn(inputConfig),
+        expression: () => 'TRUE',
     },
     accepts: [],
 };

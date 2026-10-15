@@ -2,7 +2,10 @@ import {
     GEO_DISTANCE_UNITS, GeoDistanceUnit, GeoQuery, GeoDistanceSort,
     xLuceneVariables
 } from '@terascope/types';
-import { parseGeoPoint, parseGeoDistance, geoPointWithinRangeFP } from '@terascope/geo-utils';
+import {
+    parseGeoPoint, parseGeoDistance, geoPointWithinRangeFP,
+    geoDistanceToMeters
+} from '@terascope/geo-utils';
 import * as i from '../../interfaces.js';
 import { getFieldValue, logger } from '../../utils.js';
 
@@ -86,9 +89,35 @@ const geoDistance: i.FunctionDefinition = {
             };
         }
 
+        /**
+         * The query as a SQL predicate, plus the distance expression to sort on.
+         *
+         * SQL distance functions work in meters, so the distance is converted here with
+         * `geoDistanceToMeters`, which uses the same turf factors as `match`.
+         *
+         * The SQL is more precise than `match`: `makeGeoCircle` approximates the circle with
+         * a 64-sided polygon, which falls short of the radius by up to `r * (1 - cos(pi/64))`
+         * (about 1.2 km at 1000 km). The SQL compares the actual distance.
+        */
+        function toSQLQuery(field: string, options: i.FunctionSQLOptions) {
+            const { dialect } = options;
+            const unit = (paramUnit || options.geo_sort_unit || 'meters') as GeoDistanceUnit;
+            const fieldExpr = dialect.fieldRef(field);
+            const meters = geoDistanceToMeters(distance, unit);
+
+            return {
+                query: dialect.geoPointWithinDistance(fieldExpr, { lat, lon }, meters),
+                sort: {
+                    expression: dialect.geoPointDistance(fieldExpr, { lat, lon }),
+                    order: options.geo_sort_order ?? 'asc'
+                }
+            };
+        }
+
         return {
             match: geoPointWithinRangeFP({ lat, lon }, `${distance}${paramUnit}`),
-            toElasticsearchQuery
+            toElasticsearchQuery,
+            toSQLQuery
         };
     }
 };

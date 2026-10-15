@@ -5,6 +5,7 @@ import {
     FieldValidateConfig, ProcessMode, FunctionDefinitionType,
     FunctionDefinitionCategory
 } from '../interfaces.js';
+import { isIPv6Sql } from './sql-utils.js';
 
 export const isIPv6Config: FieldValidateConfig = {
     name: 'isIPv6',
@@ -51,6 +52,15 @@ export const isIPv6Config: FieldValidateConfig = {
     description: 'Returns the input if it is a valid IPv6 IP address in hexadecimal separated by colons format, otherwise returns null.',
     create() {
         return isIPv6;
+    },
+    /**
+     * A colon, no prefix, and a successful cast once any scope ID is stripped.
+     *
+     * `IPAddress.isIPv6` requires a colon and ignores everything from `%`, so `fe80::1%eth0` is
+     * valid to data-mate while `INET` rejects it.
+    */
+    sql: {
+        expression: ({ value }) => isIPv6Sql(value),
     },
     accepts: [FieldType.String, FieldType.IP],
 };

@@ -4,6 +4,9 @@ import {
     FieldValidateConfig, ProcessMode, FunctionDefinitionType,
     FunctionDefinitionCategory
 } from '../interfaces.js';
+import {
+    isBooleanColumn, isStringColumn, stringIsFalsy, stringIsTruthy, isNumericColumn,
+} from './sql-utils.js';
 
 export const isBooleanLikeConfig: FieldValidateConfig = {
     name: 'isBooleanLike',
@@ -63,6 +66,25 @@ export const isBooleanLikeConfig: FieldValidateConfig = {
     }],
     create() {
         return isBooleanLike;
+    },
+    /**
+     * `isFalsy(x) || isTruthy(x)`, expressed per column type.
+     *
+     * A boolean always qualifies. A number qualifies when it is 0 or 1. A string qualifies when it
+     * is empty, or when it trims and lowercases to one of the truthy or falsy keys. Other column
+     * types keep the UDF.
+    */
+    sql: {
+        applies: (_args, inputConfig) => isBooleanColumn(inputConfig)
+            || isStringColumn(inputConfig)
+            || isNumericColumn(inputConfig),
+        expression: ({ value, inputConfig }) => {
+            if (isBooleanColumn(inputConfig)) return 'TRUE';
+            if (isStringColumn(inputConfig)) {
+                return `(${stringIsFalsy(value)} OR ${stringIsTruthy(value)})`;
+            }
+            return `${value} IN (0, 1)`;
+        },
     },
     accepts: [],
 };

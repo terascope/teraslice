@@ -9,6 +9,7 @@ import {
     FunctionDefinitionCategory,
     FunctionDefinitionExample
 } from '../interfaces.js';
+import { JS_WHITESPACE, sqlLiteral } from '../sql-helpers.js';
 
 export interface TrimStartArgs {
     chars?: string;
@@ -56,6 +57,16 @@ export const trimStartConfig: FieldTransformConfig<TrimStartArgs> = {
         return trimStartFP(chars);
     },
     accepts: [FieldType.String],
+    /**
+     * `ltrim(x, chars)`, always with an explicit character set.
+     *
+     * DuckDB's one-argument `ltrim(x)` strips only spaces, while JavaScript strips all Unicode
+     * whitespace, including tabs and newlines. Passing `JS_WHITESPACE` makes them agree.
+    */
+    sql: {
+        expression: ({ value, args }) => `ltrim(${value}, `
+            + `${sqlLiteral(args.chars == null ? JS_WHITESPACE : args.chars)})`,
+    },
     argument_schema: {
         chars: {
             type: FieldType.String,

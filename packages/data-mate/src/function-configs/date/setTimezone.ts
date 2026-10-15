@@ -7,6 +7,7 @@ import {
     ProcessMode, FunctionDefinitionType, FunctionDefinitionCategory,
     FieldTransformConfig
 } from '../interfaces.js';
+import { currentOffsetMinutes, dateWithOffset } from './sql-utils.js';
 
 export interface SetTimezoneArgs {
     timezone: number | string;
@@ -82,6 +83,20 @@ export const setTimezoneConfig: FieldTransformConfig<SetTimezoneArgs> = {
         if (isString(timezone)) return;
 
         throw new Error('Expected timezone to be a string or a number');
+    },
+    /**
+     * The instant with a constant offset attached, like `_makeDateTuple`. A zone name is turned
+     * into an offset once with `timezoneToOffset`, as `setTimezoneFP` does, so it is the zone's
+     * current offset rather than its offset at the date. Only a `Date` column is handled;
+     * `String` and `Number` input is parsed by the UDF.
+    */
+    sql: {
+        types: [FieldType.Date],
+        applies: (args) => currentOffsetMinutes(args.timezone) !== undefined,
+        returns_date_value: true,
+        expression: ({ value, instant, args }) => dateWithOffset(
+            instant ?? value, String(currentOffsetMinutes(args.timezone))
+        ),
     },
     accepts: [FieldType.Date, FieldType.String, FieldType.Number],
     output_type({ field_config }) {

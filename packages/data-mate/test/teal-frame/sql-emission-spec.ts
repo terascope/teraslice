@@ -1,0 +1,1769 @@
+import 'jest-extended';
+import validator from 'validator';
+import { FieldType, DataTypeConfig } from '@terascope/types';
+import {
+    TealFrame, closeDuckDatabase, tealFrameAdapter, functionConfigRepository,
+    FunctionDefinitionConfig, isFieldTransform, isFieldValidation
+} from '../../src/index.js';
+
+/**
+ * Checks every function's `sql` expression against its own UDF.
+ *
+ * A function may declare a `sql` expression so the query runs it natively instead of calling a
+ * JavaScript UDF once per value, which is 18x-125x faster. It can also silently change the
+ * function's answers, so this runs each function both ways over the same values and requires
+ * them to agree exactly. Two examples of what it catches:
+ *
+ * - `trim` as `trim(x)` differs on a tab or a newline, because DuckDB's one-argument form strips
+ *   only spaces while JavaScript strips all Unicode whitespace.
+ * - `toUpperCase` as `upper(x)` differs on `'ß'` (`SS` vs `ẞ`) and `'ﬁ'` (`FI` vs `ﬁ`), because
+ *   JavaScript applies full case mapping and DuckDB applies simple mapping.
+ *
+ * A function that cannot agree stays a UDF, and the reason is recorded on its `sql` config.
+*/
+
+const repo = functionConfigRepository as unknown as Record<
+    string, FunctionDefinitionConfig<any>
+>;
+
+const FIELD_FUNCTIONS = Object.entries(repo)
+    .filter(([, config]) => isFieldTransform(config) || isFieldValidation(config));
+
+const PROMOTED = FIELD_FUNCTIONS.filter(([, config]) => config.sql != null);
+
+/** Ordinary magnitudes and both signs, including the .5 cases where rounding rules diverge. */
+const ORDINARY_NUMBERS = [0, 1, -1, 0.5, -0.5, 2.5, -2.5, 12.7, -12.7, 100, -100];
+
+/** Where JavaScript's own number formatting and domain rules bite. */
+const NUMBER_EDGES = [0.1, 1e-7, 1e21, -1e21, 9007199254740991, -9007199254740991];
+
+const ORDINARY_INTEGERS = [0, 1, -1, 2, -2, 7, -7, 100, -100];
+
+/**
+ * Test values per input type: every value known to expose a difference between SQL and
+ * JavaScript, plus ordinary cases and the edges of the type.
+ *
+ * Every list includes `null`. Under `INDIVIDUAL_VALUES` the UDF is never called for nil, so a SQL
+ * expression must be null-safe on its own, which is easy to get wrong with a `CASE` expression.
+*/
+const BATTERIES: Partial<Record<FieldType, readonly unknown[]>> = {
+    [FieldType.Keyword]: [
+        'hello',
+        'Hey There',
+        'ALREADY UPPER',
+        '',
+        '   ',
+        '\t x \n',
+        ' nbsp ',
+        '　ideographic　',
+        // a leading U+FEFF is stripped on ingest and when a UDF returns one, so it cannot
+        // round-trip the way it does in `DataFrame`. A trailing one survives, so it is tested.
+        'zwnbsp﻿',
+        'ß',
+        'ﬁ',
+        'İstanbul',
+        'ábc',
+        'straße 12',
+        'MiXeD CaSe',
+        'it\'s quoted',
+        'tab\tinside',
+        'a-b_c.d',
+        '0123456789',
+        // astral pairs and a combining mark: character-based SQL vs code-unit-based JavaScript
+        '𝔘nicode 𝔘',
+        'e\u0301abc',
+        '👍 ok 👍',
+        null,
+    ],
+    [FieldType.Number]: [...ORDINARY_NUMBERS, ...NUMBER_EDGES, null],
+    [FieldType.Integer]: [...ORDINARY_INTEGERS, 2147483647, -2147483648, null],
+    [FieldType.Long]: [0, 1, -1, 9007199254740991, -9007199254740991, null],
+    [FieldType.Double]: [...ORDINARY_NUMBERS, 0.1, 1e-7, 1e21, null],
+    [FieldType.Boolean]: [true, false, null],
+    /**
+     * One date per weekday, leap and non-leap years, a century and a 400-year boundary, the
+     * epoch and the last millisecond of a year, so the weekday, leap-year and truncation
+     * expressions are all exercised.
+    */
+    [FieldType.Date]: [
+        '2026-01-02T03:04:05.678Z',
+        '2026-01-03T00:00:00.000Z',
+        '2026-01-04T12:00:00.000Z',
+        '2026-01-05T23:59:59.999Z',
+        '2026-01-06T06:30:00.500Z',
+        '2026-01-07T18:45:12.001Z',
+        '2026-01-08T09:15:30.250Z',
+        '2024-02-29T12:00:00.000Z',
+        '1900-03-01T00:00:00.000Z',
+        '2000-02-29T00:00:00.000Z',
+        '1970-01-01T00:00:00.000Z',
+        '2026-12-31T23:59:59.999Z',
+        null,
+    ],
+    [FieldType.IP]: ['1.2.3.4', '255.255.255.255', '0.0.0.0', '::1', 'fe80::1', null],
+    /**
+     * Points around the `[{lat:1,lon:0}, {lat:0,lon:1}]` box used by the `inGeoBoundingBox` case:
+     * the center, all four edges, all four corners, and one outside on each side.
+     *
+     * The edges and corners matter most: turf includes them and `ST_Within` does not, so only
+     * interior points would let a wrong SQL expression pass.
+    */
+    [FieldType.GeoPoint]: [
+        { lat: 0.5, lon: 0.5 },
+        { lat: 1, lon: 0.5 },
+        { lat: 0, lon: 0.5 },
+        { lat: 0.5, lon: 0 },
+        { lat: 0.5, lon: 1 },
+        { lat: 1, lon: 0 },
+        { lat: 0, lon: 1 },
+        { lat: 1, lon: 1 },
+        { lat: 0, lon: 0 },
+        { lat: 2, lon: 0.5 },
+        { lat: -1, lon: 0.5 },
+        { lat: 0.5, lon: -1 },
+        { lat: 0.5, lon: 2 },
+        null,
+    ],
+    /**
+     * Only values a `GeoJSON` column can hold.
+     *
+     * `coerceToType` rejects a malformed shape at ingest (`{ type: 'Point' }`,
+     * `{ coordinates: [...] }`, a `LineString`, `{}`) and normalizes the type to title case, so
+     * `'point'` is stored as `'Point'`. Malformed values therefore never reach the column, and the
+     * expression's structural checks cannot be exercised here.
+     *
+     * `'POINT'` is included because coercion passes it through unchanged: it satisfies
+     * `isGeoJSON` (which lowercases) and fails `isGeoShapePoint` (which compares exactly).
+    */
+    [FieldType.GeoJSON]: [
+        // shapes for the spatial predicates: inside, touching, overlapping, disjoint, holed
+        { type: 'Polygon', coordinates: [[[0, 0], [0, 10], [10, 10], [10, 0], [0, 0]]] },
+        { type: 'Polygon', coordinates: [[[2, 2], [2, 8], [8, 8], [8, 2], [2, 2]]] },
+        { type: 'Polygon', coordinates: [[[10, 0], [10, 10], [20, 10], [20, 0], [10, 0]]] },
+        { type: 'Polygon', coordinates: [[[5, 5], [5, 15], [15, 15], [15, 5], [5, 5]]] },
+        { type: 'Polygon', coordinates: [[[50, 50], [50, 60], [60, 60], [60, 50], [50, 50]]] },
+        {
+            type: 'Polygon',
+            coordinates: [[[0, 0], [0, 10], [10, 10], [10, 0], [0, 0]],
+                [[4, 4], [4, 6], [6, 6], [6, 4], [4, 4]]],
+        },
+        { type: 'Point', coordinates: [5, 5] },
+        { type: 'Point', coordinates: [0, 5] },
+        { type: 'Point', coordinates: [10, 20] },
+        { type: 'point', coordinates: [10, 20] },
+        { type: 'POINT', coordinates: [10, 20] },
+        { type: 'Polygon', coordinates: [[[0, 0], [0, 1], [1, 1], [0, 0]]] },
+        { type: 'polygon', coordinates: [[[0, 0], [0, 1], [1, 1], [0, 0]]] },
+        { type: 'MultiPolygon', coordinates: [[[[0, 0], [0, 1], [1, 1], [0, 0]]]] },
+        { type: 'multipolygon', coordinates: [[[[0, 0], [0, 1], [1, 1], [0, 0]]]] },
+        null,
+    ],
+};
+
+/**
+ * The one input where a GEOMETRY and `DataFrame` must disagree. `DataFrame` stores a `GeoJSON`
+ * value as it arrived, and `geo-utils` compares the `type` case-exactly, so the same point is
+ * disjoint when spelled `'Point'` or `'point'` and not disjoint when spelled `'POINT'`. A GEOMETRY
+ * stores the shape, not the spelling, so SQL answers the same for every spelling.
+*/
+const POINT_SPELLING = 'a GEOMETRY stores the shape, not the type spelling; JS answers differently for POINT than for Point';
+
+/**
+ * IP test values, fed through a Keyword column rather than an `IP` one.
+ *
+ * The IP functions accept `String` as well as `IP`, and only a string column can hold malformed
+ * input: coercion into an `IP` field rejects it before the function sees it. Every value below is
+ * a shape where `ip-utils` and the `inet` extension could disagree: leading zeros, a prefix on an
+ * address, a scope ID, both IPv4-in-IPv6 spellings, and one member of every reserved range.
+*/
+const IP_BATTERY: readonly unknown[] = [
+    // ordinary, and one from each family
+    '1.2.3.4',
+    '8.8.8.8',
+    '0.0.0.0',
+    '255.255.255.255',
+    '::1',
+    '::',
+    '2001:4860:4860::8888',
+    'ffff:ffff:ffff:ffff:ffff:ffff:ffff:ffff',
+    '0:0:0:0:0:0:0:1',
+    '2001:DB8::1',
+    // one per non-routable range, both families
+    '10.0.0.1',
+    '172.16.0.1',
+    '192.168.1.1',
+    '127.0.0.1',
+    '169.254.1.1',
+    '100.64.0.1',
+    '224.0.0.1',
+    '240.0.0.1',
+    '203.0.113.1',
+    '198.51.100.1',
+    '192.0.2.1',
+    '198.18.0.1',
+    '192.88.99.1',
+    '192.0.0.1',
+    'fe80::1',
+    'ff00::1',
+    'fc00::1',
+    'fd00::1',
+    '2002::1',
+    '64:ff9b::1',
+    '100::1',
+    '2620:4f:8000::1',
+    '2001:db8::1',
+    // strictness: data-mate rejects a leading zero, INET reads it as the address
+    '01.02.03.04',
+    '010.1.1.1',
+    '1.2.3.04',
+    // a prefix makes it a CIDR, not an IP, but INET casts it either way
+    '1.2.3.4/24',
+    '1.2.3.4/32',
+    '10.0.0.0/8',
+    '192.168.1.0/24',
+    '0.0.0.0/0',
+    '2001:db8::/32',
+    'fe80::/10',
+    '::/0',
+    '::ffff:0:0/96',
+    '2001:db8::1/64',
+    // scope IDs: valid to data-mate, rejected outright by INET
+    'fe80::1%eth0',
+    'fe80::1%1',
+    '2001:db8::1%0',
+    'fe80::1%',
+    '1.2.3.4%eth0',
+    // both IPv4-in-IPv6 spellings, including the pair that is the same 128 bits
+    '::ffff:1.2.3.4',
+    '::ffff:8.8.8.8',
+    '::ffff:192.168.1.1',
+    '::1.2.3.4',
+    '::8.8.8.8',
+    '::0.0.0.0',
+    '::255.255.255.255',
+    '::ffff:0102:0304',
+    '::1.2.3.4%eth0',
+    // not addresses at all
+    '256.1.1.1',
+    '1.2.3',
+    '1.2.3.4.5',
+    '1.2.3.4 ',
+    ' 1.2.3.4',
+    '1.2.3.4:80',
+    '0x1.2.3.4',
+    ':::1',
+    '2001:db8::1::2',
+    'gggg::1',
+    '12345::1',
+    '1:2:3:4:5:6:7',
+    '',
+    'not-an-ip',
+    '1',
+    '4294967295',
+    null,
+];
+
+/** Every IP predicate gets the same values, through a String column. See `IP_BATTERY`. */
+const IP_CASE = { type: FieldType.Keyword, battery: IP_BATTERY };
+
+/**
+ * Transforms get only valid input, because a transform throws on invalid input.
+ *
+ * A throwing transform aborts the whole query, as it does in `DataFrame`, so one bad value would
+ * fail both paths and leave nothing to compare. These lists therefore hold only inputs the
+ * function accepts, and `throwsOn` names one it rejects, which is checked separately for the same
+ * failure on both paths.
+*/
+const VALID_CIDRS: readonly unknown[] = [
+    '10.0.0.0/8',
+    '192.168.1.0/24',
+    '192.168.1.5/24',
+    '1.2.3.4/32',
+    '0.0.0.0/0',
+    '255.255.255.254/31',
+    '172.16.0.0/12',
+    '203.0.113.0/26',
+    '2001:db8::/32',
+    'fe80::/10',
+    '::/0',
+    '2001:db8::1/128',
+    '2001:db8:abcd:1234::/64',
+    null,
+];
+
+const VALID_IPS: readonly unknown[] = [
+    '1.2.3.4',
+    '8.8.8.8',
+    '0.0.0.0',
+    '255.255.255.255',
+    '192.168.1.1',
+    '10.0.0.1',
+    '::1',
+    '2001:db8::1',
+    'fe80::1',
+    '::ffff:1.2.3.4',
+    '::ffff:8.8.8.8',
+    null,
+];
+
+const CIDR_CASE = { type: FieldType.Keyword, battery: VALID_CIDRS, throwsOn: 'not-a-cidr' };
+const IP_TRANSFORM_CASE = { type: FieldType.Keyword, battery: VALID_IPS, throwsOn: 'not-an-ip' };
+
+/**
+ * Which of a function's accepted types to feed it.
+ *
+ * A wrong order looks like a bug in the SQL expression: IP functions list `String` first, so a
+ * plain first match would feed `getCIDRMin` a sentence. Semantic types come first, then numerics,
+ * then generic strings, as in `function-sweep-spec.ts`.
+*/
+const TYPE_PREFERENCE: readonly FieldType[] = [
+    FieldType.GeoPoint,
+    FieldType.GeoJSON,
+    FieldType.Date,
+    FieldType.IP,
+    FieldType.Boolean,
+    FieldType.Integer,
+    FieldType.Long,
+    FieldType.Double,
+    FieldType.Number,
+    FieldType.Keyword,
+];
+
+/**
+ * Per-function overrides: argument sets, the input type when the preference order is wrong, and
+ * the test values where the shared ones include values the declared output type cannot hold.
+ *
+ * That last case is `ceil`/`floor`/`round`: their `output_type` is `Integer`, so at `1e21` both
+ * paths overflow and differ only in how the wrapped value renders. Their values are limited to
+ * what an `Integer` can represent, and the guard on those expressions keeps the UDF outside it.
+*/
+/**
+ * Postal codes: a sample for every locale's pattern, in both cases, and every rewritten edge: the
+ * lookaheads (IE, IN, IR, NL), `\\s` as a vertical tab, a newline inside a code, and non-ASCII
+ * whitespace, which goes to the UDF.
+*/
+const POSTAL_BATTERY = [
+    '123',
+    '1234',
+    '12345',
+    '123456',
+    '1234567',
+    '12345678',
+    '',
+    ' ',
+    'abc',
+    'AD123',
+    'ad123',
+    'AZ1234',
+    'HT1234',
+    'LT-12345',
+    'LV-1234',
+    'LT12345',
+    'K1A 0B1',
+    'k1a0b1',
+    'K1A-0B1',
+    'D1A 0B1',
+    'K1A\u000b0B1',
+    'K1A\u00a00B1',
+    'SW1A 1AA',
+    'GIR 0AA',
+    'gir0aa',
+    'EC1A1BB',
+    'W1 1AA',
+    'D02 X285',
+    'A65 F4E2',
+    'A65 F4O2',
+    'O65 F4E2',
+    'A65\nwxyz',
+    'A65\nwoyz',
+    'A6W W123',
+    '110001',
+    '100001',
+    '290001',
+    '890001',
+    '011000',
+    '1234567890',
+    '1111567890',
+    '3333567890',
+    '1234067890',
+    '1234 AB',
+    '1234 SA',
+    '1234sa',
+    '1234 sd',
+    '1234ss',
+    '1234\tab',
+    '0234 AB',
+    '1234 S A',
+    '100-0001',
+    '00-950',
+    '1000-001',
+    '1000-',
+    '01001-000',
+    '01001000',
+    '110 00',
+    '11000',
+    '12345-6789',
+    '12345-678',
+    'VLT 1117',
+    'ABC1234',
+    'AB 1234',
+    '00901',
+    '00901-1234',
+    '00601 1234',
+    '100',
+    '10012',
+    '100123',
+    '100000',
+    '800000',
+    '050001',
+    '990001',
+    '060001',
+    '28001',
+    '53001',
+    '75001',
+    '97100',
+    '97500',
+    '97700',
+    '9490',
+    '9498',
+    '98000',
+    '977',
+    '44600',
+    '220000',
+    '250000',
+    '71000',
+    '61000',
+    '10000',
+    '60000',
+    '1000',
+    '9500',
+    '9600',
+    '113 51',
+    '01234',
+    '11351',
+    '123\u00a045',
+    null,
+];
+
+/** Instants either side of DST changes, for the functions that attach a timezone offset. */
+const TZ_EDGES = [
+    '2024-03-10T06:30:00.000Z',
+    '2024-03-10T06:59:59.999Z',
+    '2024-03-10T07:00:00.000Z',
+    '2024-11-03T05:30:00.000Z',
+    '2024-11-03T06:00:00.000Z',
+    '2024-11-03T06:30:00.000Z',
+    '2024-04-06T15:30:00.000Z',
+    '2024-04-06T16:00:00.000Z',
+    '2024-10-05T15:30:00.000Z',
+    '2024-03-31T00:59:00.000Z',
+    '2024-03-31T01:00:00.000Z',
+    '2024-10-27T01:00:00.000Z',
+    '1850-01-01T00:00:00.000Z',
+    '2099-07-01T12:00:00.000Z',
+    null,
+];
+
+const CASES: Record<string, {
+    args?: readonly Record<string, unknown>[];
+    /**
+     * The input type to feed when the preference order picks the wrong one, or several types when
+     * the SQL expression branches on the column type.
+     *
+     * `isBooleanLike` and `toBoolean` declare `accepts: []` and do something different per type: a
+     * constant for a `Boolean` column, a lookup in two tables for a string, a comparison for a
+     * number. Each branch is effectively a separate expression and gets its own case.
+    */
+    type?: FieldType | readonly FieldType[];
+    battery?: readonly unknown[];
+    /**
+     * The SQL expression exists only for an array column, so the case runs on one.
+     *
+     * `addValues` and its five siblings are `FULL_VALUES` reducers: on a scalar column they return
+     * the value unchanged, and `list_sum` of a scalar is not valid, so their `applies` declines a
+     * scalar column and it keeps the UDF.
+    */
+    arrayOnly?: boolean;
+    /**
+     * An input this transform rejects, used to check that both paths throw.
+     *
+     * Both paths must fail with the same message. That is why the SQL is
+     * `CASE WHEN <valid> THEN <native> ELSE udf(x) END` rather than `error('...')`: the UDF runs
+     * for exactly the values the native branch declines, and it raises the function's own error.
+    */
+    throwsOn?: unknown;
+    /**
+     * Argument sets the SQL expression must decline, checked by calling `applies`.
+     *
+     * A declined set runs the UDF on both sides, so comparing the output says nothing about the
+     * guard. Calling `applies` directly checks it without a query.
+    */
+    declines?: readonly Record<string, unknown>[];
+    /**
+     * Inputs where the SQL deliberately differs from the JavaScript, with the correct answer.
+     *
+     * Used only where SQL is the more correct of the two and that has been accepted as the
+     * behavior, such as the geo predicates, whose `booleanIntersects`-based hole test treats a
+     * shape that merely touches a hole as inside it. Each entry names an input and the answer SQL
+     * must give. Every other input must still agree exactly, so an unlisted difference fails.
+    */
+    knownDivergences?: readonly {
+        /**
+         * The argument set this applies to, since a difference belongs to the input and the
+         * arguments together.
+        */
+        args: Record<string, unknown>;
+        input: unknown;
+        sql: unknown;
+        why: string;
+    }[];
+}> = {
+    ceil: { battery: [...ORDINARY_NUMBERS, 1e6, -1e6, 2147483646, -2147483646, null] },
+    // the input is a temperature, so the values are temperatures: the conversion rounds to two
+    // decimals, and `floor(v * 100 + 0.5) / 100` loses precision only at unrealistic magnitudes
+    toCelsius: { battery: [...ORDINARY_NUMBERS, 212, 98.6, -40, 1e6, null] },
+    toFahrenheit: { battery: [...ORDINARY_NUMBERS, 100, 37.78, -40, 1e6, null] },
+    floor: { battery: [...ORDINARY_NUMBERS, 1e6, -1e6, 2147483646, -2147483646, null] },
+    round: { battery: [...ORDINARY_NUMBERS, 1e6, -1e6, 2147483646, -2147483646, null] },
+    trim: { args: [{}, { chars: 'x' }, { chars: '-' }, { chars: 'ab' }] },
+    trimStart: { args: [{}, { chars: 'x' }, { chars: '-' }] },
+    trimEnd: { args: [{}, { chars: 'x' }, { chars: '-' }] },
+    // an empty `value` is rejected by `required_arguments`, so it is not a case to compare
+    contains: { args: [{ value: 'e' }, { value: 'ß' }, { value: 'l' }] },
+    startsWith: { args: [{ value: 'h' }, { value: 'H' }, { value: 'ß' }] },
+    endsWith: { args: [{ value: 'o' }, { value: 'e' }, { value: 'ß' }] },
+    replaceLiteral: {
+        args: [
+            { search: 'e', replace: 'E' },
+            { search: 'l', replace: 'LL' },
+            { search: 'ß', replace: 'ss' },
+        ],
+    },
+    isLength: { args: [{ size: 5 }, { min: 1, max: 10 }, { min: 0 }] },
+    isGreaterThan: { args: [{ value: 0 }, { value: -1 }, { value: 100 }] },
+    add: { args: [{ value: 1 }, { value: -2.5 }, { value: 0 }] },
+    subtract: { args: [{ value: 1 }, { value: -2.5 }, { value: 0 }] },
+    multiply: { args: [{ value: 3 }, { value: -0.5 }, { value: 0 }] },
+    divide: { args: [{ value: 3 }, { value: -0.5 }, { value: 0 }] },
+    modulus: { args: [{ value: 3 }, { value: -3 }, { value: 2 }] },
+    pow: { args: [{ value: 2 }, { value: 0.5 }, { value: -1 }] },
+    inNumberRange: {
+        args: [
+            { min: 0, max: 100 },
+            { min: 0, max: 100, inclusive: true },
+            { min: -1 },
+            { max: 1 },
+        ],
+    },
+    encodeSHA: { args: [{}, { hash: 'sha512' }, { digest: 'base64' }] },
+    encodeSHA1: { args: [{}, { digest: 'base64' }] },
+    isGreaterThanOrEqualTo: { args: [{ value: 0 }, { value: -1 }, { value: 100 }] },
+    isLessThan: { args: [{ value: 0 }, { value: -1 }, { value: 100 }] },
+    isLessThanOrEqualTo: { args: [{ value: 0 }, { value: -1 }, { value: 100 }] },
+    // `size` must be positive; the function rejects 0 itself
+    truncate: { args: [{ size: 3 }, { size: 1 }, { size: 100 }] },
+    /**
+     * Date setters: one ordinary value and one that forces a rollover, the only place a naive SQL
+     * expression and `Date` disagree (`setUTCDate(31)` on a February date is March 3).
+    */
+    setMilliseconds: { args: [{ value: 0 }, { value: 999 }] },
+    setSeconds: { args: [{ value: 0 }, { value: 59 }] },
+    setMinutes: { args: [{ value: 0 }, { value: 59 }] },
+    setHours: { args: [{ value: 0 }, { value: 23 }] },
+    setDate: { args: [{ value: 1 }, { value: 31 }] },
+    setMonth: { args: [{ value: 1 }, { value: 2 }, { value: 12 }] },
+    setYear: { args: [{ value: 2023 }, { value: 2024 }] },
+    isAfter: { args: [{ date: '2026-01-05T00:00:00.000Z' }, { date: 1735689600000 }] },
+    isBefore: { args: [{ date: '2026-01-05T00:00:00.000Z' }, { date: 1735689600000 }] },
+    isBetween: {
+        args: [{ start: '2026-01-03T00:00:00.000Z', end: '2026-01-07T00:00:00.000Z' }],
+    },
+    // FULL_VALUES reducers; see `arrayOnly`
+    join: { arrayOnly: true, type: FieldType.Keyword, args: [{ delimiter: '-' }, {}] },
+    addValues: { arrayOnly: true },
+    hypot: { arrayOnly: true },
+    // exactly two elements: `getCoordinates` throws for any other length
+    atan2: { arrayOnly: true, battery: [3, 4] },
+    subtractValues: { arrayOnly: true },
+    multiplyValues: { arrayOnly: true },
+    divideValues: { arrayOnly: true },
+    maxValues: { arrayOnly: true },
+    minValues: { arrayOnly: true },
+    /**
+     * `accepts: []` means every type, and these three behave differently per type, so each runs
+     * against a boolean, a string, a double and an integer column. The integer column checks that
+     * DuckDB's `isnan` has an integer overload.
+    */
+    isGeoJSON: { type: FieldType.GeoJSON },
+    isGeoPoint: { type: FieldType.GeoPoint },
+    /**
+     * The spatial predicates.
+     *
+     * `geoIntersects` and `geoDisjoint` agree with `geo-utils` everywhere. `geoContains`,
+     * `geoWithin`, `geoRelation` and `geoContainsPoint` differ on inputs that touch a hole, because
+     * `geo-utils` treats touching a hole as being inside it. Those inputs are listed in
+     * `knownDivergences` with the correct SQL answer.
+    */
+    geoIntersects: {
+        type: FieldType.GeoJSON,
+        args: [
+            { value: { type: 'Polygon', coordinates: [[[0, 0], [0, 10], [10, 10], [10, 0], [0, 0]]] } },
+            { value: { type: 'Point', coordinates: [5, 5] } },
+        ],
+    },
+    geoDisjoint: {
+        type: FieldType.GeoJSON,
+        args: [
+            { value: { type: 'Polygon', coordinates: [[[0, 0], [0, 10], [10, 10], [10, 0], [0, 0]]] } },
+        ],
+        knownDivergences: [{
+            args: { value: { type: 'Polygon', coordinates: [[[0, 0], [0, 10], [10, 10], [10, 0], [0, 0]]] } },
+            input: { type: 'POINT', coordinates: [10, 20] },
+            sql: true,
+            why: POINT_SPELLING,
+        }],
+    },
+    geoContains: {
+        type: FieldType.GeoJSON,
+        args: [
+            { value: { type: 'Polygon', coordinates: [[[2, 2], [2, 8], [8, 8], [8, 2], [2, 2]]] } },
+            { value: { type: 'Point', coordinates: [5, 5] } },
+            // touches the hole of the holed polygon at (4,4), the known difference below
+            { value: { type: 'Polygon', coordinates: [[[0, 0], [0, 4], [4, 4], [4, 0], [0, 0]]] } },
+        ],
+        knownDivergences: [{
+            args: {
+                value: {
+                    type: 'Polygon',
+                    coordinates: [[[0, 0], [0, 4], [4, 4], [4, 0], [0, 0]]],
+                },
+            },
+            input: {
+                type: 'Polygon',
+                coordinates: [[[0, 0], [0, 10], [10, 10], [10, 0], [0, 0]],
+                    [[4, 4], [4, 6], [6, 6], [6, 4], [4, 4]]],
+            },
+            sql: true,
+            why: 'the 0..4 square meets the hole only at (4,4); geo-utils asks '
+                + 'booleanIntersects against the hole, which is boundary-inclusive, and calls it '
+                + 'not-contained. ST_Contains says contained, which is right.',
+        }],
+    },
+    geoWithin: {
+        type: FieldType.GeoJSON,
+        args: [
+            { value: { type: 'Polygon', coordinates: [[[0, 0], [0, 10], [10, 10], [10, 0], [0, 0]]] } },
+        ],
+    },
+    geoRelation: {
+        type: FieldType.GeoJSON,
+        args: [
+            {
+                value: { type: 'Polygon', coordinates: [[[0, 0], [0, 10], [10, 10], [10, 0], [0, 0]]] },
+                relation: 'intersects',
+            },
+            {
+                value: { type: 'Polygon', coordinates: [[[0, 0], [0, 10], [10, 10], [10, 0], [0, 0]]] },
+                relation: 'disjoint',
+            },
+        ],
+        knownDivergences: [{
+            args: {
+                value: { type: 'Polygon', coordinates: [[[0, 0], [0, 10], [10, 10], [10, 0], [0, 0]]] },
+                relation: 'disjoint',
+            },
+            input: { type: 'POINT', coordinates: [10, 20] },
+            sql: true,
+            why: POINT_SPELLING,
+        }],
+    },
+    geoContainsPoint: {
+        type: FieldType.GeoJSON,
+        args: [{ point: { lat: 5, lon: 5 } }, { point: { lat: 0, lon: 5 } }],
+    },
+    /**
+     * SQL runs a true distance test where JavaScript uses a 64-sided polygon, so every point in
+     * the band between the polygon and the circle differs. The values are points around a 1000km
+     * range from (0,0).
+    */
+    geoPointWithinRange: {
+        type: FieldType.GeoPoint,
+        args: [{ point: { lat: 0, lon: 0 }, distance: '1000km' }],
+    },
+    inGeoBoundingBox: {
+        type: FieldType.GeoPoint,
+        args: [
+            { top_left: { lat: 1, lon: 0 }, bottom_right: { lat: 0, lon: 1 } },
+            { top_left: '1,0', bottom_right: '0,1' },
+        ],
+    },
+    isGeoShapePoint: {
+        type: FieldType.GeoJSON,
+        knownDivergences: [{
+            args: {}, input: { type: 'POINT', coordinates: [10, 20] }, sql: true, why: POINT_SPELLING,
+        }],
+    },
+    isGeoShapePolygon: { type: FieldType.GeoJSON },
+    isGeoShapeMultiPolygon: { type: FieldType.GeoJSON },
+    /**
+     * A non-empty delimiter only, because the default `''` splits into UTF-16 code units.
+    */
+    split: {
+        args: [{ delimiter: '-' }, { delimiter: 'l' }, { delimiter: ' ' }, {}],
+    },
+    // the SQL expression claims a String column; `accepts` also lists Number, which keeps the UDF
+    isPort: { type: FieldType.Keyword },
+    /**
+     * `isBase64` is a case where SQL is correct and the JavaScript is not: `core-utils` rejects
+     * valid base64 whose decoded bytes are not UTF-8. Those inputs are listed with the right
+     * answer.
+    */
+    isBase64: {
+        battery: ['aGVsbG8=',
+            'YQ==',
+            'YWJjZA==',
+            'AAAA',
+            'SGVsbG8gd29ybGQ=',
+            'abcd',
+            '////',
+            '++++',
+            'a',
+            'ab',
+            'abc',
+            '',
+            'a===',
+            'not base64!',
+            null],
+        knownDivergences: [
+            { args: {}, input: 'abcd', sql: true, why: 'valid base64; decodes to bytes that are not UTF-8' },
+            { args: {}, input: '////', sql: true, why: 'valid base64; decodes to 0xFF FF FF' },
+            { args: {}, input: '++++', sql: true, why: 'valid base64; decodes to 0xFB EF BE' },
+        ],
+    },
+    isFQDN: {
+        battery: ['example.com',
+            'sub.example.co.uk',
+            'xn--bcher-kva.example',
+            'a.io',
+            'example',
+            'example.c',
+            'example.123',
+            '-bad.com',
+            'bad-.com',
+            'under_score.com',
+            'has space.com',
+            'a..com',
+            '',
+            'exämple.com',
+            'x.' + 'a'.repeat(64) + '.com',
+            null],
+    },
+    /**
+     * The case converters: the shared Keyword values plus plain inputs that take lodash's ASCII
+     * word splitter, since the shared values are almost all strings that take the Unicode path.
+    */
+    ...Object.fromEntries(
+        ['toCamelCase', 'toPascalCase', 'toKebabCase', 'toSnakeCase', 'toTitleCase'].map(
+            (name) => [name,
+                {
+                    battery: [
+                        'hello world',
+                        'HELLO WORLD',
+                        'Hello World',
+                        'hello',
+                        'HELLO',
+                        'one two three',
+                        'a b c',
+                        '',
+                        '   ',
+                        '123 456',
+                        'Foo Bar Baz',
+                        // Unicode-path inputs, which the SQL expression declines
+                        'XMLHttpRequest',
+                        'fooBar',
+                        'a-b_c.d',
+                        'ßeta',
+                        '👍 ok',
+                        'tab\tinside',
+                        'MiXeD CaSe',
+                        'it\'s quoted',
+                        null,
+                    ],
+                }]
+        )
+    ),
+    // one branch per starting type; see the SQL expression
+    toString: {
+        type: [FieldType.Keyword,
+            FieldType.Date,
+            FieldType.Boolean,
+            FieldType.Number,
+            FieldType.Integer],
+    },
+    isHash: {
+        battery: [
+            '5d41402abc4b2a76b9719d911017c592',
+            'D41D8CD98F00B204E9800998ECF8427E',
+            'da39a3ee5e6b4b0d3255bfef95601890afd80709',
+            'not-a-hash',
+            '',
+            'abc',
+            null,
+        ],
+        args: [{ algo: 'md5' }, { algo: 'sha1' }, { algo: 'sha256' }, { algo: 'crc32' }],
+    },
+    isUUID: {
+        battery: [
+            '9f8a6b1c-4d2e-4f3a-9b8c-7d6e5f4a3b2c',
+            '9F8A6B1C-4D2E-4F3A-9B8C-7D6E5F4A3B2C',
+            '00000000-0000-0000-0000-000000000000',
+            'ffffffff-ffff-ffff-ffff-ffffffffffff',
+            // variant nibble out of range, and a v9 that only `loose` accepts
+            '9f8a6b1c-4d2e-4f3a-1b8c-7d6e5f4a3b2c',
+            '9f8a6b1c-4d2e-9f3a-9b8c-7d6e5f4a3b2c',
+            'not-a-uuid',
+            '',
+            null,
+        ],
+        args: [{}, { version: '4' }, { version: 'loose' }, { version: 'nil' }, { version: 'max' }],
+    },
+    /**
+     * Anchors, classes, quantifiers and both flags, plus the two shapes the SQL expression
+     * declines: a lookahead, which RE2 cannot compile, and a `$1` replacement, which means a
+     * capture group in JavaScript and a literal in SQL.
+    */
+    replaceRegex: {
+        args: [
+            { regex: 'l', replace: 'L' },
+            { regex: 'l', replace: 'L', global: true },
+            { regex: '[aeiou]', replace: '*', global: true },
+            { regex: '^H', replace: 'h', ignoreCase: true },
+            { regex: '\\d+', replace: '#', global: true },
+            { regex: '(?=l)', replace: 'X', global: true },
+            { regex: '(l)', replace: '[$1]', global: true },
+            // `\s` and `.` match different characters in RE2 and JavaScript, so the Keyword
+            // values include NBSP, an ideographic space and a tab
+            { regex: '\\s', replace: '_', global: true },
+            { regex: '\\S', replace: '#', global: true },
+            { regex: 'a.c', replace: 'X' },
+            { regex: '.', replace: '.', global: true },
+        ],
+    },
+    isDate: { type: FieldType.Date, args: [{}, { format: 'iso_8601' }] },
+    isISO8601: { type: FieldType.Date },
+    // the values are all fixed past dates, so plan-time and per-row "now" agree on every one
+    isFuture: { type: FieldType.Date },
+    isPast: { type: FieldType.Date },
+    isToday: { type: FieldType.Date },
+    isTomorrow: { type: FieldType.Date },
+    isYesterday: { type: FieldType.Date },
+    // real zones, not just UTC: a reversed date_diff still matches UTC and fails everywhere else
+    /**
+     * The three functions that attach an offset (`returns_date_value`). The values straddle DST
+     * changes in New York, Sydney, Lord Howe (a 30-minute DST) and Paris. There, the offset
+     * core-utils computes at the wall time equal to the instant differs from the instant's own
+     * offset; see `timezoneOffsetMinutes`.
+    */
+    setTimezone: {
+        type: FieldType.Date,
+        battery: TZ_EDGES,
+        args: [{ timezone: 120 }, { timezone: -420 }, { timezone: 0 }, { timezone: 'Asia/Kolkata' }],
+        declines: [{ timezone: 'Not/AZone' }, { timezone: 2000 }],
+    },
+    toTimeZone: {
+        type: FieldType.Date,
+        battery: TZ_EDGES,
+        args: [
+            { timezone: 'America/New_York' },
+            { timezone: 'Australia/Sydney' },
+            { timezone: 'Australia/Lord_Howe' },
+            { timezone: 'Europe/Paris' },
+            { timezone: 'Asia/Calcutta' },
+        ],
+        declines: [{ timezone: 'Not/AZone' }],
+    },
+    toTimeZoneUsingLocation: {
+        type: FieldType.Date,
+        battery: TZ_EDGES,
+        args: [
+            { location: { lat: 40.7, lon: -74.0 } },
+            { location: '33.45, -112.07' },
+            { location: { lat: -31.55, lon: 159.08 } },
+        ],
+    },
+    isPostalCode: {
+        type: FieldType.Keyword,
+        battery: POSTAL_BATTERY,
+        // no locale is `any`; `'any'` itself is refused by `validate_arguments`
+        args: [{}, ...validator.isPostalCodeLocales.map((locale) => ({ locale }))],
+    },
+    /**
+     * Inherited property names go to the UDF (see `lookupSQL`). `lookup-sql-spec` covers number
+     * and integer columns and array tables against `DataFrame`.
+    */
+    lookup: {
+        type: FieldType.Keyword,
+        battery: ['key1', 'key2', '8910', 'toString', 'constructor', '__proto__', 'missing', '', null],
+        args: [
+            { in: { key1: 'value1', key2: { nested: [1, 'two'] }, 8910: 1112, toString: 'own' } },
+            { in: { a: 1 } },
+        ],
+        declines: [{ in: '1:foo\n2:bar' }, { in: ['zero', 'one'] }],
+    },
+    getTimezoneOffset: {
+        type: FieldType.Date,
+        args: [
+            { timezone: 'America/New_York' },
+            { timezone: 'Asia/Kolkata' },
+            { timezone: 'Australia/Lord_Howe' },
+            { timezone: 'UTC' },
+        ],
+    },
+    getTimeBetween: {
+        type: FieldType.Date,
+        args: [
+            { start: '2026-01-01T00:00:00.000Z', interval: 'milliseconds' },
+            { start: '2026-01-01T00:00:00.000Z', interval: 'seconds' },
+            { start: '2026-01-01T00:00:00.000Z', interval: 'hours' },
+            { start: '2026-01-01T00:00:00.000Z', interval: 'days' },
+            { end: '2026-06-01T00:00:00.000Z', interval: 'minutes' },
+            { end: '2026-06-01T00:00:00.000Z', interval: 'weeks' },
+            // calendar intervals the SQL expression declines
+            { start: '2026-01-01T00:00:00.000Z', interval: 'months' },
+            { start: '2026-01-01T00:00:00.000Z', interval: 'calendarDays' },
+        ],
+    },
+    isEpoch: { args: [{}, { allowBefore1970: false }] },
+    isEpochMillis: { args: [{}, { allowBefore1970: false }] },
+    /**
+     * Time units only, plus the calendar units the SQL expression declines and `milliseconds`,
+     * which both paths ignore because `date-fns`' `Duration` has no such key. See
+     * `date/sql-utils.ts`.
+    */
+    addToDate: {
+        type: FieldType.Date,
+        args: [{ hours: 5 },
+            { seconds: 90 },
+            { hours: 1, minutes: 2, seconds: 3 },
+            { milliseconds: 500 },
+            { months: 1 },
+            { expr: '1h' }],
+    },
+    subtractFromDate: {
+        type: FieldType.Date,
+        args: [{ hours: 5 },
+            { seconds: 90 },
+            { hours: 1, minutes: 2, seconds: 3 },
+            { milliseconds: 500 },
+            { days: 1 }],
+    },
+    isEmpty: {
+        type: [FieldType.Keyword, FieldType.Number, FieldType.Boolean],
+        args: [{}, { ignoreWhitespace: true }],
+    },
+    equals: { type: [FieldType.Keyword, FieldType.Number], args: [{ value: 'hello' }, { value: 1 }] },
+    // a string column and a string default
+    setDefault: { type: FieldType.Keyword, args: [{ value: 'fallback' }] },
+    isAlpha: { args: [{}, { locale: 'pl-PL' }] },
+    isAlphaNumeric: { args: [{}, { locale: 'pl-PL' }] },
+    isBoolean: {
+        type: [FieldType.Boolean, FieldType.Keyword, FieldType.Number, FieldType.Integer],
+    },
+    isBooleanLike: {
+        type: [FieldType.Boolean, FieldType.Keyword, FieldType.Number, FieldType.Integer],
+    },
+    toBoolean: {
+        type: [FieldType.Boolean, FieldType.Keyword, FieldType.Number, FieldType.Integer],
+    },
+    isIP: IP_CASE,
+    // valid addresses only, since it throws otherwise, plus a throwsOn for the throw check
+    ipToInt: {
+        type: FieldType.Keyword,
+        battery: ['1.2.3.4',
+            '0.0.0.0',
+            '255.255.255.255',
+            '8.8.8.8',
+            '192.168.1.1',
+            '::1',
+            '2001:db8::1',
+            '::ffff:1.2.3.4',
+            null],
+        throwsOn: 'not-an-ip',
+    },
+    // the CIDR transforms: valid input only, plus a `throwsOn`. See `CIDR_CASE`.
+    getFirstIPInCIDR: CIDR_CASE,
+    getLastIPInCIDR: CIDR_CASE,
+    getFirstUsableIPInCIDR: CIDR_CASE,
+    getLastUsableIPInCIDR: CIDR_CASE,
+    getCIDRMin: CIDR_CASE,
+    getCIDRMax: CIDR_CASE,
+    // IPv4 only: a v6 block throws, so the values are the v4 half of `VALID_CIDRS`
+    getCIDRNetwork: {
+        type: FieldType.Keyword,
+        battery: VALID_CIDRS.filter((v) => v == null || !String(v).includes(':')),
+        throwsOn: '2001:db8::/32',
+    },
+    getCIDRBroadcast: {
+        type: FieldType.Keyword,
+        battery: VALID_CIDRS.filter((v) => v == null || !String(v).includes(':')),
+        throwsOn: '2001:db8::/32',
+    },
+    reverseIP: IP_TRANSFORM_CASE,
+    // it throws for anything that is not a mapped address, so only mapped addresses are tested
+    extractMappedIPv4: {
+        type: FieldType.Keyword,
+        battery: ['::ffff:1.2.3.4', '::ffff:8.8.8.8', '::ffff:0.0.0.0', '::1.2.3.4', null],
+        throwsOn: '1.2.3.4',
+    },
+    toCIDR: { ...IP_TRANSFORM_CASE, args: [{ suffix: 24 }, { suffix: 32 }] },
+    isIPv4: IP_CASE,
+    isIPv6: IP_CASE,
+    isCIDR: IP_CASE,
+    isMappedIPv4: IP_CASE,
+    isRoutableIP: IP_CASE,
+    isNonRoutableIP: IP_CASE,
+    /**
+     * A `cidr` from each family and both extremes, plus the `min`/`max` form the SQL expression
+     * declines, so the `applies` check below has something to decline.
+    */
+    inIPRange: {
+        ...IP_CASE,
+        args: [
+            { cidr: '10.0.0.0/8' },
+            { cidr: '192.168.1.0/24' },
+            { cidr: '0.0.0.0/0' },
+            { cidr: '2001:db8::/32' },
+            { cidr: '::ffff:0:0/96' },
+            { min: '1.2.3.4', max: '1.2.3.10' },
+        ],
+    },
+    /**
+     * `intToIP` on an integer string column, the shape of its second example and the one where
+     * `BigInt` and a SQL cast could disagree. Version 6 is in the argument list so the `applies`
+     * that declines it is exercised, and `throwsOn` names an out-of-range value, which the
+     * function rejects with `Invalid IP input`.
+    */
+    intToIP: {
+        type: FieldType.Keyword,
+        battery: [
+            '0',
+            '1',
+            '255',
+            '256',
+            '168829138',
+            '3232235777',
+            '4294967295',
+            '2130706433',
+            // `TRY_CAST` and `BigInt` both read this as 12, so the digit guard must let it
+            // through and the two must agree
+            '012',
+            null,
+        ],
+        args: [{ version: 4 }, { version: '4' }, { version: 6 }],
+        /**
+         * `isNumberLike` gates `intToIP` before `BigInt` runs, so `''` and `'0x10'`, where `BigInt`
+         * and `TRY_CAST` disagree, throw and cannot be test values. `4294967296` checks the upper
+         * end of the range.
+        */
+        throwsOn: '4294967296',
+    },
+    /**
+     * `encode`: every algorithm the SQL expression claims plus the two it declines (`sha512`,
+     * which DuckDB does not have, and a `latin1` digest, which it cannot produce).
+    */
+    encode: {
+        args: [
+            { algo: 'sha256' },
+            { algo: 'sha1' },
+            { algo: 'md5' },
+            { algo: 'sha256', digest: 'base64' },
+            { algo: 'md5', digest: 'base64' },
+            { algo: 'base64' },
+            { algo: 'hex' },
+            { algo: 'url' },
+            { algo: 'sha512' },
+            { algo: 'sha256', digest: 'latin1' as any },
+        ],
+    },
+    /**
+     * `createID` on a scalar string column, the only shape the SQL expression claims. The array
+     * and tuple shapes in its examples go through `toString(...).join('')`, which it declines.
+    */
+    createID: {
+        type: FieldType.Keyword,
+        args: [{}, { hash: 'sha256' }, { hash: 'sha1', digest: 'base64' }, { hash: 'sha512' }],
+    },
+    /**
+     * `extract`: both modes, both `global` settings, and every guard.
+    */
+    extract: {
+        type: FieldType.Keyword,
+        battery: [
+            '<hello>',
+            '<hello> some stuff <world>',
+            'no markers',
+            '<unterminated',
+            '<a<b>',
+            '<>',
+            'a|b|c',
+            'line1\n<multi\nline>',
+            'Hello World some other things',
+            'a1b22c333',
+            'hello',
+            ' nbsp ',
+            'tab\tinside',
+            // astral and combining input between the markers: RE2's `.*?` counts code points and
+            // the state machine counts code units, but the extracted text must be the same
+            '<👍𝔘 ok>',
+            'e\u0301<abc>',
+            '',
+            null,
+        ],
+        args: [
+            { start: '<', end: '>' },
+            { start: '<', end: '>', global: true },
+            { start: '|', end: '|' },
+            { regex: '[0-9]+' },
+            { regex: '[0-9]+', global: true },
+            { regex: '([A-Z]\\w+)' },
+            { regex: '([A-Z]\\w+)', global: true },
+            { regex: '\\d+' },
+            { regex: '^H' },
+        ],
+        /**
+         * Every guard, checked as a decline. In order: a multi-character marker, which the state
+         * machine can never match; the four class constructs whose meaning differs between the
+         * engines; the `/pattern/flags` form, which `formatRegex` accepts and RE2 does not; a
+         * lookahead RE2 cannot compile; and two capture groups, which `regexp_extract_all` cannot
+         * interleave.
+        */
+        declines: [
+            { start: '<<', end: '>>' },
+            { regex: 'he.*' },
+            { regex: 'a.c' },
+            { regex: '\\s' },
+            { regex: '\\S' },
+            { regex: '[^0-9]' },
+            { regex: '/([A-Z]\\w+)/', global: true },
+            { regex: '(?=l)' },
+            { regex: '(a)(b)' },
+        ],
+    },
+    /**
+     * `setPrecision` on a Float column, the only shape the SQL expression claims, with the digit
+     * counts where `printf` and `toFixed` could differ. 2.675 is included because `round()` and a
+     * DECIMAL cast both get it wrong.
+    */
+    setPrecision: {
+        type: FieldType.Float,
+        battery: [
+            10.123444,
+            10.253444,
+            Math.PI,
+            8.29,
+            1.005,
+            2.675,
+            0.1,
+            -10.253444,
+            -8.29,
+            0.5,
+            1.5,
+            2.5,
+            -2.5,
+            0.25,
+            1.25,
+            0.125,
+            99.995,
+            1234.5678,
+            0,
+            -0.0001,
+            1e-7,
+            1e6,
+            null,
+        ],
+        args: [
+            { digits: 0 },
+            { digits: 1 },
+            { digits: 2 },
+            { digits: 4 },
+            { digits: 0, truncate: true },
+            { digits: 1, truncate: true },
+            { digits: 2, truncate: true },
+            { digits: 4, truncate: true },
+        ],
+    },
+    /**
+     * `toNumber`: one entry per branch of `create`, because each has its own SQL expression. The
+     * String column is absent from `type` because `Number('')` is `0` and `Number('0x10')` is `16`,
+     * so that branch keeps the UDF and there is nothing to compare.
+    */
+    toNumber: {
+        type: [FieldType.Date, FieldType.IP, FieldType.Double, FieldType.Integer, FieldType.Long],
+    },
+    /**
+     * `isEmail`, `isMACAddress`, `isMIMEType` and `isCountryCode`, which wrap `validator` and
+     * still have a SQL expression. Each list holds valid values, near misses, and the case and
+     * whitespace shapes the guard decides on.
+    */
+    isEmail: {
+        type: FieldType.Keyword,
+        battery: [
+            'a@b.co',
+            'first.last@example.com',
+            'UPPER@EXAMPLE.COM',
+            'x+tag@sub.domain.co.uk',
+            'no-at-sign',
+            'a@b',
+            'a@b.c',
+            '@example.com',
+            'a@.com',
+            'a@b..com',
+            'a@b.company',
+            'user%name@example.com',
+            'a@b-c.com',
+            'a@-b.com',
+            'x'.repeat(65) + '@example.com',
+            'a@example.toolongtldbutunder63chars',
+            ' a@b.co',
+            'a@b.co ',
+            'ábc@example.com',
+            'a@éxample.com',
+            '',
+            null,
+        ],
+    },
+    isMACAddress: {
+        type: FieldType.Keyword,
+        battery: [
+            '00:1f:f3:5b:2b:1f',
+            '00-1f-f3-5b-2b-1f',
+            '00 1f f3 5b 2b 1f',
+            '001f.f35b.2b1f',
+            '001ff35b2b1f',
+            '00:1F:F3:5B:2B:1F',
+            '00:1f:f3:5b:2b',
+            '00:1f:f3:5b:2b:1f:2a',
+            '00:1f-f3:5b:2b:1f',
+            'zz:1f:f3:5b:2b:1f',
+            '001ff35b2b1',
+            '001ff35b2b1ff',
+            // the `space` pattern's `\s` is JavaScript's, so an NBSP separator must agree
+            '00\u00a01f\u00a0f3\u00a05b\u00a02b\u00a01f',
+            '',
+            'not a mac',
+            null,
+        ],
+        args: [{},
+            { delimiter: 'colon' },
+            { delimiter: 'dash' },
+            { delimiter: 'space' },
+            { delimiter: 'dot' },
+            { delimiter: 'none' },
+            { delimiter: 'any' }],
+        declines: [{ delimiter: ['colon', 'dash'] }],
+    },
+    isMIMEType: {
+        type: FieldType.Keyword,
+        battery: [
+            'application/json',
+            'text/plain',
+            'text/html',
+            'image/png',
+            'video/mp4',
+            'TEXT/PLAIN',
+            'text/plain; charset=utf-8',
+            'text/plain;charset=utf-8',
+            'text/plain; charset="utf-8"',
+            'multipart/form-data; boundary=abc',
+            'multipart/mixed; boundary=abc; charset=utf-8',
+            'application/vnd.api+json',
+            'notatype/plain',
+            'text',
+            'text/',
+            '/plain',
+            'application/x_custom',
+            'text/plain; charset=utf-8 (comment)',
+            '',
+            'text/plain;\u00a0charset=utf-8',
+            null,
+        ],
+    },
+    isCountryCode: {
+        type: FieldType.Keyword,
+        battery: [
+            'US',
+            'us',
+            'Us',
+            'GB',
+            'DE',
+            'ZW',
+            'AD',
+            'ZZ',
+            'XX',
+            'U',
+            'USA',
+            '',
+            // for the guard: `'\ufb01'.toUpperCase()` is 'FI', a real code, and DuckDB's `upper`
+            // leaves the ligature alone
+            '\ufb01',
+            '\u0131d',
+            'ÜS',
+            null,
+        ],
+    },
+    /**
+     * `entropy`: the algorithm argument it accepts and the one it throws on, over strings with
+     * different character distributions. Astral input is included to test the guard, not the
+     * formula.
+    */
+    entropy: {
+        type: FieldType.Keyword,
+        battery: [
+            'hello',
+            'aaaa',
+            'abcdefg',
+            'a',
+            'aabb',
+            'The quick brown fox',
+            '1234567890',
+            'héllo',
+            'ábc',
+            '',
+            '👍👍',
+            '𝔘nicode 𝔘',
+            'e\u0301abc',
+            '   ',
+            'tab\tinside',
+            null,
+        ],
+        args: [{}, { algo: 'shannon' }],
+        declines: [{ algo: 'other' }],
+    },
+    /**
+     * `isPhoneNumberLike` counts digits, so the values vary how many digits survive stripping
+     * rather than looking like phone numbers. The boundaries are 7 and 20, inclusive.
+    */
+    /**
+     * `formatDate`: one argument set per branch of `formatDateValue`, plus the date-fns custom
+     * format that is declined. The Date values already span a century, a leap year, the epoch and
+     * the last millisecond of a year.
+    */
+    formatDate: {
+        type: FieldType.Date,
+        args: [
+            {},
+            { format: 'iso_8601' },
+            { format: 'epoch_millis' },
+            { format: 'milliseconds' },
+            { format: 'epoch' },
+            { format: 'seconds' },
+        ],
+        declines: [{ format: 'yyyy-MM-dd' }, { format: 'MM/dd/yyyy HH:mm' }],
+    },
+    // `toDate` on a Date column is identity; the epoch and custom-format branches are declined
+    toDate: {
+        type: FieldType.Date,
+        args: [{}, { format: 'iso_8601' }, { format: 'epoch_millis' }, { format: 'milliseconds' }],
+        declines: [{ format: 'epoch' }, { format: 'seconds' }, { format: 'yyyy-MM-dd' }],
+    },
+    /**
+     * `toJSON`: one column type per family the SQL expression claims.
+    */
+    toJSON: {
+        type: [FieldType.Keyword, FieldType.Boolean],
+        /**
+         * `Integer` and `Long` are absent because the SQL expression does not claim them (see
+         * `JSON_SQL_TYPES`).
+        */
+    },
+    isPhoneNumberLike: {
+        type: FieldType.Keyword,
+        battery: [
+            '1234567',
+            '123456',
+            '+1 (555) 123-4567',
+            '555-1234',
+            '12345678901234567890',
+            '123456789012345678901',
+            'abcdefg',
+            '',
+            '   ',
+            '(((1234567)))',
+            '1234567890123456789012345',
+            'phone: 555 123 4567 ext 9',
+            null,
+        ],
+    },
+};
+
+/** Every input type a function's cases ask for: one, unless the SQL branches on type. */
+function inputTypesFor(name: string, config: FunctionDefinitionConfig<any>): readonly FieldType[] {
+    const override = CASES[name]?.type;
+    if (Array.isArray(override)) return override;
+    return [inputTypeFor(name, config)];
+}
+
+function inputTypeFor(name: string, config: FunctionDefinitionConfig<any>): FieldType {
+    const override = CASES[name]?.type;
+    if (override) return Array.isArray(override) ? override[0] : override as FieldType;
+
+    const usable = new Set(config.accepts.filter((type) => BATTERIES[type] != null));
+    // a String-accepting function takes Keyword, which has the string test values
+    if (config.accepts.includes(FieldType.String)) usable.add(FieldType.Keyword);
+    if (config.accepts.includes(FieldType.Number)) usable.add(FieldType.Number);
+
+    return TYPE_PREFERENCE.find((type) => usable.has(type)) ?? FieldType.Keyword;
+}
+
+interface Ran {
+    values: unknown[];
+    dispatch: string;
+}
+
+/**
+ * A few ULP of a double, as a relative tolerance.
+ *
+ * `Number.EPSILON` is 2^-52, one ULP at magnitude 1; four of them is a generous bound on a libm
+ * difference and still ~12 orders of magnitude tighter than anything a caller could notice.
+*/
+const ULP_TOLERANCE = Number.EPSILON * 4;
+
+/**
+ * Compares the two paths' output, exactly by default.
+ *
+ * Approximate comparison applies only to a function that declares it, and only between two
+ * finite numbers. Nulls, strings, booleans and a null against a number must still match exactly,
+ * so `approximate` can only hide a last-bit difference, not a structural one.
+*/
+/** Which entries of a validated list survived, which is all a validation decides. */
+function expectSurvivors(values: readonly unknown[], expected: readonly boolean[]) {
+    expect(values.map((value) => value != null)).toEqual(expected);
+}
+
+function expectSame(sql: unknown[], udf: unknown[], approximate: boolean | undefined) {
+    if (!approximate) {
+        expect(sql).toEqual(udf);
+        return;
+    }
+
+    expect(sql).toBeArrayOfSize(udf.length);
+    sql.forEach((value, index) => {
+        const other = udf[index];
+        if (typeof value === 'number' && typeof other === 'number'
+            && Number.isFinite(value) && Number.isFinite(other)) {
+            const scale = Math.max(Math.abs(value), Math.abs(other), 1);
+            expect(Math.abs(value - other)).toBeLessThanOrEqual(ULP_TOLERANCE * scale);
+            return;
+        }
+        expect(value).toEqual(other);
+    });
+}
+
+/**
+ * Runs one function over its test values on either path and returns the output.
+ *
+ * Draining `rows()` compares the values a caller would receive rather than the SQL text.
+*/
+async function run(
+    name: string,
+    config: FunctionDefinitionConfig<any>,
+    args: Record<string, unknown>,
+    preferSql: boolean,
+    {
+        array, type: forced, battery: override,
+    }: { array?: boolean; type?: FieldType; battery?: readonly unknown[] } = {}
+): Promise<Ran> {
+    const type = forced ?? inputTypeFor(name, config);
+    const battery = override ?? CASES[name]?.battery ?? (BATTERIES[type] as readonly unknown[]);
+    const fieldConfig = { type, ...(array ? { array: true } : {}) };
+    const dtConfig: DataTypeConfig = { version: 1, fields: { field: fieldConfig } };
+
+    const result = await tealFrameAdapter(config, {
+        field: 'field',
+        inputConfig: { field_config: fieldConfig },
+        args,
+        preferSql,
+    });
+
+    const records = array
+        ? [{ field: battery.filter((value) => value != null) }]
+        : battery.map((value) => ({ field: value }));
+
+    const frame = await TealFrame.fromRecords(
+        dtConfig,
+        records,
+        { name: `emit_${name}_${preferSql ? 'sql' : 'udf'}_${array ? 'arr' : 'one'}` }
+    );
+
+    try {
+        const projected = frame.select(
+            { field: result.expression }, {
+                config:
+            { version: 1, fields: { field: result.outputConfig.field_config } }
+            });
+        const values: unknown[] = [];
+        for await (const row of projected.rows()) values.push(row.field);
+        return { values, dispatch: result.dispatch };
+    } finally {
+        await frame.destroy();
+    }
+}
+
+describe('SQL expressions on the function configs', () => {
+    afterAll(async () => {
+        await closeDuckDatabase();
+    });
+
+    it('reports how much of the surface is promoted', () => {
+        // This number should only grow, and only when the comparison cases below pass.
+        expect(FIELD_FUNCTIONS.length).toEqual(205);
+        expect(PROMOTED.length).toBeGreaterThanOrEqual(5);
+    });
+
+    describe.each(PROMOTED)('%s', (name, config) => {
+        const argSets = CASES[name]?.args ?? [{}];
+        const arrayOnly = CASES[name]?.arrayOnly === true;
+        const onArray = { array: arrayOnly };
+
+        /**
+         * Whether the SQL expression claims this column and these arguments.
+         *
+         * Used to prune the type-by-argument matrix below. A case that declares several types is
+         * declaring several branches, and its argument sets belong to particular ones: a numeric
+         * default is for the numeric branch of `setDefault`, not for the string column. Where the
+         * SQL declines, both paths are the UDF, so the comparison says nothing about the SQL and
+         * can fail for unrelated reasons.
+         *
+         * Only multi-type cases are pruned. A single-type case keeps every argument set, including
+         * declined ones such as `encodeSHA` with `sha512`, to check that the decline still works.
+        */
+        const claims = (args: Record<string, unknown>, type: FieldType, array = false) => {
+            const field_config = { type, ...(array ? { array: true } : {}) };
+            return config.sql?.applies?.(args, { field_config }) !== false;
+        };
+
+        /**
+         * The guards, checked as declines.
+         *
+         * `applies` is a pure function of the arguments and the column, so this needs no query,
+         * and it works even for a function whose UDF path cannot run.
+        */
+        const declined = CASES[name]?.declines ?? [];
+        if (declined.length) {
+            const declineType = inputTypeFor(name, config);
+            it.each(declined.map((args) => [JSON.stringify(args), args]))(
+                'declines the SQL expression for %s',
+                (_label, args) => {
+                    const inputConfig = { field_config: { type: declineType } };
+                    expect(config.sql?.applies?.(args as any, inputConfig)).toBe(false);
+                }
+            );
+        }
+
+        {
+            const types = inputTypesFor(name, config);
+            const matrix = types.flatMap(
+                (type) => argSets
+                    .filter((args) => types.length === 1
+                        || claims(args as Record<string, unknown>, type))
+                    .map((args) => [`${type} ${JSON.stringify(args)}`, args, type])
+            );
+
+            it.each(matrix)(
+                'is byte-equal to its own UDF over its test inputs, %s',
+                async (_label, args, type) => {
+                    const one = args as Record<string, unknown>;
+                    const where = { ...onArray, type: type as FieldType };
+                    const sql = await run(name, config, one, true, where);
+                    const udf = await run(name, config, one, false, where);
+
+                    const accepted = (CASES[name]?.knownDivergences ?? []).filter(
+                        (d) => JSON.stringify(d.args) === JSON.stringify(one)
+                    );
+
+                    if (accepted.length) {
+                        /**
+                         * A case where the SQL is deliberately more correct than the UDF.
+                         *
+                         * Compared on which rows survived, with the listed inputs overridden to
+                         * the correct answer. Everything not listed must still match the UDF
+                         * exactly, so an unlisted difference fails.
+                        */
+                        expect(isFieldValidation(config)).toBeTrue();
+                        const battery = (
+                            CASES[name]?.battery ?? BATTERIES[type as FieldType] ?? []
+                        ) as readonly unknown[];
+
+                        expect(sql.values.map((value) => value != null)).toEqual(
+                            battery.map((value, index) => {
+                                const known = accepted.find(
+                                    (d) => JSON.stringify(d.input) === JSON.stringify(value)
+                                );
+                                if (known) return known.sql === true;
+                                return udf.values[index] != null;
+                            })
+                        );
+                    } else {
+                        expectSame(sql.values, udf.values, config.sql?.approximate);
+                    }
+                    expect(udf.dispatch).toEqual('udf');
+
+                    /**
+                 * The SQL path must be native, except where the SQL expression declares `applies`
+                 * and declines these arguments. `encodeSHA` with `hash: 'sha512'` has no native
+                 * form, so both sides are the UDF; the case below checks that at least one
+                 * argument set is native.
+                */
+                    const allowed = config.sql?.applies
+                        ? ['sql', 'sql+udf', 'udf']
+                        : ['sql', 'sql+udf'];
+                    expect(allowed).toContain(sql.dispatch);
+                },
+                60_000
+            );
+        }
+
+        // a reducer folds the list into one value; the matrix above runs it on an array column
+        /**
+         * Skipped when the SQL expression does not claim an array column: `setDefault` and `join`
+         * both decline one, so SQL and the UDF would be the same path. Validations run here too;
+         * each element is nulled or kept, on both paths.
+        */
+        const skipArray = arrayOnly
+            || !claims(argSets[0] as Record<string, unknown>, inputTypeFor(name, config), true);
+        const arrayCase = skipArray ? it.skip : it;
+
+        arrayCase('is byte-equal on an ARRAY column, where SQL maps with list_transform', async () => {
+            const args = argSets[0] as Record<string, unknown>;
+            const sql = await run(name, config, args, true, { array: true });
+            const udf = await run(name, config, args, false, { array: true });
+
+            // one row whose value is all the test values as a list, so compare element-wise
+            const sqlList = (sql.values[0] ?? []) as unknown[];
+            const udfList = (udf.values[0] ?? []) as unknown[];
+            const accepted = (CASES[name]?.knownDivergences ?? []).filter(
+                (d) => JSON.stringify(d.args) === JSON.stringify(args)
+            );
+
+            if (accepted.length) {
+                // per element, the same `knownDivergences` override the scalar matrix applies.
+                // `run` builds the list from the non-null test values, so this does too.
+                const battery = (
+                    (CASES[name]?.battery ?? BATTERIES[inputTypeFor(name, config)] ?? []) as
+                        readonly unknown[]
+                ).filter((value) => value != null);
+                expectSurvivors(sqlList, battery.map((value, index) => {
+                    const known = accepted.find(
+                        (d) => JSON.stringify(d.input) === JSON.stringify(value)
+                    );
+                    if (known) return known.sql === true;
+                    return udfList[index] != null;
+                }));
+                return;
+            }
+
+            expectSame(sqlList, udfList, config.sql?.approximate);
+        }, 60_000);
+
+        /**
+         * Checks that both paths throw the same error for rejected input.
+         *
+         * A transform throws for input it cannot handle, which aborts the whole query, as in
+         * `DataFrame`. The SQL must throw the same message: `error('...')` would use DuckDB's
+         * wording, while the guarded `CASE` reaches the UDF and raises the function's own error.
+        */
+        if (CASES[name]?.throwsOn !== undefined) {
+            it('fails the query the same way on both paths, for input it rejects', async () => {
+                const args = argSets[0] as Record<string, unknown>;
+                const bad = [CASES[name]!.throwsOn];
+                const attempt = async (preferSql: boolean) => {
+                    try {
+                        await run(name, config, args, preferSql, { battery: bad });
+                        return null;
+                    } catch (err) {
+                        return (err as Error).message;
+                    }
+                };
+
+                const sql = await attempt(true);
+                const udf = await attempt(false);
+
+                expect(udf).toBeString();
+                expect(sql).toEqual(udf);
+            }, 60_000);
+        }
+
+        it('is native for at least one argument set', async () => {
+            // an `applies` guard that declines every tested argument set leaves dead SQL
+            const dispatches: string[] = [];
+            for (const type of inputTypesFor(name, config)) {
+                for (const args of argSets) {
+                    const result = await tealFrameAdapter(config, {
+                        field: 'field',
+                        inputConfig: {
+                            field_config: { type, ...(arrayOnly ? { array: true } : {}) },
+                        },
+                        args: args as Record<string, unknown>,
+                        preferSql: true,
+                    });
+                    dispatches.push(result.dispatch);
+                }
+            }
+            expect(dispatches.some((d) => d === 'sql' || d === 'sql+udf')).toBeTrue();
+        }, 30_000);
+
+        it('registers a udf only when the SQL expression needs one', async () => {
+            const type = inputTypeFor(name, config);
+            const result = await tealFrameAdapter(config, {
+                field: 'field',
+                inputConfig: { field_config: { type, ...(arrayOnly ? { array: true } : {}) } },
+                args: argSets[0] as Record<string, unknown>,
+                preferSql: true,
+            });
+
+            if (result.dispatch === 'udf') {
+                // declined for these arguments, which only `applies` can do here
+                expect(config.sql?.applies).toBeDefined();
+            } else if (config.sql?.needs_udf_fallback) {
+                expect(result.dispatch).toEqual('sql+udf');
+                expect(result.functionName).toBeString();
+            } else {
+                // fully native, so no JS function is called
+                expect(result.dispatch).toEqual('sql');
+                expect(result.functionName).toBeUndefined();
+            }
+        });
+    });
+
+    it('falls back to the UDF for a type the SQL expression does not claim', async () => {
+        const config = {
+            ...repo.toUpperCase,
+            sql: { ...repo.toUpperCase.sql!, types: [FieldType.Date] },
+        } as FunctionDefinitionConfig<any>;
+
+        const result = await tealFrameAdapter(config, {
+            field: 'field',
+            inputConfig: { field_config: { type: FieldType.Keyword } },
+            preferSql: true,
+        });
+
+        expect(result.dispatch).toEqual('udf');
+    });
+
+    it('throws at plan time if a SQL expression calls ctx.udf without declaring the fallback', async () => {
+        const config = {
+            ...repo.trim,
+            sql: {
+                expression: ({ value, udf }: any) => `${udf(value)}`,
+            },
+        } as FunctionDefinitionConfig<any>;
+
+        // fail at plan time; otherwise the SQL would reference a function that was never
+        // registered and fail later, further from the cause
+        await expect(tealFrameAdapter(config, {
+            field: 'field',
+            inputConfig: { field_config: { type: FieldType.Keyword } },
+            preferSql: true,
+        })).rejects.toThrow(/needs_udf_fallback/);
+    });
+});

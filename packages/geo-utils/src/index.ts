@@ -28,6 +28,8 @@ import {
     multiPolygon,
     polygon as tPolygon,
     point as tPoint,
+    convertLength,
+    type Units,
 } from '@turf/helpers';
 import type {
     MultiPolygon,
@@ -91,6 +93,20 @@ export function parseGeoDistance(str: string): GeoDistanceObj {
     const unit = parseGeoDistanceUnit(matches[2]);
 
     return { distance, unit };
+}
+
+/**
+ * Convert a geo distance to meters, using turf's unit factors.
+ *
+ * SQL distance functions such as DuckDB's `ST_Distance_Sphere` work in meters, so a
+ * translated `geoDistance(distance:"10mi")` needs a meter value. Using turf gives the same
+ * number `makeGeoCircle` uses, so SQL queries and in-process matching agree.
+ *
+ * turf names the unit `inches` where Elasticsearch uses `inch`, so that one is mapped.
+*/
+export function geoDistanceToMeters(distance: number, unit: GeoDistanceUnit): number {
+    const units = (unit === 'inch' ? 'inches' : unit) as Units;
+    return convertLength(distance, units, 'meters');
 }
 
 export function parseGeoDistanceUnit(input: string): GeoDistanceUnit {

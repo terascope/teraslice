@@ -4,6 +4,7 @@ import {
     FieldValidateConfig, ProcessMode, FunctionDefinitionType,
     FunctionDefinitionCategory,
 } from '../interfaces.js';
+import { onLocalDay } from './sql-utils.js';
 
 const date = new Date();
 const currentTime = date.toISOString();
@@ -42,6 +43,16 @@ export const isTomorrowConfig: FieldValidateConfig = {
         },
     ],
     description: 'Returns the input if it is on the next day (utc-time), otherwise returns null',
+    /**
+     * True when the date falls on tomorrow in the local timezone.
+     *
+     * "Now" is read once when the query is planned, not per row as the UDF does; see
+     * `sql-utils.ts`.
+    */
+    sql: {
+        types: [FieldType.Date],
+        expression: ({ value }) => onLocalDay(value, 1),
+    },
     accepts: [
         FieldType.String,
         FieldType.Date,

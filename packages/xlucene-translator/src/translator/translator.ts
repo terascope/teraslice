@@ -3,11 +3,12 @@ import { parseGeoDistanceUnit } from '@terascope/geo-utils';
 import {
     xLuceneVariables, xLuceneTypeConfig,
     ElasticsearchDSLOptions, ElasticsearchDSLResult,
-    ElasticsearchDistribution, XluceneGeoSortConfig
+    ElasticsearchDistribution, XluceneGeoSortConfig, SQLResult, xLuceneSQLOptions
 } from '@terascope/types';
 import { Parser } from 'xlucene-parser';
 import type { TranslatorOptions } from './interfaces.js';
 import { translateQuery } from './utils.js';
+import { getSQLDialect, translateSQLQuery } from './sql/index.js';
 
 const logger = debugLogger('xlucene-translator');
 
@@ -64,6 +65,37 @@ export class Translator {
             const resultStr = JSON.stringify(result, null, 2);
             logger.trace(`translated ${this.query ? this.query : '\'\''} query to`, resultStr);
         }
+
+        return result;
+    }
+
+    /**
+     * Translate the query to a SQL boolean expression.
+     *
+     * The result is an expression such as `"bar" = 'hello'`, not a full statement; the caller
+     * supplies the projection and the source. Use it in a `WHERE` clause or any API that
+     * takes a predicate.
+     *
+     * `opts.dialect` selects the engine, because regular expressions, IP handling and geo
+     * predicates differ between engines. It defaults to DuckDB.
+     *
+     * @example
+     * new Translator('bar:hello AND num:>50', { type_config }).toSQL();
+     * // { query: '(("bar" = \'hello\') AND ("num" > 50))' }
+    */
+    toSQL(opts: xLuceneSQLOptions = {}): SQLResult {
+        const result = translateSQLQuery(this._parser, {
+            logger,
+            dialect: getSQLDialect(opts.dialect),
+            type_config: this.typeConfig,
+            default_geo_field: this._defaultGeoSortConfig.field,
+            variables: this.variables ?? {},
+            geo_sort_point: opts.geo_sort_point,
+            geo_sort_order: opts.geo_sort_order || this._defaultGeoSortConfig.default_order,
+            geo_sort_unit: opts.geo_sort_unit || this._defaultGeoSortConfig.default_unit,
+        });
+
+        logger.trace(`translated ${this.query ? this.query : '\'\''} query to sql`, result);
 
         return result;
     }

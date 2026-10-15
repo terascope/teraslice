@@ -7,6 +7,9 @@ import {
     FunctionDefinitionCategory,
     FunctionDefinitionExample
 } from '../interfaces.js';
+import {
+    isGeoColumn, isGeoArg, asGeometry, constantGeometry, tryPredicate,
+} from './sql-utils.js';
 
 export interface GeoContainsPointArgs {
     point: GeoPointInput;
@@ -115,6 +118,18 @@ export const geoContainsPointConfig: FieldValidateConfig<GeoContainsPointArgs> =
     description: 'Returns the input if it contains the geo-point, otherwise returns null',
     create({ args: { point } }) {
         return geoContainsFP(point);
+    },
+    /**
+     * `ST_Contains(shape, point)`: the column is the shape and the argument is the point.
+     *
+     * For a point exactly on a hole's edge, `geo-utils` reports it as contained and `ST_Contains`
+     * does not, because the point is on the polygon's boundary. The SQL answer is the correct one.
+    */
+    sql: {
+        applies: (args, inputConfig) => isGeoColumn(inputConfig) && isGeoArg(args.point),
+        expression: ({ value, args, inputConfig }) => tryPredicate(
+            `ST_Contains(${asGeometry(value, inputConfig)}, ${constantGeometry(args.point)})`
+        ),
     },
     accepts: [FieldType.GeoJSON],
     argument_schema: {

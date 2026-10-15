@@ -15,8 +15,15 @@ import {
     FieldSort, SortOrder, GeoDistanceUnit,
     xLuceneFieldType, xLuceneTypeConfig, xLuceneVariables
 } from '@terascope/types';
-import { CachedTranslator } from '../translator/index.js';
-import { RestrictSearchQueryOptions, QueryAccessConfig } from './interfaces.js';
+import {
+    CachedTranslator, getSQLDialect, buildSQLStatement,
+    type SQLQueryParts
+} from '../translator/index.js';
+import { getProjectablePaths, getReadableFields } from './source-fields.js';
+import {
+    RestrictSearchQueryOptions, QueryAccessConfig,
+    RestrictSQLQueryOptions
+} from './interfaces.js';
 
 export class QueryAccess<T extends Record<string, any> = Record<string, any>> {
     readonly excludes: (keyof T)[];
@@ -313,6 +320,100 @@ export class QueryAccess<T extends Record<string, any> = Record<string, any>> {
             translated.sort = sorts;
             delete params.sort;
         }
+    }
+
+    /**
+     * Converts a restricted xlucene query to a complete SQL statement
+     *
+     * The SQL counterpart of {@link QueryAccess.restrictSearchQuery}. The returned statement
+     * already applies the field restrictions and can be run as-is.
+     *
+     * ```ts
+     * const sql = await access.restrictSQLQuery('bar:hello', {
+     *     params: { table: 'events', size: 100 }
+     * });
+     * // SELECT * FROM "events" WHERE ("bar" = 'hello') LIMIT 100
+     * await connection.run(sql);
+     * ```
+     *
+     * `params.table` is quoted as an identifier. `params.relation` is used as-is, for sources
+     * such as `read_parquet([...])`, a subquery or a join. One of the two is required.
+     *
+     * To build the statement yourself, use {@link QueryAccess.restrictSQLParts}.
+     *
+     * @returns a complete SQL statement
+     */
+    async restrictSQLQuery(
+        query: string,
+        opts?: RestrictSQLQueryOptions,
+        _overrideParsedQuery?: Node
+    ): Promise<string> {
+        const parts = await this.restrictSQLParts(query, opts, _overrideParsedQuery);
+        const dialect = getSQLDialect(opts?.dialect);
+
+        return buildSQLStatement(parts, opts?.params ?? {}, dialect);
+    }
+
+    /**
+     * The parts of a restricted SQL query, for a caller that builds its own statement
+     *
+     * Returns what {@link QueryAccess.restrictSQLQuery} joins together: the `WHERE`
+     * expression, the `SELECT` list with field restrictions applied, the ordering, and the
+     * readable columns.
+     *
+     * **Callers must apply `select`**; using only `where` returns excluded columns.
+     *
+     * @returns the parts of a restricted SQL query
+     */
+    async restrictSQLParts(
+        query: string,
+        opts?: RestrictSQLQueryOptions,
+        _overrideParsedQuery?: Node
+    ): Promise<SQLQueryParts> {
+        const { params = {}, variables: optVariables, ...translateOptions } = opts ?? {};
+
+        const variables = Object.assign({}, this.variables, optVariables ?? {});
+
+        const parser = this._restrict(query, variables, _overrideParsedQuery);
+
+        await pImmediate();
+
+        const translator = this._translator.make(parser, {
+            type_config: this.parsedTypeConfig,
+            default_geo_field: this.defaultGeoField,
+            default_geo_sort_order: this.defaultGeoSortOrder,
+            default_geo_sort_unit: this.defaultGeoSortUnit,
+            variables,
+            filterNilVariables: this.filterNilVariables
+        });
+
+        const { query: where, sort } = translator.toSQL(translateOptions);
+
+        const { includes, excludes } = this.restrictSourceFields(
+            params.includes as (keyof T)[] | undefined,
+            params.excludes as (keyof T)[] | undefined
+        );
+
+        const columns = getReadableFields(
+            this.typeConfig,
+            includes as string[] | undefined,
+            excludes as string[] | undefined
+        );
+
+        // with no includes or excludes, select `*`, as Elasticsearch returns the whole document
+        const unrestricted = !includes?.length && !excludes?.length;
+        const dialect = getSQLDialect(translateOptions.dialect);
+
+        return {
+            select: unrestricted
+                ? '*'
+                : dialect.projection(columns, getProjectablePaths(this.typeConfig)),
+            where,
+            ...(sort && { sort }),
+            columns,
+            includes: includes as string[] | undefined,
+            excludes: excludes as string[] | undefined,
+        };
     }
 
     /**

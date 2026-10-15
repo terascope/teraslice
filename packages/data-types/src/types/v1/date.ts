@@ -4,7 +4,7 @@ import {
 } from '@terascope/types';
 import { withoutNil } from '@terascope/core-utils';
 import BaseType from '../base-type.js';
-import { GraphQLType, TypeESMapping } from '../../interfaces.js';
+import { GraphQLType, TypeESMapping, DuckDBTypeConfig } from '../../interfaces.js';
 
 /**
  * A date/time value stored as an Elasticsearch/OpenSearch `date`.
@@ -69,5 +69,15 @@ export default class DateType extends BaseType {
 
     toXlucene(): xLuceneTypeConfig {
         return { [this.field]: xLuceneFieldType.Date };
+    }
+
+    /**
+     * The DuckDB column type for this field: epoch milliseconds plus an optional display
+     * offset in minutes, matching data-mate's `DateTuple` (`[ms, offset]`).
+     * The offset is NULL unless `setTimezone`, `toTimeZone` or `toTimeZoneUsingLocation` set it.
+     * A BIGINT of milliseconds is smaller in Parquet than a TIMESTAMP and faster to filter.
+     */
+    toDuckDB(): DuckDBTypeConfig {
+        return this._formatDuckDB('STRUCT(ms BIGINT, tz_offset SMALLINT)');
     }
 }

@@ -6,6 +6,7 @@ import {
     FunctionDefinitionType,
     FunctionDefinitionCategory
 } from '../interfaces.js';
+import { needsNumericArgs } from '../sql-helpers.js';
 
 export interface AddArgs {
     readonly value: number;
@@ -70,6 +71,17 @@ export const addConfig: FieldTransformConfig<AddArgs> = {
         }
 
         return addFP(value);
+    },
+    /**
+     * Native addition, with the constant argument inlined as a numeric literal.
+     *
+     * There is no `finiteOrNull` guard on purpose. `addFP` does not use `runMathFn`, so it
+     * returns `Infinity` and `NaN` unchanged (dividing by zero gives `Infinity`), and DuckDB's
+     * DOUBLE arithmetic does the same.
+    */
+    sql: {
+        applies: needsNumericArgs('value'),
+        expression: ({ value, args }) => `(${value} + ${Number(args.value)})`,
     },
     accepts: [
         FieldType.Number,

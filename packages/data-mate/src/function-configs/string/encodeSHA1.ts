@@ -55,6 +55,16 @@ export const encodeSHA1Config: FieldTransformConfig<EncodeSHA1Args> = {
     create({ args: { digest = defaultDigest } }) {
         return cryptoEncode('sha1', digest);
     },
+    /**
+     * `sha1` with a hex digest, which is the default.
+     *
+     * DuckDB's `sha1` returns lowercase hex, matching `digest('hex')`. A base64 digest keeps the
+     * UDF.
+    */
+    sql: {
+        applies: (args) => (args.digest ?? 'hex') === 'hex',
+        expression: ({ value }) => `sha1(${value})`,
+    },
     accepts: [FieldType.String],
     argument_schema: {
         digest: {

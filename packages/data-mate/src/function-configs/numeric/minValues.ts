@@ -4,6 +4,7 @@ import {
     FieldTransformConfig, FunctionDefinitionType,
     ProcessMode, DataTypeFieldAndChildren, FunctionDefinitionCategory
 } from '../interfaces.js';
+import { isArrayColumn } from './sql-utils.js';
 
 function minValuesReducer(
     acc: number | null,
@@ -98,6 +99,11 @@ export const minValuesConfig: FieldTransformConfig = {
         return minValuesFn;
     },
     argument_schema: {},
+    /** `list_min`, mirroring `maxValues`. */
+    sql: {
+        applies: isArrayColumn,
+        expression: ({ value }) => `list_min(${value})`,
+    },
     accepts: [FieldType.Number],
     output_type(inputConfig: DataTypeFieldAndChildren): DataTypeFieldAndChildren {
         const { field_config } = inputConfig;

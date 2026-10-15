@@ -109,6 +109,23 @@ export const toDateConfig: FieldTransformConfig<ToDateArgs> = {
             );
         };
     },
+    sql: {
+        /**
+         * Returns a `Date` column unchanged. With no format, `parseDateValue` is
+         * `getTime(value)`, and `output_type` declares the field a Date, so the column's
+         * TIMESTAMP is already the result.
+         *
+         * Everything else keeps the UDF: the `epoch`/`seconds` formats call `toInteger` on the
+         * value, and String or Number columns need `getTime`'s loose parsing and the date-fns
+         * custom formats.
+        */
+        types: [FieldType.Date],
+        applies: ({ format }) => format == null
+            || format === DateFormat.iso_8601
+            || format === DateFormat.epoch_millis
+            || format === DateFormat.milliseconds,
+        expression: ({ value }) => value,
+    },
     accepts: [
         FieldType.String,
         FieldType.Number,

@@ -109,3 +109,10 @@ export interface ESMappingOptions extends ClientMetadata {
      */
     _meta?: Record<string, any>;
 }
+
+/**
+ * DuckDB column types keyed by field name, the DuckDB counterpart of `xLuceneTypeConfig`.
+ * A grouping type contributes one entry holding a nested `STRUCT`, rather than one
+ * flattened entry per child as xLucene does.
+ */
+export type DuckDBTypeConfig = Record<string, string>;

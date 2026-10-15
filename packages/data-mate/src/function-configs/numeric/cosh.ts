@@ -5,6 +5,7 @@ import {
     FunctionDefinitionType,
     FunctionDefinitionCategory,
 } from '../interfaces.js';
+import { finiteOrNull } from '../sql-helpers.js';
 import { runMathFn } from './utils.js';
 
 export const coshConfig: FieldTransformConfig = {
@@ -37,6 +38,13 @@ export const coshConfig: FieldTransformConfig = {
     ],
     create() {
         return runMathFn(Math.cosh);
+    },
+    /** Native `cosh`; an overflow becomes null through `finiteOrNull`. */
+    sql: {
+        // DuckDB and V8 can differ in the last bit of a transcendental result, which
+        // IEEE 754 allows, so `approximate` compares results to within a few ULP
+        approximate: true,
+        expression: ({ value }) => finiteOrNull(`cosh(${value})`),
     },
     accepts: [
         FieldType.Number,

@@ -50,9 +50,27 @@ const geoBox: i.FunctionDefinition = {
             return { query };
         }
 
+        /**
+         * The bounding box as two inclusive range checks rather than a spatial predicate, so
+         * no spatial extension is needed.
+         *
+         * `validateBoundingBox` already rejects boxes that cross the antimeridian. The range
+         * checks include the boundary, as turf's `booleanPointInPolygon` does by default.
+        */
+        function toSQLQuery(field: string, options: i.FunctionSQLOptions) {
+            const { dialect } = options;
+
+            return {
+                query: dialect.geoPointInBoundingBox(
+                    dialect.fieldRef(field), top_left, bottom_right
+                )
+            };
+        }
+
         return {
             match: inGeoBoundingBoxFP(top_left, bottom_right),
-            toElasticsearchQuery
+            toElasticsearchQuery,
+            toSQLQuery
         };
     }
 };

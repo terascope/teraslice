@@ -50,5 +50,12 @@ export const isStringConfig: FieldValidateConfig = {
     create() {
         return isString;
     },
+    /**
+     * A constant `TRUE`. The SQL path only handles a `String` column, where every non-null value is
+     * a string, so this removes a per-row UDF call for a check that always passes.
+    */
+    sql: {
+        expression: () => 'TRUE',
+    },
     accepts: [FieldType.String],
 };

@@ -18,7 +18,7 @@ const reverseConfig = functionConfigRepository.reverse;
  * segmentation is correct, so the cases below deliberately cover all three.
  *
  * Every value here is written as an escape. Typed literally, an editor can
- * normalise a decomposed sequence into its precomposed form, which silently
+ * normalize a decomposed sequence into its precomposed form, which silently
  * turns the combining-mark case into a test of nothing.
  */
 describe('reverse', () => {

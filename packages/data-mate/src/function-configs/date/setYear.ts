@@ -76,6 +76,21 @@ export const setYearConfig: FieldTransformConfig<SetYearArgs> = {
         }
     },
     required_arguments: ['value'],
+    /**
+     * The target year's January 1, then the original month and day as offsets.
+     *
+     * Same reason as `setMonth`: February 29 in a year that is not a leap year has to become
+     * March 1, which is what `setUTCFullYear` does and what day arithmetic from a month boundary
+     * reproduces.
+    */
+    sql: {
+        types: [FieldType.Date],
+        applies: (args) => Number.isInteger(args.value),
+        expression: ({ value, args }) => `(make_timestamp(${args.value}, 1, 1, 0, 0, 0)`
+            + ` + INTERVAL (date_part('month', ${value}) - 1) MONTH`
+            + ` + INTERVAL (date_part('day', ${value}) - 1) DAY`
+            + ` + (${value} - date_trunc('day', ${value})))`,
+    },
     accepts: [
         FieldType.String,
         FieldType.Date,

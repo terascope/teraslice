@@ -6,6 +6,7 @@ import {
     FunctionDefinitionType,
     FunctionDefinitionCategory,
 } from '../interfaces.js';
+import { needsNumericArgs } from '../sql-helpers.js';
 
 export interface MultiplyArgs {
     readonly value: number;
@@ -58,6 +59,17 @@ export const multiplyConfig: FieldTransformConfig<MultiplyArgs> = {
         }
 
         return multiplyFP(value);
+    },
+    /**
+     * Native multiplication, with the constant argument inlined as a numeric literal.
+     *
+     * There is no `finiteOrNull` guard on purpose. `multiplyFP` does not use `runMathFn`, so it
+     * returns `Infinity` and `NaN` unchanged (dividing by zero gives `Infinity`), and DuckDB's
+     * DOUBLE arithmetic does the same.
+    */
+    sql: {
+        applies: needsNumericArgs('value'),
+        expression: ({ value, args }) => `(${value} * ${Number(args.value)})`,
     },
     accepts: [
         FieldType.Number,

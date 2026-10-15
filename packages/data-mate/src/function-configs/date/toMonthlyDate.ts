@@ -49,6 +49,17 @@ export const toMonthlyDateConfig: FieldTransformConfig = {
     create() {
         return trimISODateSegment(ISO8601DateSegment.monthly);
     },
+    /**
+     * Runs as `date_trunc('month', x)`.
+     *
+     * Both sides truncate in UTC, whatever the host timezone.
+     *
+     * Only a `Date` column is handled; `String` and `Number` input is parsed by the UDF.
+    */
+    sql: {
+        types: [FieldType.Date],
+        expression: ({ value }) => `date_trunc('month', ${value})`,
+    },
     accepts: [
         FieldType.String,
         FieldType.Number,

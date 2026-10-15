@@ -236,19 +236,38 @@ const geoPolygon: i.FunctionDefinition = {
             return { query };
         }
 
+        /**
+         * The relation as one spatial predicate, whatever the shape.
+         *
+         * The Elasticsearch query splits a polygon into parts (holes in `must_not`, one
+         * `should` per polygon of a multi-polygon) because `geo_polygon` does not support
+         * holes. SQL spatial functions handle holes and multi-polygons directly.
+        */
+        function toSQLQuery(field: string, options: i.FunctionSQLOptions) {
+            const { dialect } = options;
+
+            return {
+                query: dialect.geoRelation(
+                    dialect.fieldRef(field), polygonShape, relation, targetIsGeoPoint
+                )
+            };
+        }
+
         if (targetIsGeoPoint) {
             if (relation === GeoShapeRelation.Contains) {
                 throw new Error(`Cannot query against geo-points with relation set to "${GeoShapeRelation.Contains}"`);
             }
             return {
                 match: geoRelationFP(polygonShape, relation),
-                toElasticsearchQuery: esPolyToPointQuery
+                toElasticsearchQuery: esPolyToPointQuery,
+                toSQLQuery
             };
         }
 
         return {
             match: geoRelationFP(polygonShape, relation),
-            toElasticsearchQuery: esPolyToPolyQuery
+            toElasticsearchQuery: esPolyToPolyQuery,
+            toSQLQuery
         };
     }
 };

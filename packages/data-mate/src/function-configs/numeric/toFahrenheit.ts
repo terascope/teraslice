@@ -8,6 +8,7 @@ import {
     FunctionDefinitionType,
     FunctionDefinitionCategory,
 } from '../interfaces.js';
+import { finiteOrNull } from '../sql-helpers.js';
 
 export const toFahrenheitConfig: FieldTransformConfig = {
     name: 'toFahrenheit',
@@ -39,6 +40,19 @@ export const toFahrenheitConfig: FieldTransformConfig = {
     ],
     create() {
         return toFahrenheit;
+    },
+    /**
+     * Celsius to Fahrenheit, rounded to two decimals as the implementation does:
+     * `toFahrenheit(37.777)` is `100`, not `99.9986`.
+     *
+     * `floor(v * 100 + 0.5) / 100` rather than `round(v, 2)`, because `Math.round` breaks ties
+     * toward +infinity and SQL's `round` breaks them away from zero.
+    */
+    sql: {
+        expression: ({ value }) => {
+            const converted = `((${value} * 9 / 5) + 32)`;
+            return finiteOrNull(`floor(${converted} * 100 + 0.5) / 100`);
+        },
     },
     accepts: [
         FieldType.Number,

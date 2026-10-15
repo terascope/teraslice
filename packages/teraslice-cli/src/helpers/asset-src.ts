@@ -282,7 +282,7 @@ export class AssetSrc {
             target: this.bundleTarget,
             plugins: [wasmPlugin],
             keepNames: true,
-            external: ['dtrace-provider'],
+            external: ['dtrace-provider', '@duckdb/*'],
             ...(isESM && { format: 'esm', inject: [injectPath] })
         });
 

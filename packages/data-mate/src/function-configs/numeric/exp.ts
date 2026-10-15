@@ -5,6 +5,7 @@ import {
     FunctionDefinitionType,
     FunctionDefinitionCategory,
 } from '../interfaces.js';
+import { finiteOrNull } from '../sql-helpers.js';
 import { runMathFn } from './utils.js';
 
 export const expConfig: FieldTransformConfig = {
@@ -37,6 +38,13 @@ export const expConfig: FieldTransformConfig = {
     ],
     create() {
         return runMathFn(Math.exp);
+    },
+    /** Native `exp`; an overflow becomes null through `finiteOrNull`, as in the UDF. */
+    sql: {
+        // DuckDB and V8 can differ in the last bit of a transcendental result, which
+        // IEEE 754 allows, so `approximate` compares results to within a few ULP
+        approximate: true,
+        expression: ({ value }) => finiteOrNull(`exp(${value})`),
     },
     accepts: [
         FieldType.Number,

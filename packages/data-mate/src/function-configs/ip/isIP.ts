@@ -5,6 +5,7 @@ import {
     FieldValidateConfig, ProcessMode, FunctionDefinitionType,
     FunctionDefinitionCategory
 } from '../interfaces.js';
+import { isIPSql } from './sql-utils.js';
 
 export const isIPConfig: FieldValidateConfig = {
     name: 'isIP',
@@ -51,6 +52,15 @@ export const isIPConfig: FieldValidateConfig = {
     description: 'Returns the input if it is a valid IPv4 or IPv6 IP address.  Accepts dot notation for IPv4 addresses and hexadecimal separated by colons for IPv6 addresses',
     create() {
         return isIP;
+    },
+    /**
+     * The union of the IPv4 and IPv6 checks, not `TRY_CAST(x AS INET) IS NOT NULL`.
+     *
+     * The plain cast accepts `01.02.03.04`, which data-mate rejects for its leading zeros, and
+     * `1.2.3.4/24`, which data-mate treats as a CIDR rather than an IP. `isIPSql` excludes both.
+    */
+    sql: {
+        expression: ({ value }) => isIPSql(value),
     },
     accepts: [FieldType.String, FieldType.IP]
 };
