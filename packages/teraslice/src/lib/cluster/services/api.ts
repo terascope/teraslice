@@ -1,5 +1,7 @@
 import { Router, Express, ErrorRequestHandler } from 'express';
 import bodyParser from 'body-parser';
+import { createRequire } from 'node:module';
+import { readFileSync } from 'node:fs';
 import { pipeline as streamPipeline } from 'node:stream/promises';
 import got, { OptionsInit } from 'got';
 import { RecoveryCleanupType, TerasliceConfig, generateJobJSONSchema } from '@terascope/job-components';
@@ -20,8 +22,16 @@ import {
 } from '../../utils/api_utils.js';
 import { getPackageJSON } from '../../utils/file_utils.js';
 import { generateOpenapiSpec } from './openapi/generate.js';
+import { openapiDocsPage } from './openapi/docs-page.js';
+import { swaggerDocsPage } from './openapi/swagger-page.js';
 
 const terasliceVersion = getPackageJSON().version;
+
+// Load the bundled UI assets once so the docs pages can be served without a CDN.
+const requireFromHere = createRequire(import.meta.url);
+const rapidocScript = readFileSync(requireFromHere.resolve('rapidoc/dist/rapidoc-min.js'), 'utf8');
+const swaggerScript = readFileSync(requireFromHere.resolve('swagger-ui-dist/swagger-ui-bundle.js'), 'utf8');
+const swaggerStyles = readFileSync(requireFromHere.resolve('swagger-ui-dist/swagger-ui.css'), 'utf8');
 
 function validateCleanupType(cleanupType: RecoveryCleanupType) {
     if (cleanupType && !RecoveryCleanupType[cleanupType]) {
@@ -270,6 +280,26 @@ export class ApiService {
         v1routes.get('/openapi.json', (req, res) => {
             const requestHandler = handleTerasliceRequest(req, res, 'Could not generate openapi spec');
             requestHandler(() => generateOpenapiSpec(this.context));
+        });
+
+        v1routes.get('/api-docs', (req, res) => {
+            res.type('html').send(openapiDocsPage());
+        });
+
+        v1routes.get('/api-docs/rapidoc-min.js', (req, res) => {
+            res.type('application/javascript').send(rapidocScript);
+        });
+
+        v1routes.get('/swagger', (req, res) => {
+            res.type('html').send(swaggerDocsPage());
+        });
+
+        v1routes.get('/swagger/swagger-ui-bundle.js', (req, res) => {
+            res.type('application/javascript').send(swaggerScript);
+        });
+
+        v1routes.get('/swagger/swagger-ui.css', (req, res) => {
+            res.type('text/css').send(swaggerStyles);
         });
 
         v1routes.route('/assets{*splat}')
