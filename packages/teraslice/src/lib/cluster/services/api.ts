@@ -19,6 +19,7 @@ import {
     addFilterToQuery, buildConnectorList, getSliceTapOptions
 } from '../../utils/api_utils.js';
 import { getPackageJSON } from '../../utils/file_utils.js';
+import { generateOpenapiSpec } from './openapi/generate.js';
 
 const terasliceVersion = getPackageJSON().version;
 
@@ -264,6 +265,11 @@ export class ApiService {
                 version: terasliceVersion,
                 job_schema: generateJobJSONSchema(this.context)
             }));
+        });
+
+        v1routes.get('/openapi.json', (req, res) => {
+            const requestHandler = handleTerasliceRequest(req, res, 'Could not generate openapi spec');
+            requestHandler(() => generateOpenapiSpec(this.context));
         });
 
         v1routes.route('/assets{*splat}')

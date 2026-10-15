@@ -53,6 +53,7 @@
         "ip": "catalog:",
         "ms": "catalog:",
         "nanoid": "catalog:",
+        "openapi3-ts": "catalog:",
         "semver": "catalog:",
         "socket.io": "catalog:",
         "socket.io-client": "catalog:",

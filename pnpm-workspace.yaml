@@ -125,6 +125,7 @@ catalog:
   nanoid: '~6.0.1'
   nock: '~14.0.17'
   node-notifier: '~10.0.1'
+  openapi3-ts: '~4.5.0'
   opensearch1: 'npm:@opensearch-project/opensearch@~1.2.0'
   opensearch2: 'npm:@opensearch-project/opensearch@~2.12.0'
   opensearch3: 'npm:@opensearch-project/opensearch@~3.5.1'

@@ -464,6 +464,9 @@ catalogs:
     node-notifier:
       specifier: ~10.0.1
       version: 10.0.1
+    openapi3-ts:
+      specifier: ~4.5.0
+      version: 4.5.0
     opensearch1:
       specifier: npm:@opensearch-project/opensearch@~1.2.0
       version: 1.2.0
@@ -1426,6 +1429,9 @@ importers:
       nanoid:
         specifier: 'catalog:'
         version: 6.0.2
+      openapi3-ts:
+        specifier: 'catalog:'
+        version: 4.5.0
       semver:
         specifier: 'catalog:'
         version: 7.8.5
@@ -5631,6 +5637,9 @@ packages:
   onetime@5.1.2:
     resolution: {integrity: sha512-kbpaSSGJTWdAY5KPVeMOKXSrPtr8C8C7wodJbcsd51jRnmD+GZu8Y0VoU6Dm5Z4vWr0Ig/1NKuWRKf7j5aaYSg==}
     engines: {node: '>=6'}
+
+  openapi3-ts@4.5.0:
+    resolution: {integrity: sha512-jaL+HgTq2Gj5jRcfdutgRGLosCy/hT8sQf6VOy+P+g36cZOjI1iukdPnijC+4CmeRzg/jEllJUboEic2FhxhtQ==}
 
   openid-client@6.8.8:
     resolution: {integrity: sha512-ZsucJA5Ad04Uv7YN4ql+s4GXNmb9uAYQwyJTsJx7CH/MX3JZioLE2pVKi1SC+YrbSLA4Px3Gi30dMjgOZtb6pA==}
@@ -11292,6 +11301,10 @@ snapshots:
   onetime@5.1.2:
     dependencies:
       mimic-fn: 2.1.0
+
+  openapi3-ts@4.5.0:
+    dependencies:
+      yaml: 2.9.1
 
   openid-client@6.8.8:
     dependencies:
