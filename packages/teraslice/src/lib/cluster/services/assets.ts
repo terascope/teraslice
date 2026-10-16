@@ -2,7 +2,7 @@ import http from 'node:http';
 import express from 'express';
 import {
     TSError, parseErrorInfo, logError,
-    toBoolean, Logger
+    toBoolean, Logger, msUntilUnixTime
 } from '@terascope/core-utils';
 import { Teraslice } from '@terascope/types';
 import type { Context } from '@terascope/job-components';
@@ -269,9 +269,9 @@ export class AssetsService {
         });
     }
 
-    async shutdown() {
+    async shutdown(deadline: number) {
         this.running = false;
         if (!this.assetsStorage) return;
-        await this.assetsStorage.shutdown(true);
+        await this.assetsStorage.shutdown(true, msUntilUnixTime(deadline));
     }
 }

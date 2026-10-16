@@ -1,4 +1,5 @@
 import 'jest-extended';
+import { jest } from '@jest/globals';
 import { DateFormat, ISO8601DateSegment, DateTuple } from '@terascope/types';
 import {
     isISO8601,
@@ -35,6 +36,7 @@ import {
     addToDate,
     subtractFromDate,
     toTimeZone,
+    msUntilUnixTime,
 } from '../src/dates.js';
 
 describe('date utils', () => {
@@ -694,6 +696,42 @@ describe('date utils', () => {
             [[1571781600000, 420], { years: 4 }, 1445576400000]
         ])('for date %p and exp %p addToDate should return %p', (input, args, expected) => {
             expect(subtractFromDate(input, args)).toEqual(expected);
+        });
+    });
+
+    describe('msUntilUnixTime', () => {
+        const now = 1_700_000_000_000;
+
+        beforeEach(() => {
+            jest.spyOn(Date, 'now').mockReturnValue(now);
+        });
+
+        afterEach(() => {
+            jest.restoreAllMocks();
+        });
+
+        test.each([
+            ['a future timestamp', now + 5000, undefined, 5000],
+            ['a timestamp just above the default floor', now + 1001, undefined, 1001],
+            ['a timestamp below the default floor', now + 500, undefined, 1000],
+            ['the current time', now, undefined, 1000],
+            ['a past timestamp', now - 5000, undefined, 1000],
+            ['a past timestamp with a custom floor', now - 5000, 100, 100],
+            ['a future timestamp with a custom floor', now + 50, 100, 100],
+            ['a future timestamp above a custom floor', now + 250, 100, 250],
+            ['a floor of 0', now - 5000, 0, 0],
+            ['a timestamp before 1970', -5000, undefined, 1000],
+        ])('should handle %s', (_description, timestamp, floor, expected) => {
+            expect(msUntilUnixTime(timestamp, floor)).toBe(expected);
+        });
+
+        test.each([
+            ['undefined', undefined],
+            ['NaN', Number.NaN],
+            ['a non-numeric string', 'foo'],
+            ['null', null],
+        ])('should throw for %s', (_description, timestamp) => {
+            expect(() => msUntilUnixTime(timestamp as any)).toThrow('is not a valid unix time');
         });
     });
 });

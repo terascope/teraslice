@@ -22,9 +22,7 @@ describe('execution recoveryModule', () => {
             }
         },
         sysconfig: {
-            teraslice: {
-                shutdown_timeout: 1
-            }
+            teraslice: {}
         }
     } as any;
 

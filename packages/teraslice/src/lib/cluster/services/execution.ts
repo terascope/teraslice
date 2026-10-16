@@ -19,6 +19,7 @@ import { makeLogger } from '../../workers/helpers/terafoundation.js';
 import type { ClusterServiceType } from './cluster/index.js';
 import { SliceTapOptions, StopExecutionOptions } from './interfaces.js';
 import { HTTP_RESPONSE_MARGIN } from '../../utils/api_utils.js';
+import { POST_SHUTDOWN_BUFFER } from '../../workers/helpers/worker-shutdown.js';
 
 const MIN_SLICE_TAP_TIMEOUT = 30 * 1000;
 
@@ -105,7 +106,7 @@ export class ExecutionService {
         this.allocateInterval = setInterval(executionAllocator, 1000);
         this.reapInterval = setInterval(
             this.reapExecutions.bind(this),
-            this.context.sysconfig.teraslice.shutdown_timeout || 30000
+            this.context.sysconfig.teraslice.shutdown_timeout
         );
     }
 
@@ -625,7 +626,8 @@ export class ExecutionService {
 
             for (const execution of stopping) {
                 const updatedAt = new Date(execution._updated).getTime();
-                const timeout = this.context.sysconfig.teraslice.shutdown_timeout;
+                const timeout = this.context.sysconfig.teraslice.shutdown_timeout
+                    + POST_SHUTDOWN_BUFFER;
                 const updatedWithTimeout = updatedAt + timeout;
                 // Since we don't want to break executions that actually are "stopping"
                 // we need to verify that the job has exceeded the shutdown timeout

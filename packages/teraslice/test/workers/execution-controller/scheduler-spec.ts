@@ -68,7 +68,7 @@ describe('Scheduler', () => {
             setStatus: jest.fn(() => pDelay(0)),
         };
 
-        testContext.attachCleanup(() => scheduler.shutdown());
+        testContext.attachCleanup(() => scheduler.shutdown(Date.now() + 5000));
     });
 
     afterEach(() => testContext.cleanup());
@@ -160,7 +160,7 @@ describe('Scheduler', () => {
         it('should handle stop correctly', async () => {
             let slices: any[] = [];
 
-            scheduler.events.once('slicer:done', () => scheduler.stop());
+            scheduler.events.once('slicer:done', () => scheduler.stop(Date.now() + 5000));
 
             await Promise.all([
                 scheduler.run(),
@@ -177,6 +177,55 @@ describe('Scheduler', () => {
             expect(scheduler.isFinished).toBeTrue();
             expect(scheduler.stopped).toBeTrue();
             expect(scheduler.slicersDone).toBeFalse();
+        });
+    });
+
+    describe('when stopping', () => {
+        beforeEach(() => scheduler.initialize(stateStorage, executionStorage));
+
+        it('should resolve when the pending slices are written before the deadline', async () => {
+            const runPromise = scheduler.run();
+            await pDelay(50);
+
+            await expect(scheduler.stop(Date.now() + 5000)).resolves.toBeUndefined();
+            await runPromise;
+
+            expect(scheduler.stopped).toBeTrue();
+        });
+
+        it('should stop waiting and log the unwritten slices when the deadline passes', async () => {
+            let releaseWrite = () => {};
+            // the write hangs until released
+            stateStorage.createSlices = (exId: string, slices: any[]) => new Promise(
+                (resolve) => {
+                    releaseWrite = () => resolve(slices.length);
+                }
+            );
+            // the slicer has one slice left to drain
+            const pendingSlice = {
+                slice_id: uuidv4(), slicer_id: 0, slicer_order: 1, request: {}
+            };
+            let drained = false;
+            scheduler.ready = true;
+            jest.spyOn(scheduler, '_getPendingSlices').mockImplementation(() => {
+                if (drained) return [];
+                drained = true;
+                return [pendingSlice] as any[];
+            });
+            const errorSpy = jest.spyOn(scheduler.logger, 'error');
+
+            const start = Date.now();
+            await scheduler.stop(Date.now() + 200);
+
+            expect(Date.now() - start).toBeLessThan(1000);
+            expect(errorSpy).toHaveBeenCalledWith(
+                expect.stringContaining('timed out waiting for pending slices to be written')
+            );
+            expect(errorSpy).toHaveBeenCalledWith(
+                expect.stringContaining(pendingSlice.slice_id)
+            );
+
+            releaseWrite();
         });
     });
 

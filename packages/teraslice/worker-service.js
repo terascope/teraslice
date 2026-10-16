@@ -68,9 +68,9 @@ async function main() {
     context.logger = makeLogger(context, 'worker-service');
     const cmd = new Service(context);
 
-    cmd.shutdownHandler = shutdownHandler(context, (event, err) => {
+    cmd.shutdownHandler = shutdownHandler(context, (deadline, event, err) => {
         if (!cmd.instance) return Promise.resolve();
-        return cmd.instance.shutdown(event, err, true);
+        return cmd.instance.shutdown(deadline, event, err, true);
     });
 
     try {

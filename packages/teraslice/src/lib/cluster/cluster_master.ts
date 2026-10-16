@@ -2,7 +2,7 @@ import express from 'express';
 import got from 'got';
 import {
     pDelay, logError, get,
-    parseError, Logger
+    parseError, Logger, msUntilUnixTime
 } from '@terascope/core-utils';
 import { ClusterMaster as ClusterMasterMessaging } from '@terascope/teraslice-messaging';
 import { isPromAvailable } from '@terascope/job-components';
@@ -186,7 +186,7 @@ export class ClusterMaster {
         });
     }
 
-    async shutdown() {
+    async shutdown(deadline: number) {
         this.running = false;
 
         this.logger.info('cluster_master is shutting down');
@@ -204,7 +204,7 @@ export class ClusterMaster {
         await Promise.all(Object.entries(this.context.stores)
             .map(async ([name, store]) => {
                 try {
-                    await store.shutdown();
+                    await store.shutdown(false, msUntilUnixTime(deadline));
                 } catch (err) {
                     logError(this.logger, err, `Failure to shutdown store ${name}`);
                 }
