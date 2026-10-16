@@ -132,7 +132,7 @@ The api is located at `context.apis.foundation`:
 ```js
 const client = context.apis.foundation.createClient({
     type: 'elasticsearch-next',
-    endpoint: default,
+    endpoint: 'os1',
     cached: true
 }).client;
 ```

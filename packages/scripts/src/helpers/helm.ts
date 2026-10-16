@@ -203,6 +203,10 @@ function generateHelmValuesFromServices(
     };
 
     let stateCluster: string | undefined;
+    let stateConnection: string | undefined;
+    // Name of the s3 connector in the teraslice template, which depends on the
+    // enabled backend (minio-dev or ceph-dev).
+    let s3Connection: string | undefined;
     let caCert: string | undefined;
 
     // disable chart's OS2 default
@@ -217,6 +221,7 @@ function generateHelmValuesFromServices(
         const version = versionMap[service];
 
         if (service === Service.Ceph) {
+            s3Connection = 'ceph-dev';
             // Ceph needs a second version (the Rook operator chart/image) and the
             // static S3 creds, beyond the enabled/version set for every service
             // below. All from config so the images match what CI caches.
@@ -246,6 +251,9 @@ function generateHelmValuesFromServices(
             // This assumes there is only one search service enabled. If both ES and OS services
             // are present the state cluster will be set to elasticsearch below.
             stateCluster = serviceString;
+            // The connector name in the teraslice template is "os<major>" (os1/os2/os3),
+            // which is what teraslice's state + asset storage connections point at.
+            stateConnection = `os${major}`;
 
             if (config.ENCRYPT_OPENSEARCH) {
                 if (major === '1') {
@@ -298,6 +306,7 @@ function generateHelmValuesFromServices(
         }
 
         if (service === Service.Minio) {
+            s3Connection = 'minio-dev';
             if (config.ENCRYPT_MINIO) {
                 if (!caCert) {
                     caCert = readCertFromPath(path.join(config.CERT_PATH, 'CAs/rootCA.pem')).replace(/\n/g, '\\n');
@@ -326,13 +335,28 @@ function generateHelmValuesFromServices(
     // If no search service specified then default to OS2
     if (!stateCluster) {
         stateCluster = 'opensearch2';
+        stateConnection = 'os2';
         values.setIn(['opensearch2', 'enabled'], true);
     }
     values.setIn(['teraslice', 'stateCluster'], stateCluster);
+    values.setIn(['teraslice', 'stateConnection'], stateConnection);
+
+    // Point the asset connection at the named connector for its storage type rather
+    // than the removed "default": elasticsearch-next assets live on the state cluster,
+    // s3 assets on the enabled s3 backend. A connection set to something other than
+    // "default" is respected as-is.
+    let assetStorageConnection = config.ASSET_STORAGE_CONNECTION;
+    if (config.ASSET_STORAGE_CONNECTION === 'default') {
+        if (config.ASSET_STORAGE_CONNECTION_TYPE === 'elasticsearch-next') {
+            assetStorageConnection = stateConnection as string;
+        } else if (config.ASSET_STORAGE_CONNECTION_TYPE === 's3') {
+            assetStorageConnection = s3Connection as string;
+        }
+    }
 
     values.setIn(['teraslice', 'image', 'tag'], `e2e-nodev${config.NODE_VERSION}`);
     values.setIn(['teraslice', 'asset_storage_connection_type'], config.ASSET_STORAGE_CONNECTION_TYPE);
-    values.setIn(['teraslice', 'asset_storage_connection'], config.ASSET_STORAGE_CONNECTION);
+    values.setIn(['teraslice', 'asset_storage_connection'], assetStorageConnection);
     values.setIn(['teraslice', 'cluster_manager_type'], clusteringType);
     values.setIn(['teraslice', 'name'], config.CLUSTER_NAME);
     values.setIn(['teraslice', 'assets_directory'], e2e ? '/app/e2e-assets' : '/app/assets');

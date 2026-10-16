@@ -46,7 +46,7 @@ The Elasticsearch-next connector configuration, in your Teraslice configuration 
 terafoundation:
     connectors:
         elasticsearch-next:
-            default:
+            os1:
                 node:
                     - "http://localhost:9200"
 
@@ -58,7 +58,7 @@ terafoundation:
 terafoundation:
     connectors:
         elasticsearch-next:
-            default:
+            os1:
                 node:
                     - "https://localhost:9200"
                 username: admin

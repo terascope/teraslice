@@ -63,7 +63,7 @@ tagged with `is_asset_store`.
 **Query Options:**
 
 - `type: string` - only return connectors of this type (e.g. `kafka`)
-- `name: string` - only return connectors with this connection name (e.g. `default`)
+- `name: string` - only return connectors with this connection name (e.g. `os1`)
 - `groupBy: string` - set to `type` to return the connectors grouped by type instead of a flat array
 
 **Usage:**
@@ -72,10 +72,10 @@ tagged with `is_asset_store`.
 $ curl 'localhost:5678/v1/cluster/connectors'
 {
     "connectors": [
-        { "type": "elasticsearch-next", "name": "default", "is_state_cluster": true },
+        { "type": "elasticsearch-next", "name": "os1", "is_state_cluster": true },
         { "type": "elasticsearch-next", "name": "secondary", "is_state_cluster": false },
-        { "type": "kafka", "name": "default" },
-        { "type": "s3", "name": "default", "is_asset_store": true }
+        { "type": "kafka", "name": "kafka1" },
+        { "type": "s3", "name": "s3-store", "is_asset_store": true }
     ]
 }
 ```
@@ -84,9 +84,9 @@ $ curl 'localhost:5678/v1/cluster/connectors'
 $ curl 'localhost:5678/v1/cluster/connectors?groupBy=type'
 {
     "connectors": {
-        "elasticsearch-next": ["default", "secondary"],
-        "kafka": ["default"],
-        "s3": ["default"]
+        "elasticsearch-next": ["os1", "secondary"],
+        "kafka": ["kafka1"],
+        "s3": ["s3-store"]
     }
 }
 ```

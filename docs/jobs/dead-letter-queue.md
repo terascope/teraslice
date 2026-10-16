@@ -94,7 +94,7 @@ class ExampleDeadLetterQueue extends OperationAPI {
 
         const clientConfig = {
             type: 'example',
-            endpoint: 'default',
+            endpoint: 'example1',
         };
 
         const { client } = this.context.foundation.createClient(clientConfig);
@@ -177,7 +177,7 @@ export default class ExampleDeadLetterQueue extends OperationAPI {
 
         const clientConfig = {
             type: 'example',
-            endpoint: 'default',
+            endpoint: 'example1',
         };
 
         const { client } = this.context.foundation.createClient(clientConfig);

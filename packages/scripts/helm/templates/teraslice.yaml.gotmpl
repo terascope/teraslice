@@ -28,68 +28,6 @@ terafoundation:
     workers: 1
     connectors:
         elasticsearch-next:
-            # Set the first OS/ES that is enabled as our default
-            default:
-                node:
-                    ##@ In the case the "stateCluster" is opensearch3
-                    {{- if eq (.Values | get "teraslice.stateCluster" "none") "opensearch3" }}
-
-                    ##@ In the case the "stateCluster" is opensearch3 and ssl is enabled
-                    {{- if eq (.Values | get "opensearch3.ssl.enabled" false) true}}
-                    - "https://opensearch3.services-dev1:9200"
-                    {{- else}}
-                    - "http://opensearch3.services-dev1:9200"
-                    {{- end }}
-
-                    ##@ In the case the "stateCluster" is opensearch2
-                    {{- else if eq (.Values | get "teraslice.stateCluster" "none") "opensearch2" }}
-
-                    ##@ In the case the "stateCluster" is opensearch2 and ssl is enabled
-                    {{- if eq (.Values | get "opensearch2.ssl.enabled" false) true}}
-                    - "https://opensearch2.services-dev1:9200"
-                    {{- else}}
-                    - "http://opensearch2.services-dev1:9200"
-                    {{- end }}
-
-                    ##@ In the case the "stateCluster" is opensearch1
-                    {{- else if eq (.Values | get "teraslice.stateCluster" "none") "opensearch1" }}
-                    - "http://opensearch1.services-dev1:9200"
-
-
-                    {{- end }}
-
-
-                {{- if eq (.Values | get "opensearch3.ssl.enabled" false) true}}
-
-                username: admin
-                password: "passwordsufhbivbU123%$"
-                caCertificate: "{{- if .Values.opensearch3.ssl.caCert -}}
-
-                {{ .Values.opensearch3.ssl.caCert }}
-
-                {{- else -}}
-
-                {{ fail "opensearch3.ssl.caCert MUST be provided so teraslice can get the rootCA" }}
-
-                {{- end }}"
-
-                {{- end }}
-
-                {{- if eq (.Values | get "opensearch2.ssl.enabled" false) true}}
-
-                username: admin
-                password: "passwordsufhbivbU123%$"
-                caCertificate: "{{- if .Values.opensearch2.ssl.caCert -}}
-
-                {{ .Values.opensearch2.ssl.caCert }}
-
-                {{- else -}}
-
-                {{ fail "opensearch2.ssl.caCert MUST be provided so teraslice can get the rootCA" }}
-
-                {{- end }}"
-
-                {{- end }}
 
             ##@ /////////
             ##@ elasticsearch-next Opensearch1 connector
@@ -173,7 +111,7 @@ terafoundation:
         ##@ Kafka connector
         {{- if eq (.Values | get "kafka.enabled" false) true }}
         kafka:
-            default:
+            kafka-dev:
                 brokers:
                     {{- if eq (.Values | get "kafka.ssl.enabled" false) true}}
                     - "kafka-headless.services-dev1:9094"
@@ -203,7 +141,7 @@ terafoundation:
         ##@ s3 connector
         {{- if eq (.Values | get "minio.enabled" false) true }}
         s3:
-            default:
+            minio-dev:
                 {{- if eq (.Values | get "minio.tls.enabled" false) true }}
 
                 endpoint: "https://minio.services-dev1:9000"
@@ -231,7 +169,7 @@ terafoundation:
                 region: "us-east-1"
         {{- else if eq (.Values | get "ceph.enabled" false) true }}
         s3:
-            default:
+            ceph-dev:
                 # Ceph RGW (S3). Path-style addressing: in-cluster DNS has no
                 # wildcard for virtual-hosted-style bucket subdomains. The static
                 # S3 user with these keys is created declaratively (ceph-extras).
@@ -266,7 +204,7 @@ terafoundation:
         ##@ valkey connector
         {{- if eq (.Values | get "valkey.enabled" false) true }}
         valkey:
-            default:
+            valkey-dev:
                 {{- if eq (.Values | get "valkey.tls.enabled" false) true }}
 
                 {{ fail "encrypted valkey not supported" }}
@@ -284,8 +222,10 @@ master:
     teraslice:
         kubernetes_namespace: ts-dev1
         cluster_manager_type: {{ .Values | get "teraslice.cluster_manager_type" "kubernetesV2" }}
+        state:
+            connection: {{ .Values | get "teraslice.stateConnection" "os2" }}
         asset_storage_connection_type: {{ .Values | get "teraslice.asset_storage_connection_type" "elasticsearch-next" }}
-        asset_storage_connection: {{ .Values | get "teraslice.asset_storage_connection" "default" }}
+        asset_storage_connection: {{ .Values | get "teraslice.asset_storage_connection" "os2" }}
         name: {{ .Values | get "teraslice.name" "ts-dev1" }}
         assets_directory: {{ .Values | get "teraslice.assets_directory" "/app/assets" }}
         autoload_directory: /app/autoload
@@ -305,8 +245,10 @@ worker:
     teraslice:
         kubernetes_namespace: ts-dev1
         cluster_manager_type: {{ .Values | get "teraslice.cluster_manager_type" "kubernetesV2" }}
+        state:
+            connection: {{ .Values | get "teraslice.stateConnection" "os2" }}
         asset_storage_connection_type: {{ .Values | get "teraslice.asset_storage_connection_type" "elasticsearch-next" }}
-        asset_storage_connection: {{ .Values | get "teraslice.asset_storage_connection" "default" }}
+        asset_storage_connection: {{ .Values | get "teraslice.asset_storage_connection" "os2" }}
         name: {{ .Values | get "teraslice.name" "ts-dev1" }}
         assets_directory: {{ .Values | get "teraslice.assets_directory" "/app/assets" }}
         autoload_directory: /app/autoload

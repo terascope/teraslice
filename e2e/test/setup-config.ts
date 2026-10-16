@@ -10,8 +10,20 @@ const {
     ASSET_STORAGE_CONNECTION_TYPE, CEPH_HOST,
     CEPH_ACCESS_KEY, CEPH_SECRET_KEY,
     ENCRYPT_CEPH, ROOT_CERT_PATH, FILE_LOGGING,
-    ENCRYPT_KAFKA, DEBUG_LOG_LEVEL, ENCRYPT_OPENSEARCH
+    ENCRYPT_KAFKA, DEBUG_LOG_LEVEL, ENCRYPT_OPENSEARCH,
+    OS_CONNECTION, KAFKA_CONNECTION, S3_CONNECTION
 } = config;
+
+// Point the asset connection at the named connector for its storage type rather than
+// the removed "default": elasticsearch-next assets live on the state cluster, s3 assets
+// on the s3 backend (ceph in the e2e harness).
+function resolveAssetConnection() {
+    if (ASSET_STORAGE_CONNECTION !== 'default') return ASSET_STORAGE_CONNECTION;
+    if (ASSET_STORAGE_CONNECTION_TYPE === 'elasticsearch-next') return OS_CONNECTION;
+    if (ASSET_STORAGE_CONNECTION_TYPE === 's3') return S3_CONNECTION;
+    return ASSET_STORAGE_CONNECTION;
+}
+const ASSET_CONNECTION = resolveAssetConnection();
 
 export const baseConfig = {
     terafoundation: {
@@ -26,7 +38,7 @@ export const baseConfig = {
         log_path: '/app/logs',
         connectors: {
             'elasticsearch-next': {
-                default: {
+                [OS_CONNECTION]: {
                     node: [TEST_HOST],
                     requestTimeout: '1 minute',
                     sniffOnStart: false,
@@ -37,14 +49,14 @@ export const baseConfig = {
                 }
             },
             kafka: {
-                default: {
+                [KAFKA_CONNECTION]: {
                     brokers: [KAFKA_BROKER],
                     security_protocol: 'plaintext',
                     caCertificate: ''
                 }
             },
             s3: {
-                default: {
+                [S3_CONNECTION]: {
                     endpoint: CEPH_HOST,
                     accessKeyId: CEPH_ACCESS_KEY,
                     secretAccessKey: CEPH_SECRET_KEY,
@@ -72,8 +84,11 @@ export const baseConfig = {
         name: CLUSTER_NAME,
         master: true,
         master_hostname: HOST_IP,
+        state: {
+            connection: OS_CONNECTION
+        },
         asset_storage_connection_type: ASSET_STORAGE_CONNECTION_TYPE,
-        asset_storage_connection: ASSET_STORAGE_CONNECTION,
+        asset_storage_connection: ASSET_CONNECTION,
         index_settings: {
             analytics: {
                 number_of_shards: 1,
@@ -111,21 +126,21 @@ async function writeMasterConfig() {
     masterConfig.teraslice.master = true;
     if (ENCRYPT_CEPH === true) {
         const rootCA = fse.readFileSync(ROOT_CERT_PATH, 'utf8');
-        masterConfig.terafoundation.connectors.s3.default.sslEnabled = true;
-        masterConfig.terafoundation.connectors.s3.default.caCertificate = rootCA;
+        masterConfig.terafoundation.connectors.s3[S3_CONNECTION].sslEnabled = true;
+        masterConfig.terafoundation.connectors.s3[S3_CONNECTION].caCertificate = rootCA;
     }
 
     if (ENCRYPT_KAFKA === true) {
         const rootCA = fse.readFileSync(ROOT_CERT_PATH, 'utf8');
-        masterConfig.terafoundation.connectors.kafka.default.security_protocol = 'ssl';
-        masterConfig.terafoundation.connectors.kafka.default.caCertificate = rootCA;
+        masterConfig.terafoundation.connectors.kafka[KAFKA_CONNECTION].security_protocol = 'ssl';
+        masterConfig.terafoundation.connectors.kafka[KAFKA_CONNECTION].caCertificate = rootCA;
     }
 
     if (ENCRYPT_OPENSEARCH === true) {
         const rootCA = fse.readFileSync(ROOT_CERT_PATH, 'utf8');
-        masterConfig.terafoundation.connectors['elasticsearch-next'].default.username = 'admin';
-        masterConfig.terafoundation.connectors['elasticsearch-next'].default.password = 'passwordsufhbivbU123%$';
-        masterConfig.terafoundation.connectors['elasticsearch-next'].default.caCertificate = rootCA;
+        masterConfig.terafoundation.connectors['elasticsearch-next'][OS_CONNECTION].username = 'admin';
+        masterConfig.terafoundation.connectors['elasticsearch-next'][OS_CONNECTION].password = 'passwordsufhbivbU123%$';
+        masterConfig.terafoundation.connectors['elasticsearch-next'][OS_CONNECTION].caCertificate = rootCA;
     }
 
     const masterConfigPath = path.join(CONFIG_PATH, 'teraslice-master.json');
@@ -139,21 +154,21 @@ async function writeWorkerConfig() {
     workerConfig.teraslice.master = false;
     if (ENCRYPT_CEPH === true) {
         const rootCA = fse.readFileSync(ROOT_CERT_PATH, 'utf8');
-        workerConfig.terafoundation.connectors.s3.default.sslEnabled = true;
-        workerConfig.terafoundation.connectors.s3.default.caCertificate = rootCA;
+        workerConfig.terafoundation.connectors.s3[S3_CONNECTION].sslEnabled = true;
+        workerConfig.terafoundation.connectors.s3[S3_CONNECTION].caCertificate = rootCA;
     }
 
     if (ENCRYPT_KAFKA === true) {
         const rootCA = fse.readFileSync(ROOT_CERT_PATH, 'utf8');
-        workerConfig.terafoundation.connectors.kafka.default.security_protocol = 'ssl';
-        workerConfig.terafoundation.connectors.kafka.default.caCertificate = rootCA;
+        workerConfig.terafoundation.connectors.kafka[KAFKA_CONNECTION].security_protocol = 'ssl';
+        workerConfig.terafoundation.connectors.kafka[KAFKA_CONNECTION].caCertificate = rootCA;
     }
 
     if (ENCRYPT_OPENSEARCH === true) {
         const rootCA = fse.readFileSync(ROOT_CERT_PATH, 'utf8');
-        workerConfig.terafoundation.connectors['elasticsearch-next'].default.username = 'admin';
-        workerConfig.terafoundation.connectors['elasticsearch-next'].default.password = 'passwordsufhbivbU123%$';
-        workerConfig.terafoundation.connectors['elasticsearch-next'].default.caCertificate = rootCA;
+        workerConfig.terafoundation.connectors['elasticsearch-next'][OS_CONNECTION].username = 'admin';
+        workerConfig.terafoundation.connectors['elasticsearch-next'][OS_CONNECTION].password = 'passwordsufhbivbU123%$';
+        workerConfig.terafoundation.connectors['elasticsearch-next'][OS_CONNECTION].caCertificate = rootCA;
     }
 
     const workerConfigPath = path.join(CONFIG_PATH, 'teraslice-worker.json');

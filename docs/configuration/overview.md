@@ -17,7 +17,7 @@ terafoundation:
     log_level: info
     connectors:
         elasticsearch-next:
-            default:
+            os1:
                 node:
                     - "http://localhost:9200"
 
@@ -111,11 +111,11 @@ terafoundation:
     # ...
     connectors:
         elasticsearch-next:
-            default:
+            os1:
                 node:
                     - "http://localhost:9200"
         kafka:
-            default:
+            kafka1:
                 brokers: "localhost:9092"
 # ...
 ```
@@ -151,7 +151,7 @@ terafoundation:
 
     connectors:
         elasticsearch-next:
-            default:
+            os1:
                 node:
                     - YOUR_OPENSEARCH_IP:9200"
 ```
@@ -172,7 +172,7 @@ terafoundation:
 
     connectors:
         elasticsearch-next:
-            default:
+            os1:
                 node:
                     - YOUR_OPENSEARCH_IP:9200"
 ```
@@ -193,11 +193,11 @@ terafoundation:
     log_level: info
     connectors:
         elasticsearch-next:
-            default:
+            os1:
                 node:
                     - "http://localhost:9200"
         s3:
-            default:
+            s3-store:
                 endpoint: "http://minio:9000"
                 accessKeyId: "minioadmin"
                 secretAccessKey: "minioadmin"

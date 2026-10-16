@@ -26,7 +26,7 @@ const {
     NATIVE_DEFAULT_NODES, newId, DEFAULT_WORKERS, GENERATE_ONLY,
     EXAMPLE_INDEX_SIZES, EXAMPLE_INDEX_PREFIX, TEST_PLATFORM, TERASLICE_PORT,
     LOG_PATH, ENCRYPT_OPENSEARCH, OPENSEARCH_USER, OPENSEARCH_PASSWORD, ROOT_CERT_PATH,
-    FILE_LOGGING
+    FILE_LOGGING, OS_CONNECTION
 } = config;
 
 const JobDict = Object.freeze({
@@ -582,6 +582,7 @@ export class TerasliceHarness {
             apis: [
                 {
                     _name: 'elasticsearch_sender_api',
+                    _connection: OS_CONNECTION,
                     index: indexName,
                     size: 1000
                 }

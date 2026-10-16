@@ -31,7 +31,7 @@ Teraslice master and worker nodes.  In the case of minikube based deployments
 IP address of that interface is what you need to set as:
 
 ```yaml
-terafoundation.connectors.elasticsearch_next.default.node
+terafoundation.connectors.elasticsearch-next.os1.node
 ```
 
 in both the `teraslice-master` and `teraslice-worker` ConfigMaps.
