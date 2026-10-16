@@ -53,9 +53,12 @@
         "ip": "catalog:",
         "ms": "catalog:",
         "nanoid": "catalog:",
+        "openapi3-ts": "catalog:",
+        "rapidoc": "catalog:",
         "semver": "catalog:",
         "socket.io": "catalog:",
         "socket.io-client": "catalog:",
+        "swagger-ui-dist": "catalog:",
         "terafoundation": "workspace:~",
         "terafoundation_kafka_connector": "catalog:",
         "uuid": "catalog:"
