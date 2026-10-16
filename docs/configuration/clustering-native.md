@@ -25,7 +25,7 @@ terafoundation:
 
     connectors:
         elasticsearch-next:
-            default:
+            os1:
                 node:
                     - YOUR_OPENSEARCH_IP:9200"
 ```
@@ -46,7 +46,7 @@ terafoundation:
 
     connectors:
         elasticsearch-next:
-            default:
+            os1:
                 node:
                     - YOUR_OPENSEARCH_IP:9200
 ```

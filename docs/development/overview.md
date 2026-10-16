@@ -34,7 +34,7 @@ Create a configuration file called `config.yaml`:
 terafoundation:
     connectors:
         elasticsearch-next:
-            default:
+            os1:
                 node:
                     - "http://localhost:9200" # ensure port matches that of your ES/OS instance
 

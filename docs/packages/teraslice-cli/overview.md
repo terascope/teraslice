@@ -591,6 +591,6 @@ teraslice-cli connectors list <cluster>
 teraslice-cli connectors list local
 # only list kafka connectors
 teraslice-cli connectors list local --type kafka
-# only list connectors with the connection name "default"
-teraslice-cli connectors list local --name default
+# only list connectors with the connection name "os1"
+teraslice-cli connectors list local --name os1
 ```
