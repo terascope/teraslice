@@ -144,13 +144,20 @@ export function shutdownHandler(
         err?: Error
     ) {
         const timeout = msUntilUnixTime(raceDeadline);
+        let settled = false;
         await pRaceWithTimeout(
-            callShutdownFn(instanceDeadline, event, err),
+            callShutdownFn(instanceDeadline, event, err).finally(() => {
+                settled = true;
+            }),
             timeout,
             (timeoutErr) => {
                 logError(logger, timeoutErr, 'shutdown error after timeout');
             }
         );
+        // pRaceWithTimeout resolves silently when the timeout wins
+        if (!settled) {
+            logger.error(`${assignment} shutdown did not finish within ${ms(timeout)}, exiting before it completed`);
+        }
     }
 
     async function exit(event: string, err?: Error) {
