@@ -130,6 +130,14 @@ export class Scheduler {
             `execution ${this.exId} is finished scheduling, ${n} remaining slices in the queue`
         );
 
+        await this._waitForWrites();
+    }
+
+    /**
+     * Wait for every state store write in flight, including the
+     * ones started by the create interval before a stop
+    */
+    private async _waitForWrites() {
         await pWhile(async () => {
             if (!this._creating) {
                 this.logger.debug('done creating remaining slices');
@@ -152,7 +160,9 @@ export class Scheduler {
 
         this.stopped = true;
 
-        const drain = this._drainPendingSlices(false);
+        // the drain only takes what fits in the queue, so it's often a no-op.
+        // what matters is waiting for the writes already in flight
+        const drain = this._drainPendingSlices(false).then(() => this._waitForWrites());
 
         this._processCleanup();
         this._processCleanup = noop;
@@ -170,10 +180,10 @@ export class Scheduler {
 
         if (!timedOut) return;
 
-        // the drain keeps running in the background, so a
+        // the drain and writes keep running in the background, so a
         // late failure must not become an unhandled rejection
         drain.catch((err) => {
-            logError(this.logger, err, 'failure draining pending slices after stop timeout');
+            logError(this.logger, err, 'failure writing pending slices after stop timeout');
         });
 
         const sliceIds = [...this._writingSlices].map((slice) => slice.slice_id);
@@ -442,9 +452,8 @@ export class Scheduler {
         for (const slice of slices) this._writingSlices.add(slice);
 
         try {
-            const count = await this.stateStorage.createSlices(this.exId, slices);
+            await this.stateStorage.createSlices(this.exId, slices);
             this.enqueueSlices(slices);
-            this._creating -= count;
         } catch (err) {
             const { lifecycle } = this.executionContext.config;
             if (lifecycle === 'once') {
@@ -453,6 +462,9 @@ export class Scheduler {
                 logError(this.logger, err, 'failure creating slices');
             }
         } finally {
+            // release the slots whether or not the write succeeded,
+            // otherwise a failed write would shrink the queue for good
+            this._creating -= slices.length;
             for (const slice of slices) this._writingSlices.delete(slice);
         }
     }

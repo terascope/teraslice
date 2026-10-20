@@ -227,6 +227,118 @@ describe('Scheduler', () => {
 
             releaseWrite();
         });
+
+        it('should wait for and log the writes already in flight when the deadline passes', async () => {
+            const releases: (() => void)[] = [];
+            const writtenIds: string[] = [];
+            // every write hangs until released
+            stateStorage.createSlices = (exId: string, slices: any[]) => {
+                writtenIds.push(...slices.map((slice) => slice.slice_id));
+                return new Promise((resolve) => {
+                    releases.push(() => resolve(slices.length));
+                });
+            };
+            const errorSpy = jest.spyOn(scheduler.logger, 'error');
+
+            const runPromise = scheduler.run();
+            // wait for the create interval to start a write
+            while (!writtenIds.length) {
+                await pDelay(5);
+            }
+
+            const start = Date.now();
+            await scheduler.stop(Date.now() + 200);
+            const elapsed = Date.now() - start;
+
+            // without waiting for the writes in flight, stop() returned at once
+            expect(elapsed).toBeGreaterThanOrEqual(150);
+            expect(elapsed).toBeLessThan(1000);
+            expect(errorSpy).toHaveBeenCalledWith(
+                expect.stringContaining('timed out waiting for pending slices to be written')
+            );
+            expect(errorSpy).toHaveBeenCalledWith(
+                expect.stringContaining(writtenIds[0])
+            );
+
+            releases.forEach((release) => release());
+            await runPromise;
+            expect(scheduler.pendingSlices).toEqual(0);
+        });
+    });
+
+    describe('when a slice write fails on a persistent job', () => {
+        let failWrites: boolean;
+        let writes: number;
+        let persistentContext: TestContext;
+        let persistentScheduler: Scheduler;
+
+        beforeEach(async () => {
+            failWrites = true;
+            writes = 0;
+
+            persistentContext = new TestContext({
+                assignment: 'execution_controller',
+                slicers: 1,
+                newOps: true,
+                countPerSlicer: 1000,
+                lifecycle: 'persistent' as any,
+            });
+            await persistentContext.initialize();
+
+            persistentScheduler = new Scheduler(
+                persistentContext.context, persistentContext.executionContext as any
+            );
+            await persistentScheduler.initialize({
+                createSlices: async (_exId: string, slices: any[]) => {
+                    writes++;
+                    await pDelay(1);
+                    if (failWrites) throw new Error('simulated bulk failure');
+                    return slices.length;
+                },
+            } as any, executionStorage);
+
+            // the fixture's slicerQueueLength has no effect with newOps,
+            // so match data_generator with 1 worker
+            jest.spyOn(persistentScheduler, 'maxQueueLength', 'get').mockReturnValue(3);
+
+            persistentContext.attachCleanup(
+                () => persistentScheduler.shutdown(Date.now() + 500)
+            );
+        });
+
+        afterEach(() => persistentContext.cleanup());
+
+        it('should release the slots of failed writes and create slices again', async () => {
+            const runPromise = persistentScheduler.run();
+            await pDelay(100);
+
+            const failedWrites = writes;
+            // the failed writes must not hold slots in the queue
+            expect(failedWrites).toBeGreaterThan(3);
+            expect(persistentScheduler.pendingSlices).toBeLessThanOrEqual(1);
+
+            failWrites = false;
+            await pDelay(100);
+
+            expect(writes).toBeGreaterThan(failedWrites);
+            expect(persistentScheduler.queueLength).toEqual(3);
+
+            await persistentScheduler.stop(Date.now() + 200);
+            await runPromise;
+        });
+
+        it('should resolve run() after stop() following failed writes', async () => {
+            const runPromise = persistentScheduler.run();
+            await pDelay(100);
+
+            await persistentScheduler.stop(Date.now() + 200);
+
+            const resolved = await Promise.race([
+                runPromise.then(() => true),
+                pDelay(1000).then(() => false),
+            ]);
+            expect(resolved).toBeTrue();
+        });
     });
 
     describe('when testing recovery', () => {
