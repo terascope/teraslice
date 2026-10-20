@@ -151,7 +151,7 @@ export class ExecutionAnalytics {
         return Object.assign({}, this.executionAnalytics);
     }
 
-    async shutdown() {
+    async shutdown(timeout?: number) {
         this.isShutdown = true;
 
         clearInterval(this.analyticsInterval);
@@ -167,9 +167,13 @@ export class ExecutionAnalytics {
         const baseline = this._pushingAnalytics ?? this.pushedAnalytics;
         const { diffs } = this._getAnalyticsDiffs(baseline);
 
-        // the reply only sets the baseline for the next push, and there
-        // is no next push, so send without waiting on the shutdown deadline
-        await this.client.sendClusterAnalytics(diffs, undefined, false);
+        // There's no reply to wait for if the cluster master isn't connected
+        const response = this.client.ready;
+        const reply = await this.client.sendClusterAnalytics(diffs, timeout, response);
+
+        if (response && !get(reply, 'payload.recorded', false)) {
+            this.logger.warn('cluster master did not record the final cluster analytics before shutdown');
+        }
     }
 
     private _getAnalyticsDiffs(baseline: AggregatedExecutionAnalytics) {
