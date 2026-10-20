@@ -39,6 +39,7 @@ export class ExecutionController {
     private pendingDispatches = 0;
     private pendingSlices = 0;
     private isDoneProcessing = false;
+    private isFinishingExecution = false;
     private isExecutionFinished = false;
     isExecutionDone = false;
     private workersHaveConnected = false;
@@ -738,6 +739,7 @@ export class ExecutionController {
     async _finishExecution() {
         if (this.isExecutionFinished) return;
 
+        this.isFinishingExecution = true;
         this._logFinishedJob();
 
         // refresh the state store index
@@ -944,24 +946,32 @@ export class ExecutionController {
 
         const checkExecution = async (): Promise<null> => {
             if (this.isExecutionDone) {
+                logShuttingDown.cancel();
                 this.logger.trace('execution finished while shutting down');
                 return null;
             }
 
-            if (!this.client.ready) return null;
+            if (!this.client.ready) {
+                logShuttingDown.cancel();
+                return null;
+            }
 
             const now = Date.now();
             if (now > deadline) {
+                logShuttingDown.cancel();
                 this.logger.error(
                     `Shutdown timeout of ${ms(timeout)} waiting for execution ${
                         this.exId
                     } to finish...`
                 );
-                this.logger.info(`Execution controller state vars at timeout:\nisExecutionDone: ${this.isExecutionDone}\nclient.ready: ${this.client.ready}\n`
-                    + `onlineClientCount: ${this.server.onlineClientCount}\nserver.isShuttingDown: ${this.server.isShuttingDown}`
+                // isFinishingExecution without isExecutionDone means
+                // _finishExecution is still waiting on its state store calls
+                this.logger.info(`Execution controller state vars at timeout:\nisFinishingExecution: ${this.isFinishingExecution}\n`
+                    + `isExecutionDone: ${this.isExecutionDone}\nclient.ready: ${this.client.ready}\n`
+                    + `onlineClientCount: ${this.server.onlineClientCount}\nserver.isShuttingDown: ${this.server.isShuttingDown}\n`
                     + `isShuttingDown: ${this.isShuttingDown}\nisShutdown: ${this.isShutdown}\n`
                     + `isDoneDispatching: ${this.isDoneDispatching}\npendingDispatches: ${this.pendingDispatches}\n`
-                    + `scheduler.isFinished: ${this.scheduler.isFinished}\npendingSlices: ${this.pendingSlices}\n`);
+                    + `scheduler.isFinished: ${this.scheduler.isFinished}\npendingSlices: ${this.pendingSlices}`);
                 return null;
             }
 
