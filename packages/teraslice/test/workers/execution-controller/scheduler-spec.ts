@@ -308,20 +308,23 @@ describe('Scheduler', () => {
 
         afterEach(() => persistentContext.cleanup());
 
+        async function waitFor(condition: () => boolean, timeout = 3000) {
+            const giveUpAt = Date.now() + timeout;
+            while (!condition()) {
+                if (Date.now() > giveUpAt) throw new Error('timed out waiting for condition');
+                await pDelay(5);
+            }
+        }
+
         it('should release the slots of failed writes and create slices again', async () => {
             const runPromise = persistentScheduler.run();
-            await pDelay(100);
 
-            const failedWrites = writes;
-            // the failed writes must not hold slots in the queue
-            expect(failedWrites).toBeGreaterThan(3);
-            expect(persistentScheduler.pendingSlices).toBeLessThanOrEqual(1);
+            // with leaked slots, the 3 slot queue stalls after at most 3 failed slices
+            await waitFor(() => writes > 3);
 
             failWrites = false;
-            await pDelay(100);
-
-            expect(writes).toBeGreaterThan(failedWrites);
-            expect(persistentScheduler.queueLength).toEqual(3);
+            await waitFor(() => persistentScheduler.queueLength === 3);
+            expect(persistentScheduler.pendingSlices).toEqual(3);
 
             await persistentScheduler.stop(Date.now() + 200);
             await runPromise;
@@ -329,7 +332,7 @@ describe('Scheduler', () => {
 
         it('should resolve run() after stop() following failed writes', async () => {
             const runPromise = persistentScheduler.run();
-            await pDelay(100);
+            await waitFor(() => writes > 3);
 
             await persistentScheduler.stop(Date.now() + 200);
 
