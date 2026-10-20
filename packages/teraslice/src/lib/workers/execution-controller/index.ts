@@ -532,8 +532,11 @@ export class ExecutionController {
             })(),
             (async () => {
                 // the execution analytics must be shutdown
-                // before the message client
-                await this.executionAnalytics.shutdown().catch(pushError);
+                // before the message client. Leave time for the
+                // client shutdown message to be sent.
+                await this.executionAnalytics.shutdown(
+                    msUntilUnixTime(deadline - 500, 100)
+                ).catch(pushError);
 
                 await this.client.shutdown().catch(pushError);
             })(),
