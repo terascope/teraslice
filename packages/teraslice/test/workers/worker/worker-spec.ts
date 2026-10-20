@@ -371,6 +371,60 @@ describe('Worker', () => {
         });
     });
 
+    describe('when the state write during the slice flush hangs', () => {
+        const shutdownTimeout = 4000;
+        let worker: Worker;
+        let testContext: TestContext;
+        let server: ExecutionController.Server;
+        let releaseWrite: () => void;
+        let runPromise: Promise<void>;
+
+        beforeEach(async () => {
+            ({ worker, testContext, server } = await setupTest({ shutdownTimeout }));
+            await worker.initialize();
+
+            const sliceConfig = await testContext.newSlice();
+            server.onClientAvailable(() => {
+                server.dispatchSlice(sliceConfig, worker.workerId);
+            });
+            const completed = new Promise((resolve) => server.onSliceSuccess(resolve));
+
+            runPromise = worker.run();
+            await completed;
+            // let the worker go idle, waiting for its next slice
+            await pDelay(100);
+        });
+
+        afterEach(async () => {
+            releaseWrite();
+            await runPromise;
+            await testContext.cleanup();
+        });
+
+        it('should give up on the flush at the phase deadline and shutdown the stores', async () => {
+            // ES stops answering, state writes never return
+            const hung = new Promise<void>((resolve) => {
+                releaseWrite = resolve;
+            });
+            const updateState = jest.spyOn(worker.stateStorage, 'updateState')
+                .mockImplementation(() => hung as any);
+            const stateShutdown = jest.spyOn(worker.stateStorage, 'shutdown');
+            const analyticsShutdown = jest.spyOn(worker.analyticsStorage, 'shutdown');
+
+            // the instanceDeadline shutdownHandler would pass: T0 + timeout - 2500ms
+            const deadline = Date.now() + shutdownTimeout - 2500;
+
+            await expect(worker.shutdown(deadline))
+                .rejects.toThrow(/Worker shutdown timeout after .* seconds while flushing slice, forcing shutdown/);
+
+            expect(Date.now()).toBeLessThanOrEqual(deadline + 100);
+            // the flush's completed write of the last slice
+            expect(updateState).toHaveBeenCalledTimes(1);
+            expect(stateShutdown).toHaveBeenCalledTimes(1);
+            expect(analyticsShutdown).toHaveBeenCalledTimes(1);
+        });
+    });
+
     describe('when constructed without nothing', () => {
         it('should throw an error', () => {
             expect(() => {

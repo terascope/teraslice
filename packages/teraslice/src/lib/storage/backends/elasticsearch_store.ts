@@ -486,17 +486,26 @@ export class TerasliceElasticsearchStorage {
             return this._flush(true);
         }
 
-        const destroy = this._destroy.bind(this);
-
         this.logger.trace(`attempting to shutdown, will destroy in ${ms(timeout)}`);
-        setTimeout(destroy, timeout).unref();
+        const pending = this.bulkQueue.length;
+        let timer: NodeJS.Timeout | undefined;
+        const timedOut = new Promise<never>((_, reject) => {
+            timer = setTimeout(() => {
+                const err = new TSError(
+                    `${this.storageName} store shutdown timed out after ${ms(timeout)}, ${pending} records may not have been saved`
+                );
+                logError(this.logger, err);
+                reject(err);
+            }, timeout);
+        });
 
         try {
-            await this._flush(true);
+            await Promise.race([this._flush(true), timedOut]);
             this._destroy();
         } catch (err) {
             this._destroy(err);
         } finally {
+            clearTimeout(timer);
             this.logger.trace(`shutdown store, took ${ms(Date.now() - startTime)}`);
         }
     }

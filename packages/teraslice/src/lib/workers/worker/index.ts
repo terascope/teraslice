@@ -327,7 +327,7 @@ export class Worker {
         // may still reference the previous slice
         if (!sliceInitTimedOut) {
             await Promise.all([
-                this.slice.flush(phaseDeadline).catch(pushError),
+                this._flushSlice(phaseDeadline).catch(pushError),
                 this._waitForSliceToFinish(phaseDeadline).catch(pushError)
             ]);
         }
@@ -400,6 +400,31 @@ export class Worker {
             }
             return false;
         });
+    }
+
+    /**
+     * Flush the slice, giving up at the deadline so the stores, slice and
+     * client still get to shutdown. The flush isn't cancelled, it keeps
+     * running until the process exits.
+    */
+    async _flushSlice(deadline: number) {
+        const timeoutMS = msUntilUnixTime(deadline, 100);
+        let timeout: NodeJS.Timeout | undefined;
+        const timedOut = new Promise<never>((_, reject) => {
+            timeout = setTimeout(() => {
+                const err = new Error(
+                    `Worker shutdown timeout after ${timeoutMS / 1000} seconds while flushing slice, forcing shutdown`
+                );
+                this.logger.error(err);
+                reject(err);
+            }, timeoutMS);
+        });
+
+        try {
+            await Promise.race([this.slice.flush(deadline), timedOut]);
+        } finally {
+            clearTimeout(timeout);
+        }
     }
 
     _waitForSliceToFinish(deadline: number) {

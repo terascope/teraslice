@@ -249,8 +249,8 @@ export class WorkerExecutionContext
             const shutdownTimeout = deadline
                 ? ts.msUntilUnixTime(deadline, 100)
                 : this.context.sysconfig.teraslice.shutdown_timeout;
-            // time left for the flush run below. The flush itself has no timeout,
-            // finishing it takes priority; the caller's shutdown race cuts it off
+            // time left for the flush run below. The flush itself has no timeout
+            // here, the worker stops waiting for it at the deadline
             const FLUSH_RESERVE = shutdownTimeout * 0.2;
             const processSliceTimeout = Math.round(shutdownTimeout - FLUSH_RESERVE);
 
