@@ -8,7 +8,7 @@ import {
     TSError, includes, get,
     pDelay, getFullErrorStack, logError,
     pWhile, type Logger, debounce, throttle,
-    makeISODate, msUntilUnixTime
+    noop, makeISODate, msUntilUnixTime
 } from '@terascope/core-utils';
 import {
     Context, SlicerExecutionContext, Slice, isPromAvailable
@@ -21,6 +21,23 @@ import { SliceAnalytics } from './slice-analytics.js';
 import { Scheduler } from './scheduler.js';
 import { SliceTap } from './slice-tap.js';
 import { getPackageJSON } from '../../utils/file_utils.js';
+
+type RaceResult<T> = { timedOut: true } | { timedOut: false; value: T };
+
+/**
+ * Race a promise against a timeout and report which one won,
+ * a rejection before the timeout is passed through
+*/
+function raceWithTimeout<T>(promise: Promise<T>, timeoutMs: number): Promise<RaceResult<T>> {
+    let timeoutId: NodeJS.Timeout | undefined;
+    return Promise.race([
+        promise.then((value): RaceResult<T> => ({ timedOut: false, value })),
+        new Promise<RaceResult<T>>((resolve) => {
+            timeoutId = setTimeout(() => resolve({ timedOut: true }), timeoutMs);
+            timeoutId.unref();
+        })
+    ]).finally(() => clearTimeout(timeoutId));
+}
 
 export class ExecutionController {
     readonly context: Context;
@@ -43,6 +60,10 @@ export class ExecutionController {
     private isExecutionFinished = false;
     isExecutionDone = false;
     private workersHaveConnected = false;
+    /** the status read by the kubernetesV2 relocation check on SIGTERM */
+    private _shutdownStatus: string | undefined;
+    /** the write of the final status and stats, started by _finishExecution */
+    private _finalStatusWrite: Promise<void> | undefined;
 
     private _handlers = new Map<string, ((arg: any) => void) | null>();
     executionAnalytics: ExecutionAnalytics;
@@ -445,15 +466,36 @@ export class ExecutionController {
             this.context.sysconfig.teraslice.cluster_manager_type === 'kubernetesV2'
             && eventType === 'SIGTERM'
         ) {
-            await this.stateStorage.refresh();
-            const status = await this.executionStorage.getStatus(this.exId);
-            const runningStatuses = this.executionStorage.getRunningStatuses();
-            this.logger.debug(`Execution ${this.exId} is currently in a ${status} state`);
-            /// This is an indication that the cluster_master did not call for this
-            /// shutdown. We want to restart in this case.
-            if (status !== 'stopping' && includes(runningStatuses, status)) {
-                this.logger.info('Skipping shutdown to allow for relocation...');
-                return;
+            // The status is a GET by id on the execution index, which is realtime,
+            // so no refresh is needed. Cap the read so a slow ES can't use up the
+            // shutdown budget. If it can't be read in time, carry on with a normal
+            // shutdown, an ES that slow is unlikely to be healthy enough for a relocation
+            const checkMs = this._shutdownCheckMs(deadline);
+            try {
+                const result = await raceWithTimeout(
+                    this.executionStorage.getStatus(this.exId), checkMs
+                );
+                if (result.timedOut) {
+                    this.logger.error(
+                        `unable to read the status of execution ${this.exId} within ${ms(checkMs)}, continuing shutdown`
+                    );
+                } else {
+                    this._shutdownStatus = result.value;
+                }
+            } catch (err) {
+                logError(this.logger, err, `unable to read the status of execution ${this.exId}, continuing shutdown`);
+            }
+
+            const status = this._shutdownStatus;
+            if (status !== undefined) {
+                const runningStatuses = this.executionStorage.getRunningStatuses();
+                this.logger.debug(`Execution ${this.exId} is currently in a ${status} state`);
+                /// This is an indication that the cluster_master did not call for this
+                /// shutdown. We want to restart in this case.
+                if (status !== 'stopping' && includes(runningStatuses, status)) {
+                    this.logger.info('Skipping shutdown to allow for relocation...');
+                    return;
+                }
             }
         }
 
@@ -526,6 +568,22 @@ export class ExecutionController {
         await this._waitForExecutionFinished(phaseDeadline);
 
         await Promise.all([
+            (async () => {
+                // the final status and stats write can outlast the phase deadline,
+                // so keep waiting for it up to the deadline
+                if (!this.isStarted || this.isExecutionFinished || this.isExecutionDone) return;
+
+                const timedOut = !this._finalStatusWrite || (await raceWithTimeout(
+                    // a failed write is logged by _finishExecution
+                    this._finalStatusWrite.catch(noop), msUntilUnixTime(deadline, 100)
+                )).timedOut;
+
+                if (timedOut) {
+                    this.logger.error(
+                        `execution ${this.exId} final status and stats were not written before shutdown`
+                    );
+                }
+            })(),
             (async () => {
                 if (!this.collectAnalytics) return;
 
@@ -742,12 +800,15 @@ export class ExecutionController {
         this.isFinishingExecution = true;
         this._logFinishedJob();
 
-        // refresh the state store index
-        // to prevent the execution from failing incorrectly
-        await this.stateStorage.refresh();
+        // track the refresh too, so shutdown waits for the
+        // final status write even while the refresh is in flight
+        this._finalStatusWrite = (async () => {
+            await this._refreshStateIndex();
+            await this._updateExecutionStatus();
+        })();
 
         try {
-            await this._updateExecutionStatus();
+            await this._finalStatusWrite;
         } catch (err) {
             /* istanbul ignore next */
             const error = new TSError(err, {
@@ -760,6 +821,38 @@ export class ExecutionController {
 
         this.isExecutionFinished = true;
         await this._endExecution();
+    }
+
+    /**
+     * Refresh the state store index
+     * to prevent the execution from failing incorrectly
+    */
+    async _refreshStateIndex() {
+        if (this.shutdownDeadline === undefined) {
+            await this.stateStorage.refresh();
+            return;
+        }
+
+        // during shutdown, cap it so the final status write still has time to land
+        const refreshMs = this._shutdownCheckMs(this.shutdownDeadline);
+        try {
+            const result = await raceWithTimeout(this.stateStorage.refresh(), refreshMs);
+            if (result.timedOut) {
+                this.logger.warn(
+                    `state index refresh did not finish within ${ms(refreshMs)}, writing the final status anyway`
+                );
+            }
+        } catch (err) {
+            logError(this.logger, err, 'failure refreshing the state index, writing the final status anyway');
+        }
+    }
+
+    /**
+     * The time allowed for a single ES call during shutdown that the rest of
+     * the shutdown doesn't depend on, so a slow ES can't use up the budget
+    */
+    _shutdownCheckMs(deadline: number) {
+        return Math.max(Math.min(5000, Math.round(msUntilUnixTime(deadline, 0) * 0.1)), 100);
     }
 
     async _endExecution() {
@@ -787,8 +880,13 @@ export class ExecutionController {
         const executionStats = this.executionAnalytics.getAnalytics();
 
         if (!this.isDoneProcessing) {
-            // if status is stopping or stopped, only update the execution metadata
-            const status = await this.executionStorage.getStatus(this.exId);
+            // if status is stopping or stopped, only update the execution metadata.
+            // Reuse the status read by the relocation check on shutdown, it can only
+            // move from stopping to stopped, which are handled the same way
+            const shutdownStatus = this._shutdownStatus;
+            const status = shutdownStatus === 'stopping' || shutdownStatus === 'stopped'
+                ? shutdownStatus
+                : await this.executionStorage.getStatus(this.exId);
             const isStopping = status === 'stopping' || status === 'stopped';
             if (isStopping) {
                 this.logger.debug(`execution is set to ${status}, status will not be updated`);

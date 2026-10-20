@@ -391,6 +391,142 @@ describe('ExecutionController', () => {
                     }
                 });
             });
+
+            describe('when kubernetesV2 receives SIGTERM', () => {
+                let getStatus: jest.Mock<(exId: string) => Promise<string>>;
+                let updatePartial: jest.Mock<() => Promise<void>>;
+                let refresh: jest.Mock<() => Promise<void>>;
+                let stop: jest.Mock<() => void>;
+                let logErr: jest.Mock<(...args: any[]) => void>;
+
+                beforeEach(() => {
+                    testContext.context.sysconfig.teraslice.cluster_manager_type = 'kubernetesV2';
+
+                    getStatus = jest.fn(async () => 'stopping');
+                    updatePartial = jest.fn(async () => {});
+                    refresh = jest.fn(async () => {});
+                    stop = jest.fn(() => {});
+                    logErr = jest.fn();
+                    exController.logger.error = logErr as any;
+
+                    const ec = exController as any;
+                    ec.isStarted = true;
+                    ec.stateStorage = {
+                        refresh,
+                        shutdown: () => Promise.resolve(true)
+                    };
+                    ec.executionStorage = {
+                        getStatus,
+                        updatePartial,
+                        getRunningStatuses: () => ['initializing', 'running', 'failing', 'paused', 'stopping'],
+                        executionMetaData: () => ({}),
+                        shutdown: () => Promise.resolve()
+                    };
+                    ec.executionAnalytics = {
+                        set: () => {},
+                        getAnalytics: () => ({}),
+                        shutdown: () => Promise.resolve()
+                    };
+                    ec.scheduler = {
+                        stop,
+                        shutdown: () => Promise.resolve()
+                    };
+                    ec.server = {
+                        shutdown: () => Promise.resolve()
+                    };
+                    // not ready, so the main phase doesn't wait for the execution
+                    ec.client = {
+                        ready: false,
+                        shutdown: () => Promise.resolve()
+                    };
+                });
+
+                it('should skip the shutdown when the execution is relocating', async () => {
+                    getStatus.mockResolvedValue('running');
+
+                    await exController.shutdown(Date.now() + 5000, 'SIGTERM');
+
+                    expect(stop).not.toHaveBeenCalled();
+                    expect(refresh).not.toHaveBeenCalled();
+                });
+
+                it('should cap a slow status read and continue the shutdown', async () => {
+                    getStatus.mockImplementation(() => new Promise(() => {}));
+
+                    const start = Date.now();
+                    await exController.shutdown(Date.now() + 5000, 'SIGTERM');
+
+                    // the cap is 10% of the time left, 500ms here
+                    expect(stop).toHaveBeenCalled();
+                    expect(Date.now() - start).toBeLessThan(1500);
+                    expect(logErr).toHaveBeenCalledWith(
+                        expect.stringContaining(`unable to read the status of execution ${testContext.exId}`)
+                    );
+                    expect(refresh).not.toHaveBeenCalled();
+                });
+
+                it('should reuse the status and wait for a slow final stats write', async () => {
+                    let writtenAt = 0;
+                    updatePartial.mockImplementation(async () => {
+                        await pDelay(300);
+                        writtenAt = Date.now();
+                    });
+                    // stopping the scheduler ends run(), which finishes the execution
+                    stop.mockImplementation(() => {
+                        exController._finishExecution();
+                    });
+
+                    await exController.shutdown(Date.now() + 2000, 'SIGTERM');
+                    const shutdownAt = Date.now();
+
+                    expect(getStatus).toHaveBeenCalledTimes(1);
+                    // only _finishExecution refreshes, not the relocation check
+                    expect(refresh).toHaveBeenCalledTimes(1);
+                    expect(updatePartial).toHaveBeenCalledTimes(1);
+                    expect(writtenAt).toBeGreaterThan(0);
+                    expect(writtenAt).toBeLessThanOrEqual(shutdownAt);
+                    expect(logErr).not.toHaveBeenCalledWith(
+                        expect.stringContaining('final status and stats were not written')
+                    );
+                });
+
+                it('should cap a slow state index refresh and still write the final stats', async () => {
+                    refresh.mockImplementation(() => new Promise(() => {}));
+                    const logWarn = jest.fn();
+                    exController.logger.warn = logWarn as any;
+                    stop.mockImplementation(() => {
+                        exController._finishExecution();
+                    });
+
+                    const start = Date.now();
+                    await exController.shutdown(Date.now() + 5000, 'SIGTERM');
+
+                    // the cap is 10% of the time left, under 500ms here
+                    expect(Date.now() - start).toBeLessThan(1500);
+                    expect(updatePartial).toHaveBeenCalledTimes(1);
+                    expect(logWarn).toHaveBeenCalledWith(
+                        expect.stringContaining('state index refresh did not finish within')
+                    );
+                    expect(logErr).not.toHaveBeenCalledWith(
+                        expect.stringContaining('final status and stats were not written')
+                    );
+                });
+
+                it('should log a final stats write that misses the deadline', async () => {
+                    updatePartial.mockImplementation(() => new Promise(() => {}));
+                    stop.mockImplementation(() => {
+                        exController._finishExecution();
+                    });
+
+                    const start = Date.now();
+                    await exController.shutdown(Date.now() + 1000, 'SIGTERM');
+
+                    expect(Date.now() - start).toBeLessThan(2000);
+                    expect(logErr).toHaveBeenCalledWith(
+                        `execution ${testContext.exId} final status and stats were not written before shutdown`
+                    );
+                });
+            });
         });
     });
 
