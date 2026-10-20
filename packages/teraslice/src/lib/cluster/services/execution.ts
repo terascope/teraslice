@@ -241,12 +241,15 @@ export class ExecutionService {
         this.allocateInterval = undefined;
         this.reapInterval = undefined;
 
+        // only the native clustering backend terminates living executions
+        // on shutdown, so skip the ES search for the others
+        if (!this.isNative) return;
+
         const query = this.executionStorage.getLivingStatuses().map((str) => `_status:${str}`)
             .join(' OR ');
         const executions = await this.executionStorage.search(query) as ExecutionConfig[];
 
         await Promise.all(executions.map(async (execution) => {
-            if (!this.isNative) return;
             this.logger.warn(`marking execution ex_id: ${execution.ex_id}, job_id: ${execution.job_id} as terminated`);
             const exId = execution.ex_id;
             const { hostname } = this.context.sysconfig.teraslice;
