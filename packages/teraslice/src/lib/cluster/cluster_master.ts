@@ -210,7 +210,7 @@ export class ClusterMaster {
                 }
             }));
 
-        await this.messagingServer.shutdown();
+        await this.messagingServer.shutdown(msUntilUnixTime(deadline, 100));
 
         if (isPromAvailable(this.context)) {
             await this.context.apis.foundation.promMetrics.shutdown();
