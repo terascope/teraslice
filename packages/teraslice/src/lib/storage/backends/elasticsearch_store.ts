@@ -491,11 +491,9 @@ export class TerasliceElasticsearchStorage {
         let timer: NodeJS.Timeout | undefined;
         const timedOut = new Promise<never>((_, reject) => {
             timer = setTimeout(() => {
-                const err = new TSError(
+                reject(new TSError(
                     `${this.storageName} store shutdown timed out after ${ms(timeout)}, ${pending} records may not have been saved`
-                );
-                logError(this.logger, err);
-                reject(err);
+                ));
             }, timeout);
         });
 
@@ -503,6 +501,9 @@ export class TerasliceElasticsearchStorage {
             await Promise.race([this._flush(true), timedOut]);
             this._destroy();
         } catch (err) {
+            // log now, the caller only reports shutdown errors if its
+            // shutdown finishes before the shutdown race cuts it off
+            logError(this.logger, err, `${this.storageName} store shutdown failed`);
             this._destroy(err);
         } finally {
             clearTimeout(timer);

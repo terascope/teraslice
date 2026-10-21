@@ -1,6 +1,6 @@
 import { jest } from '@jest/globals';
 import 'jest-extended';
-import { debugLogger, pDelay } from '@terascope/core-utils';
+import { debugLogger } from '@terascope/core-utils';
 import { TerasliceElasticsearchStorage } from '../../src/lib/storage/backends/elasticsearch_store.js';
 
 describe('TerasliceElasticsearchStorage', () => {
@@ -47,26 +47,24 @@ describe('TerasliceElasticsearchStorage', () => {
             releaseBulk();
         });
 
-        it('should resolve and clear the timer when the bulk request succeeds', async () => {
+        it('should resolve when the bulk request succeeds', async () => {
             const bulkSend = jest.spyOn(store, 'bulkSend').mockResolvedValue(1);
             const logError = jest.spyOn(logger, 'error');
 
             await expect(store.shutdown(true, timeout)).resolves.toBeUndefined();
-            await pDelay(timeout + 100);
 
             expect(bulkSend).toHaveBeenCalledTimes(1);
             expect(logError).not.toHaveBeenCalled();
             expect((store as any).isShuttingDown).toBeTrue();
         });
 
-        it('should reject with the bulk request error when it fails', async () => {
+        it('should log and reject with the bulk request error when it fails', async () => {
             jest.spyOn(store, 'bulkSend').mockRejectedValue(new Error('Bulk Error'));
             const logError = jest.spyOn(logger, 'error');
 
             await expect(store.shutdown(true, timeout)).rejects.toThrow('Bulk Error');
-            await pDelay(timeout + 100);
 
-            expect(logError).not.toHaveBeenCalled();
+            expect(logError).toHaveBeenCalledTimes(1);
             expect((store as any).bulkQueue).toBeArrayOfSize(0);
         });
     });

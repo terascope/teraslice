@@ -150,8 +150,9 @@ export function shutdownHandler(
                 settled = true;
             }),
             timeout,
-            (timeoutErr) => {
-                logError(logger, timeoutErr, 'shutdown error after timeout');
+            // only called when the shutdown rejects, not when the timeout wins
+            (shutdownErr) => {
+                logError(logger, shutdownErr, `${assignment} shutdown failed`);
             }
         );
         // pRaceWithTimeout resolves silently when the timeout wins
