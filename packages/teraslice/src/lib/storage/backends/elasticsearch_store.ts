@@ -2,7 +2,7 @@ import ms from 'ms';
 import {
     TSError, parseError, isTest, pDelay,
     pRetry, logError, pWhile, isString, getTypeOf,
-    get, random, isInteger, Logger
+    get, random, isInteger, Logger, noop
 } from '@terascope/core-utils';
 import elasticsearchApi, { Client, BulkRecord } from '@terascope/elasticsearch-api';
 import { getClient, Context } from '@terascope/job-components';
@@ -84,6 +84,8 @@ export class TerasliceElasticsearchStorage {
     private isShuttingDown = false;
     // flag to know if already in a bulk call
     private savingBulk = false;
+    // the bulk request in flight, so shutdown can wait for it
+    private inFlightFlush?: { promise: Promise<unknown>; count: number };
     // Buffer to build up bulk requests. TODO: fix type
     private bulkQueue: any[] = [];
     private readonly idField: string;
@@ -487,7 +489,10 @@ export class TerasliceElasticsearchStorage {
         }
 
         this.logger.trace(`attempting to shutdown, will destroy in ${ms(timeout)}`);
-        const pending = this.bulkQueue.length;
+        // a background flush may have already taken the queue, so wait for its
+        // send too. its errors are handled where it was started
+        const inFlight = this.inFlightFlush;
+        const pending = this.bulkQueue.length + (inFlight?.count ?? 0);
         let timer: NodeJS.Timeout | undefined;
         const timedOut = new Promise<never>((_, reject) => {
             timer = setTimeout(() => {
@@ -498,7 +503,10 @@ export class TerasliceElasticsearchStorage {
         });
 
         try {
-            await Promise.race([this._flush(true), timedOut]);
+            await Promise.race([
+                Promise.all([inFlight?.promise.catch(noop), this._flush(true)]),
+                timedOut,
+            ]);
             this._destroy();
         } catch (err) {
             // log now, the caller only reports shutdown errors if its
@@ -524,12 +532,16 @@ export class TerasliceElasticsearchStorage {
         const bulkRequest = this.bulkQueue.slice();
         this.bulkQueue = [];
 
+        const promise = this.bulkSend(bulkRequest);
+        this.inFlightFlush = { promise, count: bulkRequest.length };
+
         try {
-            const recordCount = await this.bulkSend(bulkRequest);
+            const recordCount = await promise;
             const extraMsg = shuttingDown ? ', on shutdown' : '';
             this.logger.debug(`flushed ${recordCount}${extraMsg} records to index ${this.defaultIndexName}`);
         } finally {
             this.savingBulk = false;
+            if (this.inFlightFlush?.promise === promise) this.inFlightFlush = undefined;
         }
     }
 
