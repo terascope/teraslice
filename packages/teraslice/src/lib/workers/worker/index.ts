@@ -335,12 +335,12 @@ export class Worker {
         }
 
         this.events.emit('worker:shutdown');
-        await this.executionContext.shutdown();
 
         // make sure ->run() resolves the promise
         this.forceShutdown = true;
 
         await Promise.all([
+            this._shutdownOperations(deadline).catch(pushError),
             (async () => {
                 await Promise.all([
                     (async () => {
@@ -426,6 +426,33 @@ export class Worker {
             // log now, the caller only reports shutdown errors if its
             // shutdown finishes before the shutdown race cuts it off
             logError(this.logger, err, 'slice flush failed on shutdown');
+            throw err;
+        } finally {
+            clearTimeout(timeout);
+        }
+    }
+
+    /**
+     * Shutdown the operations, giving up at the deadline. The shutdown isn't
+     * cancelled, it keeps running until the process exits.
+    */
+    async _shutdownOperations(deadline: number) {
+        const timeoutMS = msUntilUnixTime(deadline, 100);
+        let timeout: NodeJS.Timeout | undefined;
+        const timedOut = new Promise<never>((_, reject) => {
+            timeout = setTimeout(() => {
+                reject(new Error(
+                    `Worker shutdown timeout after ${timeoutMS / 1000} seconds while shutting down operations, forcing shutdown`
+                ));
+            }, timeoutMS);
+        });
+
+        try {
+            await Promise.race([this.executionContext.shutdown(), timedOut]);
+        } catch (err) {
+            // log now, the caller only reports shutdown errors if its
+            // shutdown finishes before the shutdown race cuts it off
+            logError(this.logger, err, 'operation shutdown failed');
             throw err;
         } finally {
             clearTimeout(timeout);

@@ -511,6 +511,87 @@ describe('Worker', () => {
         });
     });
 
+    describe('when the operations shutdown hangs or fails', () => {
+        const shutdownTimeout = 4000;
+        let worker: Worker;
+        let testContext: TestContext;
+        let runPromise: Promise<void>;
+        type AnySpy = jest.SpiedFunction<(...args: any[]) => any>;
+        let stateShutdown: AnySpy;
+        let analyticsShutdown: AnySpy;
+        let sliceShutdown: AnySpy;
+        let clientShutdown: AnySpy;
+        let logError: AnySpy;
+
+        beforeEach(async () => {
+            ({ worker, testContext } = await setupTest({ shutdownTimeout }));
+            await worker.initialize();
+
+            stateShutdown = jest.spyOn(worker.stateStorage, 'shutdown');
+            analyticsShutdown = jest.spyOn(worker.analyticsStorage, 'shutdown');
+            // @ts-expect-error
+            sliceShutdown = jest.spyOn(worker.slice, 'shutdown');
+            clientShutdown = jest.spyOn(worker.client, 'shutdown');
+            logError = jest.spyOn(worker.logger, 'error');
+
+            // idle, waiting for a slice
+            runPromise = worker.run();
+        });
+
+        afterEach(async () => {
+            await testContext.cleanup();
+        });
+
+        function expectEverythingElseShutdown() {
+            expect(stateShutdown).toHaveBeenCalledTimes(1);
+            expect(analyticsShutdown).toHaveBeenCalledTimes(1);
+            expect(sliceShutdown).toHaveBeenCalledTimes(1);
+            expect(clientShutdown).toHaveBeenCalledTimes(1);
+        }
+
+        it('should give up on the operations at the deadline', async () => {
+            jest.spyOn(worker.executionContext, 'shutdown')
+                .mockImplementation(() => new Promise(() => {}));
+
+            // the instanceDeadline shutdownHandler would pass: T0 + timeout - 2500ms
+            const deadline = Date.now() + shutdownTimeout - 2500;
+
+            await expect(worker.shutdown(deadline))
+                .rejects.toThrow(/Worker shutdown timeout after .* seconds while shutting down operations, forcing shutdown/);
+
+            expect(Date.now()).toBeLessThanOrEqual(deadline + 100);
+            expectEverythingElseShutdown();
+            expect(logError).toHaveBeenCalledWith(
+                expect.objectContaining({
+                    message: expect.stringMatching(/while shutting down operations/)
+                }),
+                'operation shutdown failed'
+            );
+            await expect(runPromise).resolves.toBeUndefined();
+        });
+
+        it('should still shutdown everything else when an operation throws', async () => {
+            jest.spyOn(worker.executionContext, 'shutdown')
+                .mockRejectedValue(new Error('Operation Shutdown Error'));
+            const shutdownComplete = jest.fn();
+            worker.events.once('worker:shutdown:complete', shutdownComplete);
+
+            const deadline = Date.now() + shutdownTimeout - 2500;
+
+            await expect(worker.shutdown(deadline)).rejects.toThrow(/Operation Shutdown Error/);
+
+            expectEverythingElseShutdown();
+            expect(logError).toHaveBeenCalledWith(
+                expect.objectContaining({ message: 'Operation Shutdown Error' }),
+                'operation shutdown failed'
+            );
+            expect(shutdownComplete).toHaveBeenCalledWith(expect.objectContaining({
+                message: expect.stringMatching(/Operation Shutdown Error/)
+            }));
+            await expect(runPromise).resolves.toBeUndefined();
+        });
+    });
+
     describe('when constructed without nothing', () => {
         it('should throw an error', () => {
             expect(() => {
