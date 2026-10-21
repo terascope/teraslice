@@ -331,6 +331,7 @@ describe('Worker', () => {
 
     describe('when a slice is in-progress and has to be forced to shutdown', () => {
         let shutdownErr: any;
+        let logError: jest.SpiedFunction<any>;
         let worker: Worker;
         let testContext: TestContext;
         let server: ExecutionController.Server;
@@ -349,6 +350,8 @@ describe('Worker', () => {
             server.onClientAvailable(() => {
                 server.dispatchSlice(sliceConfig, worker.workerId);
             });
+
+            logError = jest.spyOn(worker.logger, 'error');
 
             let shutdown;
             worker.events.once('slice:initialize', () => {
@@ -369,6 +372,62 @@ describe('Worker', () => {
             expect(shutdownErr).not.toBeNil();
             expect(shutdownErr.toString()).toMatch(errMsg);
         });
+
+        it('should log the timeout when it fires', () => {
+            expect(logError).toHaveBeenCalledWith(expect.objectContaining({
+                message: expect.stringMatching(/while waiting for slice to finish/)
+            }));
+        });
+    });
+
+    describe('when a slice never finishes initializing and has to be forced to shutdown', () => {
+        let shutdownErr: any;
+        let logError: jest.SpiedFunction<any>;
+        let worker: Worker;
+        let testContext: TestContext;
+        let server: ExecutionController.Server;
+
+        beforeEach(async () => {
+            ({ worker, testContext, server } = await setupTest());
+            await worker.initialize();
+
+            worker.context.sysconfig.teraslice.shutdown_timeout = 500;
+            // @ts-expect-error
+            worker.shutdownTimeout = 500;
+            const sliceConfig = await testContext.newSlice();
+
+            server.onClientAvailable(() => {
+                server.dispatchSlice(sliceConfig, worker.workerId);
+            });
+
+            logError = jest.spyOn(worker.logger, 'error');
+
+            let shutdown;
+            // @ts-expect-error
+            worker.slice.initialize = jest.fn(() => {
+                shutdown = worker.shutdown(Date.now() + worker.shutdownTimeout).catch((err) => {
+                    shutdownErr = err;
+                });
+                return new Promise<void>(() => {});
+            });
+
+            await worker.run();
+            await shutdown;
+        });
+
+        afterEach(() => testContext.cleanup());
+
+        it('shutdown should throw an error', () => {
+            const errMsg = /^Error: Failed to shutdown correctly: Error: Worker shutdown timeout after 0\.3\d* seconds while waiting for slice to initialize, forcing shutdown/;
+            expect(shutdownErr).not.toBeNil();
+            expect(shutdownErr.toString()).toMatch(errMsg);
+        });
+
+        it('should log the timeout when it fires', () => {
+            expect(logError).toHaveBeenCalledWith(expect.objectContaining({
+                message: expect.stringMatching(/while waiting for slice to initialize/)
+            }));
+        });
     });
 
     describe('when the state write during the slice flush hangs', () => {
@@ -384,7 +443,11 @@ describe('Worker', () => {
             await worker.initialize();
 
             const sliceConfig = await testContext.newSlice();
+            // dispatch once, onClientAvailable fires again after every slice
+            let dispatched = false;
             server.onClientAvailable(() => {
+                if (dispatched) return;
+                dispatched = true;
                 server.dispatchSlice(sliceConfig, worker.workerId);
             });
             const completed = new Promise((resolve) => server.onSliceSuccess(resolve));
@@ -410,6 +473,7 @@ describe('Worker', () => {
                 .mockImplementation(() => hung as any);
             const stateShutdown = jest.spyOn(worker.stateStorage, 'shutdown');
             const analyticsShutdown = jest.spyOn(worker.analyticsStorage, 'shutdown');
+            const logError = jest.spyOn(worker.logger, 'error');
 
             // the instanceDeadline shutdownHandler would pass: T0 + timeout - 2500ms
             const deadline = Date.now() + shutdownTimeout - 2500;
@@ -422,6 +486,28 @@ describe('Worker', () => {
             expect(updateState).toHaveBeenCalledTimes(1);
             expect(stateShutdown).toHaveBeenCalledTimes(1);
             expect(analyticsShutdown).toHaveBeenCalledTimes(1);
+            expect(logError).toHaveBeenCalledWith(
+                expect.objectContaining({
+                    message: expect.stringMatching(/while flushing slice/)
+                }),
+                'slice flush failed on shutdown'
+            );
+        });
+
+        it('should log the error when the flush state write fails', async () => {
+            releaseWrite = () => {};
+            jest.spyOn(worker.stateStorage, 'updateState')
+                .mockRejectedValue(new Error('State Write Error'));
+            const logError = jest.spyOn(worker.logger, 'error');
+
+            const deadline = Date.now() + shutdownTimeout - 2500;
+
+            await expect(worker.shutdown(deadline)).rejects.toThrow(/State Write Error/);
+
+            expect(logError).toHaveBeenCalledWith(
+                expect.objectContaining({ message: 'State Write Error' }),
+                'slice flush failed on shutdown'
+            );
         });
     });
 

@@ -311,9 +311,11 @@ export class Worker {
         while (this.isProcessing && this.executionContext.status === 'idle') {
             if (Date.now() >= phaseDeadline) {
                 const seconds = Math.max(phaseDeadline - start, 0) / 1000;
-                pushError(new Error(
+                const err = new Error(
                     `Worker shutdown timeout after ${seconds} seconds while waiting for slice to initialize, forcing shutdown`
-                ));
+                );
+                this.logger.error(err);
+                pushError(err);
                 sliceInitTimedOut = true;
                 break;
             }
@@ -412,16 +414,19 @@ export class Worker {
         let timeout: NodeJS.Timeout | undefined;
         const timedOut = new Promise<never>((_, reject) => {
             timeout = setTimeout(() => {
-                const err = new Error(
+                reject(new Error(
                     `Worker shutdown timeout after ${timeoutMS / 1000} seconds while flushing slice, forcing shutdown`
-                );
-                this.logger.error(err);
-                reject(err);
+                ));
             }, timeoutMS);
         });
 
         try {
             await Promise.race([this.slice.flush(deadline), timedOut]);
+        } catch (err) {
+            // log now, the caller only reports shutdown errors if its
+            // shutdown finishes before the shutdown race cuts it off
+            logError(this.logger, err, 'slice flush failed on shutdown');
+            throw err;
         } finally {
             clearTimeout(timeout);
         }
@@ -475,6 +480,7 @@ export class Worker {
                 const err = new Error(
                     `Worker shutdown timeout after ${seconds} seconds while waiting for slice to finish, forcing shutdown`
                 );
+                logger.error(err);
                 done(err);
             }, timeoutMS);
         });
