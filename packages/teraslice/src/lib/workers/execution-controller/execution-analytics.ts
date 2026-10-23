@@ -38,6 +38,8 @@ export class ExecutionAnalytics {
     isShutdown: boolean;
     executionAnalytics: EStats;
     pushedAnalytics: AggregatedExecutionAnalytics;
+    /** what a push still waiting on its reply sent, so shutdown doesn't send it twice */
+    private _pushingAnalytics?: AggregatedExecutionAnalytics;
     analyticsInterval!: NodeJS.Timeout;
 
     constructor(
@@ -160,27 +162,49 @@ export class ExecutionAnalytics {
             this._handlers[event] = null;
         });
 
-        await this._pushAnalytics(timeout);
+        // a push still waiting on its reply has already sent its diffs,
+        // so count from what it sent to avoid recording them twice
+        const baseline = this._pushingAnalytics ?? this.pushedAnalytics;
+        const { diffs } = this._getAnalyticsDiffs(baseline);
+
+        // There's no reply to wait for if the cluster master isn't connected
+        const response = this.client.ready;
+        const reply = await this.client.sendClusterAnalytics(diffs, timeout, response);
+
+        if (response && !get(reply, 'payload.recorded', false)) {
+            this.logger.warn('cluster master did not record the final cluster analytics before shutdown');
+        }
     }
 
-    private async _pushAnalytics(timeout = Math.round(this.analyticsRate / 2)) {
-        if (this._pushing) return;
-        this._pushing = true;
-
+    private _getAnalyticsDiffs(baseline: AggregatedExecutionAnalytics) {
         const analytics = this.getAnalytics();
 
         // save a copy of what we push so we can emit diffs
         const diffs: Record<string, any> = {};
         const copy: Record<string, any> = {};
 
-        Object.entries(this.pushedAnalytics).forEach(([field, value]) => {
+        Object.entries(baseline).forEach(([field, value]) => {
             diffs[field] = analytics[field as keyof Omit<EStats, 'started' | 'queuing_complete'>] - value;
             copy[field] = analytics[field as keyof EStats];
         });
 
-        const response = await this.client.sendClusterAnalytics(
-            diffs as AggregatedExecutionAnalytics, timeout
-        );
+        return {
+            diffs: diffs as AggregatedExecutionAnalytics,
+            copy: copy as AggregatedExecutionAnalytics
+        };
+    }
+
+    private async _pushAnalytics(timeout = Math.round(this.analyticsRate / 2)) {
+        if (this._pushing) return;
+        this._pushing = true;
+
+        const { diffs, copy } = this._getAnalyticsDiffs(this.pushedAnalytics);
+        this._pushingAnalytics = copy;
+
+        const response = await this.client.sendClusterAnalytics(diffs, timeout)
+            .finally(() => {
+                this._pushingAnalytics = undefined;
+            });
 
         const recorded = get(response, 'payload.recorded', false);
 
@@ -191,7 +215,7 @@ export class ExecutionAnalytics {
             return;
         }
 
-        this.pushedAnalytics = copy as AggregatedExecutionAnalytics;
+        this.pushedAnalytics = copy;
     }
 
     private _registerHandlers() {

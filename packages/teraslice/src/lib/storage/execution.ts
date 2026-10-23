@@ -291,9 +291,9 @@ export class ExecutionStorage {
         return this.backend.remove(exId);
     }
 
-    async shutdown(forceShutdown?: boolean) {
+    async shutdown(forceShutdown?: boolean, timeout?: number) {
         this.logger.info('shutting down.');
-        return this.backend.shutdown(forceShutdown);
+        return this.backend.shutdown(forceShutdown, timeout);
     }
 
     verifyClient() {

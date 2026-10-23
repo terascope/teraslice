@@ -79,8 +79,8 @@ export class SliceExecution {
         return result.results;
     }
 
-    async flush() {
-        const result = await this.executionContext.flush();
+    async flush(deadline?: number) {
+        const result = await this.executionContext.flush(deadline);
 
         if (result) {
             await this._markCompleted();

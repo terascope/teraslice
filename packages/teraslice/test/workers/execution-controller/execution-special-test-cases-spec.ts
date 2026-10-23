@@ -396,7 +396,7 @@ describe('ExecutionController Special Tests', () => {
                 action_timeout: actionTimeout
             } = testContext.context.sysconfig.teraslice;
 
-            testContext.attachCleanup(() => exController.shutdown());
+            testContext.attachCleanup(() => exController.shutdown(Date.now() + shutdownTimeout));
 
             const opCount = testContext.executionContext.config.operations.length;
 
@@ -417,6 +417,7 @@ describe('ExecutionController Special Tests', () => {
 
             shutdownEarlyFn = makeShutdownEarlyFn({
                 enabled: shutdownEarly,
+                shutdownTimeout,
                 exController
             }) as any;
 

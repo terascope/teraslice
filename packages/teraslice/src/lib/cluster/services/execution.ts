@@ -19,6 +19,7 @@ import { makeLogger } from '../../workers/helpers/terafoundation.js';
 import type { ClusterServiceType } from './cluster/index.js';
 import { SliceTapOptions, StopExecutionOptions } from './interfaces.js';
 import { HTTP_RESPONSE_MARGIN } from '../../utils/api_utils.js';
+import { POST_SHUTDOWN_BUFFER } from '../../workers/helpers/worker-shutdown.js';
 
 const MIN_SLICE_TAP_TIMEOUT = 30 * 1000;
 
@@ -105,7 +106,7 @@ export class ExecutionService {
         this.allocateInterval = setInterval(executionAllocator, 1000);
         this.reapInterval = setInterval(
             this.reapExecutions.bind(this),
-            this.context.sysconfig.teraslice.shutdown_timeout || 30000
+            this.context.sysconfig.teraslice.shutdown_timeout
         );
     }
 
@@ -240,12 +241,15 @@ export class ExecutionService {
         this.allocateInterval = undefined;
         this.reapInterval = undefined;
 
+        // only the native clustering backend terminates living executions
+        // on shutdown, so skip the ES search for the others
+        if (!this.isNative) return;
+
         const query = this.executionStorage.getLivingStatuses().map((str) => `_status:${str}`)
             .join(' OR ');
         const executions = await this.executionStorage.search(query) as ExecutionConfig[];
 
         await Promise.all(executions.map(async (execution) => {
-            if (!this.isNative) return;
             this.logger.warn(`marking execution ex_id: ${execution.ex_id}, job_id: ${execution.job_id} as terminated`);
             const exId = execution.ex_id;
             const { hostname } = this.context.sysconfig.teraslice;
@@ -625,7 +629,8 @@ export class ExecutionService {
 
             for (const execution of stopping) {
                 const updatedAt = new Date(execution._updated).getTime();
-                const timeout = this.context.sysconfig.teraslice.shutdown_timeout;
+                const timeout = this.context.sysconfig.teraslice.shutdown_timeout
+                    + POST_SHUTDOWN_BUFFER;
                 const updatedWithTimeout = updatedAt + timeout;
                 // Since we don't want to break executions that actually are "stopping"
                 // we need to verify that the job has exceeded the shutdown timeout

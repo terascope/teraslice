@@ -65,7 +65,7 @@ describe('Assets Service', () => {
 
     afterAll(async () => {
         // Clean up asset process
-        await service.shutdown();
+        await service.shutdown(Date.now() + context.sysconfig.teraslice.shutdown_timeout);
     });
 
     describe('getS3AssetStatus function', () => {

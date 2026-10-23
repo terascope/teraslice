@@ -44,7 +44,11 @@ export class Client extends core.Client {
         await this.connect();
     }
 
-    sendClusterAnalytics(stats: AggregatedExecutionAnalytics, timeout?: number) {
+    sendClusterAnalytics(
+        stats: AggregatedExecutionAnalytics,
+        timeout?: number,
+        response = true
+    ) {
         return this.send(
             'cluster:analytics',
             {
@@ -53,7 +57,7 @@ export class Client extends core.Client {
             },
             {
                 volatile: true,
-                response: true,
+                response,
                 timeout,
             }
         );
