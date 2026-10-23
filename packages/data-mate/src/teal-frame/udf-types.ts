@@ -185,6 +185,7 @@ function structConverter(
  * - A GEOMETRY becomes the GeoShape its WKB encodes.
  * - A JSON column (`Any` or an untyped `Object`) is stored as JSON text, so it is parsed.
  * - A `Long` stays a `bigint`, which the functions already expect.
+ * - An `Integer` is stored as a BIGINT but is a `number` in `DataFrame`, so it becomes one.
 */
 export function makeInputConverter(
     field: FieldTypeLike | DataTypeFieldConfig,
@@ -206,6 +207,10 @@ export function makeInputConverter(
 
     // epoch millis, or a `DateTuple`, as `DataFrame` passes to the same function
     if (type === FieldType.Date) return fromDateValue;
+
+    if (type === FieldType.Integer) {
+        return (value) => (typeof value === 'bigint' ? Number(value) : value);
+    }
 
     if (type === FieldType.GeoJSON) {
         return (value) => (value instanceof DuckDBGeometryValue
