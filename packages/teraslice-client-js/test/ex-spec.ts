@@ -614,11 +614,12 @@ describe('Teraslice Ex', () => {
 
         describe('when called and one request times out', () => {
             beforeEach(() => {
+                // nock >= 15 only delays the body, which surfaces as a ReadError
+                // instead of a timeout, so simulate the timeout error directly
                 scope.get('/ex/some-job-id')
-                    .delay(1100)
-                    .reply(200, {
-                        ex_id: 'example-ex-id',
-                        _status: Teraslice.ExecutionStatusEnum.initializing
+                    .replyWithError({
+                        code: 'ETIMEDOUT',
+                        message: 'Timeout awaiting \'request\' for 1000ms'
                     });
 
                 scope.get('/ex/some-job-id')
