@@ -1,4 +1,5 @@
 import { DataTypeConfig, ReadonlyDataTypeConfig } from '@terascope/types';
+import type { SQLJoinType, SQLSortInput } from '@terascope/sql-builder';
 import { ValueConverter } from './duck-values.js';
 
 /**
@@ -155,8 +156,8 @@ export interface SelectOptions {
 
 /** How to join two frames. Expressions are raw SQL written against the two aliases. */
 export interface JoinOptions {
-    /** Join predicate, e.g. `'a.user_id = b.id'`. */
-    on: string;
+    /** Join predicate, e.g. `'a.user_id = b.id'`. Required, except for a cross join. */
+    on?: string;
     /**
      * Output expressions, `{ outputName: sqlExpression }`, or a `SELECT` list verbatim.
      *
@@ -170,13 +171,30 @@ export interface JoinOptions {
     /** The result's column names, required when `select` is a verbatim list. */
     columns?: readonly string[];
     /** Defaults to `inner`. */
-    type?: 'inner' | 'left' | 'right' | 'full' | 'cross';
+    type?: SQLJoinType;
     /** Alias for this frame. Defaults to `a`. */
     as?: string;
     /** Alias for the other frame. Defaults to `b`. */
     otherAs?: string;
     /** Group the joined rows, so join-then-aggregate is a single statement. */
     groupBy?: readonly string[];
+}
+
+/** Options for {@link TealFrame.union}. */
+export interface UnionOptions {
+    /**
+     * The result's declared field types. Defaults to the fields of every frame, the first
+     * frame's config winning for a field more than one frame has.
+    */
+    config?: FrameConfig;
+}
+
+/** Options for {@link TealFrame.limitPerGroup}. */
+export interface LimitPerGroupOptions {
+    /** The groups, raw SQL like `select`'s `groupBy`. Without any, the rows are one group. */
+    groupBy: readonly string[];
+    /** Which rows of a group come first, at least one term. */
+    orderBy: readonly SQLSortInput[];
 }
 
 /** A required extension that could not be loaded, and DuckDB's reason. */

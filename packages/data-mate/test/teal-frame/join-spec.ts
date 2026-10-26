@@ -241,6 +241,35 @@ describe('TealFrame.join', () => {
         await great.destroy();
     });
 
+    it('joins every row to every row on a cross join, which takes no condition', async () => {
+        const joined = parent.join(child, {
+            type: 'cross',
+            select: { pkey: 'a.pkey', pname: 'a.pname', cname: 'b.cname' },
+            config: JOINED,
+        });
+
+        expect(await joined.size()).toBe(PARENTS.length * CHILDREN.length);
+        expect(() => parent.join(child, {
+            type: 'cross',
+            on: 'a.pkey = b.ckey',
+            select: { pkey: 'a.pkey' },
+            config: JOINED,
+        })).toThrow('A CROSS JOIN does not take a condition');
+    });
+
+    it('requires a condition for every other join, and a known join type', () => {
+        expect(() => parent.join(child, {
+            select: { pkey: 'a.pkey' },
+            config: JOINED,
+        })).toThrow('An INNER JOIN requires a condition');
+        expect(() => parent.join(child, {
+            type: 'outer' as never,
+            on: 'a.pkey = b.ckey',
+            select: { pkey: 'a.pkey' },
+            config: JOINED,
+        })).toThrow('Expected a join type of inner, left, right, full or cross');
+    });
+
     it('requires at least one selected expression', () => {
         expect(() => parent.join(child, {
             on: 'a.pkey = b.ckey',
