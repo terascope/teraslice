@@ -446,26 +446,32 @@ export class TealFrame {
      * Keeps the first rows of each group, returning a new frame
      * (`QUALIFY row_number() OVER (PARTITION BY ... ORDER BY ...) <= count`).
      *
-     * `orderBy` decides which rows of a group are first. Null is a group of its own, like
-     * `GROUP BY`. The result is not ordered: sort it if the order matters. Ties are not ordered
-     * deterministically, as with `orderBy`, so end `orderBy` with a unique field.
+     * `orderBy` decides which rows of a group are first, and `offset` skips that many of them
+     * first, like `limit` does for the whole frame. Without a count, every row after the offset
+     * is kept. Null is a group of its own, like `GROUP BY`. The result is not ordered: sort it
+     * if the order matters. Ties are not ordered deterministically, as with `orderBy`, so end
+     * `orderBy` with a unique field.
      *
      * @param count The most rows kept for each group.
     */
-    limitPerGroup(count: number, options: LimitPerGroupOptions): TealFrame {
-        wholeNumber(count, 'limitPerGroup\'s count');
-        if (options.orderBy.length === 0) {
+    limitPerGroup(count: number | undefined, options: LimitPerGroupOptions): TealFrame {
+        const { groupBy, orderBy, offset = 0 } = options;
+        if (count != null) wholeNumber(count, 'limitPerGroup\'s count');
+        wholeNumber(offset, 'limitPerGroup\'s offset');
+        if (orderBy.length === 0) {
             throw new TypeError('limitPerGroup requires at least one sort term');
         }
         this.assertOrderSafe('limitPerGroup');
+        if (count == null && offset === 0) return this;
 
-        const partition = options.groupBy.length
-            ? `PARTITION BY ${options.groupBy.join(', ')} `
-            : '';
-        const order = dialect.orderBy(options.orderBy.map(toSQLSort));
-        const position = `row_number() OVER (${partition}ORDER BY ${order})`;
+        const partition = groupBy.length ? `PARTITION BY ${groupBy.join(', ')} ` : '';
+        const position = `row_number() OVER (${partition}ORDER BY ${dialect.orderBy(orderBy.map(toSQLSort))})`;
+        const bounds = [
+            ...(offset > 0 ? [`${position} > ${offset}`] : []),
+            ...(count != null ? [`${position} <= ${offset + count}`] : []),
+        ];
 
-        return this.derive(`SELECT * FROM ${this.from} QUALIFY ${position} <= ${count}`);
+        return this.derive(`SELECT * FROM ${this.from} QUALIFY ${bounds.join(' AND ')}`);
     }
 
     /**

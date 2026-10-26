@@ -73,11 +73,19 @@ describe('TealFrame.limitPerGroup', () => {
             .resolves.toEqual(['a1']);
     });
 
+    it('skips the first rows of each group with an offset, every row after it without a count', async () => {
+        const options = { groupBy: ['"key"'], orderBy: [{ expression: '"position"' }], offset: 1 };
+
+        await expect(names(frame.limitPerGroup(1, options))).resolves.toEqual(['a2', 'n2']);
+        await expect(names(frame.limitPerGroup(undefined, options))).resolves.toEqual(['a2', 'a3', 'n2']);
+    });
+
     it('requires a whole count and an order, and a frame that is not ordered', () => {
         const options = { groupBy: ['"key"'], orderBy: [{ expression: '"position"' }] };
 
         expect(() => frame.limitPerGroup(-1, options)).toThrow('limitPerGroup\'s count');
         expect(() => frame.limitPerGroup(1.5, options)).toThrow('limitPerGroup\'s count');
+        expect(() => frame.limitPerGroup(1, { ...options, offset: -1 })).toThrow('limitPerGroup\'s offset');
         expect(() => frame.limitPerGroup(1, { groupBy: [], orderBy: [] }))
             .toThrow('limitPerGroup requires at least one sort term');
         expect(() => frame.orderBy([{ expression: '"name"' }]).limitPerGroup(1, options))

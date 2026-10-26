@@ -195,6 +195,8 @@ export interface LimitPerGroupOptions {
     groupBy: readonly string[];
     /** Which rows of a group come first, at least one term. */
     orderBy: readonly SQLSortInput[];
+    /** The number of rows of each group to skip, like `limit`'s offset. */
+    offset?: number;
 }
 
 /** A required extension that could not be loaded, and DuckDB's reason. */
