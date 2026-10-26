@@ -1,8 +1,8 @@
 import 'jest-extended';
 import { SQLSort } from '@terascope/types';
 import {
-    defaultNullOrder, groupByClause, orderByClause,
-    orderByTerms, sortDirection, toSQLSort
+    defaultNullOrder, groupByClause, joinClause, joinType,
+    orderByClause, orderByTerms, sortDirection, toSQLSort
 } from '../src/index.js';
 
 /**
@@ -141,6 +141,50 @@ describe('clauses', () => {
 
         it.each([[undefined], [[]]])('is empty for %p', (groupBy) => {
             expect(groupByClause(groupBy as never)).toBe('');
+        });
+    });
+    describe('->joinType', () => {
+        it.each([
+            ['inner', 'INNER'],
+            ['left', 'LEFT'],
+            ['RIGHT', 'RIGHT'],
+            ['Full', 'FULL'],
+            ['cross', 'CROSS'],
+        ])('accepts %s in any case', (input, expected) => {
+            expect(joinType(input)).toBe(expected);
+        });
+
+        it.each([
+            ['an unknown type', 'outer'],
+            ['a type carrying more SQL', 'left JOIN x ON true --'],
+            ['an empty type', ''],
+            ['no type at all', undefined],
+        ])('refuses %s', (_label, input) => {
+            expect(() => joinType(input)).toThrow('Expected a join type of inner, left, right, full or cross');
+        });
+    });
+
+    /**
+     * The relation and the condition are SQL and used as-is, like an `ORDER BY` expression; only
+     * the join type is checked, because it is written as a keyword.
+    */
+    describe('->joinClause', () => {
+        it('joins the relation on the condition', () => {
+            expect(joinClause('left', '"child" AS "c"', '"c"."id" = "p"."id"'))
+                .toBe('LEFT JOIN "child" AS "c" ON "c"."id" = "p"."id"');
+        });
+
+        it('takes no condition for a cross join', () => {
+            expect(joinClause('cross', '"child" AS "c"')).toBe('CROSS JOIN "child" AS "c"');
+            expect(() => joinClause('cross', '"child" AS "c"', 'true'))
+                .toThrow('A CROSS JOIN does not take a condition');
+        });
+
+        it('requires a condition and a relation for the other joins', () => {
+            expect(() => joinClause('inner', '"child" AS "c"'))
+                .toThrow('An INNER JOIN requires a condition');
+            expect(() => joinClause('inner', ' ', 'true'))
+                .toThrow('A join requires a relation');
         });
     });
 });
