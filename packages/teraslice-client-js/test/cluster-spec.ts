@@ -232,4 +232,9 @@ describe('Teraslice Cluster', () => {
             });
         });
     });
+
+    // nock >= 15 patches the shared http module, so undo it before the next test file in the worker
+    afterAll(() => {
+        nock.restore();
+    });
 });
