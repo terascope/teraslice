@@ -933,11 +933,12 @@ describe('Teraslice Job', () => {
 
         describe('when called and one request times out', () => {
             beforeEach(() => {
+                // nock >= 15 only delays the body, which surfaces as a ReadError
+                // instead of a timeout, so simulate the timeout error directly
                 scope.get('/jobs/some-job-id/ex')
-                    .delay(1100)
-                    .reply(200, {
-                        ex_id: 'example-ex-id',
-                        _status: Teraslice.ExecutionStatusEnum.initializing
+                    .replyWithError({
+                        code: 'ETIMEDOUT',
+                        message: 'Timeout awaiting \'request\' for 1000ms'
                     });
 
                 scope.get('/jobs/some-job-id/ex')
@@ -978,5 +979,10 @@ describe('Teraslice Job', () => {
                 }
             });
         });
+    });
+
+    // nock >= 15 patches the shared http module, so undo it before the next test file in the worker
+    afterAll(() => {
+        nock.restore();
     });
 });

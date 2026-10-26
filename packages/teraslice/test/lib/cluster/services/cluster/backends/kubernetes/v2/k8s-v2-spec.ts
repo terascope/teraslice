@@ -530,4 +530,9 @@ describe('k8s', () => {
             expect(response.spec?.replicas).toEqual(3);
         });
     });
+
+    // nock >= 15 patches the shared http module, so undo it before the next test file in the worker
+    afterAll(() => {
+        nock.restore();
+    });
 });
