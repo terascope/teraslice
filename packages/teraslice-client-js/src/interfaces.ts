@@ -1,4 +1,4 @@
-import { Options } from 'got';
+import { OptionsInit } from 'got';
 
 export interface ClientConfig {
     host?: string;
@@ -7,6 +7,6 @@ export interface ClientConfig {
     timeout?: number;
 }
 
-export type RequestOptions = Partial<Options>;
+export type RequestOptions = OptionsInit;
 
 export type PostData = string | NodeJS.ReadableStream | Buffer;
