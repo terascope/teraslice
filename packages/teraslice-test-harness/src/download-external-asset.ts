@@ -1,8 +1,7 @@
 import fs from 'fs-extra';
 import path from 'node:path';
 import os from 'node:os';
-import decompress from 'decompress';
-import { TSError } from '@terascope/core-utils';
+import { TSError, unzip } from '@terascope/core-utils';
 import { downloadRelease } from '@terascope/fetch-github-release';
 import * as I from './interfaces.js';
 
@@ -62,7 +61,7 @@ export class DownloadExternalAsset {
         await this._ensureDirExists(unzippedAsset);
 
         try {
-            await decompress(zippedAssetPath, unzippedAsset);
+            await unzip(zippedAssetPath, unzippedAsset);
         } catch (err) {
             throw new TSError(err, {
                 reason: `Failure to unzip asset: ${assetInfo.asset_string}`
