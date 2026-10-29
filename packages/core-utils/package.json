@@ -57,6 +57,7 @@
         "@types/ms": "catalog:",
         "@types/yauzl": "catalog:",
         "benchmark": "catalog:",
+        "execa": "catalog:",
         "jest-extended": "catalog:"
     },
     "engines": {
