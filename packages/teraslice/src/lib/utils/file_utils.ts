@@ -3,8 +3,7 @@ import path from 'node:path';
 import fse from 'fs-extra';
 import semver from 'semver';
 import { Mutex } from 'async-mutex';
-import { TSError, Logger } from '@terascope/core-utils';
-import extract from 'extract-zip';
+import { TSError, Logger, unzip } from '@terascope/core-utils';
 import { getMajorVersion } from './asset_utils.js';
 
 const mutex = new Mutex();
@@ -153,9 +152,9 @@ async function _extractAssetFromFile(
         }
 
         logger.info(`decompressing and saving asset ${id} to ${newPath}`);
-        // extract-zip streams each entry straight to disk, so peak memory is
+        // unzip streams each entry straight to disk, so peak memory is
         // one entry rather than the entire archive plus its expanded contents.
-        await extract(zipFilePath, { dir: newPath });
+        await unzip(zipFilePath, newPath);
         logger.info(`decompressed asset ${id} to ${newPath}`);
 
         const metadata = await verifyAssetJSON(id, newPath);

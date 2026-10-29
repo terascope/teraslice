@@ -46,7 +46,6 @@
         "body-parser": "catalog:",
         "easy-table": "catalog:",
         "express": "catalog:",
-        "extract-zip": "catalog:",
         "fs-extra": "catalog:",
         "get-port": "catalog:",
         "got": "catalog:",
