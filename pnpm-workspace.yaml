@@ -58,6 +58,7 @@ catalog:
   '@types/valid-url': '~1.0.7'
   '@types/validator': '~13.15.10'
   '@types/yargs': '~17.0.35'
+  '@types/yauzl': '~3.4.0'
   '@typescript-eslint/eslint-plugin': ~8.71.0
   '@typescript-eslint/parser': ~8.71.0
   '@valkey/valkey-glide': ~2.5.3
@@ -159,6 +160,7 @@ catalog:
   validator: '~13.15.35'
   yaml: ~2.9.1
   yargs: ~18.2.0
+  yauzl: ~3.4.0
   zod: ~4.6.7
 
 allowBuilds:

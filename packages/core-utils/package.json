@@ -45,6 +45,7 @@
         "p-map": "catalog:",
         "shallow-clone": "catalog:",
         "validator": "catalog:",
+        "yauzl": "catalog:",
         "zod": "catalog:"
     },
     "devDependencies": {
@@ -54,6 +55,7 @@
         "@types/geojson": "catalog:",
         "@types/js-string-escape": "catalog:",
         "@types/ms": "catalog:",
+        "@types/yauzl": "catalog:",
         "benchmark": "catalog:",
         "jest-extended": "catalog:"
     },

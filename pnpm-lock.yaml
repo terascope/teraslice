@@ -269,6 +269,9 @@ catalogs:
     '@types/yargs':
       specifier: ~17.0.35
       version: 17.0.35
+    '@types/yauzl':
+      specifier: ~3.4.0
+      version: 3.4.0
     '@typescript-eslint/eslint-plugin':
       specifier: ~8.71.0
       version: 8.71.1
@@ -566,6 +569,9 @@ catalogs:
     yargs:
       specifier: ~18.2.0
       version: 18.2.0
+    yauzl:
+      specifier: ~3.4.0
+      version: 3.4.0
     zod:
       specifier: ~4.6.7
       version: 4.6.7
@@ -793,6 +799,9 @@ importers:
       validator:
         specifier: 'catalog:'
         version: 13.15.35
+      yauzl:
+        specifier: 'catalog:'
+        version: 3.4.0
       zod:
         specifier: 'catalog:'
         version: 4.6.7
@@ -815,9 +824,15 @@ importers:
       '@types/ms':
         specifier: 'catalog:'
         version: 0.7.34
+      '@types/yauzl':
+        specifier: 'catalog:'
+        version: 3.4.0
       benchmark:
         specifier: 'catalog:'
         version: 2.1.4
+      execa:
+        specifier: 'catalog:'
+        version: 10.2.1
       jest-extended:
         specifier: 'catalog:'
         version: 7.0.0(jest@30.5.2(@types/node@26.6.5)(node-notifier@10.0.1)(supports-color@8.1.1))(typescript@6.0.3)
@@ -3231,6 +3246,9 @@ packages:
 
   '@types/yauzl@2.10.3':
     resolution: {integrity: sha512-oJoftv0LSuaDZE3Le4DbKX+KS9G36NzOeSap90UIK0yMA/NhKJhqlSGtNDORNRaIbQfzjXDrQa0ytJ6mNRGz/Q==}
+
+  '@types/yauzl@3.4.0':
+    resolution: {integrity: sha512-NRPn5w6h8dhcnmx3YIRQcqMywY/+nND/uOkJessedcrowO3C0AssHp3tMJpxKAwOhFOo0OV1y9VtsC5hbKKBAw==}
 
   '@typescript-eslint/eslint-plugin@8.71.1':
     resolution: {integrity: sha512-nNlBf6HuotqMgZvSkWD5hNdemiBIxQ2NmrlgfcUIeZRs+BbakjscCQRq/Hb74EFVnFiSWWdL12JruqwBy3ERDw==}
@@ -6900,6 +6918,10 @@ packages:
   yauzl@2.10.0:
     resolution: {integrity: sha512-p4a9I6X6nu6IhoGmBqAcbJy1mlC4j27vEPZX9F4L4/vZT3Lyq1VkFHw/V/PUcB9Buo+DG3iHkT0x3Qya58zc3g==}
 
+  yauzl@3.4.0:
+    resolution: {integrity: sha512-jIH9yLR9wqr0wOS0TpBvo/g/2UgZH5qePVbjgRliiF0BYvOZyaBknKsF+x9Iht0O6sqgnB93rCICdOZFecJuDw==}
+    engines: {node: '>=12'}
+
   yerror@11.0.0:
     resolution: {integrity: sha512-ZarH0yAHBjfiRJMC2eL8Fhv/l5GqnS2c1wo5V6vH7k4ehfHcKd6R1ahcyBZYORMH1cqPmOT1dANkoRjR2/pzrw==}
     engines: {node: '>=24.14.0'}
@@ -8663,6 +8685,10 @@ snapshots:
     dependencies:
       '@types/node': 26.6.4
     optional: true
+
+  '@types/yauzl@3.4.0':
+    dependencies:
+      '@types/node': 26.6.5
 
   '@typescript-eslint/eslint-plugin@8.71.1(@typescript-eslint/parser@8.71.1(eslint@9.39.5(supports-color@8.1.1))(supports-color@8.1.1)(typescript@6.0.3))(eslint@9.39.5(supports-color@8.1.1))(supports-color@8.1.1)(typescript@6.0.3)':
     dependencies:
@@ -12920,6 +12946,10 @@ snapshots:
     dependencies:
       buffer-crc32: 0.2.13
       fd-slicer: 1.1.0
+
+  yauzl@3.4.0:
+    dependencies:
+      pend: 1.2.0
 
   yerror@11.0.0: {}
 
