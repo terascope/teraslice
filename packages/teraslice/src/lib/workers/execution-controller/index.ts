@@ -857,7 +857,7 @@ export class ExecutionController {
 
     async _endExecution() {
         this.isExecutionDone = true;
-        await this.scheduler.shutdown(Date.now() + this.shutdownTimeout);
+        await this.scheduler.shutdown(this.shutdownDeadline ?? Date.now() + this.shutdownTimeout);
     }
 
     _updateExecutionStatsNow() {
