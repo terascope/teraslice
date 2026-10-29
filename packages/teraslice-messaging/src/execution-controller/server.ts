@@ -56,14 +56,14 @@ export class Server extends core.Server {
         await this.listen();
     }
 
-    async shutdown(): Promise<void> {
+    async shutdown(maxCloseDelay?: number): Promise<void> {
         this.queue.each((worker: i.Worker) => {
             this.queue.remove(worker.workerId, 'workerId');
         });
 
         this._activeWorkers = {};
 
-        await super.shutdown();
+        await super.shutdown(maxCloseDelay);
     }
 
     dequeueWorker(slice: Slice): string | null {

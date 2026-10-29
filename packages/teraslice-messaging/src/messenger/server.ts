@@ -167,7 +167,11 @@ export class Server extends Core {
         );
     }
 
-    async shutdown(): Promise<void> {
+    /**
+     * @param maxCloseDelay the maximum time in milliseconds to wait for
+     * clients to receive the shutdown event before closing the server
+    */
+    async shutdown(maxCloseDelay = 5000): Promise<void> {
         this.isShuttingDown = true;
 
         if (this._cleanupClients != null) {
@@ -181,7 +185,8 @@ export class Server extends Core {
         }
 
         this.server.volatile.emit('shutdown');
-        await pDelay(isTest ? 100 : 5000);
+        // give clients time to receive the shutdown event and disconnect
+        await pDelay(isTest ? 100 : Math.min(5000, maxCloseDelay));
         this.server.close();
         this.httpServer.close();
         this._clients = {};

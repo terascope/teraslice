@@ -10,6 +10,7 @@ describe('ExecutionController', () => {
         let testContext: TestContext;
         let exController: ExecutionController;
         let executionStorage!: ExecutionStorage;
+        const shutdownTimeout = 4000;
 
         beforeEach(async () => {
             const port = await findPort();
@@ -34,9 +35,11 @@ describe('ExecutionController', () => {
 
             executionStorage = testContext.stores.executionStorage as ExecutionStorage;
 
-            testContext.attachCleanup(() => exController.shutdown().catch(() => {
-                /* ignore-error */
-            }));
+            testContext.attachCleanup(
+                () => exController.shutdown(Date.now() + shutdownTimeout).catch(() => {
+                    /* ignore-error */
+                })
+            );
         });
 
         afterEach(() => testContext.cleanup());
@@ -90,6 +93,7 @@ describe('ExecutionController', () => {
         let executionStorage: ExecutionStorage;
         let exController: ExecutionController;
         const probationWindow = 500;
+        const shutdownTimeout = 4000;
 
         beforeEach(async () => {
             const port = await findPort();
@@ -114,9 +118,11 @@ describe('ExecutionController', () => {
             await testContext.addExStore();
             executionStorage = testContext.stores.executionStorage as ExecutionStorage;
 
-            testContext.attachCleanup(() => exController.shutdown().catch(() => {
-                /* ignore-error */
-            }));
+            testContext.attachCleanup(
+                () => exController.shutdown(Date.now() + shutdownTimeout).catch(() => {
+                    /* ignore-error */
+                })
+            );
         });
 
         afterEach(() => testContext.cleanup());
@@ -247,9 +253,7 @@ describe('ExecutionController', () => {
                 expect(exController.slicerFailed).toBeTrue();
 
                 expect(setStatus).toHaveBeenCalledWith(testContext.exId, 'failed', errMeta);
-                const errMsg = `TSError: slicer for ex ${
-                    testContext.exId
-                } had an error, shutting down execution, caused by Uh oh`;
+                const errMsg = `TSError: slicer for ex ${testContext.exId} had an error, shutting down execution, caused by Uh oh`;
                 expect(executionMetaData.mock.calls[0][0]).toEqual(stats);
                 expect(executionMetaData.mock.calls[0][1]).toStartWith(errMsg);
 
@@ -278,11 +282,12 @@ describe('ExecutionController', () => {
     describe('when testing shutdown', () => {
         let testContext: TestContext;
         let exController: ExecutionController;
+        const shutdownTimeout = 100;
 
         beforeEach(async () => {
             testContext = new TestContext({
                 assignment: 'execution_controller',
-                shutdownTimeout: 100
+                shutdownTimeout
             });
 
             await testContext.initialize();
@@ -292,15 +297,17 @@ describe('ExecutionController', () => {
                 testContext.executionContext as any
             );
 
-            testContext.attachCleanup(() => exController.shutdown().catch(() => {
-                /* ignore-error */
-            }));
+            testContext.attachCleanup(
+                () => exController.shutdown(Date.now() + shutdownTimeout).catch(() => {
+                    /* ignore-error */
+                })
+            );
         });
 
         afterEach(() => testContext.cleanup());
 
         describe('when not initialized', () => {
-            it('should resolve', () => expect(exController.shutdown()).resolves.toBeNil());
+            it('should resolve', () => expect(exController.shutdown(Date.now() + shutdownTimeout)).resolves.toBeNil());
         });
 
         describe('when initialized', () => {
@@ -312,21 +319,22 @@ describe('ExecutionController', () => {
             describe('when controller is already being shutdown', () => {
                 beforeEach(() => {
                     // @ts-expect-error
-                    exController.isShuttingDown = true;
+                    exController.shutdownDeadline = Date.now() + shutdownTimeout;
                 });
 
                 it('should resolve when shutdown passes', async () => {
                     setTimeout(() => {
                         exController.events.emit('worker:shutdown:complete');
                     });
-                    await expect(exController.shutdown()).resolves.toBeNil();
+                    await expect(exController.shutdown(Date.now() + shutdownTimeout))
+                        .resolves.toBeNil();
                 });
 
                 it('should reject when shutdown fails', async () => {
                     setTimeout(() => {
                         exController.events.emit('worker:shutdown:complete', new Error('Uh oh'));
                     });
-                    await expect(exController.shutdown()).rejects.toThrow('Uh oh');
+                    await expect(exController.shutdown(Date.now() + shutdownTimeout)).rejects.toThrow('Uh oh');
                 });
             });
 
@@ -354,7 +362,7 @@ describe('ExecutionController', () => {
                     };
                     // @ts-expect-error
                     exController.scheduler = {
-                        stop: () => {},
+                        stop: () => { },
                         shutdown: () => Promise.reject(new Error('Scheduler Error'))
                     };
                     // @ts-expect-error
@@ -370,7 +378,7 @@ describe('ExecutionController', () => {
                 it('should reject with all of the errors', async () => {
                     expect.hasAssertions();
                     try {
-                        await exController.shutdown();
+                        await exController.shutdown(Date.now() + shutdownTimeout);
                     } catch (err) {
                         const errMsg = err.toString();
                         expect(errMsg).toStartWith('Error: Failed to shutdown correctly');
@@ -381,6 +389,142 @@ describe('ExecutionController', () => {
                         expect(errMsg).toInclude('Execution Controller Server Error');
                         expect(errMsg).toInclude('Cluster Master Client Error');
                     }
+                });
+            });
+
+            describe('when kubernetesV2 receives SIGTERM', () => {
+                let getStatus: jest.Mock<(exId: string) => Promise<string>>;
+                let updatePartial: jest.Mock<() => Promise<void>>;
+                let refresh: jest.Mock<() => Promise<void>>;
+                let stop: jest.Mock<() => void>;
+                let logErr: jest.Mock<(...args: any[]) => void>;
+
+                beforeEach(() => {
+                    testContext.context.sysconfig.teraslice.cluster_manager_type = 'kubernetesV2';
+
+                    getStatus = jest.fn(async () => 'stopping');
+                    updatePartial = jest.fn(async () => {});
+                    refresh = jest.fn(async () => {});
+                    stop = jest.fn(() => {});
+                    logErr = jest.fn();
+                    exController.logger.error = logErr as any;
+
+                    const ec = exController as any;
+                    ec.isStarted = true;
+                    ec.stateStorage = {
+                        refresh,
+                        shutdown: () => Promise.resolve(true)
+                    };
+                    ec.executionStorage = {
+                        getStatus,
+                        updatePartial,
+                        getRunningStatuses: () => ['initializing', 'running', 'failing', 'paused', 'stopping'],
+                        executionMetaData: () => ({}),
+                        shutdown: () => Promise.resolve()
+                    };
+                    ec.executionAnalytics = {
+                        set: () => {},
+                        getAnalytics: () => ({}),
+                        shutdown: () => Promise.resolve()
+                    };
+                    ec.scheduler = {
+                        stop,
+                        shutdown: () => Promise.resolve()
+                    };
+                    ec.server = {
+                        shutdown: () => Promise.resolve()
+                    };
+                    // not ready, so the main phase doesn't wait for the execution
+                    ec.client = {
+                        ready: false,
+                        shutdown: () => Promise.resolve()
+                    };
+                });
+
+                it('should skip the shutdown when the execution is relocating', async () => {
+                    getStatus.mockResolvedValue('running');
+
+                    await exController.shutdown(Date.now() + 5000, 'SIGTERM');
+
+                    expect(stop).not.toHaveBeenCalled();
+                    expect(refresh).not.toHaveBeenCalled();
+                });
+
+                it('should cap a slow status read and continue the shutdown', async () => {
+                    getStatus.mockImplementation(() => new Promise(() => {}));
+
+                    const start = Date.now();
+                    await exController.shutdown(Date.now() + 5000, 'SIGTERM');
+
+                    // the cap is 10% of the time left, 500ms here
+                    expect(stop).toHaveBeenCalled();
+                    expect(Date.now() - start).toBeLessThan(1500);
+                    expect(logErr).toHaveBeenCalledWith(
+                        expect.stringContaining(`unable to read the status of execution ${testContext.exId}`)
+                    );
+                    expect(refresh).not.toHaveBeenCalled();
+                });
+
+                it('should reuse the status and wait for a slow final stats write', async () => {
+                    let writtenAt = 0;
+                    updatePartial.mockImplementation(async () => {
+                        await pDelay(300);
+                        writtenAt = Date.now();
+                    });
+                    // stopping the scheduler ends run(), which finishes the execution
+                    stop.mockImplementation(() => {
+                        exController._finishExecution();
+                    });
+
+                    await exController.shutdown(Date.now() + 2000, 'SIGTERM');
+                    const shutdownAt = Date.now();
+
+                    expect(getStatus).toHaveBeenCalledTimes(1);
+                    // only _finishExecution refreshes, not the relocation check
+                    expect(refresh).toHaveBeenCalledTimes(1);
+                    expect(updatePartial).toHaveBeenCalledTimes(1);
+                    expect(writtenAt).toBeGreaterThan(0);
+                    expect(writtenAt).toBeLessThanOrEqual(shutdownAt);
+                    expect(logErr).not.toHaveBeenCalledWith(
+                        expect.stringContaining('final status and stats were not written')
+                    );
+                });
+
+                it('should cap a slow state index refresh and still write the final stats', async () => {
+                    refresh.mockImplementation(() => new Promise(() => {}));
+                    const logWarn = jest.fn();
+                    exController.logger.warn = logWarn as any;
+                    stop.mockImplementation(() => {
+                        exController._finishExecution();
+                    });
+
+                    const start = Date.now();
+                    await exController.shutdown(Date.now() + 5000, 'SIGTERM');
+
+                    // the cap is 10% of the time left, under 500ms here
+                    expect(Date.now() - start).toBeLessThan(1500);
+                    expect(updatePartial).toHaveBeenCalledTimes(1);
+                    expect(logWarn).toHaveBeenCalledWith(
+                        expect.stringContaining('state index refresh did not finish within')
+                    );
+                    expect(logErr).not.toHaveBeenCalledWith(
+                        expect.stringContaining('final status and stats were not written')
+                    );
+                });
+
+                it('should log a final stats write that misses the deadline', async () => {
+                    updatePartial.mockImplementation(() => new Promise(() => {}));
+                    stop.mockImplementation(() => {
+                        exController._finishExecution();
+                    });
+
+                    const start = Date.now();
+                    await exController.shutdown(Date.now() + 1000, 'SIGTERM');
+
+                    expect(Date.now() - start).toBeLessThan(2000);
+                    expect(logErr).toHaveBeenCalledWith(
+                        `execution ${testContext.exId} final status and stats were not written before shutdown`
+                    );
                 });
             });
         });
@@ -395,11 +539,12 @@ describe('ExecutionController', () => {
         describe('when there is no log_level set in either job configuration or terafoundation', () => {
             let testContext: TestContext;
             let exController: ExecutionController;
+            const shutdownTimeout = 100;
 
             beforeEach(async () => {
                 testContext = new TestContext({
                     assignment: 'execution_controller',
-                    shutdownTimeout: 100
+                    shutdownTimeout
                 });
 
                 await testContext.initialize();
@@ -409,9 +554,11 @@ describe('ExecutionController', () => {
                     testContext.executionContext as any
                 );
 
-                testContext.attachCleanup(() => exController.shutdown().catch(() => {
-                    /* ignore-error */
-                }));
+                testContext.attachCleanup(
+                    () => exController.shutdown(Date.now() + shutdownTimeout).catch(() => {
+                        /* ignore-error */
+                    })
+                );
             });
 
             it('should have a logger with log_level info', async () => {
@@ -424,11 +571,12 @@ describe('ExecutionController', () => {
         describe('when no log_level is set in job configuration and terafoundation log level is error', () => {
             let testContext: TestContext;
             let exController: ExecutionController;
+            const shutdownTimeout = 100;
 
             beforeEach(async () => {
                 testContext = new TestContext({
                     assignment: 'execution_controller',
-                    shutdownTimeout: 100,
+                    shutdownTimeout,
                     log_level_terafoundation: 'error'
                 });
 
@@ -439,9 +587,11 @@ describe('ExecutionController', () => {
                     testContext.executionContext as any
                 );
 
-                testContext.attachCleanup(() => exController.shutdown().catch(() => {
-                    /* ignore-error */
-                }));
+                testContext.attachCleanup(
+                    () => exController.shutdown(Date.now() + shutdownTimeout).catch(() => {
+                        /* ignore-error */
+                    })
+                );
             });
 
             it('should have a logger with log_level error', async () => {
@@ -470,9 +620,13 @@ describe('ExecutionController', () => {
                     testContext.executionContext as any
                 );
 
-                testContext.attachCleanup(() => exController.shutdown().catch(() => {
-                    /* ignore-error */
-                }));
+                testContext.attachCleanup(
+                    () => exController.shutdown(
+                        Date.now() + testContext.sysconfig.teraslice.shutdown_timeout
+                    ).catch(() => {
+                        /* ignore-error */
+                    })
+                );
             });
 
             it('should have a logger with log_level trace', async () => {

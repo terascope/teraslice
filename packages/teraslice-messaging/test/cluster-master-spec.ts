@@ -132,6 +132,29 @@ describe('ClusterMaster', () => {
             expect(server.getClusterAnalytics()).not.toEqual(previousAnalytics);
         });
 
+        it('should record cluster analytics sent without waiting for a response', async () => {
+            const analytics = {
+                processed: 1,
+                failed: 1,
+                queued: 1,
+                job_duration: 1,
+                workers_joined: 1,
+                workers_disconnected: 1,
+                workers_reconnected: 1,
+            };
+
+            const { processed } = server.getClusterAnalytics().controllers;
+            const recorded = new Promise((resolve) => {
+                server.once('cluster:analytics', resolve);
+            });
+
+            await expect(client.sendClusterAnalytics(analytics, undefined, false))
+                .resolves.toBeNull();
+            await recorded;
+
+            expect(server.getClusterAnalytics().controllers.processed).toBe(processed + 1);
+        });
+
         it('should be able to handle execution finished', async () => {
             const onExecutionFinished = jest.fn();
 

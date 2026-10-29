@@ -2,8 +2,9 @@ import { pDelay, pDefer } from '@terascope/core-utils';
 
 export interface MakeShutdownEarlyFnArgs {
     enabled?: boolean;
+    shutdownTimeout: number;
     exController: {
-        shutdown: () => Promise<void>;
+        shutdown: (deadline: number) => Promise<void>;
     };
 }
 
@@ -14,7 +15,7 @@ export interface ShutdownFn {
 }
 
 export function makeShutdownEarlyFn(
-    { exController, enabled = false }: MakeShutdownEarlyFnArgs
+    { exController, shutdownTimeout, enabled = false }: MakeShutdownEarlyFnArgs
 ): ShutdownFn {
     let shutdownErr = {
         message: 'Shutdown never triggered'
@@ -29,7 +30,7 @@ export function makeShutdownEarlyFn(
 
         shutdownErr.message = 'Shutdown trigger but did not error';
         try {
-            await exController.shutdown();
+            await exController.shutdown(Date.now() + shutdownTimeout);
         } catch (err) {
             shutdownErr = err;
         }

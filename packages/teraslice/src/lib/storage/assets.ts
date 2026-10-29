@@ -410,16 +410,16 @@ export class AssetsStorage {
         return Promise.all(uniq(assetsArray).map(this._getAssetId.bind(this)));
     }
 
-    async shutdown(forceShutdown: boolean) {
+    async shutdown(forceShutdown: boolean, timeout?: number) {
         this.logger.info('shutting asset store down.');
         if (this.s3Backend) {
             return Promise.all([
-                this.esBackend.shutdown(forceShutdown),
+                this.esBackend.shutdown(forceShutdown, timeout),
                 this.s3Backend.shutdown()
             ]);
         }
         return Promise.all([
-            this.esBackend.shutdown(forceShutdown)
+            this.esBackend.shutdown(forceShutdown, timeout)
         ]);
     }
 

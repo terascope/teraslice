@@ -1,7 +1,7 @@
 import {
     noop, pDelay, get, toString,
     logError, pWhile, Logger,
-    Queue, makeISODate
+    Queue, makeISODate, msUntilUnixTime
 } from '@terascope/core-utils';
 import type { EventEmitter } from 'node:events';
 import type {
@@ -23,6 +23,7 @@ export class Scheduler {
     recovering: boolean;
     readonly autorecover: boolean;
     private _creating = 0;
+    private _writingSlices = new Set<Slice>();
     ready = false;
     paused = true;
     stopped = false;
@@ -129,6 +130,14 @@ export class Scheduler {
             `execution ${this.exId} is finished scheduling, ${n} remaining slices in the queue`
         );
 
+        await this._waitForWrites();
+    }
+
+    /**
+     * Wait for every state store write in flight, including the
+     * ones started by the create interval before a stop
+    */
+    private async _waitForWrites() {
         await pWhile(async () => {
             if (!this._creating) {
                 this.logger.debug('done creating remaining slices');
@@ -144,21 +153,46 @@ export class Scheduler {
         this.paused = false;
     }
 
-    async stop() {
+    async stop(deadline: number) {
         if (this.stopped) return;
 
         this.logger.debug('stopping scheduler...');
 
         this.stopped = true;
 
-        const drain = this._drainPendingSlices(false);
+        // the drain only takes what fits in the queue, so it's often a no-op.
+        // what matters is waiting for the writes already in flight
+        const drain = this._drainPendingSlices(false).then(() => this._waitForWrites());
 
         this._processCleanup();
         this._processCleanup = noop;
         this._resolveRun();
         this._resolveRun = noop;
 
-        await drain;
+        let timeoutId: NodeJS.Timeout | undefined;
+        const timedOut = await Promise.race([
+            drain.then(() => false),
+            new Promise<boolean>((resolve) => {
+                timeoutId = setTimeout(() => resolve(true), msUntilUnixTime(deadline, 100));
+                timeoutId.unref();
+            })
+        ]).finally(() => clearTimeout(timeoutId));
+
+        if (!timedOut) return;
+
+        // the drain and writes keep running in the background, so a
+        // late failure must not become an unhandled rejection
+        drain.catch((err) => {
+            logError(this.logger, err, 'failure writing pending slices after stop timeout');
+        });
+
+        const sliceIds = [...this._writingSlices].map((slice) => slice.slice_id);
+        this.logger.error(
+            `timed out waiting for pending slices to be written to the state store, `
+            + `${sliceIds.length} slices may not have been recorded and `
+            + `${this.pendingSlicerCount} slices remain in the slicer queue. `
+            + `slice_ids: ${sliceIds.join(', ')}`
+        );
     }
 
     pause() {
@@ -215,12 +249,12 @@ export class Scheduler {
         return this.ready && this.recovering;
     }
 
-    async shutdown() {
-        await this.stop();
+    async shutdown(deadline: number) {
+        await this.stop(deadline);
 
         if (this.recover) {
             try {
-                await this.recover.shutdown();
+                await this.recover.shutdown(deadline);
             } catch (err) {
                 logError(this.logger, err, 'failed to shutdown recovery');
             }
@@ -415,11 +449,11 @@ export class Scheduler {
         if (!slices.length) return;
 
         this._creating += slices.length;
+        for (const slice of slices) this._writingSlices.add(slice);
 
         try {
-            const count = await this.stateStorage.createSlices(this.exId, slices);
+            await this.stateStorage.createSlices(this.exId, slices);
             this.enqueueSlices(slices);
-            this._creating -= count;
         } catch (err) {
             const { lifecycle } = this.executionContext.config;
             if (lifecycle === 'once') {
@@ -427,6 +461,11 @@ export class Scheduler {
             } else {
                 logError(this.logger, err, 'failure creating slices');
             }
+        } finally {
+            // release the slots whether or not the write succeeded,
+            // otherwise a failed write would shrink the queue for good
+            this._creating -= slices.length;
+            for (const slice of slices) this._writingSlices.delete(slice);
         }
     }
 

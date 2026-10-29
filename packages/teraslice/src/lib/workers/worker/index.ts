@@ -3,7 +3,7 @@
 import {
     get, getFullErrorStack, isFatalError,
     logError, pWhile, Logger, logLevels,
-    pDelay
+    pDelay, msUntilUnixTime
 } from '@terascope/core-utils';
 import type { EventEmitter } from 'node:events';
 import { ExecutionController, formatURL } from '@terascope/teraslice-messaging';
@@ -11,7 +11,7 @@ import { type Context, type WorkerExecutionContext, isPromAvailable } from '@ter
 import type { SliceCompletePayload, SliceTapRequest } from '@terascope/types';
 import { StateStorage, AnalyticsStorage } from '../../storage/index.js';
 import { generateWorkerId, makeLogger } from '../helpers/terafoundation.js';
-import { waitForWorkerShutdown } from '../helpers/worker-shutdown.js';
+import { waitForWorkerShutdown, getPhaseDeadline } from '../helpers/worker-shutdown.js';
 import { SliceExecution } from './slice.js';
 import { getPackageJSON } from '../../utils/file_utils.js';
 import type { SerializedSliceTapResults } from '../../../interfaces.js';
@@ -25,6 +25,7 @@ export class Worker {
     readonly context: Context;
     readonly workerId: string;
     private slice!: SliceExecution;
+    private shutdownDeadline?: number;
     logger: Logger;
     events: EventEmitter;
     isShuttingDown = false;
@@ -242,11 +243,20 @@ export class Worker {
         this.slicesProcessed += 1;
     }
 
-    async shutdown(event?: string, shutdownError?: Error, block?: boolean) {
+    async shutdown(
+        deadline: number,
+        event?: string,
+        shutdownError?: Error,
+        block?: boolean
+    ) {
         if (this.isShutdown) return;
         if (!this.isInitialized) return;
         const { exId } = this.executionContext;
+        const start = Date.now();
 
+        // TODO: This only happens when shutdown() is called a second time.
+        // This happens in testing, but I see no way that it could
+        // happen on a real teraslice instance. Should we remove this?
         if (this.isShuttingDown) {
             const msgs = [
                 'worker',
@@ -256,14 +266,21 @@ export class Worker {
             ];
             this.logger.debug(msgs.join(' '));
 
+            // Only reachable when shutdown() is called directly, as in the tests.
+            // In production shutdownHandler() only calls shutdown() once.
             if (block !== false) {
-                await waitForWorkerShutdown(this.context, 'worker:shutdown:complete');
+                await waitForWorkerShutdown(
+                    this.shutdownDeadline ?? deadline,
+                    this.context,
+                    'worker:shutdown:complete'
+                );
             }
             return;
         }
 
         this.client.available = false;
         this.isShuttingDown = true;
+        this.shutdownDeadline = deadline;
 
         const shutdownErrs: Error[] = [];
         const pushError = (err: Error) => {
@@ -281,52 +298,61 @@ export class Worker {
             await this.executionContext.onSliceFailed();
         }
 
-        const start = Date.now();
-        // We modify the shutdown timeout so an error occurs 3 seconds before shutdownWithTimeout()
-        // in ../helpers/worker-shutdown.ts, which calls process.exit()
-        const shutdownSignalDelayEst = 3000;
-        const end = start + this.shutdownTimeout - shutdownSignalDelayEst;
+        // the slice initialization, flush and finish must all complete by this time,
+        // leaving the rest for the stores, slice and client to shutdown
+        const phaseDeadline = getPhaseDeadline(
+            deadline, this.shutdownTimeout, 'worker'
+        );
 
         // if a new slice is already in progress we must wait for the reference
         // to this.slice to be updated or we could hit a race condition where we
         // flush the previous slice, but mark the new slice as complete.
+        let sliceInitTimedOut = false;
         while (this.isProcessing && this.executionContext.status === 'idle') {
-            if (Date.now() >= end) {
-                const seconds = this.shutdownTimeout / 1000;
-                throw new Error(
+            if (Date.now() >= phaseDeadline) {
+                const seconds = Math.max(phaseDeadline - start, 0) / 1000;
+                const err = new Error(
                     `Worker shutdown timeout after ${seconds} seconds while waiting for slice to initialize, forcing shutdown`
                 );
+                this.logger.error(err);
+                pushError(err);
+                sliceInitTimedOut = true;
+                break;
             }
             this.logger.trace('Blocking while slice initializes before starting flush');
 
             await pDelay(250);
         }
-        // attempt to flush the slice
-        // and wait for the slice to finish
-        await Promise.all([
-            this.slice.flush().catch(pushError),
-            this._waitForSliceToFinish().catch(pushError)
-        ]);
+
+        // attempt to flush the slice and wait for the slice to finish,
+        // unless the slice never initialized, in which case this.slice
+        // may still reference the previous slice
+        if (!sliceInitTimedOut) {
+            await Promise.all([
+                this._flushSlice(phaseDeadline).catch(pushError),
+                this._waitForSliceToFinish(phaseDeadline).catch(pushError)
+            ]);
+        }
 
         this.events.emit('worker:shutdown');
-        await this.executionContext.shutdown();
 
         // make sure ->run() resolves the promise
         this.forceShutdown = true;
 
         await Promise.all([
+            this._shutdownOperations(deadline).catch(pushError),
             (async () => {
                 await Promise.all([
                     (async () => {
                         try {
-                            await this.stateStorage.shutdown(true);
+                            await this.stateStorage.shutdown(true, msUntilUnixTime(deadline));
                         } catch (err) {
                             pushError(err);
                         }
                     })(),
                     (async () => {
                         try {
-                            await this.analyticsStorage.shutdown(true);
+                            await this.analyticsStorage.shutdown(true, msUntilUnixTime(deadline));
                         } catch (err) {
                             pushError(err);
                         }
@@ -378,15 +404,73 @@ export class Worker {
         });
     }
 
-    _waitForSliceToFinish() {
+    /**
+     * Flush the slice, giving up at the deadline so the stores, slice and
+     * client still get to shutdown. The flush isn't cancelled, it keeps
+     * running until the process exits.
+    */
+    async _flushSlice(deadline: number) {
+        const timeoutMS = msUntilUnixTime(deadline, 100);
+        let timeout: NodeJS.Timeout | undefined;
+        const timedOut = new Promise<never>((_, reject) => {
+            timeout = setTimeout(() => {
+                reject(new Error(
+                    `Worker shutdown timeout after ${timeoutMS / 1000} seconds while flushing slice, forcing shutdown`
+                ));
+            }, timeoutMS);
+        });
+
+        try {
+            await Promise.race([this.slice.flush(deadline), timedOut]);
+        } catch (err) {
+            // log now, the caller only reports shutdown errors if its
+            // shutdown finishes before the shutdown race cuts it off
+            logError(this.logger, err, 'slice flush failed on shutdown');
+            throw err;
+        } finally {
+            clearTimeout(timeout);
+        }
+    }
+
+    /**
+     * Shutdown the operations, giving up at the deadline. The shutdown isn't
+     * cancelled, it keeps running until the process exits.
+    */
+    async _shutdownOperations(deadline: number) {
+        const timeoutMS = msUntilUnixTime(deadline, 100);
+        let timeout: NodeJS.Timeout | undefined;
+        const timedOut = new Promise<never>((_, reject) => {
+            timeout = setTimeout(() => {
+                reject(new Error(
+                    `Worker shutdown timeout after ${timeoutMS / 1000} seconds while shutting down operations, forcing shutdown`
+                ));
+            }, timeoutMS);
+        });
+
+        try {
+            await Promise.race([this.executionContext.shutdown(), timedOut]);
+        } catch (err) {
+            // log now, the caller only reports shutdown errors if its
+            // shutdown finishes before the shutdown race cuts it off
+            logError(this.logger, err, 'operation shutdown failed');
+            throw err;
+        } finally {
+            clearTimeout(timeout);
+        }
+    }
+
+    _waitForSliceToFinish(deadline: number) {
         if (!this.isProcessing) return Promise.resolve();
 
         const { logger } = this;
         const startTime = Date.now();
+        // a small floor so the timer never runs far past the deadline
+        const timeoutMS = msUntilUnixTime(deadline, 100);
 
         return new Promise((resolve, reject) => {
             let timeout: NodeJS.Timeout | undefined;
             let interval: NodeJS.Timeout | undefined;
+            let nextLogAt = 60;
 
             const done = (err?: Error) => {
                 clearInterval(interval);
@@ -409,20 +493,23 @@ export class Worker {
                 }
 
                 /* istanbul ignore if */
-                if (elapsed % 60 === 0) {
+                if (elapsed >= nextLogAt) {
+                    nextLogAt += 60;
+                    const remaining = Math.round((timeoutMS / 1000) - elapsed);
                     logger.info(
-                        `shutdown sequence initiated, but is still processing. Will force shutdown in ${elapsed} seconds`
+                        `shutdown sequence initiated, but is still processing. Will force shutdown in ${remaining} seconds`
                     );
                 }
             }, 100);
 
             timeout = setTimeout(() => {
-                const seconds = this.shutdownTimeout / 1000;
+                const seconds = timeoutMS / 1000;
                 const err = new Error(
-                    `Worker shutdown timeout after ${seconds} seconds, forcing shutdown`
+                    `Worker shutdown timeout after ${seconds} seconds while waiting for slice to finish, forcing shutdown`
                 );
+                logger.error(err);
                 done(err);
-            }, this.shutdownTimeout);
+            }, timeoutMS);
         });
     }
 
