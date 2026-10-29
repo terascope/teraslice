@@ -33,13 +33,11 @@
     "dependencies": {
         "@terascope/fetch-github-release": "catalog:",
         "@terascope/job-components": "workspace:~",
-        "decompress": "catalog:",
         "fs-extra": "catalog:"
     },
     "devDependencies": {
         "@jest/globals": "catalog:",
         "@terascope/core-utils": "workspace:~",
-        "@types/decompress": "catalog:",
         "jest-extended": "catalog:",
         "nock": "catalog:"
     },

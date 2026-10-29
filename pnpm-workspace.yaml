@@ -34,7 +34,6 @@ catalog:
   '@types/bunyan': '~1.8.11'
   '@types/chance': '~1.1.8'
   '@types/debug': '~4.1.13'
-  '@types/decompress': '~4.2.7'
   '@types/ejs': '~3.1.5'
   '@types/express': '~5.0.6'
   '@types/fs-extra': '~11.0.4'
@@ -81,7 +80,6 @@ catalog:
   date-fns-tz: '~3.2.0'
   datemath-parser: '~1.0.6'
   debug: '~4.4.3'
-  decompress: '~4.2.1'
   diff: '~9.0.0'
   easy-table: '~1.2.0'
   ejs: ~7.0.2

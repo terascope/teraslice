@@ -2,11 +2,10 @@ import 'jest-extended';
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
-import decompress from 'decompress';
 import { ZipArchive } from 'archiver';
 import { createS3Client, getS3Object, S3Client } from '@terascope/file-asset-apis';
 import { Teraslice } from '@terascope/types';
-import { pWhile } from '@terascope/core-utils';
+import { pWhile, unzip } from '@terascope/core-utils';
 import crypto from 'crypto';
 import { TerasliceHarness } from '../../teraslice-harness.js';
 import { config } from '../../config.js';
@@ -269,8 +268,7 @@ describe('s3 asset storage', () => {
             if (!fs.existsSync(largeAssetPathSub)) {
                 fs.mkdirSync(largeAssetPathSub, { recursive: true });
             }
-            const assetBuffer = fs.readFileSync(assetPath);
-            await decompress(assetBuffer, largeAssetPathSub);
+            await unzip(assetPath, largeAssetPathSub);
             fs.mkdirSync(path.join(largeAssetPathSub, '__static_assets'), { recursive: true });
             const largeDocumentPath = path.join(largeAssetPathSub, '__static_assets', 'data.txt');
             fs.writeFileSync(largeDocumentPath, '');
