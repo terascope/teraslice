@@ -1,7 +1,7 @@
 {
     "name": "@terascope/core-utils",
     "displayName": "Core Utils",
-    "version": "2.25.0",
+    "version": "2.26.0",
     "description": "A collection of Teraslice Core Utilities",
     "homepage": "https://github.com/terascope/teraslice/tree/master/packages/core-utils#readme",
     "bugs": {
@@ -45,6 +45,7 @@
         "p-map": "catalog:",
         "shallow-clone": "catalog:",
         "validator": "catalog:",
+        "yauzl": "catalog:",
         "zod": "catalog:"
     },
     "devDependencies": {
@@ -54,7 +55,9 @@
         "@types/geojson": "catalog:",
         "@types/js-string-escape": "catalog:",
         "@types/ms": "catalog:",
+        "@types/yauzl": "catalog:",
         "benchmark": "catalog:",
+        "execa": "catalog:",
         "jest-extended": "catalog:"
     },
     "engines": {

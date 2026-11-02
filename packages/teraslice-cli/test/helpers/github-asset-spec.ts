@@ -1,7 +1,7 @@
 import tmp from 'tmp';
 import fs from 'fs-extra';
-import decompress from 'decompress';
 import path from 'node:path';
+import { unzip } from '@terascope/core-utils';
 import nock from 'nock';
 import GithubAsset from '../../src/helpers/github-asset.js';
 import { GithubServer } from '../servers/index.js';
@@ -75,7 +75,7 @@ describe('GithubAsset', () => {
 
             expect(zipExists).toEqual(true);
 
-            await decompress(assetPath, tmpDir.name);
+            await unzip(assetPath, tmpDir.name);
 
             const jsonPath = path.join(tmpDir.name, 'testAsset/asset/asset.json');
             const { name, version } = await fs.readJSON(jsonPath);
@@ -102,7 +102,7 @@ describe('GithubAsset', () => {
 
             expect(zipExists).toEqual(true);
 
-            await decompress(assetPath, tmpDir.name);
+            await unzip(assetPath, tmpDir.name);
 
             const jsonPath = path.join(tmpDir.name, 'testAsset/asset/asset.json');
             const { name, version } = await fs.readJSON(jsonPath);
@@ -127,7 +127,7 @@ describe('GithubAsset', () => {
 
             expect(zipExists).toEqual(true);
 
-            await decompress(assetPath, tmpDir.name);
+            await unzip(assetPath, tmpDir.name);
 
             const jsonPath = path.join(tmpDir.name, 'testAsset/asset/asset.json');
             const { name, version } = await fs.readJSON(jsonPath);

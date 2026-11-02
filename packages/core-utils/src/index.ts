@@ -28,6 +28,7 @@ export * from './promises.js';
 export * from './regex.js';
 export * from './schemas.js';
 export * from './strings.js';
+export * from './unzip.js';
 export * from './iterators.js';
 export * from './vector.js';
 
