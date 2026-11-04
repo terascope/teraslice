@@ -8,8 +8,8 @@ import {
     TSError, startsWith, Logger, pWhile,
     isKey
 } from '@terascope/core-utils';
-import { createV2Router } from './api-v2.js';
 import { ExecutionStatusEnum, ConnectorListResponse, JobSchemaResponse } from '@terascope/types';
+import { createV2Registry } from './api-v2.js';
 import { ClusterMasterContext, TerasliceRequest, TerasliceResponse } from '../../../interfaces.js';
 import { makeLogger } from '../../workers/helpers/terafoundation.js';
 import { ExecutionService, JobsService, ClusterServiceType } from '../services/index.js';
@@ -537,7 +537,7 @@ export class ApiService {
             requestHandler(() => this._controllerStats());
         });
 
-        this.app.use('/v2', createV2Router(this));
+        this.app.use('/v2', createV2Registry(this).router);
 
         // backwards compatibility for /v1 routes
         // TODO: Teraslice v4 deletes /v1 and the unversioned mount

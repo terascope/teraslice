@@ -3,9 +3,11 @@ import { jest } from '@jest/globals';
 import got from 'got';
 import express from 'express';
 import http from 'node:http';
+import { z } from 'zod';
 import { TestContext } from '@terascope/job-components';
 import { findPort } from '../../src/lib/utils/port_utils.js';
 import { ApiService } from '../../src/lib/cluster/services/api.js';
+import { createV2Registry } from '../../src/lib/cluster/services/api-v2.js';
 import { getPackageJSON } from '../../src/lib/utils/file_utils.js';
 
 describe('HTTP API v2', () => {
@@ -32,8 +34,11 @@ describe('HTTP API v2', () => {
     context.sysconfig.terafoundation.connectors = {
         'elasticsearch-next': { os2: {}, os3: {} },
         kafka: { 'kafka-dev': {} },
+        s3: { minio: {}, ceph: {} },
     };
     context.sysconfig.teraslice.state = { connection: 'os2' };
+    context.sysconfig.teraslice.asset_storage_connection = 'ceph';
+    context.sysconfig.teraslice.asset_storage_connection_type = 's3';
 
     let api: ApiService;
     let port: number;
@@ -143,6 +148,70 @@ describe('HTTP API v2', () => {
             expect(response.statusCode).toEqual(200);
             expect(response.body).toEqual([{ ex_id: 'ex-1' }]);
             expect(getControllerStats).toHaveBeenCalledWith();
+        });
+    });
+
+    describe('GET /v2/cluster/connectors', () => {
+        it('should return a flat array of connectors tagged with state cluster and asset store', async () => {
+            const response = await request('GET', '/v2/cluster/connectors');
+
+            expect(response.statusCode).toEqual(200);
+            expect(response.body).toEqual({
+                connectors: [
+                    { type: 'elasticsearch-next', name: 'os2', is_state_cluster: true },
+                    { type: 'elasticsearch-next', name: 'os3', is_state_cluster: false },
+                    { type: 'kafka', name: 'kafka-dev' },
+                    { type: 's3', name: 'minio', is_asset_store: false },
+                    { type: 's3', name: 'ceph', is_asset_store: true },
+                ]
+            });
+        });
+
+        it('should filter by name', async () => {
+            const response = await request('GET', '/v2/cluster/connectors', {
+                searchParams: { name: 'os2' }
+            });
+
+            expect(response.statusCode).toEqual(200);
+            expect(response.body).toEqual({
+                connectors: [{ type: 'elasticsearch-next', name: 'os2', is_state_cluster: true }]
+            });
+        });
+
+        it('should return the grouped-by-type view when groupBy=type', async () => {
+            const response = await request('GET', '/v2/cluster/connectors', {
+                searchParams: { groupBy: 'type' }
+            });
+
+            expect(response.statusCode).toEqual(200);
+            expect(response.body).toEqual({
+                connectors: {
+                    'elasticsearch-next': ['os2', 'os3'],
+                    kafka: ['kafka-dev'],
+                    s3: ['minio', 'ceph'],
+                }
+            });
+        });
+
+        it('should respond with a 400 for an unsupported groupBy', async () => {
+            const response = await request('GET', '/v2/cluster/connectors', {
+                searchParams: { groupBy: 'name' }
+            });
+
+            expect(response.statusCode).toEqual(400);
+            expect(response.body.error).toEqual(400);
+            expect(response.body.message).toContain('Invalid request query');
+            expect(response.body.message).toContain('groupBy');
+        });
+
+        it('should respond with a 400 for an unknown query param', async () => {
+            const response = await request('GET', '/v2/cluster/connectors', {
+                searchParams: { group_by: 'type' }
+            });
+
+            expect(response.statusCode).toEqual(400);
+            expect(response.body.message).toContain('Invalid request query');
+            expect(response.body.message).toContain('Unrecognized key: "group_by"');
         });
     });
 
@@ -590,6 +659,37 @@ describe('HTTP API v2', () => {
             expect(pause.statusCode).toEqual(200);
             expect(slicers.statusCode).toEqual(200);
             expect(pauseExecution).toHaveBeenCalledWith('ex-1');
+        });
+    });
+
+    // The OpenAPI spec is built with z.toJSONSchema, which throws on valid zod
+    // it can't represent (.transform(), z.date(), z.custom(), z.instanceof(), ...).
+    // Checking every registered route here names the offending route and part.
+    describe('route schemas', () => {
+        it('should all convert to JSON Schema', () => {
+            const { routes } = createV2Registry(api);
+            expect(routes).not.toBeEmpty();
+
+            const failures: string[] = [];
+            for (const route of routes) {
+                const parts = [
+                    ['params', route.params, 'input'],
+                    ['query', route.query, 'input'],
+                    ['body', route.body, 'input'],
+                    ['response', route.response, 'output'],
+                ] as const;
+
+                for (const [part, schema, io] of parts) {
+                    if (!schema) continue;
+                    try {
+                        z.toJSONSchema(schema, { io });
+                    } catch (err) {
+                        failures.push(`${route.method.toUpperCase()} ${route.path} ${part}: ${err.message}`);
+                    }
+                }
+            }
+
+            expect(failures).toEqual([]);
         });
     });
 });

@@ -134,7 +134,7 @@ export const ConnectorListResponseSchema = z.object({
     connectors: z.union([z.array(ConnectorInfoSchema), GroupedConnectorsSchema]),
 }).meta({ id: 'ConnectorListResponse' });
 
-export const getClusterConnectors = defineRoute({
+export const getClusterConnectorsDef = defineRoute({
     operationId: 'getClusterConnectors',
     method: 'get',
     path: '/cluster/connectors',
