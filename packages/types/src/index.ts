@@ -9,6 +9,7 @@ export * from './xlucene-interfaces.js';
 export * from './sql-interfaces.js';
 export * from './elasticsearch-client/index.js';
 export * from './teraslice.js';
+export * from './teraslice-api.js';
 export * from './logger.js';
 export * from './env.js';
 export * from './opensearch-client.js';
