@@ -1,6 +1,6 @@
-import { Router } from 'express';
 import { RecoveryCleanupType, generateJobJSONSchema } from '@terascope/job-components';
 import { parseList, TSError } from '@terascope/core-utils';
+import { getClusterConnectorsDef } from '@terascope/types';
 import { type ApiService, validateCleanupType, validateGetDeletedOption } from './api.js';
 import type { TerasliceRequest } from '../../../interfaces.js';
 import {
@@ -9,6 +9,7 @@ import {
     buildConnectorList, getSliceTapOptions
 } from '../../utils/api_utils.js';
 import { getPackageJSON } from '../../utils/file_utils.js';
+import { createRouteRegistry, type RouteRegistry } from '../../utils/v2_routes.js';
 
 const terasliceVersion = getPackageJSON().version;
 
@@ -16,8 +17,10 @@ const terasliceVersion = getPackageJSON().version;
  * Routes for the beta /v2 API. Mounted only at /v2, with no unversioned alias.
  * See https://github.com/terascope/teraslice/issues/4584
  */
-export function createV2Router(api: ApiService): Router {
-    const v2routes = Router();
+export function createV2Registry(api: ApiService): RouteRegistry {
+    const registry = createRouteRegistry();
+    // Routes not yet migrated to `register` are added to `v2routes` directly
+    const { router: v2routes, register } = registry;
 
     async function getLatestExId(jobId: string): Promise<string> {
         const exId = await api.jobsService.getLatestExecutionId(jobId);
@@ -55,17 +58,9 @@ export function createV2Router(api: ApiService): Router {
         requestHandler(() => api.clusterService.getClusterState());
     });
 
-    v2routes.get('/cluster/connectors', (req, res) => {
-        const { type, name, groupBy } = req.query;
-        const requestHandler = handleTerasliceRequest(req, res);
-        requestHandler(() => ({
-            connectors: buildConnectorList(api.context.sysconfig, {
-                type: type as string,
-                name: name as string,
-                groupBy: groupBy as string
-            })
-        }));
-    });
+    register(getClusterConnectorsDef, ({ query }) => ({
+        connectors: buildConnectorList(api.context.sysconfig, query)
+    }));
 
     v2routes.get('/cluster/job-schema', (req, res) => {
         const requestHandler = handleTerasliceRequest(req, res);
@@ -318,5 +313,5 @@ export function createV2Router(api: ApiService): Router {
         requestHandler(() => searchErrors(req.params.exId, req));
     });
 
-    return v2routes;
+    return registry;
 }
