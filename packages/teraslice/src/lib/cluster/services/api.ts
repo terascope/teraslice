@@ -8,6 +8,7 @@ import {
     TSError, startsWith, Logger, pWhile,
     isKey
 } from '@terascope/core-utils';
+import { createV2Router } from './api-v2.js';
 import { ExecutionStatusEnum, ConnectorListResponse, JobSchemaResponse } from '@terascope/types';
 import { ClusterMasterContext, TerasliceRequest, TerasliceResponse } from '../../../interfaces.js';
 import { makeLogger } from '../../workers/helpers/terafoundation.js';
@@ -22,7 +23,7 @@ import { getPackageJSON } from '../../utils/file_utils.js';
 
 const terasliceVersion = getPackageJSON().version;
 
-function validateCleanupType(cleanupType: RecoveryCleanupType) {
+export function validateCleanupType(cleanupType: RecoveryCleanupType) {
     if (cleanupType && !RecoveryCleanupType[cleanupType]) {
         const types = Object.values(RecoveryCleanupType);
         throw new TSError(`cleanup_type must be empty or set to ${types.join(', ')}`, {
@@ -31,7 +32,7 @@ function validateCleanupType(cleanupType: RecoveryCleanupType) {
     }
 }
 
-function validateGetDeletedOption(deletedOption: string) {
+export function validateGetDeletedOption(deletedOption: string) {
     if (!['true', 'false', ''].includes(deletedOption)) {
         throw new TSError('deleted query option must true or false', {
             statusCode: 400
@@ -66,7 +67,7 @@ export class ApiService {
         this.app = app;
     }
 
-    private async _changeWorkers(exId: string, query: any) {
+    async _changeWorkers(exId: string, query: any) {
         let msg;
         let workerNum: number | undefined;
         const keyOptions = { add: true, remove: true, total: true };
@@ -536,6 +537,8 @@ export class ApiService {
             requestHandler(() => this._controllerStats());
         });
 
+        this.app.use('/v2', createV2Router(this));
+
         // backwards compatibility for /v1 routes
         this.app.use(v1routes);
         this.app.use('/v1', v1routes);
@@ -664,7 +667,7 @@ export class ApiService {
         this._updatePromMetrics();
     }
 
-    private async _waitForStop(exId: string, blocking?: boolean): Promise<Record<string, any>> {
+    async _waitForStop(exId: string, blocking?: boolean): Promise<Record<string, any>> {
         return new Promise((resolve) => {
             const checkExecution = () => {
                 this.executionService.getExecutionContext(exId)
