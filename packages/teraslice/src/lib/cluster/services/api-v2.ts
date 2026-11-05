@@ -1,8 +1,12 @@
 import { RecoveryCleanupType, generateJobJSONSchema } from '@terascope/job-components';
 import { parseList, TSError } from '@terascope/core-utils';
-import { getClusterConnectorsDef } from '@terascope/types';
+import {
+    getClusterConnectorsDef, getClusterControllersDef, getClusterInfoDef,
+    getClusterJobSchemaDef, getClusterStateDef, getClusterStatsDef,
+    type RouteResponse
+} from '@terascope/types';
 import { type ApiService, validateCleanupType, validateGetDeletedOption } from './api.js';
-import type { TerasliceRequest } from '../../../interfaces.js';
+import type { ControllerStats, TerasliceRequest } from '../../../interfaces.js';
 import {
     sendError, handleTerasliceRequest, getSearchOptions,
     createJobActiveQuery, addDeletedToQuery, addFilterToQuery,
@@ -12,6 +16,23 @@ import { getPackageJSON } from '../../utils/file_utils.js';
 import { createRouteRegistry, type RouteRegistry } from '../../utils/v2_routes.js';
 
 const terasliceVersion = getPackageJSON().version;
+
+/**
+ * `ControllerStats` types `started` and `queuing_complete` as
+ * `string | number | Date`, but the execution controller always sets them
+ * with `makeISODate()` and they arrive over socket.io as strings. Narrow just
+ * those two fields so the rest of the stats stay type checked against the
+ * v2 response schema.
+ */
+function toControllerStatsResponse(
+    stats: ControllerStats[]
+): RouteResponse<typeof getClusterControllersDef> {
+    return stats.map((stat) => ({
+        ...stat,
+        started: stat.started as string | undefined,
+        queuing_complete: stat.queuing_complete as string | undefined,
+    }));
+}
 
 /**
  * Routes for the beta /v2 API. Mounted only at /v2, with no unversioned alias.
@@ -41,44 +62,35 @@ export function createV2Registry(api: ApiService): RouteRegistry {
 
     // Cluster
 
-    v2routes.get('/', (req, res) => {
-        const requestHandler = handleTerasliceRequest(req, res);
-        requestHandler(() => ({
-            arch: api.context.arch,
-            clustering_type: api.context.sysconfig.teraslice.cluster_manager_type,
-            name: api.context.sysconfig.teraslice.name,
-            node_version: process.version,
-            platform: api.context.platform,
-            teraslice_version: `v${terasliceVersion}`
-        }));
-    });
+    register(getClusterInfoDef, () => ({
+        arch: api.context.arch,
+        clustering_type: api.context.sysconfig.teraslice.cluster_manager_type,
+        name: api.context.sysconfig.teraslice.name,
+        node_version: process.version,
+        platform: api.context.platform,
+        teraslice_version: `v${terasliceVersion}`
+    }));
 
-    v2routes.get('/cluster/state', (req, res) => {
-        const requestHandler = handleTerasliceRequest(req, res);
-        requestHandler(() => api.clusterService.getClusterState());
-    });
+    register(getClusterStateDef, () => api.clusterService.getClusterState());
 
     register(getClusterConnectorsDef, ({ query }) => ({
         connectors: buildConnectorList(api.context.sysconfig, query)
     }));
 
-    v2routes.get('/cluster/job-schema', (req, res) => {
-        const requestHandler = handleTerasliceRequest(req, res);
-        requestHandler(() => ({
-            version: terasliceVersion,
-            job_schema: generateJobJSONSchema(api.context)
-        }));
+    register(getClusterJobSchemaDef, () => ({
+        version: terasliceVersion,
+        job_schema: generateJobJSONSchema(api.context)
+    }));
+
+    register(getClusterStatsDef, () => api.executionService.getClusterAnalytics(), {
+        errorMessage: 'Could not get cluster statistics'
     });
 
-    v2routes.get('/cluster/stats', (req, res) => {
-        const requestHandler = handleTerasliceRequest(req, res, 'Could not get cluster statistics');
-        requestHandler(() => api.executionService.getClusterAnalytics());
-    });
-
-    v2routes.get('/cluster/controllers', (req, res) => {
-        const requestHandler = handleTerasliceRequest(req, res, 'Could not get execution statistics');
-        requestHandler(() => api.executionService.getControllerStats());
-    });
+    register(
+        getClusterControllersDef,
+        async () => toControllerStatsResponse(await api.executionService.getControllerStats()),
+        { errorMessage: 'Could not get execution statistics' }
+    );
 
     // Jobs
 

@@ -5,6 +5,8 @@ import express from 'express';
 import http from 'node:http';
 import { z } from 'zod';
 import { TestContext } from '@terascope/job-components';
+import { TSError } from '@terascope/core-utils';
+import { getClusterJobSchemaDef } from '@terascope/types';
 import { findPort } from '../../src/lib/utils/port_utils.js';
 import { ApiService } from '../../src/lib/cluster/services/api.js';
 import { createV2Registry } from '../../src/lib/cluster/services/api-v2.js';
@@ -148,6 +150,145 @@ describe('HTTP API v2', () => {
             expect(response.statusCode).toEqual(200);
             expect(response.body).toEqual([{ ex_id: 'ex-1' }]);
             expect(getControllerStats).toHaveBeenCalledWith();
+        });
+    });
+
+    describe('GET /v2/', () => {
+        it('should return cluster info', async () => {
+            const { status, body } = await get('/');
+
+            expect(status).toBe(200);
+            expect(body).toEqual({
+                arch: context.arch,
+                clustering_type: context.sysconfig.teraslice.cluster_manager_type,
+                name: context.sysconfig.teraslice.name,
+                node_version: process.version,
+                platform: context.platform,
+                teraslice_version: expect.stringMatching(/^v\d+\.\d+\.\d+/),
+            });
+        });
+
+        it('should respond with a 400 for any query param', async () => {
+            const { status, body } = await get('/', { foo: 'bar' });
+
+            expect(status).toBe(400);
+            expect(body.message).toContain('Unrecognized key: "foo"');
+        });
+    });
+
+    describe('GET /v2/cluster/state', () => {
+        it('should return the cluster state', async () => {
+            const state = {
+                'node-1': {
+                    node_id: 'node-1',
+                    hostname: 'node-1',
+                    pid: 'N/A',
+                    node_version: 'N/A',
+                    teraslice_version: 'N/A',
+                    total: 'N/A',
+                    state: 'connected',
+                    available: 'N/A',
+                    active: [{ worker_id: 'w1', assignment: 'worker', ex_id: 'ex-1', job_id: 'job-1' }],
+                },
+            };
+            context.services.clusterService.getClusterState = () => state;
+
+            const { status, body } = await get('/cluster/state');
+
+            expect(status).toBe(200);
+            expect(body).toEqual(state);
+        });
+    });
+
+    describe('GET /v2/cluster/stats', () => {
+        it('should return the controllers totals without the v1 slicer alias', async () => {
+            const controllers = {
+                processed: 10,
+                failed: 1,
+                queued: 2,
+                job_duration: 0,
+                workers_joined: 3,
+                workers_reconnected: 0,
+                workers_disconnected: 0,
+            };
+            context.services.executionService.getClusterAnalytics = () => ({ controllers });
+
+            const { status, body } = await get('/cluster/stats');
+
+            expect(status).toBe(200);
+            expect(body).toEqual({ controllers });
+        });
+    });
+
+    describe('GET /v2/cluster/controllers', () => {
+        it('should return the controller stats', async () => {
+            const stats = [{
+                ex_id: 'ex-1',
+                job_id: 'job-1',
+                name: 'test-job',
+                processed: 10,
+                failed: 0,
+                queued: 0,
+                job_duration: 0,
+                workers_joined: 1,
+                workers_reconnected: 0,
+                workers_disconnected: 0,
+                workers_available: 0,
+                workers_active: 1,
+                subslices: 0,
+                slice_range_expansion: 0,
+                slicers: 1,
+                subslice_by_key: 0,
+                started: '2026-11-04T00:00:00.000Z',
+            }];
+            context.services.executionService.getControllerStats = async () => stats;
+
+            const { status, body } = await get('/cluster/controllers');
+
+            expect(status).toBe(200);
+            expect(body).toEqual(stats);
+        });
+
+        it('should keep the status of a service error', async () => {
+            context.services.executionService.getControllerStats = async () => {
+                throw new TSError('boom', { statusCode: 503 });
+            };
+
+            const { status, body } = await get('/cluster/controllers');
+
+            expect(status).toBe(503);
+            expect(body.message).toContain('boom');
+        });
+    });
+
+    describe('GET /v2/cluster/job-schema', () => {
+        it('should return the version and a job JSON Schema', async () => {
+            const { status, body } = await get('/cluster/job-schema');
+
+            expect(status).toBe(200);
+            expect(body.version).toMatch(/^\d+\.\d+\.\d+/);
+            expect(body.job_schema).toMatchObject({
+                $schema: 'http://json-schema.org/draft-07/schema#',
+                $id: expect.any(String),
+                title: 'Teraslice Job',
+                description: expect.any(String),
+                type: 'object',
+                additionalProperties: false,
+                definitions: {
+                    operation: expect.any(Object),
+                    api: expect.any(Object),
+                },
+            });
+            expect(body.job_schema.required).toIncludeAllMembers(['name', 'operations']);
+            expect(body.job_schema.properties).toContainKeys(['name', 'operations', 'apis']);
+        });
+
+        it('should match the response schema', async () => {
+            const { body } = await get('/cluster/job-schema');
+
+            // responses aren't parsed at runtime, so check the envelope here
+            const result = getClusterJobSchemaDef.response.safeParse(body);
+            expect(result.error).toBeUndefined();
         });
     });
 

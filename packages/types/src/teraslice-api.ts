@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { ProcessAssignment } from './teraslice.js';
 
 /**
  * HTTP methods supported by /v2 routes. Lowercase so they can be used
@@ -111,7 +112,178 @@ export type RouteResponse<D extends AnyRouteDef>
 
 /** ############ V2 ROUTE SCHEMAS ############ */
 
+/** ################### / ################### */
+
+export const ClusterInfoSchema = z.object({
+    arch: z.string(),
+    clustering_type: z.enum(['native', 'kubernetesV2']),
+    name: z.string().meta({ description: 'The cluster name' }),
+    node_version: z.string(),
+    platform: z.string(),
+    teraslice_version: z.string().meta({ description: 'Prefixed with "v", e.g. "v3.1.0"' }),
+}).meta({ id: 'ClusterInfo' });
+
+export const getClusterInfoDef = defineRoute({
+    operationId: 'getClusterInfo',
+    method: 'get',
+    path: '/',
+    summary: 'Get cluster and version information',
+    tags: ['Cluster'],
+    response: ClusterInfoSchema,
+});
+
 /** ################ /cluster ################ */
+
+/** ################# /state ################# */
+
+export const ProcessNodeSchema = z.object({
+    worker_id: z.union([z.string(), z.number()]),
+    assignment: z.enum(ProcessAssignment),
+    pid: z.number().optional(),
+    ex_id: z.string().optional()
+        .meta({ description: 'Set on execution_controller and worker processes' }),
+    job_id: z.string().optional()
+        .meta({ description: 'Set on execution_controller and worker processes' }),
+    assets: z.array(z.string()).optional(),
+    image: z.string().optional()
+        .meta({ description: 'kubernetesV2 only' }),
+    pod_name: z.string().optional()
+        .meta({ description: 'kubernetesV2 only' }),
+    pod_ip: z.string().optional()
+        .meta({ description: 'kubernetesV2 only' }),
+}).meta({
+    id: 'ProcessNode',
+    description: 'A teraslice process running on a node',
+});
+
+const NotAvailable = z.literal('N/A');
+
+export const NodeStateSchema = z.object({
+    node_id: z.string(),
+    hostname: z.string(),
+    pid: z.union([z.number(), NotAvailable]),
+    node_version: z.string(),
+    teraslice_version: z.string(),
+    total: z.union([z.number(), NotAvailable])
+        .meta({ description: 'Worker capacity of the node' }),
+    state: z.string().meta({ description: 'e.g. "connected" or "disconnected"' }),
+    available: z.union([z.number(), NotAvailable])
+        .meta({ description: 'Free worker slots on the node' }),
+    active: z.array(ProcessNodeSchema),
+}).meta({ id: 'NodeState' });
+
+export const ClusterStateSchema = z.record(z.string(), NodeStateSchema).meta({
+    id: 'ClusterState',
+    description: 'Node state keyed by node id',
+});
+
+export const getClusterStateDef = defineRoute({
+    operationId: 'getClusterState',
+    method: 'get',
+    path: '/cluster/state',
+    summary: 'Get the state of every node in the cluster',
+    tags: ['Cluster'],
+    response: ClusterStateSchema,
+});
+
+/** ################# /stats ################# */
+
+export const AggregatedExecutionAnalyticsSchema = z.object({
+    processed: z.number(),
+    failed: z.number(),
+    queued: z.number(),
+    job_duration: z.number(),
+    workers_joined: z.number(),
+    workers_reconnected: z.number(),
+    workers_disconnected: z.number(),
+}).meta({ id: 'AggregatedExecutionAnalytics' });
+
+export const ClusterStatsSchema = z.object({
+    controllers: AggregatedExecutionAnalyticsSchema
+        .meta({ description: 'Totals across every execution controller' }),
+}).meta({ id: 'ClusterStats' });
+
+export const getClusterStatsDef = defineRoute({
+    operationId: 'getClusterStats',
+    method: 'get',
+    path: '/cluster/stats',
+    summary: 'Get slice and worker stats across all executions',
+    tags: ['Cluster'],
+    response: ClusterStatsSchema,
+});
+
+/** ############## /controllers ############## */
+
+export const ControllerStatsSchema = AggregatedExecutionAnalyticsSchema.extend({
+    ex_id: z.string(),
+    job_id: z.string(),
+    name: z.string().meta({ description: 'The job name' }),
+    workers_available: z.number(),
+    workers_active: z.number(),
+    subslices: z.number(),
+    slice_range_expansion: z.number(),
+    slicers: z.number(),
+    subslice_by_key: z.number(),
+    started: z.string().optional()
+        .meta({ description: 'ISO 8601 timestamp, unset until the execution starts' }),
+    queuing_complete: z.string().optional()
+        .meta({ description: 'ISO 8601 timestamp, unset until all slices are queued' }),
+}).meta({
+    id: 'ControllerStats',
+    description: 'Live statistics from a running execution controller',
+});
+
+export const getClusterControllersDef = defineRoute({
+    operationId: 'getClusterControllers',
+    method: 'get',
+    path: '/cluster/controllers',
+    summary: 'Get statistics for every running execution controller',
+    tags: ['Cluster'],
+    response: z.array(ControllerStatsSchema),
+});
+
+/** ############### /job-schema ############## */
+
+const JSONSchemaNode = z.record(z.string(), z.unknown());
+
+/**
+ * The fixed envelope of the generated job JSON Schema. The contents of
+ * `properties` and `definitions` depend on the cluster's job schema and
+ * connectors, so they're left open. Loose because it's a JSON Schema
+ * document, which may gain keywords without that being a breaking change.
+ */
+export const JobJSONSchemaSchema = z.looseObject({
+    $schema: z.string().meta({ description: 'The JSON Schema draft, currently draft-07' }),
+    $id: z.string(),
+    title: z.string(),
+    description: z.string(),
+    type: z.literal('object'),
+    properties: z.record(z.string(), JSONSchemaNode)
+        .meta({ description: 'One JSON Schema per top-level job field' }),
+    required: z.array(z.string()),
+    additionalProperties: z.boolean(),
+    definitions: z.object({
+        operation: JSONSchemaNode.meta({ description: 'Schema for an entry in `operations`' }),
+        api: JSONSchemaNode.meta({ description: 'Schema for an entry in `apis`' }),
+    }),
+}).meta({
+    id: 'JobJSONSchema',
+    description: 'JSON Schema (draft-07) for a job config on this cluster',
+});
+
+export const JobSchemaResponseSchema = z.object({
+    version: z.string().meta({ description: 'Teraslice version, without a "v" prefix' }),
+    job_schema: JobJSONSchemaSchema,
+}).meta({ id: 'JobSchemaResponse' });
+
+export const getClusterJobSchemaDef = defineRoute({
+    operationId: 'getClusterJobSchema',
+    method: 'get',
+    path: '/cluster/job-schema',
+    summary: 'Get the JSON Schema for job configs on this cluster',
+    tags: ['Cluster'],
+    response: JobSchemaResponseSchema,
+});
 
 /** ############### /connectors ############## */
 
