@@ -18,6 +18,8 @@ export default class Client {
         configUrl.pathname = '';
         configUrl.hash = '';
         const prefixUrl = configUrl.toString();
+        // TODO: Teraslice v4 deletes /v1, default to /v2 and remove the v1/v2 branching
+        // https://github.com/terascope/teraslice/issues/4584#issuecomment-6636093239
         const { apiVersion = '/v1' } = config;
 
         this._config = config;

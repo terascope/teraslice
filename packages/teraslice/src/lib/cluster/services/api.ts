@@ -540,6 +540,8 @@ export class ApiService {
         this.app.use('/v2', createV2Router(this));
 
         // backwards compatibility for /v1 routes
+        // TODO: Teraslice v4 deletes /v1 and the unversioned mount
+        // https://github.com/terascope/teraslice/issues/4584#issuecomment-6636093239
         this.app.use(v1routes);
         this.app.use('/v1', v1routes);
 

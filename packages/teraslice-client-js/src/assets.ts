@@ -8,6 +8,8 @@ import { PostData, RequestOptions, ClientConfig } from './interfaces.js';
 export default class Assets extends Client {
     constructor(config: ClientConfig) {
         // the asset endpoints are not part of /v2
+        // TODO: Teraslice v4 deletes /v1, move assets to /v2 before then
+        // https://github.com/terascope/teraslice/issues/4584#issuecomment-6636093239
         super(isV2(config.apiVersion) ? { ...config, apiVersion: '/v1' } : config);
         autoBind(this);
     }

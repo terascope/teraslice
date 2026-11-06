@@ -30,6 +30,8 @@ export default class Cluster extends Client {
     }
 
     async slicers(): Promise<Teraslice.ExecutionList> {
+        // TODO: Teraslice v4 deletes /v1, remove slicers() in favor of controllers()
+        // https://github.com/terascope/teraslice/issues/4584#issuecomment-6636093239
         if (this.isV2) return this.controllers();
         return this.get('/cluster/slicers');
     }

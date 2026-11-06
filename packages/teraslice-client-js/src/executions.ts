@@ -54,6 +54,8 @@ export default class Executions extends Client {
             return this.get(`/ex/${exId}/errors`, options as RequestOptions);
         }
 
+        // TODO: Teraslice v4 deletes /v1, make exId required
+        // https://github.com/terascope/teraslice/issues/4584#issuecomment-6636093239
         if (this.isV2) {
             throw new TSError('/v2 requires an exId to get execution errors', {
                 statusCode: 400
