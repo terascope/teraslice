@@ -143,6 +143,7 @@ export interface TestEnv {
     TEST_NAMESPACE?: string;
     TEST_OPENSEARCH?: boolean;
     TEST_PLATFORM?: 'native' | 'kubernetesV2';
+    TEST_API_VERSION?: 'v1' | 'v2';
     TEST_RABBITMQ?: boolean;
     TEST_RESTRAINED_OPENSEARCH?: boolean;
     TEST_VALKEY?: boolean;
