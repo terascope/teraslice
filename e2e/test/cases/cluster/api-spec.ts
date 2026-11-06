@@ -76,7 +76,7 @@ describe('cluster api', () => {
         jobSpec.apis[0].index = terasliceHarness.getExampleIndex(100);
         jobSpec.apis[1].index = specIndex;
 
-        async function didError(p: Promise<void>) {
+        async function didError(p: Promise<unknown>) {
             try {
                 await p;
                 return false;
@@ -97,8 +97,8 @@ describe('cluster api', () => {
         const result = await Promise.all([
             didError(terasliceHarness.teraslice.cluster.post(`/jobs/${jobId}/_resume`)),
             didError(terasliceHarness.teraslice.cluster.post(`/jobs/${jobId}/_pause`)),
-            didError(terasliceHarness.teraslice.cluster.post(`/ex/${exId}/_resume`)),
-            didError(terasliceHarness.teraslice.cluster.post(`/ex/${exId}/_pause`))
+            didError(ex.resume()),
+            didError(ex.pause())
         ]);
 
         expect(result).toEqual([true, true, true, true]);
