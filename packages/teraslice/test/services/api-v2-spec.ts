@@ -6,10 +6,12 @@ import http from 'node:http';
 import { z } from 'zod';
 import { TestContext } from '@terascope/job-components';
 import { TSError } from '@terascope/core-utils';
-import { getClusterJobSchemaDef } from '@terascope/types';
+import {
+    ExecutionRecordSchema, JobSchemaResponseSchema, JobWithExecutionSchema
+} from '@terascope/types';
 import { findPort } from '../../src/lib/utils/port_utils.js';
-import { ApiService } from '../../src/lib/cluster/services/api.js';
-import { createV2Registry } from '../../src/lib/cluster/services/api-v2.js';
+import { ApiService } from '../../src/lib/cluster/services/api/api.js';
+import { createV2Registry } from '../../src/lib/cluster/services/api/v2/routes.js';
 import { getPackageJSON } from '../../src/lib/utils/file_utils.js';
 
 describe('HTTP API v2', () => {
@@ -100,6 +102,13 @@ describe('HTTP API v2', () => {
                 teraslice_version: `v${version}`
             });
         });
+
+        it('should respond with a 400 for any query param', async () => {
+            const response = await request('GET', '/v2', { searchParams: { foo: 'bar' } });
+
+            expect(response.statusCode).toEqual(400);
+            expect(response.body.message).toContain('Unrecognized key: "foo"');
+        });
     });
 
     describe('GET /v2/cluster/*', () => {
@@ -151,123 +160,24 @@ describe('HTTP API v2', () => {
             expect(response.body).toEqual([{ ex_id: 'ex-1' }]);
             expect(getControllerStats).toHaveBeenCalledWith();
         });
-    });
 
-    describe('GET /v2/', () => {
-        it('should return cluster info', async () => {
-            const { status, body } = await get('/');
+        it('should keep the status of a controller stats error', async () => {
+            getControllerStats.mockRejectedValue(new TSError('boom', { statusCode: 503 }));
 
-            expect(status).toBe(200);
-            expect(body).toEqual({
-                arch: context.arch,
-                clustering_type: context.sysconfig.teraslice.cluster_manager_type,
-                name: context.sysconfig.teraslice.name,
-                node_version: process.version,
-                platform: context.platform,
-                teraslice_version: expect.stringMatching(/^v\d+\.\d+\.\d+/),
-            });
-        });
+            const response = await request('GET', '/v2/cluster/controllers');
 
-        it('should respond with a 400 for any query param', async () => {
-            const { status, body } = await get('/', { foo: 'bar' });
-
-            expect(status).toBe(400);
-            expect(body.message).toContain('Unrecognized key: "foo"');
-        });
-    });
-
-    describe('GET /v2/cluster/state', () => {
-        it('should return the cluster state', async () => {
-            const state = {
-                'node-1': {
-                    node_id: 'node-1',
-                    hostname: 'node-1',
-                    pid: 'N/A',
-                    node_version: 'N/A',
-                    teraslice_version: 'N/A',
-                    total: 'N/A',
-                    state: 'connected',
-                    available: 'N/A',
-                    active: [{ worker_id: 'w1', assignment: 'worker', ex_id: 'ex-1', job_id: 'job-1' }],
-                },
-            };
-            context.services.clusterService.getClusterState = () => state;
-
-            const { status, body } = await get('/cluster/state');
-
-            expect(status).toBe(200);
-            expect(body).toEqual(state);
-        });
-    });
-
-    describe('GET /v2/cluster/stats', () => {
-        it('should return the controllers totals without the v1 slicer alias', async () => {
-            const controllers = {
-                processed: 10,
-                failed: 1,
-                queued: 2,
-                job_duration: 0,
-                workers_joined: 3,
-                workers_reconnected: 0,
-                workers_disconnected: 0,
-            };
-            context.services.executionService.getClusterAnalytics = () => ({ controllers });
-
-            const { status, body } = await get('/cluster/stats');
-
-            expect(status).toBe(200);
-            expect(body).toEqual({ controllers });
-        });
-    });
-
-    describe('GET /v2/cluster/controllers', () => {
-        it('should return the controller stats', async () => {
-            const stats = [{
-                ex_id: 'ex-1',
-                job_id: 'job-1',
-                name: 'test-job',
-                processed: 10,
-                failed: 0,
-                queued: 0,
-                job_duration: 0,
-                workers_joined: 1,
-                workers_reconnected: 0,
-                workers_disconnected: 0,
-                workers_available: 0,
-                workers_active: 1,
-                subslices: 0,
-                slice_range_expansion: 0,
-                slicers: 1,
-                subslice_by_key: 0,
-                started: '2026-11-04T00:00:00.000Z',
-            }];
-            context.services.executionService.getControllerStats = async () => stats;
-
-            const { status, body } = await get('/cluster/controllers');
-
-            expect(status).toBe(200);
-            expect(body).toEqual(stats);
-        });
-
-        it('should keep the status of a service error', async () => {
-            context.services.executionService.getControllerStats = async () => {
-                throw new TSError('boom', { statusCode: 503 });
-            };
-
-            const { status, body } = await get('/cluster/controllers');
-
-            expect(status).toBe(503);
-            expect(body.message).toContain('boom');
+            expect(response.statusCode).toEqual(503);
+            expect(response.body.message).toContain('boom');
         });
     });
 
     describe('GET /v2/cluster/job-schema', () => {
         it('should return the version and a job JSON Schema', async () => {
-            const { status, body } = await get('/cluster/job-schema');
+            const response = await request('GET', '/v2/cluster/job-schema');
 
-            expect(status).toBe(200);
-            expect(body.version).toMatch(/^\d+\.\d+\.\d+/);
-            expect(body.job_schema).toMatchObject({
+            expect(response.statusCode).toEqual(200);
+            expect(response.body.version).toEqual(version);
+            expect(response.body.job_schema).toMatchObject({
                 $schema: 'http://json-schema.org/draft-07/schema#',
                 $id: expect.any(String),
                 title: 'Teraslice Job',
@@ -279,16 +189,153 @@ describe('HTTP API v2', () => {
                     api: expect.any(Object),
                 },
             });
-            expect(body.job_schema.required).toIncludeAllMembers(['name', 'operations']);
-            expect(body.job_schema.properties).toContainKeys(['name', 'operations', 'apis']);
+            expect(response.body.job_schema.required).toIncludeAllMembers(['name', 'operations']);
+            expect(response.body.job_schema.properties).toContainKeys(['name', 'operations', 'apis']);
         });
 
         it('should match the response schema', async () => {
-            const { body } = await get('/cluster/job-schema');
+            const response = await request('GET', '/v2/cluster/job-schema');
 
             // responses aren't parsed at runtime, so check the envelope here
-            const result = getClusterJobSchemaDef.response.safeParse(body);
+            const result = JobSchemaResponseSchema.safeParse(response.body);
             expect(result.error).toBeUndefined();
+        });
+    });
+
+    describe('job and execution reads', () => {
+        const jobConfig = {
+            name: 'test-job',
+            active: true,
+            analytics: true,
+            assets: null,
+            autorecover: false,
+            lifecycle: 'persistent',
+            max_retries: 3,
+            operations: [
+                { _op: 'test-reader', size: 10 },
+                { _op: 'noop' },
+            ],
+            apis: [],
+            probation_window: 300000,
+            env_vars: {},
+            log_level: null,
+            slicers: 1,
+            workers: 2,
+            stateful: false,
+            job_id: 'job-1',
+            _created: '2026-11-05T00:00:00.000Z',
+            _updated: '2026-11-05T00:00:00.000Z',
+        };
+        const job = { ...jobConfig, _context: 'job' };
+        const execution = {
+            ...jobConfig,
+            _context: 'ex',
+            ex_id: 'ex-1',
+            _status: 'running',
+            _has_errors: false,
+            _slicer_stats: {},
+            metadata: {},
+            slicer_port: 45680,
+            slicer_hostname: 'localhost',
+            teraslice_version: '3.0.0',
+        };
+
+        it('should have fixtures that match the response schemas', () => {
+            // the routes below return these as-is, so check they're realistic
+            expect(JobWithExecutionSchema.safeParse(job).error).toBeUndefined();
+            expect(ExecutionRecordSchema.safeParse(execution).error).toBeUndefined();
+        });
+
+        it('should accept a job stored as submitted, without defaults and with extra keys', () => {
+            // submitJob stores the raw spec, so only what the client sent is there
+            const submitted = {
+                name: 'minimal-job',
+                operations: [{ _op: 'test-reader' }, { _op: 'noop' }],
+                __metadata: { cli: { cluster: 'local' } },
+                job_id: 'job-2',
+                _context: 'job',
+                _created: '2026-11-05T00:00:00.000Z',
+                _updated: '2026-11-05T00:00:00.000Z',
+            };
+
+            const result = JobWithExecutionSchema.safeParse(submitted);
+            expect(result.error).toBeUndefined();
+            expect(result.data).toHaveProperty('__metadata');
+        });
+
+        describe('GET /v2/jobs/:jobId', () => {
+            it('should add the latest execution with only the fields in ?ex', async () => {
+                const getJobWithExInfo = jest.fn(async () => ({
+                    ...job, ex: { ex_id: 'ex-1', _status: 'running' }
+                }));
+                context.services.jobsService.getJobWithExInfo = getJobWithExInfo;
+
+                const response = await request('GET', '/v2/jobs/job-1', {
+                    searchParams: { ex: 'ex_id, _status' }
+                });
+
+                expect(response.statusCode).toEqual(200);
+                expect(response.body.ex).toEqual({ ex_id: 'ex-1', _status: 'running' });
+                expect(getJobWithExInfo).toHaveBeenCalledWith('job-1', ['ex_id', '_status']);
+            });
+
+            it('should add every execution field for an empty ?ex', async () => {
+                const getJobWithExInfo = jest.fn(async () => ({ ...job, ex: execution }));
+                context.services.jobsService.getJobWithExInfo = getJobWithExInfo;
+
+                const response = await request('GET', '/v2/jobs/job-1', {
+                    searchParams: { ex: '' }
+                });
+
+                expect(response.statusCode).toEqual(200);
+                expect(response.body.ex).toEqual(execution);
+                expect(getJobWithExInfo).toHaveBeenCalledWith('job-1', undefined);
+            });
+
+            it('should respond with a 400 for an unknown query param', async () => {
+                const response = await request('GET', '/v2/jobs/job-1', {
+                    searchParams: { exe: '_status' }
+                });
+
+                expect(response.statusCode).toEqual(400);
+                expect(response.body.message).toContain('Unrecognized key: "exe"');
+            });
+
+            it('should keep the status of a storage error', async () => {
+                context.stores.jobsStorage.get = async () => {
+                    throw new TSError('Not Found', { statusCode: 404 });
+                };
+
+                const response = await request('GET', '/v2/jobs/missing');
+
+                expect(response.statusCode).toEqual(404);
+            });
+        });
+
+        it('GET /v2/jobs/:jobId/ex should respond with a 404 when the job has no execution', async () => {
+            context.services.jobsService.getLatestExecution = async () => {
+                throw new TSError('No execution was found for job job-1', { statusCode: 404 });
+            };
+
+            const response = await request('GET', '/v2/jobs/job-1/ex');
+
+            expect(response.statusCode).toEqual(404);
+            expect(response.body.message).toContain('No execution was found');
+        });
+
+        it('GET /v2/jobs/:jobId/controller should respond with a 404 when the job has no execution', async () => {
+            context.services.jobsService.getLatestExecutionId = async () => undefined;
+
+            const response = await request('GET', '/v2/jobs/job-1/controller');
+
+            expect(response.statusCode).toEqual(404);
+            expect(response.body.message).toContain('No executions were found for job: job-1');
+        });
+
+        it('GET /v2/ex/:exId should respond with a 400 for any query param', async () => {
+            const response = await request('GET', '/v2/ex/ex-1', { searchParams: { ex: '_status' } });
+
+            expect(response.statusCode).toEqual(400);
         });
     });
 

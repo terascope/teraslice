@@ -1,21 +1,45 @@
 import { RecoveryCleanupType, generateJobJSONSchema } from '@terascope/job-components';
 import { parseList, TSError } from '@terascope/core-utils';
 import {
-    getClusterConnectorsDef, getClusterControllersDef, getClusterInfoDef,
-    getClusterJobSchemaDef, getClusterStateDef, getClusterStatsDef,
-    type RouteResponse
+    ClusterInfoSchema, ClusterStateSchema, ClusterStatsSchema, ControllerStatsListSchema,
+    ConnectorListResponseSchema, ExecutionRecordSchema, ExIdParams,
+    GetClusterConnectorsQuerySchema, GetJobQuerySchema, JobControllerStatsSchema, JobIdParams,
+    JobSchemaResponseSchema, JobWithExecutionSchema,
+    type ControllerStatsList, type Logger
 } from '@terascope/types';
-import { type ApiService, validateCleanupType, validateGetDeletedOption } from './api.js';
-import type { ControllerStats, TerasliceRequest } from '../../../interfaces.js';
+import { type ApiService, validateCleanupType, validateGetDeletedOption } from '../api.js';
+import type { ControllerStats, TerasliceRequest } from '../../../../../interfaces.js';
 import {
     sendError, handleTerasliceRequest, getSearchOptions,
     createJobActiveQuery, addDeletedToQuery, addFilterToQuery,
     buildConnectorList, getSliceTapOptions
-} from '../../utils/api_utils.js';
-import { getPackageJSON } from '../../utils/file_utils.js';
-import { createRouteRegistry, type RouteRegistry } from '../../utils/v2_routes.js';
+} from '../../../../utils/api_utils.js';
+import { getPackageJSON } from '../../../../utils/file_utils.js';
+import { createRouteRegistry, type RouteRegistry } from '../../../../utils/v2_routes.js';
 
 const terasliceVersion = getPackageJSON().version;
+
+/** A stored record as sent from opensearch */
+type FromStorage<T> = {
+    [K in keyof T]: K extends 'log_level'
+        ? Logger.LogLevelString | null
+        : Exclude<T[K], Date>
+};
+
+/**
+ * Narrows a job or execution record's top-level fields to what storage
+ * actually holds, to match the v2 response schemas:
+ * - timestamps are typed `string | Date`, but records are read as JSON, so
+ *   they're always strings
+ * - `log_level` is typed `string`, but the job schema only accepts a log
+ *   level name (or nothing), so that's all a stored record can hold
+ *
+ * The mapped type also lets these interfaces satisfy the loose (index
+ * signature) schemas.
+ */
+function fromStorage<T extends object>(record: T): FromStorage<T> {
+    return record as FromStorage<T>;
+}
 
 /**
  * `ControllerStats` types `started` and `queuing_complete` as
@@ -26,7 +50,7 @@ const terasliceVersion = getPackageJSON().version;
  */
 function toControllerStatsResponse(
     stats: ControllerStats[]
-): RouteResponse<typeof getClusterControllersDef> {
+): ControllerStatsList {
     return stats.map((stat) => ({
         ...stat,
         started: stat.started as string | undefined,
@@ -40,8 +64,8 @@ function toControllerStatsResponse(
  */
 export function createV2Registry(api: ApiService): RouteRegistry {
     const registry = createRouteRegistry();
-    // Routes not yet migrated to `register` are added to `v2routes` directly
-    const { router: v2routes, register } = registry;
+    // Routes not yet migrated to the method helpers are added to `v2routes` directly
+    const { router: v2routes } = registry;
 
     async function getLatestExId(jobId: string): Promise<string> {
         const exId = await api.jobsService.getLatestExecutionId(jobId);
@@ -62,7 +86,12 @@ export function createV2Registry(api: ApiService): RouteRegistry {
 
     // Cluster
 
-    register(getClusterInfoDef, () => ({
+    registry.get('/', {
+        operationId: 'getClusterInfo',
+        summary: 'Get cluster and version information',
+        tags: ['Cluster'],
+        response: ClusterInfoSchema,
+    }, () => ({
         arch: api.context.arch,
         clustering_type: api.context.sysconfig.teraslice.cluster_manager_type,
         name: api.context.sysconfig.teraslice.name,
@@ -71,26 +100,50 @@ export function createV2Registry(api: ApiService): RouteRegistry {
         teraslice_version: `v${terasliceVersion}`
     }));
 
-    register(getClusterStateDef, () => api.clusterService.getClusterState());
+    registry.get('/cluster/state', {
+        operationId: 'getClusterState',
+        summary: 'Get the state of every node in the cluster',
+        tags: ['Cluster'],
+        response: ClusterStateSchema,
+    }, () => api.clusterService.getClusterState());
 
-    register(getClusterConnectorsDef, ({ query }) => ({
+    registry.get('/cluster/connectors', {
+        operationId: 'getClusterConnectors',
+        summary: 'List the configured connectors',
+        tags: ['Cluster'],
+        query: GetClusterConnectorsQuerySchema,
+        response: ConnectorListResponseSchema,
+    }, ({ query }) => ({
         connectors: buildConnectorList(api.context.sysconfig, query)
     }));
 
-    register(getClusterJobSchemaDef, () => ({
+    registry.get('/cluster/job-schema', {
+        operationId: 'getClusterJobSchema',
+        summary: 'Get the JSON Schema for job configs on this cluster',
+        tags: ['Cluster'],
+        response: JobSchemaResponseSchema,
+    }, () => ({
         version: terasliceVersion,
         job_schema: generateJobJSONSchema(api.context)
     }));
 
-    register(getClusterStatsDef, () => api.executionService.getClusterAnalytics(), {
+    registry.get('/cluster/stats', {
+        operationId: 'getClusterStats',
+        summary: 'Get slice and worker stats across all executions',
+        tags: ['Cluster'],
+        response: ClusterStatsSchema,
+    }, () => api.executionService.getClusterAnalytics(), {
         errorMessage: 'Could not get cluster statistics'
     });
 
-    register(
-        getClusterControllersDef,
-        async () => toControllerStatsResponse(await api.executionService.getControllerStats()),
-        { errorMessage: 'Could not get execution statistics' }
-    );
+    registry.get('/cluster/controllers', {
+        operationId: 'getClusterControllers',
+        summary: 'Get statistics for every running execution controller',
+        tags: ['Cluster'],
+        response: ControllerStatsListSchema,
+    }, async () => toControllerStatsResponse(await api.executionService.getControllerStats()), {
+        errorMessage: 'Could not get execution statistics'
+    });
 
     // Jobs
 
@@ -124,15 +177,23 @@ export function createV2Registry(api: ApiService): RouteRegistry {
         requestHandler(() => api.jobsService.submitJob(req.body, shouldRun));
     });
 
-    v2routes.get('/jobs/:jobId', (req, res) => {
-        const { ex } = req.query;
-        const { jobId } = req.params;
+    registry.get('/jobs/:jobId', {
+        operationId: 'getJob',
+        summary: 'Get a job',
+        tags: ['Jobs'],
+        params: JobIdParams,
+        query: GetJobQuerySchema,
+        response: JobWithExecutionSchema,
+    }, async ({ params: { jobId }, query: { ex } }) => {
+        if (ex === undefined) return fromStorage(await api.jobsStorage.get(jobId));
 
-        const requestHandler = handleTerasliceRequest(req, res, 'Could not retrieve job');
-        requestHandler(() => (typeof ex === 'string'
-            ? api.jobsService.getJobWithExInfo(jobId, ex.split(','))
-            : api.jobsStorage.get(jobId)));
-    });
+        // `?ex=` (no fields) includes the whole execution
+        const fields = parseList(ex);
+        const job = await api.jobsService.getJobWithExInfo(
+            jobId, fields.length ? fields : undefined
+        );
+        return fromStorage(job);
+    }, { errorMessage: 'Could not retrieve job' });
 
     v2routes.put('/jobs/:jobId', (req, res) => {
         const { jobId } = req.params;
@@ -252,9 +313,14 @@ export function createV2Registry(api: ApiService): RouteRegistry {
         });
     });
 
-    v2routes.get('/jobs/:jobId/ex', (req, res) => {
-        const requestHandler = handleTerasliceRequest(req, res, 'Could not retrieve list of execution contexts');
-        requestHandler(() => api.jobsService.getLatestExecution(req.params.jobId));
+    registry.get('/jobs/:jobId/ex', {
+        operationId: 'getJobLatestExecution',
+        summary: 'Get the latest execution of a job',
+        tags: ['Jobs'],
+        params: JobIdParams,
+        response: ExecutionRecordSchema,
+    }, async ({ params }) => fromStorage(await api.jobsService.getLatestExecution(params.jobId)), {
+        errorMessage: 'Could not retrieve the latest execution'
     });
 
     v2routes.get('/jobs/:jobId/errors', (req, res) => {
@@ -265,13 +331,16 @@ export function createV2Registry(api: ApiService): RouteRegistry {
         });
     });
 
-    v2routes.get('/jobs/:jobId/controller', (req, res) => {
-        const requestHandler = handleTerasliceRequest(req, res, 'Could not get controller statistics');
-        requestHandler(async () => {
-            const exId = await getLatestExId(req.params.jobId);
-            return api.executionService.getControllerStats(exId);
-        });
-    });
+    registry.get('/jobs/:jobId/controller', {
+        operationId: 'getJobController',
+        summary: 'Get statistics for the execution controller of a job\'s latest execution',
+        tags: ['Jobs'],
+        params: JobIdParams,
+        response: JobControllerStatsSchema,
+    }, async ({ params }) => {
+        const exId = await getLatestExId(params.jobId);
+        return toControllerStatsResponse(await api.executionService.getControllerStats(exId));
+    }, { errorMessage: 'Could not get controller statistics' });
 
     v2routes.get('/jobs/:jobId/tap', (req, res) => {
         const requestHandler = handleTerasliceRequest(req, res, 'Could not get slice tap');
@@ -314,11 +383,15 @@ export function createV2Registry(api: ApiService): RouteRegistry {
         });
     });
 
-    v2routes.get('/ex/:exId', (req, res) => {
-        const { exId } = req.params;
-        const requestHandler = handleTerasliceRequest(req, res, `Could not retrieve execution context ${exId}`);
-        requestHandler(() => api.executionService.getExecutionContext(exId));
-    });
+    registry.get('/ex/:exId', {
+        operationId: 'getExecution',
+        summary: 'Get an execution',
+        tags: ['Executions'],
+        params: ExIdParams,
+        response: ExecutionRecordSchema,
+    }, async ({ params }) => fromStorage(
+        await api.executionService.getExecutionContext(params.exId)
+    ), { errorMessage: 'Could not retrieve execution' });
 
     v2routes.get('/ex/:exId/errors', (req, res) => {
         const requestHandler = handleTerasliceRequest(req, res, 'Could not get errors for execution');

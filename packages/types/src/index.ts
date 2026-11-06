@@ -20,6 +20,7 @@ export * as Geo from './geo-interfaces.js';
 export * as SQL from './sql-interfaces.js';
 export * as ESLikeClient from './elasticsearch-client/index.js';
 export * as Teraslice from './teraslice.js';
+export * as TerasliceApi from './teraslice-api.js';
 export * as Terafoundation from './terafoundation.js';
 export * as ENV from './env.js';
 export * as OpenSearch from './opensearch-client.js';

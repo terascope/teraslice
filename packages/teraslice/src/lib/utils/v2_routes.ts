@@ -1,9 +1,26 @@
 import { Router } from 'express';
 import { z } from 'zod';
 import { TSError, isEmpty, isPlainObject } from '@terascope/core-utils';
-import type { AnyRouteDef, ParamsSchema, RouteDef } from '@terascope/types';
 import type { TerasliceRequest, TerasliceResponse } from '../../interfaces.js';
 import { handleTerasliceRequest } from './api_utils.js';
+
+/**
+ * HTTP methods supported by /v2 routes. Lowercase so they can be used
+ * directly as express router methods and as OpenAPI path item keys.
+ */
+export type RouteMethod = 'get' | 'post' | 'put' | 'patch' | 'delete';
+
+/** Groups /v2 routes in the OpenAPI spec (`tags` field). */
+export type RouteTag = 'Cluster' | 'Jobs' | 'Executions';
+
+/**
+ * Schema for path params or query params. Must be an object schema so the
+ * OpenAPI generator can emit one `parameters[]` entry per property, and must
+ * be a `z.strictObject` so unknown keys are rejected. The type can't enforce
+ * strictness (zod's `$strict` and `$strip` configs are identical types);
+ * `register` checks it when the route is registered.
+ */
+export type ParamsSchema = z.ZodObject<z.ZodRawShape, z.core.$ZodObjectConfig>;
 
 /** Parsed (output) type of a schema, or `undefined` when the route omits it */
 type Parsed<S> = S extends z.ZodType ? z.output<S> : undefined;
@@ -36,6 +53,73 @@ export interface RegisterOptions {
     errorMessage?: string;
 }
 
+/**
+ * Everything about a /v2 route except its method and path: the spec object
+ * the method helpers take (`registry.get(path, spec, handler)`), so a route
+ * reads like a plain express route. `RouteDef` adds `method` and `path`.
+ */
+export interface RouteSpec<
+    P extends ParamsSchema | undefined = undefined,
+    Q extends ParamsSchema | undefined = undefined,
+    B extends z.ZodType | undefined = undefined,
+    R extends z.ZodType = z.ZodType
+> {
+    /**
+     * Unique id for the route, used as the OpenAPI `operationId` (and by
+     * generated clients as a method name), e.g. `getClusterConnectors`.
+     */
+    operationId: string;
+    /** Short description, used as the OpenAPI operation summary */
+    summary: string;
+    /** Groups the route in the OpenAPI spec */
+    tags?: readonly RouteTag[];
+    params?: P;
+    query?: Q;
+    body?: B;
+    response: R;
+}
+
+/**
+ * A full /v2 route definition: a `RouteSpec` plus its method and path. What
+ * the registry records in `routes` and what the OpenAPI generator reads.
+ *
+ * @template P - path params schema
+ * @template Q - query params schema
+ * @template B - request body schema
+ * @template R - response body schema
+ */
+export interface RouteDef<
+    P extends ParamsSchema | undefined = undefined,
+    Q extends ParamsSchema | undefined = undefined,
+    B extends z.ZodType | undefined = undefined,
+    R extends z.ZodType = z.ZodType
+> extends RouteSpec<P, Q, B, R> {
+    method: RouteMethod;
+    /** Express-style path, relative to /v2, e.g. `/jobs/:jobId` */
+    path: string;
+}
+
+/** Generic route type that all routes will fit into */
+export type AnyRouteDef = RouteDef<
+    ParamsSchema | undefined,
+    ParamsSchema | undefined,
+    z.ZodType | undefined,
+    z.ZodType
+>;
+
+/** Registers a route for one HTTP method; see `RouteRegistry.register` */
+export type MethodRegister = <
+    P extends ParamsSchema | undefined = undefined,
+    Q extends ParamsSchema | undefined = undefined,
+    B extends z.ZodType | undefined = undefined,
+    R extends z.ZodType = z.ZodType
+>(
+    path: string,
+    spec: RouteSpec<P, Q, B, R>,
+    handler: RouteHandler<P, Q, B, R>,
+    options?: RegisterOptions
+) => void;
+
 export interface RouteRegistry {
     /** The express router the routes are mounted on */
     readonly router: Router;
@@ -65,6 +149,16 @@ export interface RouteRegistry {
         handler: RouteHandler<P, Q, B, R>,
         options?: RegisterOptions
     ): void;
+    /**
+     * Register a route with the method and path in the call, e.g.
+     * `registry.get('/jobs/:jobId', { operationId, summary, params, ... }, handler)`.
+     * Same checks and validation as `register`.
+     */
+    get: MethodRegister;
+    post: MethodRegister;
+    put: MethodRegister;
+    patch: MethodRegister;
+    delete: MethodRegister;
 }
 
 /** Checked against the query of a route that declares no query schema */
@@ -214,28 +308,41 @@ function assertUnique(def: AnyRouteDef, routes: readonly AnyRouteDef[]): void {
 export function createRouteRegistry(router: Router = Router()): RouteRegistry {
     const routes: AnyRouteDef[] = [];
 
+    const register: RouteRegistry['register'] = (def, handler, { errorMessage } = {}) => {
+        assertStrictParts(def);
+        assertParamsMatchPath(def);
+        assertUnique(def, routes);
+
+        router[def.method](def.path, (req: TerasliceRequest, res: TerasliceResponse) => {
+            const requestHandler = handleTerasliceRequest(req, res, errorMessage);
+            requestHandler(() => {
+                const input = {
+                    params: parseParams(def.params, req.params),
+                    query: parseQuery(def.query, req.query),
+                    body: parseBody(def.body, req.body),
+                } as Parameters<typeof handler>[0];
+
+                return handler(input, req, res);
+            });
+        });
+
+        routes.push(def);
+    };
+
+    function forMethod(method: RouteMethod): MethodRegister {
+        return (path, spec, handler, options) => register(
+            { ...spec, method, path }, handler, options
+        );
+    }
+
     return {
         router,
         routes,
-        register(def, handler, { errorMessage } = {}) {
-            assertStrictParts(def);
-            assertParamsMatchPath(def);
-            assertUnique(def, routes);
-
-            router[def.method](def.path, (req: TerasliceRequest, res: TerasliceResponse) => {
-                const requestHandler = handleTerasliceRequest(req, res, errorMessage);
-                requestHandler(() => {
-                    const input = {
-                        params: parseParams(def.params, req.params),
-                        query: parseQuery(def.query, req.query),
-                        body: parseBody(def.body, req.body),
-                    } as Parameters<typeof handler>[0];
-
-                    return handler(input, req, res);
-                });
-            });
-
-            routes.push(def);
-        },
+        register,
+        get: forMethod('get'),
+        post: forMethod('post'),
+        put: forMethod('put'),
+        patch: forMethod('patch'),
+        delete: forMethod('delete'),
     };
 }

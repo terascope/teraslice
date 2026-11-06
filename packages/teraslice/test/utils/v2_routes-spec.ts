@@ -5,11 +5,24 @@ import bodyParser from 'body-parser';
 import got from 'got';
 import { z } from 'zod';
 import { debugLogger, TSError } from '@terascope/core-utils';
-import {
-    defineRoute, RouteBody, RouteParams, RouteQuery, RouteResponse
-} from '@terascope/types';
 import { findPort } from '../../src/lib/utils/port_utils.js';
-import { createRouteRegistry } from '../../src/lib/utils/v2_routes.js';
+import {
+    createRouteRegistry, type ParamsSchema, type RouteDef
+} from '../../src/lib/utils/v2_routes.js';
+
+/**
+ * Builds a full def for `register`, keeping the exact schema types. Routes
+ * in teraslice use the method helpers instead, which capture them from the
+ * call.
+ */
+function defineRoute<
+    P extends ParamsSchema | undefined = undefined,
+    Q extends ParamsSchema | undefined = undefined,
+    B extends z.ZodType | undefined = undefined,
+    R extends z.ZodType = z.ZodType
+>(def: RouteDef<P, Q, B, R>): RouteDef<P, Q, B, R> {
+    return def;
+}
 
 describe('v2 route registry', () => {
     const logger = debugLogger('v2-routes-spec');
@@ -299,6 +312,48 @@ describe('v2 route registry', () => {
         });
     });
 
+    describe('registering a route with a method helper', () => {
+        const spec = {
+            operationId: 'getWidget',
+            summary: 'Get a widget',
+            params: z.strictObject({ id: z.string() }),
+            query: z.strictObject({ size: z.coerce.number<number>().default(1) }),
+            response: z.object({ id: z.string(), size: z.number() }),
+        };
+
+        it('should record the def with the method and path from the call', () => {
+            const helper = createRouteRegistry();
+            helper.get('/widgets/:id', spec, ({ params, query }) => ({
+                id: params.id, size: query.size
+            }));
+
+            expect(helper.routes).toEqual([{ ...spec, method: 'get', path: '/widgets/:id' }]);
+        });
+
+        it('should run the same registration checks as register', () => {
+            const helper = createRouteRegistry();
+
+            expect(() => helper.delete('/widgets', spec, () => ({ id: 'a', size: 1 }))).toThrow(
+                'v2 route DELETE /widgets: params schema must match path params (not in path: id)'
+            );
+        });
+
+        it('should type the handler from the spec', () => {
+            expect(() => {
+                const helper = createRouteRegistry();
+                helper.get('/widgets/:id', spec, ({ params, query, body }) => {
+                    const id: string = params.id;
+                    const size: number = query.size;
+                    const noBody: undefined = body;
+                    return noBody ?? { id, size };
+                });
+
+                // @ts-expect-error size must be a number
+                createRouteRegistry().put('/widgets/:id', spec, () => ({ id: 'a', size: 'big' }));
+            }).not.toThrow();
+        });
+    });
+
     describe('handling a request', () => {
         it('should pass parsed params and query to the handler with defaults applied', async () => {
             const { status, body } = await request('/things/abc');
@@ -524,22 +579,28 @@ describe('v2 route registry', () => {
         });
 
         it('should type client requests from the schema inputs', () => {
-            const params: RouteParams<typeof getThing> = { id: 'abc' };
+            // Clients type requests as z.input and responses as z.output of the
+            // shared schemas (e.g. `GetJobQuery` in @terascope/types)
+            type Params = z.input<NonNullable<typeof getThing.params>>;
+            type Query = z.input<NonNullable<typeof getThing.query>>;
+            type Body = z.input<NonNullable<typeof createThing.body>>;
+            type Response = z.output<typeof createThing.response>;
+
+            const params: Params = { id: 'abc' };
             // defaulted fields are optional for clients; coerced fields keep their type
-            const query: RouteQuery<typeof getThing> = { size: 5, verbose: 'true' };
-            const emptyQuery: RouteQuery<typeof getThing> = {};
-            const body: RouteBody<typeof createThing> = { name: 'thing' };
-            const noBody: RouteBody<typeof getThing> = undefined;
-            const response: RouteResponse<typeof createThing> = { name: 'thing', count: 1 };
+            const query: Query = { size: 5, verbose: 'true' };
+            const emptyQuery: Query = {};
+            const body: Body = { name: 'thing' };
+            const response: Response = { name: 'thing', count: 1 };
 
             // @ts-expect-error size is a number, not unknown
-            const badQuery: RouteQuery<typeof getThing> = { size: 'five' };
+            const badQuery: Query = { size: 'five' };
             // @ts-expect-error count is not optional in the response
-            const badResponse: RouteResponse<typeof createThing> = { name: 'thing' };
+            const badResponse: Response = { name: 'thing' };
 
             expect([
-                params, query, emptyQuery, body, noBody, response, badQuery, badResponse
-            ]).toHaveLength(8);
+                params, query, emptyQuery, body, response, badQuery, badResponse
+            ]).toHaveLength(7);
         });
     });
 });
