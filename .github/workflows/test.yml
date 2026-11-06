@@ -5,6 +5,8 @@ on:
     branches:
       - master
       - "release/teraslice-v*"
+      # TODO: this needs to be removed before we merge the branch below to master
+      - v2-api
 
 permissions: {}
 
