@@ -717,19 +717,19 @@ export class TerasliceHarness {
     async addWorkers(exId: string, workersToAdd: number): Promise<number> {
         const currentWorkers = (await this.teraslice.executions.wrap(exId).workers()).length;
         const workerCount = currentWorkers + workersToAdd;
-        await this.teraslice.jobs.post(`ex/${exId}/_workers?add=${workersToAdd}`);
+        await this.teraslice.executions.wrap(exId).changeWorkers('add', workersToAdd);
         return this.waitForWorkerCount(exId, workerCount);
     }
 
     async removeWorkers(exId: string, workersToRemove: number): Promise<number> {
         const currentWorkers = (await this.teraslice.executions.wrap(exId).workers()).length;
         const workerCount = currentWorkers - workersToRemove;
-        await this.teraslice.jobs.post(`ex/${exId}/_workers?remove=${workersToRemove}`);
+        await this.teraslice.executions.wrap(exId).changeWorkers('remove', workersToRemove);
         return this.waitForWorkerCount(exId, workerCount);
     }
 
     async setWorkers(exId: string, workerTotal: number): Promise<number> {
-        await this.teraslice.jobs.post(`ex/${exId}/_workers?total=${workerTotal}`);
+        await this.teraslice.executions.wrap(exId).changeWorkers('total', workerTotal);
         return this.waitForWorkerCount(exId, workerTotal);
     }
 }
