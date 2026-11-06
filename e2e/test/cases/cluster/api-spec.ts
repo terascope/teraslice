@@ -105,7 +105,7 @@ describe('cluster api', () => {
     });
 
     it('api end point /assets should return an array of json objects of asset metadata', async () => {
-        const response = await terasliceHarness.teraslice.cluster.get('/assets');
+        const response = await terasliceHarness.teraslice.assets.list();
 
         expect(response).toBeArray();
         expect(response[0]).toHaveProperty('_created');
@@ -115,7 +115,7 @@ describe('cluster api', () => {
     });
 
     it('api end point /assets/assetName should return an array of json objects of asset metadata', async () => {
-        const response = await terasliceHarness.teraslice.cluster.get('/assets/ex1');
+        const response = await terasliceHarness.teraslice.assets.getAsset('ex1');
 
         expect(response).toBeArray();
         expect(response[0]).toHaveProperty('_created');
@@ -125,7 +125,7 @@ describe('cluster api', () => {
     });
 
     it('api end point /assets/assetName/version should return an array of json objects of asset metadata', async () => {
-        const response = await terasliceHarness.teraslice.cluster.get('/assets/ex1/0.0.1');
+        const response = await terasliceHarness.teraslice.assets.getAsset('ex1', '0.0.1');
 
         expect(response).toBeArray();
         expect(response[0]).toHaveProperty('_created');
