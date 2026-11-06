@@ -152,6 +152,10 @@ const E2EEnvSchema: Terafoundation.Schema<any> = {
         default: undefined,
         format: String
     },
+    TEST_API_VERSION: {
+        default: 'v1',
+        format: ['v1', 'v2']
+    },
     USE_DEV_ASSETS: {
         default: null,
         format: 'optional_bool'

@@ -26,7 +26,7 @@ const {
     NATIVE_DEFAULT_NODES, newId, DEFAULT_WORKERS, GENERATE_ONLY,
     EXAMPLE_INDEX_SIZES, EXAMPLE_INDEX_PREFIX, TEST_PLATFORM, TERASLICE_PORT,
     LOG_PATH, ENCRYPT_OPENSEARCH, OPENSEARCH_USER, OPENSEARCH_PASSWORD, ROOT_CERT_PATH,
-    FILE_LOGGING, OS_CONNECTION
+    FILE_LOGGING, OS_CONNECTION, TEST_API_VERSION
 } = config;
 
 const JobDict = Object.freeze({
@@ -79,6 +79,7 @@ export class TerasliceHarness {
         this.client = client;
         this.teraslice = new TerasliceClient({
             host: `http://${HOST_IP}:${TERASLICE_PORT}`,
+            apiVersion: `/${TEST_API_VERSION}`,
             timeout: 2 * 60 * 1000
         });
     }
