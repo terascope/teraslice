@@ -40,6 +40,7 @@ export default class Job extends Client {
     }
 
     async slicer(requestOptions: RequestOptions = {}): Promise<Teraslice.ExecutionList> {
+        if (this.isV2) return this.controller(requestOptions);
         return this.get(`/jobs/${this._jobId}/slicer`, requestOptions);
     }
 
@@ -83,7 +84,8 @@ export default class Job extends Client {
         query: Teraslice.RecoverQuery = {},
         searchOptions: RequestOptions = {}
     ): Promise<Teraslice.ApiJobCreateResponse> {
-        const options = this.makeOptions(query, searchOptions);
+        const params = this.isV2 ? { cleanup_type: query.cleanup } : query;
+        const options = this.makeOptions(params, searchOptions);
         return this.post(`/jobs/${this._jobId}/_recover`, null, options);
     }
 

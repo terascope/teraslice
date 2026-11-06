@@ -30,6 +30,7 @@ export default class Cluster extends Client {
     }
 
     async slicers(): Promise<Teraslice.ExecutionList> {
+        if (this.isV2) return this.controllers();
         return this.get('/cluster/slicers');
     }
 

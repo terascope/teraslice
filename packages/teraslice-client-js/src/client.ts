@@ -39,6 +39,10 @@ export default class Client {
         });
     }
 
+    protected get isV2(): boolean {
+        return isV2(this._apiVersion);
+    }
+
     async get<T = any>(endpoint: string, options?: RequestOptions): Promise<T> {
         return this._makeRequest<T>('get', endpoint, options);
     }
@@ -112,6 +116,10 @@ export default class Client {
     ): RequestOptions {
         return { ...options, searchParams };
     }
+}
+
+export function isV2(apiVersion?: string): boolean {
+    return trimStart(apiVersion ?? '', '/') === 'v2';
 }
 
 function getAPIEndpoint(uri: string, apiVersion: string) {

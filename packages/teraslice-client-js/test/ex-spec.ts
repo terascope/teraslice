@@ -662,6 +662,134 @@ describe('Teraslice Ex', () => {
         });
     });
 
+    describe('when using apiVersion /v2', () => {
+        let v2Scope: nock.Scope;
+        const config = { baseUrl, apiVersion: '/v2' };
+
+        beforeEach(() => {
+            v2Scope = nock('http://teraslice.example.dev/v2');
+            v2Scope.get('/ex/some-ex-id')
+                .reply(200, { ex_id: 'some-ex-id', job_id: 'some-job-id' });
+        });
+
+        describe('when the execution is the current execution of the job', () => {
+            beforeEach(() => {
+                v2Scope.get('/jobs/some-job-id/ex')
+                    .reply(200, { ex_id: 'some-ex-id', job_id: 'some-job-id' });
+            });
+
+            it('should stop through the job', async () => {
+                v2Scope.post('/jobs/some-job-id/_stop')
+                    .query({ blocking: true })
+                    .reply(200, { status: 'stopped' });
+
+                const ex = new Ex(config, 'some-ex-id');
+                const results = await ex.stop({ blocking: true });
+                expect(results).toEqual({ status: 'stopped' });
+            });
+
+            it('should pause through the job', async () => {
+                v2Scope.post('/jobs/some-job-id/_pause')
+                    .reply(200, { status: 'paused' });
+
+                const ex = new Ex(config, 'some-ex-id');
+                const results = await ex.pause();
+                expect(results).toEqual({ status: 'paused' });
+            });
+
+            it('should resume through the job', async () => {
+                v2Scope.post('/jobs/some-job-id/_resume')
+                    .reply(200, { status: 'running' });
+
+                const ex = new Ex(config, 'some-ex-id');
+                const results = await ex.resume();
+                expect(results).toEqual({ status: 'running' });
+            });
+
+            it('should change workers through the job', async () => {
+                v2Scope.post('/jobs/some-job-id/_workers')
+                    .query({ add: 2 })
+                    .reply(200, { message: '2 workers have been add for execution: some-ex-id' });
+
+                const ex = new Ex(config, 'some-ex-id');
+                const results = await ex.changeWorkers('add', 2);
+                expect(results).toEqual({ message: '2 workers have been add for execution: some-ex-id' });
+            });
+
+            it('should get the controller through the job', async () => {
+                v2Scope.get('/jobs/some-job-id/controller')
+                    .reply(200, [{ ex_id: 'some-ex-id' }]);
+
+                const ex = new Ex(config, 'some-ex-id');
+                const results = await ex.controller();
+                expect(results).toEqual([{ ex_id: 'some-ex-id' }]);
+            });
+
+            it('should use the controller route for slicer', async () => {
+                v2Scope.get('/jobs/some-job-id/controller')
+                    .reply(200, [{ ex_id: 'some-ex-id' }]);
+
+                const ex = new Ex(config, 'some-ex-id');
+                const results = await ex.slicer();
+                expect(results).toEqual([{ ex_id: 'some-ex-id' }]);
+            });
+
+            it('should tap through the job', async () => {
+                v2Scope.get('/jobs/some-job-id/tap')
+                    .query({ size: 5 })
+                    .reply(200, { records: [] });
+
+                const ex = new Ex(config, 'some-ex-id');
+                const results = await ex.tap({ size: '5' });
+                expect(results).toEqual({ records: [] });
+            });
+        });
+
+        describe('when the execution is not the current execution of the job', () => {
+            beforeEach(() => {
+                v2Scope.get('/jobs/some-job-id/ex')
+                    .reply(200, { ex_id: 'newer-ex-id', job_id: 'some-job-id' });
+            });
+
+            it('should reject with an error', async () => {
+                const ex = new Ex(config, 'some-ex-id');
+                await expect(ex.pause()).rejects.toThrow(
+                    '/v2 only supports actions on the current execution of a job, some-ex-id is not the current execution of job some-job-id'
+                );
+            });
+        });
+
+        describe('->recover', () => {
+            it('should recover through the job with the ex_id and cleanup_type', async () => {
+                v2Scope.post('/jobs/some-job-id/_recover')
+                    .query({
+                        cleanup_type: Teraslice.RecoveryCleanupType.errors,
+                        ex_id: 'some-ex-id'
+                    })
+                    .reply(200, { job_id: 'some-job-id', ex_id: 'new-ex-id' });
+
+                const ex = new Ex(config, 'some-ex-id');
+                const instance = await ex.recover({
+                    cleanup: Teraslice.RecoveryCleanupType.errors
+                });
+
+                expect(instance).toBeInstanceOf(Ex);
+                expect(instance.id()).toEqual('new-ex-id');
+            });
+
+            it('should not require the execution to be the current one', async () => {
+                v2Scope.post('/jobs/some-job-id/_recover')
+                    .query({ ex_id: 'some-ex-id' })
+                    .reply(200, { job_id: 'some-job-id', ex_id: 'new-ex-id' });
+
+                const ex = new Ex(config, 'some-ex-id');
+                const instance = await ex.recover();
+
+                expect(instance.id()).toEqual('new-ex-id');
+            });
+        });
+    });
+
     // nock >= 15 patches the shared http module, so undo it before the next test file in the worker
     afterAll(() => {
         nock.restore();

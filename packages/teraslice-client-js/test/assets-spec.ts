@@ -374,6 +374,20 @@ describe('Teraslice Assets', () => {
         });
     });
 
+    describe('when using apiVersion /v2', () => {
+        it('should still use the /v1 asset endpoints', async () => {
+            scope.get('/assets')
+                .reply(200, [assetVersion1]);
+
+            const v2Assets = new Assets({
+                baseUrl: 'http://teraslice.example.dev',
+                apiVersion: '/v2'
+            });
+            const results = await v2Assets.list();
+            expect(results).toEqual([assetVersion1]);
+        });
+    });
+
     // nock >= 15 patches the shared http module, so undo it before the next test file in the worker
     afterAll(() => {
         nock.restore();
