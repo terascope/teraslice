@@ -76,7 +76,7 @@ describe('cluster api', () => {
         jobSpec.apis[0].index = terasliceHarness.getExampleIndex(100);
         jobSpec.apis[1].index = specIndex;
 
-        async function didError(p: Promise<void>) {
+        async function didError(p: Promise<unknown>) {
             try {
                 await p;
                 return false;
@@ -97,15 +97,15 @@ describe('cluster api', () => {
         const result = await Promise.all([
             didError(terasliceHarness.teraslice.cluster.post(`/jobs/${jobId}/_resume`)),
             didError(terasliceHarness.teraslice.cluster.post(`/jobs/${jobId}/_pause`)),
-            didError(terasliceHarness.teraslice.cluster.post(`/ex/${exId}/_resume`)),
-            didError(terasliceHarness.teraslice.cluster.post(`/ex/${exId}/_pause`))
+            didError(ex.resume()),
+            didError(ex.pause())
         ]);
 
         expect(result).toEqual([true, true, true, true]);
     });
 
     it('api end point /assets should return an array of json objects of asset metadata', async () => {
-        const response = await terasliceHarness.teraslice.cluster.get('/assets');
+        const response = await terasliceHarness.teraslice.assets.list();
 
         expect(response).toBeArray();
         expect(response[0]).toHaveProperty('_created');
@@ -115,7 +115,7 @@ describe('cluster api', () => {
     });
 
     it('api end point /assets/assetName should return an array of json objects of asset metadata', async () => {
-        const response = await terasliceHarness.teraslice.cluster.get('/assets/ex1');
+        const response = await terasliceHarness.teraslice.assets.getAsset('ex1');
 
         expect(response).toBeArray();
         expect(response[0]).toHaveProperty('_created');
@@ -125,7 +125,7 @@ describe('cluster api', () => {
     });
 
     it('api end point /assets/assetName/version should return an array of json objects of asset metadata', async () => {
-        const response = await terasliceHarness.teraslice.cluster.get('/assets/ex1/0.0.1');
+        const response = await terasliceHarness.teraslice.assets.getAsset('ex1', '0.0.1');
 
         expect(response).toBeArray();
         expect(response[0]).toHaveProperty('_created');

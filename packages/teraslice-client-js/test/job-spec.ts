@@ -981,6 +981,36 @@ describe('Teraslice Job', () => {
         });
     });
 
+    describe('when using apiVersion /v2', () => {
+        let v2Scope: nock.Scope;
+        const config = { baseUrl, apiVersion: '/v2' };
+
+        beforeEach(() => {
+            v2Scope = nock('http://teraslice.example.dev/v2');
+        });
+
+        it('should send cleanup as cleanup_type on recover', async () => {
+            v2Scope.post('/jobs/some-job-id/_recover')
+                .query({ cleanup_type: Teraslice.RecoveryCleanupType.all })
+                .reply(200, { job_id: 'some-job-id', ex_id: 'new-ex-id' });
+
+            const job = new Job(config, 'some-job-id');
+            const results = await job.recover({
+                cleanup: Teraslice.RecoveryCleanupType.all
+            });
+            expect(results).toEqual({ job_id: 'some-job-id', ex_id: 'new-ex-id' });
+        });
+
+        it('should use the controller route for slicer', async () => {
+            v2Scope.get('/jobs/some-job-id/controller')
+                .reply(200, [{ ex_id: 'some-ex-id' }]);
+
+            const job = new Job(config, 'some-job-id');
+            const results = await job.slicer();
+            expect(results).toEqual([{ ex_id: 'some-ex-id' }]);
+        });
+    });
+
     // nock >= 15 patches the shared http module, so undo it before the next test file in the worker
     afterAll(() => {
         nock.restore();

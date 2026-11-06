@@ -18,6 +18,8 @@ export default class Client {
         configUrl.pathname = '';
         configUrl.hash = '';
         const prefixUrl = configUrl.toString();
+        // TODO: Teraslice v4 deletes /v1, default to /v2 and remove the v1/v2 branching
+        // https://github.com/terascope/teraslice/issues/4584#issuecomment-6636093239
         const { apiVersion = '/v1' } = config;
 
         this._config = config;
@@ -37,6 +39,10 @@ export default class Client {
             },
             responseType: 'json'
         });
+    }
+
+    protected get isV2(): boolean {
+        return isV2(this._apiVersion);
     }
 
     async get<T = any>(endpoint: string, options?: RequestOptions): Promise<T> {
@@ -112,6 +118,10 @@ export default class Client {
     ): RequestOptions {
         return { ...options, searchParams };
     }
+}
+
+export function isV2(apiVersion?: string): boolean {
+    return trimStart(apiVersion ?? '', '/') === 'v2';
 }
 
 function getAPIEndpoint(uri: string, apiVersion: string) {

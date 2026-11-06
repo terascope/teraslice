@@ -233,6 +233,21 @@ describe('Teraslice Cluster', () => {
         });
     });
 
+    describe('when using apiVersion /v2', () => {
+        it('should use the controllers route for slicers', async () => {
+            nock('http://teraslice.example.dev/v2')
+                .get('/cluster/controllers')
+                .reply(200, [{ ex_id: 'some-ex-id' }]);
+
+            const v2Cluster = new Cluster({
+                baseUrl: 'http://teraslice.example.dev',
+                apiVersion: '/v2'
+            });
+            const results = await v2Cluster.slicers();
+            expect(results).toEqual([{ ex_id: 'some-ex-id' }]);
+        });
+    });
+
     // nock >= 15 patches the shared http module, so undo it before the next test file in the worker
     afterAll(() => {
         nock.restore();
