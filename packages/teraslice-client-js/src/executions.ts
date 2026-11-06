@@ -54,6 +54,12 @@ export default class Executions extends Client {
             return this.get(`/ex/${exId}/errors`, options as RequestOptions);
         }
 
+        if (this.isV2) {
+            throw new TSError('/v2 requires an exId to get execution errors', {
+                statusCode: 400
+            });
+        }
+
         if (isPlainObject(exId)) {
             options.searchParams = exId;
         }

@@ -2,12 +2,13 @@ import { TSError, isEmpty, isString } from '@terascope/core-utils';
 import { Teraslice } from '@terascope/types';
 import path from 'node:path';
 import autoBind from 'auto-bind';
-import Client from './client.js';
+import Client, { isV2 } from './client.js';
 import { PostData, RequestOptions, ClientConfig } from './interfaces.js';
 
 export default class Assets extends Client {
     constructor(config: ClientConfig) {
-        super(config);
+        // the asset endpoints are not part of /v2
+        super(isV2(config.apiVersion) ? { ...config, apiVersion: '/v1' } : config);
         autoBind(this);
     }
 
