@@ -40,6 +40,8 @@ export default class Job extends Client {
     }
 
     async slicer(requestOptions: RequestOptions = {}): Promise<Teraslice.ExecutionList> {
+        // TODO: Teraslice v4 deletes /v1, remove slicer() in favor of controller()
+        // https://github.com/terascope/teraslice/issues/4584#issuecomment-6636093239
         if (this.isV2) return this.controller(requestOptions);
         return this.get(`/jobs/${this._jobId}/slicer`, requestOptions);
     }
@@ -84,6 +86,8 @@ export default class Job extends Client {
         query: Teraslice.RecoverQuery = {},
         searchOptions: RequestOptions = {}
     ): Promise<Teraslice.ApiJobCreateResponse> {
+        // TODO: Teraslice v4 deletes /v1, send cleanup_type only
+        // https://github.com/terascope/teraslice/issues/4584#issuecomment-6636093239
         const params = this.isV2 ? { cleanup_type: query.cleanup } : query;
         const options = this.makeOptions(params, searchOptions);
         return this.post(`/jobs/${this._jobId}/_recover`, null, options);
