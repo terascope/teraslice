@@ -581,6 +581,8 @@ describe('HTTP API v2', () => {
             expect(response.statusCode).toEqual(405);
         });
 
+        // TODO: Teraslice v4 deletes /v1, remove this test
+        // https://github.com/terascope/teraslice/issues/4584#issuecomment-6636093239
         it('should still serve the removed routes on /v1', async () => {
             const pause = await request('POST', '/v1/ex/ex-1/_pause');
             const slicers = await request('GET', '/v1/cluster/slicers');

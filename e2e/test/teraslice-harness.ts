@@ -79,6 +79,10 @@ export class TerasliceHarness {
         this.client = client;
         this.teraslice = new TerasliceClient({
             host: `http://${HOST_IP}:${TERASLICE_PORT}`,
+            // Picks /v1 or /v2. Client methods send each call to the right route for that
+            // version, so use them instead of writing api paths by hand.
+            // TODO: Teraslice v4 deletes /v1, remove this line so the client uses /v2
+            // https://github.com/terascope/teraslice/issues/4584#issuecomment-6636093239
             apiVersion: `/${TEST_API_VERSION}`,
             timeout: 2 * 60 * 1000
         });
@@ -714,6 +718,7 @@ export class TerasliceHarness {
         return baseAssetIds;
     }
 
+    // changeWorkers() calls /ex/:exId/_workers on v1 and /jobs/:jobId/_workers on v2
     async addWorkers(exId: string, workersToAdd: number): Promise<number> {
         const currentWorkers = (await this.teraslice.executions.wrap(exId).workers()).length;
         const workerCount = currentWorkers + workersToAdd;
