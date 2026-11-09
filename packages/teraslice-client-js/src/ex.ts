@@ -27,7 +27,7 @@ export default class Ex extends Client {
      * /v2 only allows actions on a job's current execution,
      * so the action goes through the job instead of the execution
      */
-    // TODO: Teraslice v4 deletes /v1, drop the /ex paths here and in recover() and slicer()
+    // TODO: Teraslice v4 deletes /v1, remove the /ex return
     // https://github.com/terascope/teraslice/issues/4584#issuecomment-6636093239
     private async _actionPath(): Promise<string> {
         if (!this.isV2) return `/ex/${this._exId}`;
@@ -73,6 +73,8 @@ export default class Ex extends Client {
     ): Promise<Ex> {
         let result: Teraslice.ApiJobCreateResponse;
 
+        // TODO: Teraslice v4 deletes /v1, keep only the v2 branch
+        // https://github.com/terascope/teraslice/issues/4584#issuecomment-6636093239
         if (this.isV2) {
             const { job_id: jobId } = await this.config();
             const options = this.makeOptions({
@@ -100,6 +102,8 @@ export default class Ex extends Client {
     }
 
     async slicer(requestOptions: RequestOptions = {}): Promise<Teraslice.ExecutionList> {
+        // TODO: Teraslice v4 deletes /v1, remove slicer() and use controller()
+        // https://github.com/terascope/teraslice/issues/4584#issuecomment-6636093239
         if (this.isV2) return this.controller(requestOptions);
         return this.get(`/ex/${this._exId}/slicer`, requestOptions);
     }
