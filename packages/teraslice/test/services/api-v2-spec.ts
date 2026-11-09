@@ -17,14 +17,76 @@ import { getPackageJSON } from '../../src/lib/utils/file_utils.js';
 
 const dirname = nodePath.dirname(fileURLToPath(import.meta.url));
 
+const notDeleted = '(_deleted:false OR (* AND -_deleted:*))';
+
+const jobConfig = {
+    name: 'test-job',
+    active: true,
+    analytics: true,
+    assets: null,
+    autorecover: false,
+    lifecycle: 'persistent',
+    max_retries: 3,
+    operations: [
+        { _op: 'test-reader', size: 10 },
+        { _op: 'noop' },
+    ],
+    apis: [],
+    probation_window: 300000,
+    env_vars: {},
+    log_level: null,
+    slicers: 1,
+    workers: 2,
+    stateful: false,
+    job_id: 'job-1',
+    _created: '2026-11-05T00:00:00.000Z',
+    _updated: '2026-11-05T00:00:00.000Z',
+};
+const job = { ...jobConfig, _context: 'job' };
+const execution = {
+    ...jobConfig,
+    _context: 'ex',
+    ex_id: 'ex-1',
+    _status: 'running',
+    _has_errors: false,
+    _slicer_stats: {},
+    metadata: {},
+    slicer_port: 45680,
+    slicer_hostname: 'localhost',
+    teraslice_version: '3.0.0',
+};
+const sliceErrors = [{
+    slice_id: 'slice-1',
+    slicer_id: 0,
+    slicer_order: 3,
+    request: '{"count":10}',
+    state: 'error',
+    ex_id: 'ex-1',
+    _created: '2026-11-05T00:00:00.000Z',
+    _updated: '2026-11-05T00:00:01.000Z',
+    error: 'Error: boom\n    at ...',
+}];
+const tapResult = {
+    workerId: 'worker-1',
+    sliceId: 'slice-1',
+    records: [{ id: 1 }, { id: 2 }],
+};
+const newExecution = { job_id: 'job-1', ex_id: 'ex-2' };
+const warning = {
+    type: 'JobValidation',
+    reason: {
+        type: 'jobProperty',
+        kind: 'deprecation',
+        reason: { field: 'cpu', description: 'use resources_requests_cpu' },
+    },
+};
+
 describe('HTTP API v2', () => {
     const { version } = getPackageJSON();
 
     const app = express();
     const assetsUrl = 'http://example.asset:1234';
     const context = new TestContext('http-api-v2') as any;
-
-    const notDeleted = '(_deleted:false OR (* AND -_deleted:*))';
 
     context.stores = {
         stateStorage: {},
@@ -138,17 +200,6 @@ describe('HTTP API v2', () => {
             expect(response.body).toEqual({ node1: { active: [] } });
         });
 
-        it('should return the connectors', async () => {
-            const response = await request('GET', '/v2/cluster/connectors', {
-                searchParams: { type: 'kafka' }
-            });
-
-            expect(response.statusCode).toEqual(200);
-            expect(response.body).toEqual({
-                connectors: [{ type: 'kafka', name: 'kafka-dev' }]
-            });
-        });
-
         it('should return the stats without the slicer alias', async () => {
             const response = await request('GET', '/v2/cluster/stats');
 
@@ -171,598 +222,6 @@ describe('HTTP API v2', () => {
 
             expect(response.statusCode).toEqual(503);
             expect(response.body.message).toContain('boom');
-        });
-    });
-
-    describe('GET /v2/cluster/job-schema', () => {
-        it('should return the version and a job JSON Schema', async () => {
-            const response = await request('GET', '/v2/cluster/job-schema');
-
-            expect(response.statusCode).toEqual(200);
-            expect(response.body.version).toEqual(version);
-            expect(response.body.job_schema).toMatchObject({
-                $schema: 'http://json-schema.org/draft-07/schema#',
-                $id: expect.any(String),
-                title: 'Teraslice Job',
-                description: expect.any(String),
-                type: 'object',
-                additionalProperties: false,
-                definitions: {
-                    operation: expect.any(Object),
-                    api: expect.any(Object),
-                },
-            });
-            expect(response.body.job_schema.required).toIncludeAllMembers(['name', 'operations']);
-            expect(response.body.job_schema.properties).toContainKeys(['name', 'operations', 'apis']);
-        });
-
-        it('should match the response schema', async () => {
-            const response = await request('GET', '/v2/cluster/job-schema');
-
-            // responses aren't parsed at runtime, so check the envelope here
-            const result = TerasliceApiV2.JobSchemaResponseSchema.safeParse(response.body);
-            expect(result.error).toBeUndefined();
-        });
-    });
-
-    describe('job and execution reads', () => {
-        const jobConfig = {
-            name: 'test-job',
-            active: true,
-            analytics: true,
-            assets: null,
-            autorecover: false,
-            lifecycle: 'persistent',
-            max_retries: 3,
-            operations: [
-                { _op: 'test-reader', size: 10 },
-                { _op: 'noop' },
-            ],
-            apis: [],
-            probation_window: 300000,
-            env_vars: {},
-            log_level: null,
-            slicers: 1,
-            workers: 2,
-            stateful: false,
-            job_id: 'job-1',
-            _created: '2026-11-05T00:00:00.000Z',
-            _updated: '2026-11-05T00:00:00.000Z',
-        };
-        const job = { ...jobConfig, _context: 'job' };
-        const execution = {
-            ...jobConfig,
-            _context: 'ex',
-            ex_id: 'ex-1',
-            _status: 'running',
-            _has_errors: false,
-            _slicer_stats: {},
-            metadata: {},
-            slicer_port: 45680,
-            slicer_hostname: 'localhost',
-            teraslice_version: '3.0.0',
-        };
-
-        it('should have fixtures that match the response schemas', () => {
-            // the routes below return these as-is, so check they're realistic
-            expect(TerasliceApiV2.JobWithExecutionSchema.safeParse(job).error).toBeUndefined();
-            expect(TerasliceApiV2.ExecutionRecordSchema.safeParse(execution).error).toBeUndefined();
-        });
-
-        it('should accept a job stored as submitted, without defaults and with extra keys', () => {
-            // submitJob stores the raw spec, so only what the client sent is there
-            const submitted = {
-                name: 'minimal-job',
-                operations: [{ _op: 'test-reader' }, { _op: 'noop' }],
-                __metadata: { cli: { cluster: 'local' } },
-                job_id: 'job-2',
-                _context: 'job',
-                _created: '2026-11-05T00:00:00.000Z',
-                _updated: '2026-11-05T00:00:00.000Z',
-            };
-
-            const result = TerasliceApiV2.JobWithExecutionSchema.safeParse(submitted);
-            expect(result.error).toBeUndefined();
-            expect(result.data).toHaveProperty('__metadata');
-        });
-
-        describe('GET /v2/jobs/:jobId', () => {
-            it('should add the latest execution with only the fields in ?ex', async () => {
-                const getJobWithExInfo = jest.fn(async () => ({
-                    ...job, ex: { ex_id: 'ex-1', _status: 'running' }
-                }));
-                context.services.jobsService.getJobWithExInfo = getJobWithExInfo;
-
-                const response = await request('GET', '/v2/jobs/job-1', {
-                    searchParams: { ex: 'ex_id, _status' }
-                });
-
-                expect(response.statusCode).toEqual(200);
-                expect(response.body.ex).toEqual({ ex_id: 'ex-1', _status: 'running' });
-                expect(getJobWithExInfo).toHaveBeenCalledWith('job-1', ['ex_id', '_status']);
-            });
-
-            it('should add every execution field for an empty ?ex', async () => {
-                const getJobWithExInfo = jest.fn(async () => ({ ...job, ex: execution }));
-                context.services.jobsService.getJobWithExInfo = getJobWithExInfo;
-
-                const response = await request('GET', '/v2/jobs/job-1', {
-                    searchParams: { ex: '' }
-                });
-
-                expect(response.statusCode).toEqual(200);
-                expect(response.body.ex).toEqual(execution);
-                expect(getJobWithExInfo).toHaveBeenCalledWith('job-1', undefined);
-            });
-
-            it('should respond with a 400 for an unknown query param', async () => {
-                const response = await request('GET', '/v2/jobs/job-1', {
-                    searchParams: { exe: '_status' }
-                });
-
-                expect(response.statusCode).toEqual(400);
-                expect(response.body.message).toContain('Unrecognized key: "exe"');
-            });
-
-            it('should keep the status of a storage error', async () => {
-                context.stores.jobsStorage.get = async () => {
-                    throw new TSError('Not Found', { statusCode: 404 });
-                };
-
-                const response = await request('GET', '/v2/jobs/missing');
-
-                expect(response.statusCode).toEqual(404);
-            });
-        });
-
-        it('GET /v2/jobs/:jobId/ex should respond with a 404 when the job has no execution', async () => {
-            context.services.jobsService.getLatestExecution = async () => {
-                throw new TSError('No execution was found for job job-1', { statusCode: 404 });
-            };
-
-            const response = await request('GET', '/v2/jobs/job-1/ex');
-
-            expect(response.statusCode).toEqual(404);
-            expect(response.body.message).toContain('No execution was found');
-        });
-
-        it('GET /v2/jobs/:jobId/controller should respond with a 404 when the job has no execution', async () => {
-            context.services.jobsService.getLatestExecutionId = async () => undefined;
-
-            const response = await request('GET', '/v2/jobs/job-1/controller');
-
-            expect(response.statusCode).toEqual(404);
-            expect(response.body.message).toContain('No executions were found for job: job-1');
-        });
-
-        it('GET /v2/ex/:exId should respond with a 400 for any query param', async () => {
-            const response = await request('GET', '/v2/ex/ex-1', { searchParams: { ex: '_status' } });
-
-            expect(response.statusCode).toEqual(400);
-        });
-
-        describe('GET /v2/jobs', () => {
-            let search: jest.Mock<(...args: any[]) => Promise<any[]>>;
-
-            beforeEach(() => {
-                search = jest.fn(async () => [job]);
-                context.stores.jobsStorage.search = search;
-            });
-
-            it('should list jobs with the default search options', async () => {
-                const response = await request('GET', '/v2/jobs');
-
-                expect(response.statusCode).toEqual(200);
-                expect(response.body).toEqual([job]);
-                expect(search).toHaveBeenCalledWith(
-                    `job_id:* AND ${notDeleted}`, 0, 100, '_updated:desc'
-                );
-            });
-
-            it('should pass paging, sort, active, deleted and filter through', async () => {
-                const response = await request('GET', '/v2/jobs', {
-                    searchParams: {
-                        size: '5', from: '10', sort: 'name:asc', active: 'false', deleted: 'true',
-                        filter: 'name:foo',
-                    }
-                });
-
-                expect(response.statusCode).toEqual(200);
-                expect(search).toHaveBeenCalledWith(
-                    '(job_id:* AND active:false AND _deleted:true) AND (name:foo)', 10, 5, 'name:asc'
-                );
-            });
-
-            it('should add the latest execution with only the fields in ?ex', async () => {
-                const getJobsWithExInfo = jest.fn(async () => [{ ...job, ex: { _status: 'running' } }]);
-                context.services.jobsService.getJobsWithExInfo = getJobsWithExInfo;
-
-                const response = await request('GET', '/v2/jobs', { searchParams: { ex: '_status' } });
-
-                expect(response.statusCode).toEqual(200);
-                expect(response.body[0].ex).toEqual({ _status: 'running' });
-                expect(getJobsWithExInfo).toHaveBeenCalledWith(
-                    expect.any(String), 0, 100, '_updated:desc', ['_status']
-                );
-            });
-
-            it('should add every execution field for an empty ?ex', async () => {
-                const getJobsWithExInfo = jest.fn(async () => [{ ...job, ex: execution }]);
-                context.services.jobsService.getJobsWithExInfo = getJobsWithExInfo;
-
-                await request('GET', '/v2/jobs', { searchParams: { ex: '' } });
-
-                expect(getJobsWithExInfo).toHaveBeenCalledWith(
-                    expect.any(String), 0, 100, '_updated:desc', undefined
-                );
-            });
-
-            it('should leave large pages to the search cluster\'s max_result_window', async () => {
-                const response = await request('GET', '/v2/jobs', { searchParams: { size: '50000' } });
-
-                expect(response.statusCode).toEqual(200);
-                expect(search.mock.calls[0][2]).toBe(50000);
-            });
-
-            it('should use the default sort for an empty ?sort, like v1', async () => {
-                await request('GET', '/v2/jobs', { searchParams: { sort: '' } });
-
-                expect(search.mock.calls[0][3]).toBe('_updated:desc');
-            });
-
-            it.each([
-                ['size', 'ten'],
-                ['size', '-1'],
-                ['from', '-1'],
-                ['active', ''],
-            ])('should respond with a 400 for %s=%j', async (key, value) => {
-                const response = await request('GET', '/v2/jobs', { searchParams: { [key]: value } });
-
-                expect(response.statusCode).toEqual(400);
-                expect(response.body.message).toContain('Invalid request query');
-                expect(response.body.message).toContain(key);
-                expect(search).not.toHaveBeenCalled();
-            });
-        });
-
-        describe('GET /v2/ex', () => {
-            let search: jest.Mock<(...args: any[]) => Promise<any[]>>;
-
-            beforeEach(() => {
-                search = jest.fn(async () => [execution]);
-                context.stores.executionStorage.search = search;
-            });
-
-            it('should list executions with the default search options', async () => {
-                const response = await request('GET', '/v2/ex');
-
-                expect(response.statusCode).toEqual(200);
-                expect(response.body).toEqual([execution]);
-                expect(search).toHaveBeenCalledWith(
-                    `ex_id:* AND ${notDeleted}`, 0, 100, '_updated:desc'
-                );
-            });
-
-            it('should pass an unknown status through, like v1, so it matches nothing', async () => {
-                const response = await request('GET', '/v2/ex', { searchParams: { status: 'borked' } });
-
-                expect(response.statusCode).toEqual(200);
-                expect(search.mock.calls[0][0]).toContain('_status:"borked"');
-            });
-        });
-
-        describe('slice errors', () => {
-            const errors = [{
-                slice_id: 'slice-1',
-                slicer_id: 0,
-                slicer_order: 3,
-                request: '{"count":10}',
-                state: 'error',
-                ex_id: 'ex-1',
-                _created: '2026-11-05T00:00:00.000Z',
-                _updated: '2026-11-05T00:00:01.000Z',
-                error: 'Error: boom\n    at ...',
-            }];
-            let search: jest.Mock<(...args: any[]) => Promise<any[]>>;
-
-            beforeEach(() => {
-                search = jest.fn(async () => errors);
-                context.stores.stateStorage.search = search;
-            });
-
-            it('should have a fixture that matches the response schema', () => {
-                expect(TerasliceApiV2.SliceErrorListSchema.safeParse(errors).error).toBeUndefined();
-            });
-
-            it('GET /v2/ex/:exId/errors should search the execution with a filter', async () => {
-                const response = await request('GET', '/v2/ex/ex-2/errors', {
-                    searchParams: { filter: 'slicer_id:1' }
-                });
-
-                expect(response.statusCode).toEqual(200);
-                expect(search).toHaveBeenCalledWith(
-                    '(state:error AND ex_id:"ex-2") AND (slicer_id:1)', 0, 100, '_updated:desc'
-                );
-            });
-
-            it('should respond with a 400 for an unknown query param', async () => {
-                const response = await request('GET', '/v2/ex/ex-2/errors', {
-                    searchParams: { state: 'error' }
-                });
-
-                expect(response.statusCode).toEqual(400);
-                expect(search).not.toHaveBeenCalled();
-            });
-        });
-
-        describe('GET /v2/jobs/:jobId/tap', () => {
-            const tapResult = {
-                workerId: 'worker-1',
-                sliceId: 'slice-1',
-                records: [{ id: 1 }, { id: 2 }],
-            };
-            let getSliceTap: jest.Mock<(...args: any[]) => Promise<Buffer>>;
-
-            beforeEach(() => {
-                context.services.jobsService.getLatestExecutionId = async () => 'ex-1';
-                getSliceTap = jest.fn(async () => Buffer.from(JSON.stringify(tapResult)));
-                context.services.executionService.getSliceTap = getSliceTap;
-            });
-
-            it('should have a fixture that matches the response schema', () => {
-                expect(TerasliceApiV2.SliceTapResultSchema.safeParse(tapResult).error)
-                    .toBeUndefined();
-            });
-
-            it('should send the tap results as JSON with the default size', async () => {
-                const response = await request('GET', '/v2/jobs/job-1/tap');
-
-                expect(response.statusCode).toEqual(200);
-                expect(response.headers['content-type']).toStartWith('application/json');
-                expect(response.body).toEqual(tapResult);
-                expect(getSliceTap).toHaveBeenCalledWith('ex-1', { size: 10 });
-            });
-
-            it.each(['0', '', 'some', '1.5'])('should respond with a 400 for size=%j', async (size) => {
-                const response = await request('GET', '/v2/jobs/job-1/tap', { searchParams: { size } });
-
-                expect(response.statusCode).toEqual(400);
-                expect(response.body.message).toContain('size');
-                expect(getSliceTap).not.toHaveBeenCalled();
-            });
-        });
-
-        describe('job actions', () => {
-            const newExecution = { job_id: 'job-1', ex_id: 'ex-2' };
-            const warning = {
-                type: 'JobValidation',
-                reason: {
-                    type: 'jobProperty',
-                    kind: 'deprecation',
-                    reason: { field: 'cpu', description: 'use resources_requests_cpu' },
-                },
-            };
-
-            beforeEach(() => {
-                context.services.jobsService.getLatestExecutionId = async () => 'ex-1';
-            });
-
-            it('should have fixtures that match the response schemas', () => {
-                expect(TerasliceApiV2.NewExecutionSchema.safeParse(
-                    { ...newExecution, warnings: [warning] }
-                ).error).toBeUndefined();
-                expect(TerasliceApiV2.UpdatedJobSchema.safeParse(
-                    { ...job, warnings: [warning] }
-                ).error).toBeUndefined();
-            });
-
-            it('DELETE /v2/jobs/:jobId should keep the status of a service error', async () => {
-                context.services.jobsService.softDeleteJob = async () => {
-                    throw new TSError('Job job-1 is currently running', { statusCode: 409 });
-                };
-
-                const response = await request('DELETE', '/v2/jobs/job-1');
-
-                expect(response.statusCode).toEqual(409);
-                expect(response.body.message).toContain('currently running');
-            });
-
-            it('POST /v2/jobs/:jobId/_start should respond with a 400 for any query param', async () => {
-                const startJob = jest.fn();
-                context.services.jobsService.startJob = startJob;
-
-                const response = await request('POST', '/v2/jobs/job-1/_start', {
-                    searchParams: { force: 'true' }
-                });
-
-                expect(response.statusCode).toEqual(400);
-                expect(startJob).not.toHaveBeenCalled();
-            });
-
-            describe('POST /v2/jobs/:jobId/_stop', () => {
-                let stopExecution: jest.Mock<(...args: any[]) => Promise<void>>;
-                let exStatus: string;
-
-                beforeEach(() => {
-                    exStatus = 'stopped';
-                    stopExecution = jest.fn(async () => {});
-                    context.services.executionService.stopExecution = stopExecution;
-                    context.services.executionService.getExecutionContext = async () => ({
-                        ...execution, _status: exStatus,
-                    });
-                    context.stores.executionStorage.getTerminalStatuses = () => [
-                        'stopped', 'completed', 'failed', 'rejected', 'terminated'
-                    ];
-                });
-
-                it('should return the current status right away for blocking=false', async () => {
-                    exStatus = 'stopping';
-
-                    const response = await request('POST', '/v2/jobs/job-1/_stop', {
-                        searchParams: { blocking: 'false' }
-                    });
-
-                    expect(response.statusCode).toEqual(200);
-                    expect(response.body).toEqual({ status: 'stopping' });
-                });
-
-                it.each([
-                    ['timeout', '-1'],
-                    ['timeout', 'soon'],
-                    ['force', 'maybe'],
-                    ['blocking', ''],
-                ])('should respond with a 400 for %s=%j', async (key, value) => {
-                    const response = await request('POST', '/v2/jobs/job-1/_stop', {
-                        searchParams: { [key]: value }
-                    });
-
-                    expect(response.statusCode).toEqual(400);
-                    expect(response.body.message).toContain(key);
-                    expect(stopExecution).not.toHaveBeenCalled();
-                });
-
-                it('should respond with a 404 when the job has no execution', async () => {
-                    context.services.jobsService.getLatestExecutionId = async () => undefined;
-
-                    const response = await request('POST', '/v2/jobs/job-1/_stop');
-
-                    expect(response.statusCode).toEqual(404);
-                    expect(stopExecution).not.toHaveBeenCalled();
-                });
-            });
-
-            describe('POST /v2/jobs/:jobId/_workers', () => {
-                const workerMethods = {
-                    add: 'addWorkers',
-                    remove: 'removeWorkers',
-                    total: 'setWorkers',
-                } as const;
-                let calls: jest.Mock<(...args: any[]) => any>;
-
-                beforeEach(() => {
-                    calls = jest.fn();
-                    for (const [key, method] of Object.entries(workerMethods)) {
-                        const { executionService } = context.services;
-                        executionService[method] = async (exId: string, n: number) => {
-                            calls(method, exId, n);
-                            return { action: key, ex_id: exId, workerNum: n };
-                        };
-                    }
-                });
-
-                it.each([
-                    ['remove', 'removeWorkers'],
-                    ['total', 'setWorkers'],
-                ])('should call %s → %s', async (key, method) => {
-                    const response = await request('POST', '/v2/jobs/job-1/_workers', {
-                        searchParams: { [key]: '3' }
-                    });
-
-                    expect(response.statusCode).toEqual(200);
-                    expect(response.body).toEqual({
-                        message: `3 workers have been ${key} for execution: ex-1`
-                    });
-                    expect(calls).toHaveBeenCalledExactlyOnceWith(method, 'ex-1', 3);
-                });
-
-                // like v1: on kubernetesV2 this scales the workers to none
-                it('should allow total=0', async () => {
-                    const response = await request('POST', '/v2/jobs/job-1/_workers', {
-                        searchParams: { total: '0' }
-                    });
-
-                    expect(response.statusCode).toEqual(200);
-                    expect(calls).toHaveBeenCalledExactlyOnceWith('setWorkers', 'ex-1', 0);
-                });
-
-                // like v1 (Number('') is 0); see "Empty numeric params" in the plan
-                it('should treat an empty total as 0', async () => {
-                    await request('POST', '/v2/jobs/job-1/_workers', { searchParams: { total: '' } });
-
-                    expect(calls).toHaveBeenCalledExactlyOnceWith('setWorkers', 'ex-1', 0);
-                });
-
-                it.each([
-                    [{}, 'exactly one'],
-                    [{ add: '1', total: '3' }, 'exactly one'],
-                    [{ add: '0' }, 'add'],
-                    [{ remove: 'two' }, 'remove'],
-                    [{ total: '1.5' }, 'total'],
-                    [{ add: '' }, 'add'],
-                    [{ count: '2' }, 'Unrecognized key: "count"'],
-                ])('should respond with a 400 for %j', async (searchParams, message) => {
-                    const response = await request('POST', '/v2/jobs/job-1/_workers', { searchParams });
-
-                    expect(response.statusCode).toEqual(400);
-                    expect(response.body.message).toContain(message);
-                    expect(calls).not.toHaveBeenCalled();
-                });
-            });
-
-            it.each<Record<string, string>>([{}, { log_level: 'loud' }])(
-                'POST /v2/jobs/:jobId/_settings should respond with a 400 for %j',
-                async (searchParams) => {
-                    const setLogLevel = jest.fn();
-                    context.services.executionService.setLogLevel = setLogLevel;
-
-                    const response = await request('POST', '/v2/jobs/job-1/_settings', { searchParams });
-
-                    expect(response.statusCode).toEqual(400);
-                    expect(response.body.message).toContain('log_level');
-                    expect(setLogLevel).not.toHaveBeenCalled();
-                }
-            );
-
-            describe('POST /v2/jobs/:jobId/_recover', () => {
-                let recoverJob: jest.Mock<(...args: any[]) => Promise<any>>;
-
-                beforeEach(() => {
-                    recoverJob = jest.fn(async () => newExecution);
-                    context.services.jobsService.recoverJob = recoverJob;
-                });
-
-                it('should recover the job with no cleanup type', async () => {
-                    const response = await request('POST', '/v2/jobs/job-1/_recover');
-
-                    expect(response.statusCode).toEqual(200);
-                    expect(response.body).toEqual(newExecution);
-                    expect(recoverJob).toHaveBeenCalledWith('job-1', undefined);
-                });
-
-                it('should respond with a 400 for an empty cleanup_type', async () => {
-                    const response = await request('POST', '/v2/jobs/job-1/_recover', {
-                        searchParams: { cleanup_type: '' }
-                    });
-
-                    expect(response.statusCode).toEqual(400);
-                    expect(response.body.message).toContain('cleanup_type');
-                    expect(recoverJob).not.toHaveBeenCalled();
-                });
-            });
-        });
-    });
-
-    // jobConfigShape in @terascope/types lists the job config fields by hand
-    // (see "Job field docs: single source" in the plan); keep it in step with
-    // the convict job schema, which is the source of truth
-    describe('job config fields', () => {
-        const recordOnlyKeys = ['job_id', '_context', '_created', '_updated', '_deleted', '_deleted_on'];
-        // config fields teraslice sets itself, so the job schema doesn't accept them
-        const systemSetKeys = ['relocatable'];
-        const zodKeys = Object.keys(TerasliceApiV2.JobRecordSchema.shape)
-            .filter((key) => !recordOnlyKeys.includes(key) && !systemSetKeys.includes(key));
-
-        it.each(['native', 'kubernetesV2'])('should match the %s job schema', (clusteringType) => {
-            const ctx = new TestContext('job-config-fields') as any;
-            ctx.sysconfig.teraslice.cluster_manager_type = clusteringType;
-            const convictKeys = Object.keys(jobSchema(ctx));
-
-            if (clusteringType === 'kubernetesV2') {
-                expect(zodKeys.toSorted()).toEqual(convictKeys.toSorted());
-            } else {
-                // native: zod lists the kubernetesV2-only fields too
-                expect(zodKeys).toIncludeAllMembers(convictKeys);
-            }
         });
     });
 
@@ -790,6 +249,17 @@ describe('HTTP API v2', () => {
             expect(response.statusCode).toEqual(200);
             expect(response.body).toEqual({
                 connectors: [{ type: 'elasticsearch-next', name: 'os2', is_state_cluster: true }]
+            });
+        });
+
+        it('should filter by type', async () => {
+            const response = await request('GET', '/v2/cluster/connectors', {
+                searchParams: { type: 'kafka' }
+            });
+
+            expect(response.statusCode).toEqual(200);
+            expect(response.body).toEqual({
+                connectors: [{ type: 'kafka', name: 'kafka-dev' }]
             });
         });
 
@@ -830,6 +300,37 @@ describe('HTTP API v2', () => {
         });
     });
 
+    describe('GET /v2/cluster/job-schema', () => {
+        it('should return the version and a job JSON Schema', async () => {
+            const response = await request('GET', '/v2/cluster/job-schema');
+
+            expect(response.statusCode).toEqual(200);
+            expect(response.body.version).toEqual(version);
+            expect(response.body.job_schema).toMatchObject({
+                $schema: 'http://json-schema.org/draft-07/schema#',
+                $id: expect.any(String),
+                title: 'Teraslice Job',
+                description: expect.any(String),
+                type: 'object',
+                additionalProperties: false,
+                definitions: {
+                    operation: expect.any(Object),
+                    api: expect.any(Object),
+                },
+            });
+            expect(response.body.job_schema.required).toIncludeAllMembers(['name', 'operations']);
+            expect(response.body.job_schema.properties).toContainKeys(['name', 'operations', 'apis']);
+        });
+
+        it('should match the response schema', async () => {
+            const response = await request('GET', '/v2/cluster/job-schema');
+
+            // responses aren't parsed at runtime, so check the envelope here
+            const result = TerasliceApiV2.JobSchemaResponseSchema.safeParse(response.body);
+            expect(result.error).toBeUndefined();
+        });
+    });
+
     describe('/v2/jobs', () => {
         const search = jest.fn<(...args: any[]) => Promise<any>>();
         const get = jest.fn<(...args: any[]) => Promise<any>>();
@@ -839,6 +340,8 @@ describe('HTTP API v2', () => {
         const startJob = jest.fn<(...args: any[]) => Promise<any>>();
         const setActiveState = jest.fn<(...args: any[]) => Promise<any>>();
         const getLatestExecution = jest.fn<(...args: any[]) => Promise<any>>();
+        const getJobWithExInfo = jest.fn<(...args: any[]) => Promise<any>>();
+        const getJobsWithExInfo = jest.fn<(...args: any[]) => Promise<any>>();
 
         beforeAll(() => {
             context.stores.jobsStorage.search = search;
@@ -849,10 +352,12 @@ describe('HTTP API v2', () => {
             context.services.jobsService.startJob = startJob;
             context.services.jobsService.setActiveState = setActiveState;
             context.services.jobsService.getLatestExecution = getLatestExecution;
+            context.services.jobsService.getJobWithExInfo = getJobWithExInfo;
+            context.services.jobsService.getJobsWithExInfo = getJobsWithExInfo;
         });
 
         beforeEach(() => {
-            search.mockReset().mockResolvedValue([{ job_id: 'job-1' }]);
+            search.mockReset().mockResolvedValue([job]);
             get.mockReset().mockResolvedValue({ job_id: 'job-1' });
             submitJob.mockReset().mockResolvedValue({ job_id: 'job-1' });
             updateJob.mockReset().mockResolvedValue({ job_id: 'job-1' });
@@ -860,40 +365,108 @@ describe('HTTP API v2', () => {
             startJob.mockReset().mockResolvedValue({ job_id: 'job-1', ex_id: 'ex-1' });
             setActiveState.mockReset().mockResolvedValue({ job_id: 'job-1' });
             getLatestExecution.mockReset().mockResolvedValue({ ex_id: 'ex-1' });
+            getJobWithExInfo.mockReset();
+            getJobsWithExInfo.mockReset();
         });
 
-        it('should search jobs with the default options', async () => {
-            const response = await request('GET', '/v2/jobs', {
-                searchParams: { active: 'true' }
+        describe('GET /v2/jobs', () => {
+            it('should search jobs with the default options', async () => {
+                const response = await request('GET', '/v2/jobs');
+
+                expect(response.statusCode).toEqual(200);
+                expect(response.body).toEqual([job]);
+                expect(search).toHaveBeenCalledWith(
+                    `job_id:* AND ${notDeleted}`, 0, 100, '_updated:desc'
+                );
             });
 
-            expect(response.statusCode).toEqual(200);
-            expect(response.body).toEqual([{ job_id: 'job-1' }]);
-            expect(search).toHaveBeenCalledWith(
-                `job_id:* AND !active:false AND ${notDeleted}`, 0, 100, '_updated:desc'
-            );
-        });
+            it('should filter active jobs for active=true', async () => {
+                const response = await request('GET', '/v2/jobs', {
+                    searchParams: { active: 'true' }
+                });
 
-        it('should respond with a 400 for an invalid deleted option', async () => {
-            const response = await request('GET', '/v2/jobs', {
-                searchParams: { deleted: 'nope' }
+                expect(response.statusCode).toEqual(200);
+                expect(search).toHaveBeenCalledWith(
+                    `job_id:* AND !active:false AND ${notDeleted}`, 0, 100, '_updated:desc'
+                );
             });
 
-            expect(response.statusCode).toEqual(400);
-            expect(search).not.toHaveBeenCalled();
+            it('should pass paging, sort, active, deleted and filter through', async () => {
+                const response = await request('GET', '/v2/jobs', {
+                    searchParams: {
+                        size: '5', from: '10', sort: 'name:asc', active: 'false', deleted: 'true',
+                        filter: 'name:foo',
+                    }
+                });
+
+                expect(response.statusCode).toEqual(200);
+                expect(search).toHaveBeenCalledWith(
+                    '(job_id:* AND active:false AND _deleted:true) AND (name:foo)', 10, 5, 'name:asc'
+                );
+            });
+
+            it('should add the latest execution with only the fields in ?ex', async () => {
+                getJobsWithExInfo.mockResolvedValue([{ ...job, ex: { _status: 'running' } }]);
+
+                const response = await request('GET', '/v2/jobs', { searchParams: { ex: '_status' } });
+
+                expect(response.statusCode).toEqual(200);
+                expect(response.body[0].ex).toEqual({ _status: 'running' });
+                expect(getJobsWithExInfo).toHaveBeenCalledWith(
+                    expect.any(String), 0, 100, '_updated:desc', ['_status']
+                );
+            });
+
+            it('should add every execution field for an empty ?ex', async () => {
+                getJobsWithExInfo.mockResolvedValue([{ ...job, ex: execution }]);
+
+                await request('GET', '/v2/jobs', { searchParams: { ex: '' } });
+
+                expect(getJobsWithExInfo).toHaveBeenCalledWith(
+                    expect.any(String), 0, 100, '_updated:desc', undefined
+                );
+            });
+
+            it('should leave large pages to the search cluster\'s max_result_window', async () => {
+                const response = await request('GET', '/v2/jobs', { searchParams: { size: '50000' } });
+
+                expect(response.statusCode).toEqual(200);
+                expect(search.mock.calls[0][2]).toBe(50000);
+            });
+
+            it('should use the default sort for an empty ?sort, like v1', async () => {
+                await request('GET', '/v2/jobs', { searchParams: { sort: '' } });
+
+                expect(search.mock.calls[0][3]).toBe('_updated:desc');
+            });
+
+            it.each([
+                ['size', 'ten'],
+                ['size', '-1'],
+                ['from', '-1'],
+                ['active', ''],
+                ['deleted', 'nope'],
+            ])('should respond with a 400 for %s=%j', async (key, value) => {
+                const response = await request('GET', '/v2/jobs', { searchParams: { [key]: value } });
+
+                expect(response.statusCode).toEqual(400);
+                expect(response.body.message).toContain('Invalid request query');
+                expect(response.body.message).toContain(key);
+                expect(search).not.toHaveBeenCalled();
+            });
         });
 
         it('should submit a job', async () => {
-            const job = { name: 'test', operations: [{ _op: 'noop' }] };
+            const jobSpec = { name: 'test', operations: [{ _op: 'noop' }] };
 
             const response = await request('POST', '/v2/jobs', {
-                json: job,
+                json: jobSpec,
                 searchParams: { start: 'false' }
             });
 
             expect(response.statusCode).toEqual(200);
             expect(response.body).toEqual({ job_id: 'job-1' });
-            expect(submitJob).toHaveBeenCalledWith(job, false);
+            expect(submitJob).toHaveBeenCalledWith(jobSpec, false);
         });
 
         it('should respond with a 400 when no job is posted', async () => {
@@ -904,21 +477,66 @@ describe('HTTP API v2', () => {
             expect(submitJob).not.toHaveBeenCalled();
         });
 
-        it('should return a job', async () => {
-            const response = await request('GET', '/v2/jobs/job-1');
+        describe('GET /v2/jobs/:jobId', () => {
+            it('should return a job', async () => {
+                const response = await request('GET', '/v2/jobs/job-1');
 
-            expect(response.statusCode).toEqual(200);
-            expect(response.body).toEqual({ job_id: 'job-1' });
-            expect(get).toHaveBeenCalledWith('job-1');
+                expect(response.statusCode).toEqual(200);
+                expect(response.body).toEqual({ job_id: 'job-1' });
+                expect(get).toHaveBeenCalledWith('job-1');
+            });
+
+            it('should add the latest execution with only the fields in ?ex', async () => {
+                getJobWithExInfo.mockResolvedValue({
+                    ...job, ex: { ex_id: 'ex-1', _status: 'running' }
+                });
+
+                const response = await request('GET', '/v2/jobs/job-1', {
+                    searchParams: { ex: 'ex_id, _status' }
+                });
+
+                expect(response.statusCode).toEqual(200);
+                expect(response.body.ex).toEqual({ ex_id: 'ex-1', _status: 'running' });
+                expect(getJobWithExInfo).toHaveBeenCalledWith('job-1', ['ex_id', '_status']);
+            });
+
+            it('should add every execution field for an empty ?ex', async () => {
+                getJobWithExInfo.mockResolvedValue({ ...job, ex: execution });
+
+                const response = await request('GET', '/v2/jobs/job-1', {
+                    searchParams: { ex: '' }
+                });
+
+                expect(response.statusCode).toEqual(200);
+                expect(response.body.ex).toEqual(execution);
+                expect(getJobWithExInfo).toHaveBeenCalledWith('job-1', undefined);
+            });
+
+            it('should respond with a 400 for an unknown query param', async () => {
+                const response = await request('GET', '/v2/jobs/job-1', {
+                    searchParams: { exe: '_status' }
+                });
+
+                expect(response.statusCode).toEqual(400);
+                expect(response.body.message).toContain('Unrecognized key: "exe"');
+            });
+
+            it('should keep the status of a storage error', async () => {
+                get.mockRejectedValue(new TSError('Not Found', { statusCode: 404 }));
+
+                const response = await request('GET', '/v2/jobs/missing');
+
+                expect(response.statusCode).toEqual(404);
+            });
         });
 
         it('should update a job', async () => {
-            const job = { name: 'updated' };
+            const update = { name: 'updated' };
 
-            const response = await request('PUT', '/v2/jobs/job-1', { json: job });
+            const response = await request('PUT', '/v2/jobs/job-1', { json: update });
 
             expect(response.statusCode).toEqual(200);
-            expect(updateJob).toHaveBeenCalledWith('job-1', job);
+            expect(updateJob).toHaveBeenCalledWith('job-1', update);
         });
 
         it('should respond with a 400 when no update data is provided', async () => {
@@ -935,11 +553,31 @@ describe('HTTP API v2', () => {
             expect(softDeleteJob).toHaveBeenCalledWith('job-1');
         });
 
+        it('should keep the status of a soft delete error', async () => {
+            softDeleteJob.mockRejectedValue(
+                new TSError('Job job-1 is currently running', { statusCode: 409 })
+            );
+
+            const response = await request('DELETE', '/v2/jobs/job-1');
+
+            expect(response.statusCode).toEqual(409);
+            expect(response.body.message).toContain('currently running');
+        });
+
         it('should start a job', async () => {
             const response = await request('POST', '/v2/jobs/job-1/_start');
 
             expect(response.statusCode).toEqual(200);
             expect(startJob).toHaveBeenCalledWith('job-1');
+        });
+
+        it('should respond with a 400 for any query param on _start', async () => {
+            const response = await request('POST', '/v2/jobs/job-1/_start', {
+                searchParams: { force: 'true' }
+            });
+
+            expect(response.statusCode).toEqual(400);
+            expect(startJob).not.toHaveBeenCalled();
         });
 
         it('should set the active state of a job', async () => {
@@ -957,6 +595,17 @@ describe('HTTP API v2', () => {
             expect(response.body).toEqual({ ex_id: 'ex-1' });
             expect(getLatestExecution).toHaveBeenCalledWith('job-1');
         });
+
+        it('should respond with a 404 when the job has no latest execution', async () => {
+            getLatestExecution.mockRejectedValue(
+                new TSError('No execution was found for job job-1', { statusCode: 404 })
+            );
+
+            const response = await request('GET', '/v2/jobs/job-1/ex');
+
+            expect(response.statusCode).toEqual(404);
+            expect(response.body.message).toContain('No execution was found');
+        });
     });
 
     describe('/v2/jobs/:jobId execution actions', () => {
@@ -969,10 +618,15 @@ describe('HTTP API v2', () => {
         const pauseExecution = jest.fn<(...args: any[]) => Promise<any>>();
         const resumeExecution = jest.fn<(...args: any[]) => Promise<any>>();
         const addWorkers = jest.fn<(...args: any[]) => Promise<any>>();
+        const removeWorkers = jest.fn<(...args: any[]) => Promise<any>>();
+        const setWorkers = jest.fn<(...args: any[]) => Promise<any>>();
         const setLogLevel = jest.fn<(...args: any[]) => Promise<any>>();
         const getControllerStats = jest.fn<(...args: any[]) => Promise<any>>();
         const getSliceTap = jest.fn<(...args: any[]) => Promise<any>>();
         const search = jest.fn<(...args: any[]) => Promise<any>>();
+
+        const workerMocks = { add: addWorkers, remove: removeWorkers, total: setWorkers };
+        const workerCalls = () => Object.values(workerMocks).flatMap((mock) => mock.mock.calls);
 
         beforeAll(() => {
             context.services.jobsService.getLatestExecutionId = getLatestExecutionId;
@@ -982,6 +636,8 @@ describe('HTTP API v2', () => {
             context.services.executionService.pauseExecution = pauseExecution;
             context.services.executionService.resumeExecution = resumeExecution;
             context.services.executionService.addWorkers = addWorkers;
+            context.services.executionService.removeWorkers = removeWorkers;
+            context.services.executionService.setWorkers = setWorkers;
             context.services.executionService.setLogLevel = setLogLevel;
             context.services.executionService.getControllerStats = getControllerStats;
             context.services.executionService.getSliceTap = getSliceTap;
@@ -995,51 +651,94 @@ describe('HTTP API v2', () => {
             stopExecution.mockReset();
             pauseExecution.mockReset().mockResolvedValue({ status: 'paused' });
             resumeExecution.mockReset().mockResolvedValue({ status: 'running' });
-            addWorkers.mockReset().mockResolvedValue({ workerNum: 2, action: 'add', ex_id: exId });
+            for (const [action, mock] of Object.entries(workerMocks)) {
+                mock.mockReset().mockImplementation(
+                    async (id: string, workerNum: number) => ({ workerNum, action, ex_id: id })
+                );
+            }
             setLogLevel.mockReset();
             getControllerStats.mockReset().mockResolvedValue([{ ex_id: exId }]);
-            getSliceTap.mockReset();
-            search.mockReset().mockResolvedValue([{ state: 'error' }]);
+            getSliceTap.mockReset().mockResolvedValue(Buffer.from(JSON.stringify(tapResult)));
+            search.mockReset().mockResolvedValue(sliceErrors);
         });
 
-        it('should respond with a 404 when the job has no executions', async () => {
+        it.each([
+            ['POST', '/_pause'],
+            ['POST', '/_stop'],
+            ['GET', '/controller'],
+        ])('%s /v2/jobs/job-1%s should respond with a 404 when the job has no executions', async (method, path) => {
             getLatestExecutionId.mockResolvedValue(undefined);
 
-            const response = await request('POST', '/v2/jobs/job-1/_pause');
+            const response = await request(method, `/v2/jobs/job-1${path}`);
 
             expect(response.statusCode).toEqual(404);
+            expect(response.body.message).toContain('No executions were found for job: job-1');
             expect(pauseExecution).not.toHaveBeenCalled();
+            expect(stopExecution).not.toHaveBeenCalled();
+            expect(getControllerStats).not.toHaveBeenCalled();
         });
 
-        it('should stop the latest execution', async () => {
-            const response = await request('POST', '/v2/jobs/job-1/_stop', {
-                searchParams: { timeout: '1000' }
+        describe('POST /v2/jobs/:jobId/_stop', () => {
+            it('should stop the latest execution', async () => {
+                const response = await request('POST', '/v2/jobs/job-1/_stop', {
+                    searchParams: { timeout: '1000' }
+                });
+
+                expect(response.statusCode).toEqual(200);
+                expect(response.body).toEqual({ status: 'stopped' });
+                expect(stopExecution).toHaveBeenCalledWith(exId, { timeout: 1000, force: false });
             });
 
-            expect(response.statusCode).toEqual(200);
-            expect(response.body).toEqual({ status: 'stopped' });
-            expect(stopExecution).toHaveBeenCalledWith(exId, { timeout: 1000, force: false });
-        });
+            it('should not force stop when force=false', async () => {
+                await request('POST', '/v2/jobs/job-1/_stop', {
+                    searchParams: { force: 'false' }
+                });
 
-        it('should not force stop when force=false', async () => {
-            await request('POST', '/v2/jobs/job-1/_stop', {
-                searchParams: { force: 'false' }
+                expect(stopExecution).toHaveBeenCalledWith(
+                    exId, { timeout: undefined, force: false }
+                );
             });
 
-            expect(stopExecution).toHaveBeenCalledWith(exId, { timeout: undefined, force: false });
-        });
+            it('should force stop when force=true', async () => {
+                const response = await request('POST', '/v2/jobs/job-1/_stop', {
+                    searchParams: { force: 'true' }
+                });
 
-        it('should force stop when force=true', async () => {
-            const response = await request('POST', '/v2/jobs/job-1/_stop', {
-                searchParams: { force: 'true' }
+                expect(response.statusCode).toEqual(200);
+                expect(response.body).toEqual({
+                    message: `Force stop complete for exId ${exId}`,
+                    status: 'stopped'
+                });
+                expect(stopExecution).toHaveBeenCalledWith(
+                    exId, { timeout: undefined, force: true }
+                );
             });
 
-            expect(response.statusCode).toEqual(200);
-            expect(response.body).toEqual({
-                message: `Force stop complete for exId ${exId}`,
-                status: 'stopped'
+            it('should return the current status right away for blocking=false', async () => {
+                getExecutionContext.mockResolvedValue({ _status: 'stopping' });
+
+                const response = await request('POST', '/v2/jobs/job-1/_stop', {
+                    searchParams: { blocking: 'false' }
+                });
+
+                expect(response.statusCode).toEqual(200);
+                expect(response.body).toEqual({ status: 'stopping' });
             });
-            expect(stopExecution).toHaveBeenCalledWith(exId, { timeout: undefined, force: true });
+
+            it.each([
+                ['timeout', '-1'],
+                ['timeout', 'soon'],
+                ['force', 'maybe'],
+                ['blocking', ''],
+            ])('should respond with a 400 for %s=%j', async (key, value) => {
+                const response = await request('POST', '/v2/jobs/job-1/_stop', {
+                    searchParams: { [key]: value }
+                });
+
+                expect(response.statusCode).toEqual(400);
+                expect(response.body.message).toContain(key);
+                expect(stopExecution).not.toHaveBeenCalled();
+            });
         });
 
         it('should pause and resume the latest execution', async () => {
@@ -1050,38 +749,81 @@ describe('HTTP API v2', () => {
             expect(resumeExecution).toHaveBeenCalledWith(exId);
         });
 
-        it('should change the worker count', async () => {
-            const response = await request('POST', '/v2/jobs/job-1/_workers', {
-                searchParams: { add: '2' }
+        describe('POST /v2/jobs/:jobId/_workers', () => {
+            it.each(['add', 'remove', 'total'] as const)('should change the worker count with %s', async (key) => {
+                const response = await request('POST', '/v2/jobs/job-1/_workers', {
+                    searchParams: { [key]: '2' }
+                });
+
+                expect(response.statusCode).toEqual(200);
+                expect(response.body).toEqual({
+                    message: `2 workers have been ${key} for execution: ${exId}`
+                });
+                expect(workerMocks[key]).toHaveBeenCalledWith(exId, 2);
+                expect(workerCalls()).toHaveLength(1);
             });
 
-            expect(response.statusCode).toEqual(200);
-            expect(response.body).toEqual({ message: `2 workers have been add for execution: ${exId}` });
-            expect(addWorkers).toHaveBeenCalledWith(exId, 2);
+            // like v1: on kubernetesV2 this scales the workers to none
+            it('should allow total=0', async () => {
+                const response = await request('POST', '/v2/jobs/job-1/_workers', {
+                    searchParams: { total: '0' }
+                });
+
+                expect(response.statusCode).toEqual(200);
+                expect(setWorkers).toHaveBeenCalledExactlyOnceWith(exId, 0);
+            });
+
+            // like v1 (Number('') is 0)
+            it('should treat an empty total as 0', async () => {
+                await request('POST', '/v2/jobs/job-1/_workers', { searchParams: { total: '' } });
+
+                expect(setWorkers).toHaveBeenCalledExactlyOnceWith(exId, 0);
+            });
+
+            it.each([
+                [{}, 'exactly one'],
+                [{ add: '1', total: '3' }, 'exactly one'],
+                [{ add: '0' }, 'add'],
+                [{ add: 'nope' }, 'add'],
+                [{ add: '' }, 'add'],
+                [{ remove: 'two' }, 'remove'],
+                [{ total: '1.5' }, 'total'],
+                [{ count: '2' }, 'Unrecognized key: "count"'],
+            ])('should respond with a 400 for %j', async (searchParams, message) => {
+                const response = await request('POST', '/v2/jobs/job-1/_workers', { searchParams });
+
+                expect(response.statusCode).toEqual(400);
+                expect(response.body.message).toContain(message);
+                expect(workerCalls()).toBeEmpty();
+            });
         });
 
-        it('should respond with a 400 for an invalid worker option', async () => {
-            const response = await request('POST', '/v2/jobs/job-1/_workers', {
-                searchParams: { add: 'nope' }
+        describe('POST /v2/jobs/:jobId/_settings', () => {
+            it('should set the log level', async () => {
+                await request('POST', '/v2/jobs/job-1/_settings', {
+                    searchParams: { log_level: 'debug' }
+                });
+
+                expect(setLogLevel).toHaveBeenCalledWith(exId, 'debug');
             });
 
-            expect(response.statusCode).toEqual(400);
-            expect(addWorkers).not.toHaveBeenCalled();
-        });
+            it.each<Record<string, string>>([{}, { log_level: 'loud' }])(
+                'should respond with a 400 for %j',
+                async (searchParams) => {
+                    const response = await request('POST', '/v2/jobs/job-1/_settings', { searchParams });
 
-        it('should set the log level', async () => {
-            await request('POST', '/v2/jobs/job-1/_settings', {
-                searchParams: { log_level: 'debug' }
-            });
-
-            expect(setLogLevel).toHaveBeenCalledWith(exId, 'debug');
+                    expect(response.statusCode).toEqual(400);
+                    expect(response.body.message).toContain('log_level');
+                    expect(setLogLevel).not.toHaveBeenCalled();
+                }
+            );
         });
 
         it('should search errors for the latest execution', async () => {
             const response = await request('GET', '/v2/jobs/job-1/errors');
 
             expect(response.statusCode).toEqual(200);
-            expect(response.body).toEqual([{ state: 'error' }]);
+            expect(response.body).toEqual(sliceErrors);
             expect(search).toHaveBeenCalledWith(
                 `state:error AND ex_id:"${exId}"`, 0, 100, '_updated:desc'
             );
@@ -1094,18 +836,32 @@ describe('HTTP API v2', () => {
             expect(getControllerStats).toHaveBeenCalledWith(exId);
         });
 
-        it('should tap the latest execution', async () => {
-            const tapResults = { workerId: 'some-worker', records: [] };
-            getSliceTap.mockResolvedValue(Buffer.from(JSON.stringify(tapResults)));
+        describe('GET /v2/jobs/:jobId/tap', () => {
+            it('should send the tap results as JSON with the default size', async () => {
+                const response = await request('GET', '/v2/jobs/job-1/tap');
 
-            const response = await request('GET', '/v2/jobs/job-1/tap', {
-                searchParams: { size: 'all' }
+                expect(response.statusCode).toEqual(200);
+                expect(response.headers['content-type']).toStartWith('application/json');
+                expect(response.body).toEqual(tapResult);
+                expect(getSliceTap).toHaveBeenCalledWith(exId, { size: 10 });
             });
 
-            expect(response.statusCode).toEqual(200);
-            expect(response.headers['content-type']).toStartWith('application/json');
-            expect(response.body).toEqual(tapResults);
-            expect(getSliceTap).toHaveBeenCalledWith(exId, { size: 0 });
+            it('should tap every record for size=all', async () => {
+                const response = await request('GET', '/v2/jobs/job-1/tap', {
+                    searchParams: { size: 'all' }
+                });
+
+                expect(response.statusCode).toEqual(200);
+                expect(getSliceTap).toHaveBeenCalledWith(exId, { size: 0 });
+            });
+
+            it.each(['0', '', 'some', '1.5'])('should respond with a 400 for size=%j', async (size) => {
+                const response = await request('GET', '/v2/jobs/job-1/tap', { searchParams: { size } });
+
+                expect(response.statusCode).toEqual(400);
+                expect(response.body.message).toContain('size');
+                expect(getSliceTap).not.toHaveBeenCalled();
+            });
         });
     });
 
@@ -1121,12 +877,20 @@ describe('HTTP API v2', () => {
         });
 
         beforeEach(() => {
-            recoverJob.mockReset().mockResolvedValue({ ex_id: 'ex-2' });
+            recoverJob.mockReset().mockResolvedValue(newExecution);
             getExecutionContext.mockReset().mockResolvedValue({ ex_id: 'ex-1', job_id: 'job-1' });
-            recoverExecution.mockReset().mockResolvedValue({ ex_id: 'ex-2' });
+            recoverExecution.mockReset().mockResolvedValue(newExecution);
         });
 
-        it('should recover the job when no ex_id is given', async () => {
+        it('should recover the job with no cleanup type', async () => {
+            const response = await request('POST', '/v2/jobs/job-1/_recover');
+
+            expect(response.statusCode).toEqual(200);
+            expect(response.body).toEqual(newExecution);
+            expect(recoverJob).toHaveBeenCalledWith('job-1', undefined);
+        });
+
+        it('should recover the job with a cleanup type', async () => {
             const response = await request('POST', '/v2/jobs/job-1/_recover', {
                 searchParams: { cleanup_type: 'errors' }
             });
@@ -1159,12 +923,13 @@ describe('HTTP API v2', () => {
             expect(recoverExecution).not.toHaveBeenCalled();
         });
 
-        it('should respond with a 400 for an invalid cleanup_type', async () => {
+        it.each(['', 'nope'])('should respond with a 400 for cleanup_type=%j', async (cleanupType) => {
             const response = await request('POST', '/v2/jobs/job-1/_recover', {
-                searchParams: { cleanup_type: 'nope' }
+                searchParams: { cleanup_type: cleanupType }
             });
 
             expect(response.statusCode).toEqual(400);
+            expect(response.body.message).toContain('cleanup_type');
             expect(recoverJob).not.toHaveBeenCalled();
         });
 
@@ -1193,10 +958,20 @@ describe('HTTP API v2', () => {
         });
 
         beforeEach(() => {
-            search.mockReset().mockResolvedValue([{ ex_id: 'ex-1' }]);
-            stateSearch.mockReset().mockResolvedValue([]);
-            getExecutionContext.mockReset().mockResolvedValue({ ex_id: 'ex-1' });
+            search.mockReset().mockResolvedValue([execution]);
+            stateSearch.mockReset().mockResolvedValue(sliceErrors);
+            getExecutionContext.mockReset().mockResolvedValue(execution);
             getLatestExecutionId.mockReset();
+        });
+
+        it('should list executions with the default search options', async () => {
+            const response = await request('GET', '/v2/ex');
+
+            expect(response.statusCode).toEqual(200);
+            expect(response.body).toEqual([execution]);
+            expect(search).toHaveBeenCalledWith(
+                `ex_id:* AND ${notDeleted}`, 0, 100, '_updated:desc'
+            );
         });
 
         it('should filter by job_id and status', async () => {
@@ -1205,7 +980,6 @@ describe('HTTP API v2', () => {
             });
 
             expect(response.statusCode).toEqual(200);
-            expect(response.body).toEqual([{ ex_id: 'ex-1' }]);
             expect(search).toHaveBeenCalledWith(
                 `ex_id:* AND job_id:"job-1" AND (_status:"running" OR _status:"failing") AND ${notDeleted}`,
                 0,
@@ -1214,24 +988,52 @@ describe('HTTP API v2', () => {
             );
         });
 
-        it('should return an execution', async () => {
-            const response = await request('GET', '/v2/ex/ex-1');
+        it('should pass an unknown status through, like v1, so it matches nothing', async () => {
+            const response = await request('GET', '/v2/ex', { searchParams: { status: 'borked' } });
 
             expect(response.statusCode).toEqual(200);
-            expect(response.body).toEqual({ ex_id: 'ex-1' });
-            expect(getExecutionContext).toHaveBeenCalledWith('ex-1');
+            expect(search.mock.calls[0][0]).toContain('_status:"borked"');
         });
 
-        it('should search errors for an execution', async () => {
-            const response = await request('GET', '/v2/ex/ex-1/errors', {
-                searchParams: { size: '10' }
+        describe('GET /v2/ex/:exId', () => {
+            it('should return an execution', async () => {
+                const response = await request('GET', '/v2/ex/ex-1');
+
+                expect(response.statusCode).toEqual(200);
+                expect(response.body).toEqual(execution);
+                expect(getExecutionContext).toHaveBeenCalledWith('ex-1');
             });
 
-            expect(response.statusCode).toEqual(200);
-            expect(stateSearch).toHaveBeenCalledWith(
-                'state:error AND ex_id:"ex-1"', 0, 10, '_updated:desc'
-            );
-            expect(getLatestExecutionId).not.toHaveBeenCalled();
+            it('should respond with a 400 for any query param', async () => {
+                const response = await request('GET', '/v2/ex/ex-1', { searchParams: { ex: '_status' } });
+
+                expect(response.statusCode).toEqual(400);
+                expect(getExecutionContext).not.toHaveBeenCalled();
+            });
+        });
+
+        describe('GET /v2/ex/:exId/errors', () => {
+            it('should search errors for an execution with size and filter', async () => {
+                const response = await request('GET', '/v2/ex/ex-2/errors', {
+                    searchParams: { size: '10', filter: 'slicer_id:1' }
+                });
+
+                expect(response.statusCode).toEqual(200);
+                expect(response.body).toEqual(sliceErrors);
+                expect(stateSearch).toHaveBeenCalledWith(
+                    '(state:error AND ex_id:"ex-2") AND (slicer_id:1)', 0, 10, '_updated:desc'
+                );
+                expect(getLatestExecutionId).not.toHaveBeenCalled();
+            });
+
+            it('should respond with a 400 for an unknown query param', async () => {
+                const response = await request('GET', '/v2/ex/ex-2/errors', {
+                    searchParams: { state: 'error' }
+                });
+
+                expect(response.statusCode).toEqual(400);
+                expect(stateSearch).not.toHaveBeenCalled();
+            });
         });
     });
 
@@ -1276,6 +1078,65 @@ describe('HTTP API v2', () => {
             expect(pause.statusCode).toEqual(200);
             expect(slicers.statusCode).toEqual(200);
             expect(pauseExecution).toHaveBeenCalledWith('ex-1');
+        });
+    });
+
+    // responses aren't parsed at runtime, so check the fixtures the mocked
+    // routes above return are realistic
+    describe('response fixtures', () => {
+        it('should match the response schemas', () => {
+            expect(TerasliceApiV2.JobWithExecutionSchema.safeParse(job).error).toBeUndefined();
+            expect(TerasliceApiV2.ExecutionRecordSchema.safeParse(execution).error).toBeUndefined();
+            expect(TerasliceApiV2.SliceErrorListSchema.safeParse(sliceErrors).error)
+                .toBeUndefined();
+            expect(TerasliceApiV2.SliceTapResultSchema.safeParse(tapResult).error).toBeUndefined();
+            expect(TerasliceApiV2.NewExecutionSchema.safeParse(
+                { ...newExecution, warnings: [warning] }
+            ).error).toBeUndefined();
+            expect(TerasliceApiV2.UpdatedJobSchema.safeParse(
+                { ...job, warnings: [warning] }
+            ).error).toBeUndefined();
+        });
+
+        it('should accept a job stored as submitted, without defaults and with extra keys', () => {
+            // submitJob stores the raw spec, so only what the client sent is there
+            const submitted = {
+                name: 'minimal-job',
+                operations: [{ _op: 'test-reader' }, { _op: 'noop' }],
+                __metadata: { cli: { cluster: 'local' } },
+                job_id: 'job-2',
+                _context: 'job',
+                _created: '2026-11-05T00:00:00.000Z',
+                _updated: '2026-11-05T00:00:00.000Z',
+            };
+
+            const result = TerasliceApiV2.JobWithExecutionSchema.safeParse(submitted);
+            expect(result.error).toBeUndefined();
+            expect(result.data).toHaveProperty('__metadata');
+        });
+    });
+
+    // jobConfigShape in @terascope/types lists the job config fields by hand
+    // (see "Job field docs: single source" in the plan); keep it in step with
+    // the convict job schema, which is the source of truth
+    describe('job config fields', () => {
+        const recordOnlyKeys = ['job_id', '_context', '_created', '_updated', '_deleted', '_deleted_on'];
+        // config fields teraslice sets itself, so the job schema doesn't accept them
+        const systemSetKeys = ['relocatable'];
+        const zodKeys = Object.keys(TerasliceApiV2.JobRecordSchema.shape)
+            .filter((key) => !recordOnlyKeys.includes(key) && !systemSetKeys.includes(key));
+
+        it.each(['native', 'kubernetesV2'])('should match the %s job schema', (clusteringType) => {
+            const ctx = new TestContext('job-config-fields') as any;
+            ctx.sysconfig.teraslice.cluster_manager_type = clusteringType;
+            const convictKeys = Object.keys(jobSchema(ctx));
+
+            if (clusteringType === 'kubernetesV2') {
+                expect(zodKeys.toSorted()).toEqual(convictKeys.toSorted());
+            } else {
+                // native: zod lists the kubernetesV2-only fields too
+                expect(zodKeys).toIncludeAllMembers(convictKeys);
+            }
         });
     });
 
