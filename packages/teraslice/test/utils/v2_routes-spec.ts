@@ -109,6 +109,26 @@ describe('v2 route registry', () => {
         raw: true,
     }, () => ({ a: 1 }) as unknown as Buffer);
 
+    // `errorMessage` fallbacks, on their own registry for the same reason.
+    // The fallback is only used when the thrown value has no message.
+    const messageRegistry = createRouteRegistry();
+    const throwEmpty = () => {
+        throw '';
+    };
+
+    messageRegistry.get('/message/static', {
+        operationId: 'staticMessage',
+        summary: 'Throws without a message',
+        response: z.object({}),
+    }, throwEmpty, { errorMessage: 'Could not do it' });
+
+    messageRegistry.get('/message/params/:id', {
+        operationId: 'paramsMessage',
+        summary: 'Throws without a message',
+        params: z.strictObject({ id: z.string().regex(/^[a-z]+$/) }),
+        response: z.object({}),
+    }, throwEmpty, { errorMessage: ({ id }) => `Could not do it: ${id}` });
+
     let server: http.Server;
     let baseUrl: string;
 
@@ -124,6 +144,7 @@ describe('v2 route registry', () => {
         });
         app.use(registry.router);
         app.use(rawRegistry.router);
+        app.use(messageRegistry.router);
 
         await new Promise((resolve, reject) => {
             server = app.listen(port, (err) => {
@@ -481,6 +502,35 @@ describe('v2 route registry', () => {
             expect(body).toEqual({ error: 409, message: 'nope' });
         });
 
+        describe('errorMessage', () => {
+            it('should be used when the handler throws without a message', async () => {
+                const { status, body } = await request('/message/static');
+
+                expect(status).toBe(500);
+                expect(body.message).toBe('Could not do it');
+            });
+
+            it('should be built from the path params when it is a function', async () => {
+                const { status, body } = await request('/message/params/abc');
+
+                expect(status).toBe(500);
+                expect(body.message).toBe('Could not do it: abc');
+            });
+
+            it('should not replace a handler error\'s own message', async () => {
+                const { body } = await request('/fail');
+
+                expect(body.message).toBe('nope');
+            });
+
+            it('should not replace a validation error', async () => {
+                const { status, body } = await request('/message/params/ABC');
+
+                expect(status).toBe(400);
+                expect(body.message).toContain('Invalid request params');
+            });
+        });
+
         describe('to a route with no query schema', () => {
             it('should respond with a 400 for any query param', async () => {
                 const { status, body } = await request('/ping', { searchParams: { foo: 'bar' } });
@@ -567,6 +617,24 @@ describe('v2 route registry', () => {
                     // @ts-expect-error route has no body
                     const name = body.name;
                     return { id: String(name), size: 1 };
+                });
+            }).not.toThrow();
+        });
+
+        it('should type an errorMessage function\'s params from the params schema', () => {
+            expect(() => {
+                typed().register(getThing, () => ({ id: 'a', size: 1 }), {
+                    errorMessage: ({ id }) => `Could not get thing ${id}`,
+                });
+
+                typed().register(getThing, () => ({ id: 'a', size: 1 }), {
+                    // @ts-expect-error not a path param
+                    errorMessage: ({ thingId }) => `Could not get thing ${thingId}`,
+                });
+
+                typed().register(ping, () => ({}), {
+                    // @ts-expect-error route has no path params
+                    errorMessage: ({ id }) => `Could not ping ${id}`,
                 });
             }).not.toThrow();
         });

@@ -247,7 +247,7 @@ export class JobsService {
      * @param {import('@terascope/job-components').RecoveryCleanupType} [cleanupType]
      * @returns {Promise<NewExecutionResult>}
     */
-    async recoverJob(jobId: string, cleanupType: RecoveryCleanupType) {
+    async recoverJob(jobId: string, cleanupType?: RecoveryCleanupType) {
         // we need to do validations since the job config could change between recovery
         const jobSpec = await this.jobsStorage.get(jobId);
 

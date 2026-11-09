@@ -1,7 +1,9 @@
-import { RecoveryCleanupType, generateJobJSONSchema } from '@terascope/job-components';
-import { parseList, TSError } from '@terascope/core-utils';
-import { type Logger, TerasliceApiV2 } from '@terascope/types';
-import { type ApiService, validateCleanupType } from '../api.js';
+import { generateJobJSONSchema } from '@terascope/job-components';
+import {
+    parseList, TSError, logError, pDelay
+} from '@terascope/core-utils';
+import { type Logger, type ExecutionStatus, TerasliceApiV2 } from '@terascope/types';
+import type { ApiService } from '../api.js';
 import type { ControllerStats } from '../../../../../interfaces.js';
 import {
     sendError, handleTerasliceRequest, createJobActiveQuery,
@@ -11,6 +13,9 @@ import { getPackageJSON } from '../../../../utils/file_utils.js';
 import { createRouteRegistry, type RouteRegistry } from '../../../../utils/v2_routes.js';
 
 const terasliceVersion = getPackageJSON().version;
+
+/** How often `_stop` checks whether the execution has stopped */
+const stopPollInterval = 3000;
 
 /** A stored record as sent from opensearch */
 type FromStorage<T> = {
@@ -85,6 +90,27 @@ export function createV2Registry(api: ApiService): RouteRegistry {
             });
         }
         return exId;
+    }
+
+    /**
+     * Polls the execution's status every few seconds until it is terminal,
+     * or returns the current status straight away when `blocking` is false.
+     * A failed lookup is logged and retried, as in v1, so this never rejects.
+     * v2's copy of ApiService's `_waitForStop`, so v2 doesn't reach into
+     * ApiService internals.
+     */
+    async function waitForStop(exId: string, blocking: boolean): Promise<ExecutionStatus> {
+        const terminalStatuses: readonly string[] = api.executionStorage.getTerminalStatuses();
+
+        while (true) {
+            try {
+                const { _status: status } = await api.executionService.getExecutionContext(exId);
+                if (!blocking || terminalStatuses.includes(status)) return status;
+            } catch (err) {
+                logError(api.logger, err, 'failure waiting for stop');
+            }
+            await pDelay(stopPollInterval);
+        }
     }
 
     async function searchErrors(
@@ -230,111 +256,151 @@ export function createV2Registry(api: ApiService): RouteRegistry {
         requestHandler(() => api.jobsService.updateJob(jobId, req.body));
     });
 
-    v2routes.delete('/jobs/:jobId', (req, res) => {
-        const { jobId } = req.params;
-        const requestHandler = handleTerasliceRequest(req, res, 'Could not delete job');
-        requestHandler(() => api.jobsService.softDeleteJob(jobId));
+    registry.delete('/jobs/:jobId', {
+        operationId: 'deleteJob',
+        summary: 'Soft delete a job and its executions',
+        tags: ['Jobs'],
+        params: TerasliceApiV2.JobIdParams,
+        response: TerasliceApiV2.JobRecordSchema,
+    }, async ({ params }) => fromStorage(await api.jobsService.softDeleteJob(params.jobId)), {
+        errorMessage: `Could not delete job`
     });
 
-    v2routes.post('/jobs/:jobId/_start', (req, res) => {
-        const { jobId } = req.params;
-        const requestHandler = handleTerasliceRequest(req, res, `Could not start job: ${jobId}`);
-        requestHandler(() => api.jobsService.startJob(jobId));
+    // Actions
+
+    registry.post('/jobs/:jobId/_start', {
+        operationId: 'startJob',
+        summary: 'Start a job',
+        tags: ['Jobs'],
+        params: TerasliceApiV2.JobIdParams,
+        response: TerasliceApiV2.NewExecutionSchema,
+    }, ({ params }) => api.jobsService.startJob(params.jobId), {
+        errorMessage: ({ jobId }) => `Could not start job: ${jobId}`
     });
 
-    v2routes.post('/jobs/:jobId/_stop', (req, res) => {
-        const { jobId } = req.params;
-        const { timeout, blocking, force } = req.query;
-        const shouldForce = `${force}` === 'true';
+    registry.post('/jobs/:jobId/_stop', {
+        operationId: 'stopJob',
+        summary: 'Stop a job',
+        tags: ['Jobs'],
+        params: TerasliceApiV2.JobIdParams,
+        query: TerasliceApiV2.StopJobQuerySchema,
+        response: TerasliceApiV2.StopJobResultSchema,
+    }, async ({ params, query: { timeout, blocking, force } }) => {
+        const exId = await getLatestExId(params.jobId);
 
-        const requestHandler = handleTerasliceRequest(req, res, 'Could not stop execution');
-        requestHandler(async () => {
-            const exId = await getLatestExId(jobId);
+        await api.executionService.stopExecution(exId, { timeout, force });
+        const status = await waitForStop(exId, blocking);
 
-            await api.executionService.stopExecution(exId, {
-                timeout: timeout != null ? Number(timeout) : undefined,
-                force: shouldForce
+        if (force) {
+            return {
+                message: `Force stop complete for exId ${exId}`,
+                status
+            };
+        }
+        return { status };
+    }, { errorMessage: 'Could not stop execution' });
+
+    registry.post('/jobs/:jobId/_pause', {
+        operationId: 'pauseJob',
+        summary: 'Pause a job',
+        tags: ['Jobs'],
+        params: TerasliceApiV2.JobIdParams,
+        response: TerasliceApiV2.PauseJobResultSchema,
+    }, async ({ params }) => {
+        const exId = await getLatestExId(params.jobId);
+        return api.executionService.pauseExecution(exId);
+    }, { errorMessage: 'Could not pause execution' });
+
+    registry.post('/jobs/:jobId/_resume', {
+        operationId: 'resumeJob',
+        summary: 'Resume a job',
+        tags: ['Jobs'],
+        params: TerasliceApiV2.JobIdParams,
+        response: TerasliceApiV2.ResumeJobResultSchema,
+    }, async ({ params }) => {
+        const exId = await getLatestExId(params.jobId);
+        return api.executionService.resumeExecution(exId);
+    }, { errorMessage: 'Could not resume execution' });
+
+    registry.post('/jobs/:jobId/_workers', {
+        operationId: 'changeJobWorkers',
+        summary: 'Add, remove or set the workers of a job',
+        tags: ['Jobs'],
+        params: TerasliceApiV2.JobIdParams,
+        query: TerasliceApiV2.ChangeJobWorkersQuerySchema,
+        response: TerasliceApiV2.ChangeJobWorkersResultSchema,
+    }, async ({ params, query }) => {
+        const exId = await getLatestExId(params.jobId);
+        const { executionService } = api;
+
+        // the schema allows exactly one of these
+        let result;
+        if (query.add !== undefined) {
+            result = await executionService.addWorkers(exId, query.add);
+        } else if (query.remove !== undefined) {
+            result = await executionService.removeWorkers(exId, query.remove);
+        } else {
+            result = await executionService.setWorkers(exId, query.total as number);
+        }
+
+        return {
+            message: `${result.workerNum} workers have been ${result.action} for execution: ${result.ex_id}`
+        };
+    }, { errorMessage: 'Could not change workers count' });
+
+    registry.post('/jobs/:jobId/_settings', {
+        operationId: 'updateJobSettings',
+        summary: 'Change settings of a running job',
+        tags: ['Jobs'],
+        params: TerasliceApiV2.JobIdParams,
+        query: TerasliceApiV2.UpdateJobSettingsQuerySchema,
+        response: TerasliceApiV2.UpdateJobSettingsResultSchema,
+    }, async ({ params, query: { log_level } }) => {
+        const exId = await getLatestExId(params.jobId);
+        await api.executionService.setLogLevel(exId, log_level);
+        return { exId, level: log_level };
+    }, { errorMessage: 'Could not update dynamic job settings' });
+
+    registry.post('/jobs/:jobId/_active', {
+        operationId: 'activateJob',
+        summary: 'Mark a job as active',
+        tags: ['Jobs'],
+        params: TerasliceApiV2.JobIdParams,
+        response: TerasliceApiV2.UpdatedJobSchema,
+    }, async ({ params }) => fromStorage(
+        await api.jobsService.setActiveState(params.jobId, true)
+    ), { errorMessage: ({ jobId }) => `Could not change active to 'true' for job: ${jobId}` });
+
+    registry.post('/jobs/:jobId/_inactive', {
+        operationId: 'deactivateJob',
+        summary: 'Mark a job as inactive',
+        tags: ['Jobs'],
+        params: TerasliceApiV2.JobIdParams,
+        response: TerasliceApiV2.UpdatedJobSchema,
+    }, async ({ params }) => fromStorage(
+        await api.jobsService.setActiveState(params.jobId, false)
+    ), { errorMessage: ({ jobId }) => `Could not change active to 'false' for job: ${jobId}` });
+
+    registry.post('/jobs/:jobId/_recover', {
+        operationId: 'recoverJob',
+        summary: 'Recover a job\'s stopped or failed execution as a new execution',
+        tags: ['Jobs'],
+        params: TerasliceApiV2.JobIdParams,
+        query: TerasliceApiV2.RecoverJobQuerySchema,
+        response: TerasliceApiV2.NewExecutionSchema,
+    }, async ({ params: { jobId }, query: { cleanup_type: cleanupType, ex_id: exId } }) => {
+        if (!exId) {
+            return api.jobsService.recoverJob(jobId, cleanupType);
+        }
+
+        const execution = await api.executionService.getExecutionContext(exId);
+        if (execution.job_id !== jobId) {
+            throw new TSError(`Execution ${exId} does not belong to job ${jobId}`, {
+                statusCode: 400
             });
-
-            const status = await api._waitForStop(exId, `${blocking}` !== 'false');
-
-            if (shouldForce) {
-                return {
-                    message: `Force stop complete for exId ${exId}`,
-                    status: status.status
-                };
-            }
-            return status;
-        });
-    });
-
-    v2routes.post('/jobs/:jobId/_pause', (req, res) => {
-        const requestHandler = handleTerasliceRequest(req, res, 'Could not pause execution');
-        requestHandler(async () => {
-            const exId = await getLatestExId(req.params.jobId);
-            return api.executionService.pauseExecution(exId);
-        });
-    });
-
-    v2routes.post('/jobs/:jobId/_resume', (req, res) => {
-        const requestHandler = handleTerasliceRequest(req, res, 'Could not resume execution');
-        requestHandler(async () => {
-            const exId = await getLatestExId(req.params.jobId);
-            return api.executionService.resumeExecution(exId);
-        });
-    });
-
-    v2routes.post('/jobs/:jobId/_workers', (req, res) => {
-        const requestHandler = handleTerasliceRequest(req, res, 'Could not change workers count');
-        requestHandler(async () => {
-            const exId = await getLatestExId(req.params.jobId);
-            const result = await api._changeWorkers(exId, req.query);
-            return { message: `${result.workerNum} workers have been ${result.action} for execution: ${result.ex_id}` };
-        });
-    });
-
-    v2routes.post('/jobs/:jobId/_settings', (req, res) => {
-        const requestHandler = handleTerasliceRequest(req, res, 'Could not update dynamic job settings');
-        requestHandler(async () => {
-            const exId = await getLatestExId(req.params.jobId);
-            return api.executionService.setLogLevel(exId, req.query.log_level as string);
-        });
-    });
-
-    v2routes.post('/jobs/:jobId/_active', (req, res) => {
-        const { jobId } = req.params;
-        const requestHandler = handleTerasliceRequest(req, res, `Could not change active to 'true' for job: ${jobId}`);
-        requestHandler(() => api.jobsService.setActiveState(jobId, true));
-    });
-
-    v2routes.post('/jobs/:jobId/_inactive', (req, res) => {
-        const { jobId } = req.params;
-        const requestHandler = handleTerasliceRequest(req, res, `Could not change active to 'false' for job: ${jobId}`);
-        requestHandler(() => api.jobsService.setActiveState(jobId, false));
-    });
-
-    v2routes.post('/jobs/:jobId/_recover', (req, res) => {
-        const { jobId } = req.params;
-        const cleanupType = req.query.cleanup_type as RecoveryCleanupType;
-        const exId = req.query.ex_id as string | undefined;
-
-        const requestHandler = handleTerasliceRequest(req, res, 'Could not recover job');
-        requestHandler(async () => {
-            validateCleanupType(cleanupType);
-
-            if (!exId) {
-                return api.jobsService.recoverJob(jobId, cleanupType);
-            }
-
-            const execution = await api.executionService.getExecutionContext(exId);
-            if (execution.job_id !== jobId) {
-                throw new TSError(`Execution ${exId} does not belong to job ${jobId}`, {
-                    statusCode: 400
-                });
-            }
-            return api.executionService.recoverExecution(exId, cleanupType);
-        });
-    });
+        }
+        return api.executionService.recoverExecution(exId, cleanupType);
+    }, { errorMessage: 'Could not recover job' });
 
     registry.get('/jobs/:jobId/ex', {
         operationId: 'getJobLatestExecution',
@@ -425,7 +491,7 @@ export function createV2Registry(api: ApiService): RouteRegistry {
         response: TerasliceApiV2.ExecutionRecordSchema,
     }, async ({ params }) => fromStorage(
         await api.executionService.getExecutionContext(params.exId)
-    ), { errorMessage: 'Could not retrieve execution' });
+    ), { errorMessage: ({ exId }) => `Could not retrieve execution context ${exId}` });
 
     registry.get('/ex/:exId/errors', {
         operationId: 'getExecutionErrors',

@@ -56,9 +56,22 @@ export type RouteHandler<
     res: TerasliceResponse
 ) => RouteResult<R, X> | Promise<RouteResult<R, X>>;
 
-export interface RegisterOptions {
-    /** Message used when the handler throws an error without a message field */
-    errorMessage?: string;
+/**
+ * A route's path params as express passes them, before validation: the
+ * params schema's input type, or no keys for a route without params.
+ */
+export type RawParams<P> = P extends z.ZodType ? z.input<P> : Record<never, never>;
+
+export interface RegisterOptions<P extends ParamsSchema | undefined = undefined> {
+    /**
+     * Message used when the handler throws an error without a message field.
+     * A function is called per request with the raw path params, e.g.
+     * ``({ jobId }) => `Could not start job: ${jobId}` ``. It runs before the
+     * params are validated (the default must exist before anything can
+     * throw), so it gets the raw strings; a request that fails validation gets
+     * the validation message instead, never this one.
+     */
+    errorMessage?: string | ((params: RawParams<P>) => string);
 }
 
 /**
@@ -138,7 +151,7 @@ export type MethodRegister = <
     path: string,
     spec: RouteSpec<P, Q, B, R, X>,
     handler: RouteHandler<P, Q, B, R, X>,
-    options?: RegisterOptions
+    options?: RegisterOptions<P>
 ) => void;
 
 export interface RouteRegistry {
@@ -171,7 +184,7 @@ export interface RouteRegistry {
     >(
         def: RouteDef<P, Q, B, R, X>,
         handler: RouteHandler<P, Q, B, R, X>,
-        options?: RegisterOptions
+        options?: RegisterOptions<P>
     ): void;
     /**
      * Register a route with the method and path in the call, e.g.
@@ -338,7 +351,10 @@ export function createRouteRegistry(router: Router = Router()): RouteRegistry {
         assertUnique(def, routes);
 
         router[def.method](def.path, (req: TerasliceRequest, res: TerasliceResponse) => {
-            const requestHandler = handleTerasliceRequest(req, res, errorMessage);
+            const defaultErrorMsg = typeof errorMessage === 'function'
+                ? errorMessage(req.params as Parameters<typeof errorMessage>[0])
+                : errorMessage;
+            const requestHandler = handleTerasliceRequest(req, res, defaultErrorMsg);
             requestHandler(async () => {
                 const input = {
                     params: parseParams(def.params, req.params),

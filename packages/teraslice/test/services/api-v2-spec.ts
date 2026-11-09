@@ -3,6 +3,9 @@ import { jest } from '@jest/globals';
 import got from 'got';
 import express from 'express';
 import http from 'node:http';
+import fs from 'node:fs';
+import nodePath from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { z } from 'zod';
 import { TestContext, jobSchema } from '@terascope/job-components';
 import { TSError } from '@terascope/core-utils';
@@ -11,6 +14,8 @@ import { findPort } from '../../src/lib/utils/port_utils.js';
 import { ApiService } from '../../src/lib/cluster/services/api/api.js';
 import { createV2Registry } from '../../src/lib/cluster/services/api/v2/routes.js';
 import { getPackageJSON } from '../../src/lib/utils/file_utils.js';
+
+const dirname = nodePath.dirname(fileURLToPath(import.meta.url));
 
 describe('HTTP API v2', () => {
     const { version } = getPackageJSON();
@@ -526,6 +531,215 @@ describe('HTTP API v2', () => {
                 expect(getSliceTap).not.toHaveBeenCalled();
             });
         });
+
+        describe('job actions', () => {
+            const newExecution = { job_id: 'job-1', ex_id: 'ex-2' };
+            const warning = {
+                type: 'JobValidation',
+                reason: {
+                    type: 'jobProperty',
+                    kind: 'deprecation',
+                    reason: { field: 'cpu', description: 'use resources_requests_cpu' },
+                },
+            };
+
+            beforeEach(() => {
+                context.services.jobsService.getLatestExecutionId = async () => 'ex-1';
+            });
+
+            it('should have fixtures that match the response schemas', () => {
+                expect(TerasliceApiV2.NewExecutionSchema.safeParse(
+                    { ...newExecution, warnings: [warning] }
+                ).error).toBeUndefined();
+                expect(TerasliceApiV2.UpdatedJobSchema.safeParse(
+                    { ...job, warnings: [warning] }
+                ).error).toBeUndefined();
+            });
+
+            it('DELETE /v2/jobs/:jobId should keep the status of a service error', async () => {
+                context.services.jobsService.softDeleteJob = async () => {
+                    throw new TSError('Job job-1 is currently running', { statusCode: 409 });
+                };
+
+                const response = await request('DELETE', '/v2/jobs/job-1');
+
+                expect(response.statusCode).toEqual(409);
+                expect(response.body.message).toContain('currently running');
+            });
+
+            it('POST /v2/jobs/:jobId/_start should respond with a 400 for any query param', async () => {
+                const startJob = jest.fn();
+                context.services.jobsService.startJob = startJob;
+
+                const response = await request('POST', '/v2/jobs/job-1/_start', {
+                    searchParams: { force: 'true' }
+                });
+
+                expect(response.statusCode).toEqual(400);
+                expect(startJob).not.toHaveBeenCalled();
+            });
+
+            describe('POST /v2/jobs/:jobId/_stop', () => {
+                let stopExecution: jest.Mock<(...args: any[]) => Promise<void>>;
+                let exStatus: string;
+
+                beforeEach(() => {
+                    exStatus = 'stopped';
+                    stopExecution = jest.fn(async () => {});
+                    context.services.executionService.stopExecution = stopExecution;
+                    context.services.executionService.getExecutionContext = async () => ({
+                        ...execution, _status: exStatus,
+                    });
+                    context.stores.executionStorage.getTerminalStatuses = () => [
+                        'stopped', 'completed', 'failed', 'rejected', 'terminated'
+                    ];
+                });
+
+                it('should return the current status right away for blocking=false', async () => {
+                    exStatus = 'stopping';
+
+                    const response = await request('POST', '/v2/jobs/job-1/_stop', {
+                        searchParams: { blocking: 'false' }
+                    });
+
+                    expect(response.statusCode).toEqual(200);
+                    expect(response.body).toEqual({ status: 'stopping' });
+                });
+
+                it.each([
+                    ['timeout', '-1'],
+                    ['timeout', 'soon'],
+                    ['force', 'maybe'],
+                    ['blocking', ''],
+                ])('should respond with a 400 for %s=%j', async (key, value) => {
+                    const response = await request('POST', '/v2/jobs/job-1/_stop', {
+                        searchParams: { [key]: value }
+                    });
+
+                    expect(response.statusCode).toEqual(400);
+                    expect(response.body.message).toContain(key);
+                    expect(stopExecution).not.toHaveBeenCalled();
+                });
+
+                it('should respond with a 404 when the job has no execution', async () => {
+                    context.services.jobsService.getLatestExecutionId = async () => undefined;
+
+                    const response = await request('POST', '/v2/jobs/job-1/_stop');
+
+                    expect(response.statusCode).toEqual(404);
+                    expect(stopExecution).not.toHaveBeenCalled();
+                });
+            });
+
+            describe('POST /v2/jobs/:jobId/_workers', () => {
+                const workerMethods = {
+                    add: 'addWorkers',
+                    remove: 'removeWorkers',
+                    total: 'setWorkers',
+                } as const;
+                let calls: jest.Mock<(...args: any[]) => any>;
+
+                beforeEach(() => {
+                    calls = jest.fn();
+                    for (const [key, method] of Object.entries(workerMethods)) {
+                        const { executionService } = context.services;
+                        executionService[method] = async (exId: string, n: number) => {
+                            calls(method, exId, n);
+                            return { action: key, ex_id: exId, workerNum: n };
+                        };
+                    }
+                });
+
+                it.each([
+                    ['remove', 'removeWorkers'],
+                    ['total', 'setWorkers'],
+                ])('should call %s → %s', async (key, method) => {
+                    const response = await request('POST', '/v2/jobs/job-1/_workers', {
+                        searchParams: { [key]: '3' }
+                    });
+
+                    expect(response.statusCode).toEqual(200);
+                    expect(response.body).toEqual({
+                        message: `3 workers have been ${key} for execution: ex-1`
+                    });
+                    expect(calls).toHaveBeenCalledExactlyOnceWith(method, 'ex-1', 3);
+                });
+
+                // like v1: on kubernetesV2 this scales the workers to none
+                it('should allow total=0', async () => {
+                    const response = await request('POST', '/v2/jobs/job-1/_workers', {
+                        searchParams: { total: '0' }
+                    });
+
+                    expect(response.statusCode).toEqual(200);
+                    expect(calls).toHaveBeenCalledExactlyOnceWith('setWorkers', 'ex-1', 0);
+                });
+
+                // like v1 (Number('') is 0); see "Empty numeric params" in the plan
+                it('should treat an empty total as 0', async () => {
+                    await request('POST', '/v2/jobs/job-1/_workers', { searchParams: { total: '' } });
+
+                    expect(calls).toHaveBeenCalledExactlyOnceWith('setWorkers', 'ex-1', 0);
+                });
+
+                it.each([
+                    [{}, 'exactly one'],
+                    [{ add: '1', total: '3' }, 'exactly one'],
+                    [{ add: '0' }, 'add'],
+                    [{ remove: 'two' }, 'remove'],
+                    [{ total: '1.5' }, 'total'],
+                    [{ add: '' }, 'add'],
+                    [{ count: '2' }, 'Unrecognized key: "count"'],
+                ])('should respond with a 400 for %j', async (searchParams, message) => {
+                    const response = await request('POST', '/v2/jobs/job-1/_workers', { searchParams });
+
+                    expect(response.statusCode).toEqual(400);
+                    expect(response.body.message).toContain(message);
+                    expect(calls).not.toHaveBeenCalled();
+                });
+            });
+
+            it.each<Record<string, string>>([{}, { log_level: 'loud' }])(
+                'POST /v2/jobs/:jobId/_settings should respond with a 400 for %j',
+                async (searchParams) => {
+                    const setLogLevel = jest.fn();
+                    context.services.executionService.setLogLevel = setLogLevel;
+
+                    const response = await request('POST', '/v2/jobs/job-1/_settings', { searchParams });
+
+                    expect(response.statusCode).toEqual(400);
+                    expect(response.body.message).toContain('log_level');
+                    expect(setLogLevel).not.toHaveBeenCalled();
+                }
+            );
+
+            describe('POST /v2/jobs/:jobId/_recover', () => {
+                let recoverJob: jest.Mock<(...args: any[]) => Promise<any>>;
+
+                beforeEach(() => {
+                    recoverJob = jest.fn(async () => newExecution);
+                    context.services.jobsService.recoverJob = recoverJob;
+                });
+
+                it('should recover the job with no cleanup type', async () => {
+                    const response = await request('POST', '/v2/jobs/job-1/_recover');
+
+                    expect(response.statusCode).toEqual(200);
+                    expect(response.body).toEqual(newExecution);
+                    expect(recoverJob).toHaveBeenCalledWith('job-1', undefined);
+                });
+
+                it('should respond with a 400 for an empty cleanup_type', async () => {
+                    const response = await request('POST', '/v2/jobs/job-1/_recover', {
+                        searchParams: { cleanup_type: '' }
+                    });
+
+                    expect(response.statusCode).toEqual(400);
+                    expect(response.body.message).toContain('cleanup_type');
+                    expect(recoverJob).not.toHaveBeenCalled();
+                });
+            });
+        });
     });
 
     // jobConfigShape in @terascope/types lists the job config fields by hand
@@ -954,12 +1168,14 @@ describe('HTTP API v2', () => {
             expect(recoverJob).not.toHaveBeenCalled();
         });
 
-        it('should ignore the v1 cleanup alias', async () => {
-            await request('POST', '/v2/jobs/job-1/_recover', {
+        it('should reject the v1 cleanup alias', async () => {
+            const response = await request('POST', '/v2/jobs/job-1/_recover', {
                 searchParams: { cleanup: 'errors' }
             });
 
-            expect(recoverJob).toHaveBeenCalledWith('job-1', undefined);
+            expect(response.statusCode).toEqual(400);
+            expect(response.body.message).toContain('Unrecognized key: "cleanup"');
+            expect(recoverJob).not.toHaveBeenCalled();
         });
     });
 
@@ -1091,6 +1307,22 @@ describe('HTTP API v2', () => {
             }
 
             expect(failures).toEqual([]);
+        });
+    });
+
+    // api/api.ts imports createV2Registry from v2/routes.ts, so a runtime
+    // import back from api/api.ts would be a cycle that breaks as soon as
+    // either module uses the other at load time
+    describe('v2 routes module', () => {
+        it('should only import types from api/api.ts', () => {
+            const routesPath = nodePath.join(dirname, '../../src/lib/cluster/services/api/v2/routes.ts');
+            const source = fs.readFileSync(routesPath, 'utf8');
+            const apiImports = source.match(/^import\b[^;]*?from '\.\.\/api\.js';/gms) ?? [];
+
+            expect(apiImports).not.toBeEmpty();
+            for (const statement of apiImports) {
+                expect(statement).toStartWith('import type ');
+            }
         });
     });
 });

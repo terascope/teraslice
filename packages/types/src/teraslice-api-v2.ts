@@ -582,6 +582,179 @@ export const SliceTapResultSchema = z.object({
 export type GetJobTapQuery = z.input<typeof GetJobTapQuerySchema>;
 export type SliceTapResult = z.output<typeof SliceTapResultSchema>;
 
+/** ############### Job actions ############### */
+
+const deprecationReasonShape = {
+    field: z.string().meta({ description: 'The deprecated field' }),
+    description: z.string(),
+};
+
+export const JobWarningSchema = z.object({
+    type: z.literal('JobValidation'),
+    reason: z.discriminatedUnion('type', [
+        z.object({
+            type: z.literal('jobProperty'),
+            kind: z.literal('deprecation'),
+            reason: z.object(deprecationReasonShape),
+        }),
+        z.object({
+            type: z.literal('assetOperation'),
+            kind: z.literal('deprecation'),
+            reason: z.object({
+                _op: z.string().meta({ description: 'The operation the field is on' }),
+                ...deprecationReasonShape,
+            }),
+        }),
+        z.object({
+            type: z.literal('assetAPIProperty'),
+            kind: z.literal('deprecation'),
+            reason: z.object({
+                api_name: z.string().meta({ description: 'The api the field is on' }),
+                ...deprecationReasonShape,
+            }),
+        }),
+    ]),
+}).meta({
+    id: 'JobWarning',
+    description: 'Something job validation flagged without rejecting the job, '
+        + 'e.g. a deprecated field',
+});
+
+const jobWarnings = z.array(JobWarningSchema).optional()
+    .meta({ description: 'Only set when validating the job produced warnings' });
+
+/** Response of `_start` and `_recover` */
+export const NewExecutionSchema = z.object({
+    job_id: z.string(),
+    ex_id: z.string().meta({ description: 'The execution that was created' }),
+    warnings: jobWarnings,
+}).meta({
+    id: 'NewExecution',
+    description: 'An execution that was created and queued to be scheduled',
+});
+
+export type NewExecution = z.output<typeof NewExecutionSchema>;
+
+/** Response of `_active` and `_inactive` */
+export const UpdatedJobSchema = JobRecordSchema.extend({
+    warnings: jobWarnings
+        .meta({
+            description: 'Only set when validating the job produced warnings. '
+                + '`_inactive` skips validation, so it never sets this.'
+        }),
+}).meta({ id: 'UpdatedJob', description: 'The job as stored after the update' });
+
+export type UpdatedJob = z.output<typeof UpdatedJobSchema>;
+
+/** Query of `POST /jobs/:jobId/_stop` */
+export const StopJobQuerySchema = z.strictObject({
+    timeout: z.coerce.number<number>().int()
+        .min(0)
+        .optional()
+        .meta({
+            description: 'Milliseconds. native only; ignored on kubernetesV2. '
+                + 'Empty or 0 means no timeout',
+        }),
+    blocking: z.stringbool().default(true)
+        .meta({
+            description: '`true` (the default) waits until the execution reaches a terminal '
+                + 'status; `false` returns its status as soon as the stop is sent',
+        }),
+    force: z.stringbool().default(false)
+        .meta({
+            description: '`true` stops the execution even if it is already stopping or in a '
+                + 'terminal status. On kubernetesV2 it also deletes every resource of the '
+                + 'execution right away.',
+        }),
+});
+
+export const StopJobResultSchema = z.object({
+    status: ExecutionStatusSchema
+        .meta({ description: 'The execution status when the request returned' }),
+    message: z.string().optional()
+        .meta({ description: 'Only set when `force` is `true`' }),
+}).meta({ id: 'StopJobResult' });
+
+export type StopJobQuery = z.input<typeof StopJobQuerySchema>;
+export type StopJobResult = z.output<typeof StopJobResultSchema>;
+
+export const PauseJobResultSchema = z.object({ status: z.literal('paused') })
+    .meta({ id: 'PauseJobResult' });
+
+export const ResumeJobResultSchema = z.object({ status: z.literal('running') })
+    .meta({ id: 'ResumeJobResult' });
+
+export type PauseJobResult = z.output<typeof PauseJobResultSchema>;
+export type ResumeJobResult = z.output<typeof ResumeJobResultSchema>;
+
+const workerCount = (min: number, description: string) => z.coerce.number<number>().int()
+    .min(min)
+    .optional()
+    .meta({ description });
+
+const workerKeys = ['add', 'remove', 'total'] as const;
+
+const oneWorkerKey = 'Send exactly one of `add`, `remove` or `total`';
+
+const totalZero = 'On kubernetesV2, `0` scales the workers down to none without stopping '
+    + 'the execution; native rejects `0` unless the execution already has no workers.';
+
+/**
+ * Query of `POST /jobs/:jobId/_workers`. Exactly one key is allowed. The
+ * refine keeps the schema a `ZodObject`, but JSON Schema can't express it,
+ * so each field's description says so.
+ */
+export const ChangeJobWorkersQuerySchema = z.strictObject({
+    add: workerCount(1, `Number of workers to add. ${oneWorkerKey}`),
+    remove: workerCount(
+        1, `Number of workers to remove; must be less than the current count. ${oneWorkerKey}`
+    ),
+    total: workerCount(0, `Number of workers to scale to. ${totalZero} ${oneWorkerKey}`),
+}).refine(
+    (query) => workerKeys.filter((key) => query[key] !== undefined).length === 1,
+    { message: 'Send exactly one of add, remove or total' }
+);
+
+export const ChangeJobWorkersResultSchema = z.object({
+    message: z.string().meta({ description: 'Human-readable summary of the change' }),
+}).meta({ id: 'ChangeJobWorkersResult' });
+
+export type ChangeJobWorkersQuery = z.input<typeof ChangeJobWorkersQuerySchema>;
+export type ChangeJobWorkersResult = z.output<typeof ChangeJobWorkersResultSchema>;
+
+/** Query of `POST /jobs/:jobId/_settings` */
+export const UpdateJobSettingsQuerySchema = z.strictObject({
+    log_level: LogLevelSchema
+        .meta({ description: 'Log level for the running execution\'s processes' }),
+});
+
+export const UpdateJobSettingsResultSchema = z.object({
+    exId: z.string(),
+    level: LogLevelSchema,
+}).meta({ id: 'UpdateJobSettingsResult' });
+
+export type UpdateJobSettingsQuery = z.input<typeof UpdateJobSettingsQuerySchema>;
+export type UpdateJobSettingsResult = z.output<typeof UpdateJobSettingsResultSchema>;
+
+/** Query of `POST /jobs/:jobId/_recover` */
+export const RecoverJobQuerySchema = z.strictObject({
+    cleanup_type: z.enum(RecoveryCleanupType).optional()
+        .meta({
+            description: 'Reprocess only these slices, then finish instead of resuming: '
+                + '`all`: slices left in error or started; `errors`: slices in error; '
+                + '`pending`: slices not completed or failed. If left out, failed slices '
+                + 'are retried and the execution resumes where it left off.',
+        }),
+    ex_id: z.string().optional()
+        .meta({
+            description: 'Execution to recover, with the config it ran with; must belong to '
+                + 'the job. If left out, recovers the latest execution with the job\'s '
+                + 'current config.',
+        }),
+});
+
+export type RecoverJobQuery = z.input<typeof RecoverJobQuerySchema>;
+
 /** ################### /ex ################## */
 
 /** Query of `GET /ex` */
