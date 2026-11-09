@@ -436,6 +436,38 @@ export const JobRecordSchema = z.looseObject({
         + `config. ${jobConfigDocs}`,
 });
 
+/** ############## Search options ############# */
+
+/**
+ * Paging, sorting and filtering, shared by the list routes.
+ */
+const searchQueryShape = {
+    size: z.coerce.number<number>().int()
+        .min(0)
+        .default(100)
+        .meta({
+            description: 'Maximum number of records to return. `from + size` is limited by '
+                + 'the index\'s `max_result_window` (10,000 unless the cluster changes it)',
+        }),
+    from: z.coerce.number<number>().int()
+        .min(0)
+        .default(0)
+        .meta({ description: 'Number of matching records to skip, for paging' }),
+    sort: z.string().default('_updated:desc')
+        .meta({ description: 'Sort order as `field:asc` or `field:desc`; empty uses the default' }),
+    filter: z.string().optional()
+        .meta({
+            description: 'Lucene query string, ANDed with the route\'s own query, '
+                + 'e.g. `name:"my-job"`',
+        }),
+};
+
+const deletedQuery = z.stringbool().default(false)
+    .meta({
+        description: '`true` returns only soft-deleted records; `false` (the default) '
+            + 'only records that aren\'t',
+    });
+
 /** Path params of every /jobs/:jobId route */
 export const JobIdParams = z.strictObject({ jobId: z.string() });
 
@@ -466,6 +498,112 @@ export const GetJobQuerySchema = z.strictObject({
 export type GetJobQuery = z.input<typeof GetJobQuerySchema>;
 export type JobWithExecution = z.output<typeof JobWithExecutionSchema>;
 
+/** Query of `GET /jobs` */
+export const GetJobsQuerySchema = z.strictObject({
+    ...searchQueryShape,
+    active: z.stringbool().optional()
+        .meta({
+            description: '`true` returns only active jobs, `false` only inactive ones; '
+                + 'if left out it returns both',
+        }),
+    deleted: deletedQuery,
+    ex: z.string().optional()
+        .meta({
+            description: 'Comma-separated execution fields, e.g. `_status,ex_id`. Adds each '
+                + 'job\'s latest execution as `ex`, with only these fields. Empty (`?ex=`) '
+                + 'includes every field.',
+        }),
+});
+
+/** Response of `GET /jobs` */
+export const JobWithExecutionListSchema = z.array(JobWithExecutionSchema)
+    .meta({ description: 'Each job has `ex` only when `?ex` is sent' });
+
+export type GetJobsQuery = z.input<typeof GetJobsQuerySchema>;
+export type JobWithExecutionList = z.output<typeof JobWithExecutionListSchema>;
+
 /** Response of `GET /jobs/:jobId/controller` */
 export const JobControllerStatsSchema = ControllerStatsListSchema
     .meta({ description: 'Has one entry; 404 if the execution isn\'t running' });
+
+/** ############### Slice errors ############## */
+
+/**
+ * A slice's state record, from the state storage index. The errors routes
+ * only return slices in the `error` state.
+ */
+export const SliceStateRecordSchema = z.object({
+    slice_id: z.string(),
+    slicer_id: z.number().meta({ description: 'The slicer that created the slice' }),
+    slicer_order: z.number()
+        .meta({ description: 'Position of the slice in its slicer\'s sequence' }),
+    request: z.string().meta({ description: 'The slice request, JSON encoded' }),
+    state: z.enum(['pending', 'start', 'error', 'completed']),
+    ex_id: z.string(),
+    _created: Timestamp,
+    _updated: Timestamp,
+    error: z.string().optional()
+        .meta({ description: 'The error with its stack trace; set when `state` is "error"' }),
+    retry_count: z.number().optional()
+        .meta({ description: 'Times the slice was retried; unset if it never was' }),
+}).meta({ id: 'SliceStateRecord' });
+
+/** Response of the slice errors routes */
+export const SliceErrorListSchema = z.array(SliceStateRecordSchema);
+
+/** Query of `GET /jobs/:jobId/errors` */
+export const GetJobErrorsQuerySchema = z.strictObject(searchQueryShape);
+
+export type GetJobErrorsQuery = z.input<typeof GetJobErrorsQuerySchema>;
+export type SliceErrorList = z.output<typeof SliceErrorListSchema>;
+
+/** ################ Slice tap ################ */
+
+/** Query of `GET /jobs/:jobId/tap` */
+export const GetJobTapQuerySchema = z.strictObject({
+    size: z.union([z.literal('all'),
+        z.coerce.number<number>().int()
+            .min(1)])
+        .default(10)
+        .meta({ description: 'Number of records to capture, or "all" for the whole slice' }),
+});
+
+export const SliceTapResultSchema = z.object({
+    workerId: z.string().optional()
+        .meta({ description: 'The worker that processed the tapped slice' }),
+    sliceId: z.string(),
+    records: z.array(z.record(z.string(), z.unknown()))
+        .meta({ description: 'Records the job\'s processors returned for the slice' }),
+}).meta({
+    id: 'SliceTapResult',
+    description: 'Records from the next slice a worker processes',
+});
+
+export type GetJobTapQuery = z.input<typeof GetJobTapQuerySchema>;
+export type SliceTapResult = z.output<typeof SliceTapResultSchema>;
+
+/** ################### /ex ################## */
+
+/** Query of `GET /ex` */
+export const GetExecutionsQuerySchema = z.strictObject({
+    ...searchQueryShape,
+    status: z.string().optional()
+        .meta({
+            description: 'Comma-separated execution statuses, e.g. `running,failed`; '
+                + 'returns executions in any status listed. Not validated: an unknown status '
+                + 'matches nothing.',
+        }),
+    job_id: z.string().optional()
+        .meta({ description: 'Only return executions of this job' }),
+    deleted: deletedQuery,
+});
+
+/** Response of `GET /ex` */
+export const ExecutionRecordListSchema = z.array(ExecutionRecordSchema);
+
+/** Query of `GET /ex/:exId/errors` */
+export const GetExecutionErrorsQuerySchema = z.strictObject(searchQueryShape);
+
+export type GetExecutionsQuery = z.input<typeof GetExecutionsQuerySchema>;
+export type ExecutionRecordList = z.output<typeof ExecutionRecordListSchema>;
+export type GetExecutionErrorsQuery = z.input<typeof GetExecutionErrorsQuerySchema>;

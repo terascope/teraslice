@@ -33,20 +33,28 @@ export interface RouteInput<P, Q, B> {
 }
 
 /**
+ * What a handler returns: the response schema's output, or, on a `raw`
+ * route, a Buffer that already holds the serialized JSON response.
+ */
+export type RouteResult<R extends z.ZodType, X extends boolean>
+    = X extends true ? Buffer : z.output<R>;
+
+/**
  * A v2 route handler. Receives the parsed params/query/body (coercion and
  * defaults applied) and returns the response body, typed as the response
- * schema's output.
+ * schema's output (a Buffer on a `raw` route).
  */
 export type RouteHandler<
     P extends ParamsSchema | undefined,
     Q extends ParamsSchema | undefined,
     B extends z.ZodType | undefined,
-    R extends z.ZodType
+    R extends z.ZodType,
+    X extends boolean = false
 > = (
     input: RouteInput<P, Q, B>,
     req: TerasliceRequest,
     res: TerasliceResponse
-) => z.output<R> | Promise<z.output<R>>;
+) => RouteResult<R, X> | Promise<RouteResult<R, X>>;
 
 export interface RegisterOptions {
     /** Message used when the handler throws an error without a message field */
@@ -62,7 +70,8 @@ export interface RouteSpec<
     P extends ParamsSchema | undefined = undefined,
     Q extends ParamsSchema | undefined = undefined,
     B extends z.ZodType | undefined = undefined,
-    R extends z.ZodType = z.ZodType
+    R extends z.ZodType = z.ZodType,
+    X extends boolean = false
 > {
     /**
      * Unique id for the route, used as the OpenAPI `operationId` (and by
@@ -77,6 +86,15 @@ export interface RouteSpec<
     query?: Q;
     body?: B;
     response: R;
+    /**
+     * The handler returns a Buffer of already-serialized JSON, which is sent
+     * as-is with a JSON content type instead of being re-serialized. For
+     * pass-through responses (the slice tap) where parsing just to
+     * re-serialize would cost a copy of every record. `response` still
+     * describes the JSON for clients and the spec, but the handler's return
+     * is no longer type checked against it.
+     */
+    raw?: X;
 }
 
 /**
@@ -92,8 +110,9 @@ export interface RouteDef<
     P extends ParamsSchema | undefined = undefined,
     Q extends ParamsSchema | undefined = undefined,
     B extends z.ZodType | undefined = undefined,
-    R extends z.ZodType = z.ZodType
-> extends RouteSpec<P, Q, B, R> {
+    R extends z.ZodType = z.ZodType,
+    X extends boolean = false
+> extends RouteSpec<P, Q, B, R, X> {
     method: RouteMethod;
     /** Express-style path, relative to /v2, e.g. `/jobs/:jobId` */
     path: string;
@@ -104,7 +123,8 @@ export type AnyRouteDef = RouteDef<
     ParamsSchema | undefined,
     ParamsSchema | undefined,
     z.ZodType | undefined,
-    z.ZodType
+    z.ZodType,
+    boolean
 >;
 
 /** Registers a route for one HTTP method; see `RouteRegistry.register` */
@@ -112,11 +132,12 @@ export type MethodRegister = <
     P extends ParamsSchema | undefined = undefined,
     Q extends ParamsSchema | undefined = undefined,
     B extends z.ZodType | undefined = undefined,
-    R extends z.ZodType = z.ZodType
+    R extends z.ZodType = z.ZodType,
+    X extends boolean = false
 >(
     path: string,
-    spec: RouteSpec<P, Q, B, R>,
-    handler: RouteHandler<P, Q, B, R>,
+    spec: RouteSpec<P, Q, B, R, X>,
+    handler: RouteHandler<P, Q, B, R, X>,
     options?: RegisterOptions
 ) => void;
 
@@ -138,15 +159,18 @@ export interface RouteRegistry {
      * - params, query or body fail their schema
      * - the def has no `query` schema and any query param is sent
      * - the def has no `body` schema and a non-empty body is sent
+     *
+     * On a `raw` route, a handler result that isn't a Buffer is a 500.
      */
     register<
         P extends ParamsSchema | undefined,
         Q extends ParamsSchema | undefined,
         B extends z.ZodType | undefined,
-        R extends z.ZodType
+        R extends z.ZodType,
+        X extends boolean = false
     >(
-        def: RouteDef<P, Q, B, R>,
-        handler: RouteHandler<P, Q, B, R>,
+        def: RouteDef<P, Q, B, R, X>,
+        handler: RouteHandler<P, Q, B, R, X>,
         options?: RegisterOptions
     ): void;
     /**
@@ -315,14 +339,22 @@ export function createRouteRegistry(router: Router = Router()): RouteRegistry {
 
         router[def.method](def.path, (req: TerasliceRequest, res: TerasliceResponse) => {
             const requestHandler = handleTerasliceRequest(req, res, errorMessage);
-            requestHandler(() => {
+            requestHandler(async () => {
                 const input = {
                     params: parseParams(def.params, req.params),
                     query: parseQuery(def.query, req.query),
                     body: parseBody(def.body, req.body),
                 } as Parameters<typeof handler>[0];
 
-                return handler(input, req, res);
+                if (!def.raw) return handler(input, req, res);
+
+                const result = await handler(input, req, res);
+                if (!Buffer.isBuffer(result)) {
+                    throw new TSError(`${routeLabel(def)}: raw handler must return a Buffer`);
+                }
+                // handleTerasliceRequest sends a Buffer as-is; mark it as JSON
+                res.type('json');
+                return result;
             });
         });
 

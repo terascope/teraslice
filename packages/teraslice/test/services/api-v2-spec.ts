@@ -4,11 +4,9 @@ import got from 'got';
 import express from 'express';
 import http from 'node:http';
 import { z } from 'zod';
-import { TestContext } from '@terascope/job-components';
+import { TestContext, jobSchema } from '@terascope/job-components';
 import { TSError } from '@terascope/core-utils';
-import {
-    ExecutionRecordSchema, JobSchemaResponseSchema, JobWithExecutionSchema
-} from '@terascope/types';
+import { TerasliceApiV2 } from '@terascope/types';
 import { findPort } from '../../src/lib/utils/port_utils.js';
 import { ApiService } from '../../src/lib/cluster/services/api/api.js';
 import { createV2Registry } from '../../src/lib/cluster/services/api/v2/routes.js';
@@ -197,7 +195,7 @@ describe('HTTP API v2', () => {
             const response = await request('GET', '/v2/cluster/job-schema');
 
             // responses aren't parsed at runtime, so check the envelope here
-            const result = JobSchemaResponseSchema.safeParse(response.body);
+            const result = TerasliceApiV2.JobSchemaResponseSchema.safeParse(response.body);
             expect(result.error).toBeUndefined();
         });
     });
@@ -242,8 +240,8 @@ describe('HTTP API v2', () => {
 
         it('should have fixtures that match the response schemas', () => {
             // the routes below return these as-is, so check they're realistic
-            expect(JobWithExecutionSchema.safeParse(job).error).toBeUndefined();
-            expect(ExecutionRecordSchema.safeParse(execution).error).toBeUndefined();
+            expect(TerasliceApiV2.JobWithExecutionSchema.safeParse(job).error).toBeUndefined();
+            expect(TerasliceApiV2.ExecutionRecordSchema.safeParse(execution).error).toBeUndefined();
         });
 
         it('should accept a job stored as submitted, without defaults and with extra keys', () => {
@@ -258,7 +256,7 @@ describe('HTTP API v2', () => {
                 _updated: '2026-11-05T00:00:00.000Z',
             };
 
-            const result = JobWithExecutionSchema.safeParse(submitted);
+            const result = TerasliceApiV2.JobWithExecutionSchema.safeParse(submitted);
             expect(result.error).toBeUndefined();
             expect(result.data).toHaveProperty('__metadata');
         });
@@ -336,6 +334,221 @@ describe('HTTP API v2', () => {
             const response = await request('GET', '/v2/ex/ex-1', { searchParams: { ex: '_status' } });
 
             expect(response.statusCode).toEqual(400);
+        });
+
+        describe('GET /v2/jobs', () => {
+            let search: jest.Mock<(...args: any[]) => Promise<any[]>>;
+
+            beforeEach(() => {
+                search = jest.fn(async () => [job]);
+                context.stores.jobsStorage.search = search;
+            });
+
+            it('should list jobs with the default search options', async () => {
+                const response = await request('GET', '/v2/jobs');
+
+                expect(response.statusCode).toEqual(200);
+                expect(response.body).toEqual([job]);
+                expect(search).toHaveBeenCalledWith(
+                    `job_id:* AND ${notDeleted}`, 0, 100, '_updated:desc'
+                );
+            });
+
+            it('should pass paging, sort, active, deleted and filter through', async () => {
+                const response = await request('GET', '/v2/jobs', {
+                    searchParams: {
+                        size: '5', from: '10', sort: 'name:asc', active: 'false', deleted: 'true',
+                        filter: 'name:foo',
+                    }
+                });
+
+                expect(response.statusCode).toEqual(200);
+                expect(search).toHaveBeenCalledWith(
+                    '(job_id:* AND active:false AND _deleted:true) AND (name:foo)', 10, 5, 'name:asc'
+                );
+            });
+
+            it('should add the latest execution with only the fields in ?ex', async () => {
+                const getJobsWithExInfo = jest.fn(async () => [{ ...job, ex: { _status: 'running' } }]);
+                context.services.jobsService.getJobsWithExInfo = getJobsWithExInfo;
+
+                const response = await request('GET', '/v2/jobs', { searchParams: { ex: '_status' } });
+
+                expect(response.statusCode).toEqual(200);
+                expect(response.body[0].ex).toEqual({ _status: 'running' });
+                expect(getJobsWithExInfo).toHaveBeenCalledWith(
+                    expect.any(String), 0, 100, '_updated:desc', ['_status']
+                );
+            });
+
+            it('should add every execution field for an empty ?ex', async () => {
+                const getJobsWithExInfo = jest.fn(async () => [{ ...job, ex: execution }]);
+                context.services.jobsService.getJobsWithExInfo = getJobsWithExInfo;
+
+                await request('GET', '/v2/jobs', { searchParams: { ex: '' } });
+
+                expect(getJobsWithExInfo).toHaveBeenCalledWith(
+                    expect.any(String), 0, 100, '_updated:desc', undefined
+                );
+            });
+
+            it('should leave large pages to the search cluster\'s max_result_window', async () => {
+                const response = await request('GET', '/v2/jobs', { searchParams: { size: '50000' } });
+
+                expect(response.statusCode).toEqual(200);
+                expect(search.mock.calls[0][2]).toBe(50000);
+            });
+
+            it('should use the default sort for an empty ?sort, like v1', async () => {
+                await request('GET', '/v2/jobs', { searchParams: { sort: '' } });
+
+                expect(search.mock.calls[0][3]).toBe('_updated:desc');
+            });
+
+            it.each([
+                ['size', 'ten'],
+                ['size', '-1'],
+                ['from', '-1'],
+                ['active', ''],
+            ])('should respond with a 400 for %s=%j', async (key, value) => {
+                const response = await request('GET', '/v2/jobs', { searchParams: { [key]: value } });
+
+                expect(response.statusCode).toEqual(400);
+                expect(response.body.message).toContain('Invalid request query');
+                expect(response.body.message).toContain(key);
+                expect(search).not.toHaveBeenCalled();
+            });
+        });
+
+        describe('GET /v2/ex', () => {
+            let search: jest.Mock<(...args: any[]) => Promise<any[]>>;
+
+            beforeEach(() => {
+                search = jest.fn(async () => [execution]);
+                context.stores.executionStorage.search = search;
+            });
+
+            it('should list executions with the default search options', async () => {
+                const response = await request('GET', '/v2/ex');
+
+                expect(response.statusCode).toEqual(200);
+                expect(response.body).toEqual([execution]);
+                expect(search).toHaveBeenCalledWith(
+                    `ex_id:* AND ${notDeleted}`, 0, 100, '_updated:desc'
+                );
+            });
+
+            it('should pass an unknown status through, like v1, so it matches nothing', async () => {
+                const response = await request('GET', '/v2/ex', { searchParams: { status: 'borked' } });
+
+                expect(response.statusCode).toEqual(200);
+                expect(search.mock.calls[0][0]).toContain('_status:"borked"');
+            });
+        });
+
+        describe('slice errors', () => {
+            const errors = [{
+                slice_id: 'slice-1',
+                slicer_id: 0,
+                slicer_order: 3,
+                request: '{"count":10}',
+                state: 'error',
+                ex_id: 'ex-1',
+                _created: '2026-11-05T00:00:00.000Z',
+                _updated: '2026-11-05T00:00:01.000Z',
+                error: 'Error: boom\n    at ...',
+            }];
+            let search: jest.Mock<(...args: any[]) => Promise<any[]>>;
+
+            beforeEach(() => {
+                search = jest.fn(async () => errors);
+                context.stores.stateStorage.search = search;
+            });
+
+            it('should have a fixture that matches the response schema', () => {
+                expect(TerasliceApiV2.SliceErrorListSchema.safeParse(errors).error).toBeUndefined();
+            });
+
+            it('GET /v2/ex/:exId/errors should search the execution with a filter', async () => {
+                const response = await request('GET', '/v2/ex/ex-2/errors', {
+                    searchParams: { filter: 'slicer_id:1' }
+                });
+
+                expect(response.statusCode).toEqual(200);
+                expect(search).toHaveBeenCalledWith(
+                    '(state:error AND ex_id:"ex-2") AND (slicer_id:1)', 0, 100, '_updated:desc'
+                );
+            });
+
+            it('should respond with a 400 for an unknown query param', async () => {
+                const response = await request('GET', '/v2/ex/ex-2/errors', {
+                    searchParams: { state: 'error' }
+                });
+
+                expect(response.statusCode).toEqual(400);
+                expect(search).not.toHaveBeenCalled();
+            });
+        });
+
+        describe('GET /v2/jobs/:jobId/tap', () => {
+            const tapResult = {
+                workerId: 'worker-1',
+                sliceId: 'slice-1',
+                records: [{ id: 1 }, { id: 2 }],
+            };
+            let getSliceTap: jest.Mock<(...args: any[]) => Promise<Buffer>>;
+
+            beforeEach(() => {
+                context.services.jobsService.getLatestExecutionId = async () => 'ex-1';
+                getSliceTap = jest.fn(async () => Buffer.from(JSON.stringify(tapResult)));
+                context.services.executionService.getSliceTap = getSliceTap;
+            });
+
+            it('should have a fixture that matches the response schema', () => {
+                expect(TerasliceApiV2.SliceTapResultSchema.safeParse(tapResult).error)
+                    .toBeUndefined();
+            });
+
+            it('should send the tap results as JSON with the default size', async () => {
+                const response = await request('GET', '/v2/jobs/job-1/tap');
+
+                expect(response.statusCode).toEqual(200);
+                expect(response.headers['content-type']).toStartWith('application/json');
+                expect(response.body).toEqual(tapResult);
+                expect(getSliceTap).toHaveBeenCalledWith('ex-1', { size: 10 });
+            });
+
+            it.each(['0', '', 'some', '1.5'])('should respond with a 400 for size=%j', async (size) => {
+                const response = await request('GET', '/v2/jobs/job-1/tap', { searchParams: { size } });
+
+                expect(response.statusCode).toEqual(400);
+                expect(response.body.message).toContain('size');
+                expect(getSliceTap).not.toHaveBeenCalled();
+            });
+        });
+    });
+
+    // jobConfigShape in @terascope/types lists the job config fields by hand
+    // (see "Job field docs: single source" in the plan); keep it in step with
+    // the convict job schema, which is the source of truth
+    describe('job config fields', () => {
+        const recordOnlyKeys = ['job_id', '_context', '_created', '_updated', '_deleted', '_deleted_on'];
+        // config fields teraslice sets itself, so the job schema doesn't accept them
+        const systemSetKeys = ['relocatable'];
+        const zodKeys = Object.keys(TerasliceApiV2.JobRecordSchema.shape)
+            .filter((key) => !recordOnlyKeys.includes(key) && !systemSetKeys.includes(key));
+
+        it.each(['native', 'kubernetesV2'])('should match the %s job schema', (clusteringType) => {
+            const ctx = new TestContext('job-config-fields') as any;
+            ctx.sysconfig.teraslice.cluster_manager_type = clusteringType;
+            const convictKeys = Object.keys(jobSchema(ctx));
+
+            if (clusteringType === 'kubernetesV2') {
+                expect(zodKeys.toSorted()).toEqual(convictKeys.toSorted());
+            } else {
+                // native: zod lists the kubernetesV2-only fields too
+                expect(zodKeys).toIncludeAllMembers(convictKeys);
+            }
         });
     });
 

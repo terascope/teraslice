@@ -91,6 +91,24 @@ describe('v2 route registry', () => {
         throw new TSError('nope', { statusCode: 409 });
     }, { errorMessage: 'Could not fail' });
 
+    // `raw` routes, on their own registry so `routes` above stays as listed
+    const rawRegistry = createRouteRegistry();
+    const rawResponse = z.object({ a: z.number() });
+
+    rawRegistry.get('/raw', {
+        operationId: 'getRaw',
+        summary: 'Returns serialized JSON',
+        response: rawResponse,
+        raw: true,
+    }, () => Buffer.from('{"a":1}'));
+
+    rawRegistry.get('/raw-object', {
+        operationId: 'getRawObject',
+        summary: 'Wrongly returns an object from a raw route',
+        response: rawResponse,
+        raw: true,
+    }, () => ({ a: 1 }) as unknown as Buffer);
+
     let server: http.Server;
     let baseUrl: string;
 
@@ -105,6 +123,7 @@ describe('v2 route registry', () => {
             next();
         });
         app.use(registry.router);
+        app.use(rawRegistry.router);
 
         await new Promise((resolve, reject) => {
             server = app.listen(port, (err) => {
@@ -354,6 +373,27 @@ describe('v2 route registry', () => {
         });
     });
 
+    describe('a raw route', () => {
+        it('should send the Buffer as-is with a JSON content type', async () => {
+            const response = await got(`${baseUrl}/raw`, { throwHttpErrors: false });
+
+            expect(response.statusCode).toBe(200);
+            expect(response.headers['content-type']).toStartWith('application/json');
+            expect(response.body).toBe('{"a":1}');
+        });
+
+        it('should respond with a 500 if the handler does not return a Buffer', async () => {
+            const { status, body } = await request('/raw-object');
+
+            expect(status).toBe(500);
+            expect(body.message).toContain('v2 route GET /raw-object: raw handler must return a Buffer');
+        });
+
+        it('should record raw on the def', () => {
+            expect(rawRegistry.routes.map((r) => r.raw)).toEqual([true, true]);
+        });
+    });
+
     describe('handling a request', () => {
         it('should pass parsed params and query to the handler with defaults applied', async () => {
             const { status, body } = await request('/things/abc');
@@ -554,6 +594,21 @@ describe('v2 route registry', () => {
                 // @ts-expect-error count has a default but is still required
                 typed().register(withDefault, () => ({}));
                 typed().register(withDefault, () => ({ count: 1 }));
+            }).not.toThrow();
+        });
+
+        it('should type a raw handler as returning a Buffer', () => {
+            expect(() => {
+                const raw = createRouteRegistry();
+                const spec = {
+                    operationId: 'x', summary: 'X', response: z.object({ a: z.number() }),
+                };
+
+                raw.get('/raw', { ...spec, raw: true }, () => Buffer.from('{}'));
+                // @ts-expect-error a raw route returns a Buffer, not the response object
+                raw.get('/raw2', { ...spec, operationId: 'y', raw: true }, () => ({ a: 1 }));
+                // @ts-expect-error without raw, a Buffer isn't the response object
+                raw.get('/plain', { ...spec, operationId: 'z' }, () => Buffer.from('{}'));
             }).not.toThrow();
         });
 
