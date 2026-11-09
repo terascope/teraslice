@@ -662,9 +662,10 @@ export default class Jobs {
                 status
             };
 
-            const config = await jobApi.config();
-
-            jobMetadata.config = config;
+            // The stored job has no defaults, so fields like `workers` can be
+            // missing (see `job.config.workers` in the watch check). Cast until
+            // JobMetadata.config is retyped to the stored job record.
+            jobMetadata.config = await jobApi.config() as Teraslice.JobConfig;
 
             this.jobs.push(jobMetadata as JobMetadata);
         }
