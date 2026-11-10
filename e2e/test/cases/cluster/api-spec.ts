@@ -6,7 +6,7 @@ import { config } from '../../config.js';
 import { baseConfig } from '../../setup-config.js';
 import { Ex, Job } from 'teraslice-client-js';
 
-const { TEST_PLATFORM } = config;
+const { TEST_PLATFORM, TEST_API_VERSION } = config;
 
 describe('cluster api', () => {
     let terasliceHarness: TerasliceHarness;
@@ -182,9 +182,25 @@ describe('cluster api', () => {
         expect(response).toBeString();
     });
 
-    describe('GET /jobs/<jobId>/tap', () => {
+    describe('job active state', () => {
+        it('should mark a job inactive, then active again', async () => {
+            const jobSpec = terasliceHarness.newJob('generator');
+            const job = await terasliceHarness.teraslice.jobs.submit(jobSpec, true);
+            const jobId = job.id();
+
+            await terasliceHarness.teraslice.cluster.post(`/jobs/${jobId}/_inactive`);
+            expect(await job.config()).toMatchObject({ active: false });
+
+            await terasliceHarness.teraslice.cluster.post(`/jobs/${jobId}/_active`);
+            expect(await job.config()).toMatchObject({ active: true });
+        });
+    });
+
+    describe('a running job', () => {
+        // NOTE: every test in this section will use a single running job
         let job: Job;
-        let ex: Ex;
+        let jobId: string;
+        let exId: string;
 
         beforeAll(async () => {
             const jobSpec = terasliceHarness.newJob('generator');
@@ -194,8 +210,9 @@ describe('cluster api', () => {
             }
 
             job = await terasliceHarness.teraslice.jobs.submit(jobSpec);
-            const { ex_id: exId } = await job.execution();
-            ex = terasliceHarness.teraslice.executions.wrap(exId);
+            jobId = job.id();
+            ({ ex_id: exId } = await job.execution());
+            const ex = terasliceHarness.teraslice.executions.wrap(exId);
             await terasliceHarness.waitForExStatus(ex, 'running', 100, 1000);
         });
 
@@ -205,7 +222,7 @@ describe('cluster api', () => {
 
         // the tap route is passed through without a response check on the
         // server, so this is the only test of the shape a real worker sends
-        it('should return the records each operation produced, matching SliceTapResultSchema', async () => {
+        it('GET /jobs/<jobId>/tap should return the records each operation produced, matching SliceTapResultSchema', async () => {
             const result = await job.tap({ size: '5' });
 
             const { records } = TerasliceApiV2.SliceTapResultSchema.parse(result);
@@ -217,6 +234,69 @@ describe('cluster api', () => {
             });
             // noop passes the generated records through unchanged
             expect(records[1]).toEqual(records[0]);
+        });
+
+        it('POST /jobs/<jobId>/_settings should change the log level of the execution', async () => {
+            await expect(terasliceHarness.teraslice.cluster.post(`/jobs/${jobId}/_settings`, null, {
+                searchParams: { log_level: 'debug' }
+            })).resolves.toEqual({ exId, level: 'debug' });
+
+            await terasliceHarness.teraslice.cluster.post(`/jobs/${jobId}/_settings`, null, {
+                searchParams: { log_level: 'info' }
+            });
+        });
+
+        it('should return the execution controller of the job', async () => {
+            // slicer() calls /jobs/<jobId>/slicer on v1 and /jobs/<jobId>/controller on v2
+            const controllers = await job.slicer();
+
+            expect(controllers).toBeArrayOfSize(1);
+            expect(controllers[0]).toMatchObject({ ex_id: exId, job_id: jobId });
+        });
+
+        it('GET /cluster/controllers should include the execution controller of the job', async () => {
+            const controllers = await terasliceHarness.teraslice.cluster.controllers();
+
+            expect(controllers).toEqual(
+                expect.arrayContaining([expect.objectContaining({ ex_id: exId, job_id: jobId })])
+            );
+        });
+
+        it('GET /jobs/<jobId>/errors should return no errors for a job with no failed slices', async () => {
+            await expect(job.errors()).resolves.toEqual([]);
+        });
+
+        // TODO: Teraslice v4 deletes /v1, run these unconditionally
+        // https://github.com/terascope/teraslice/issues/4584#issuecomment-6636093239
+        (TEST_API_VERSION === 'v2' ? describe : describe.skip)('v2 only', () => {
+            it('should reject an unknown query param with a 400', async () => {
+                await expect(job.config({ nope: 'true' } as any)).rejects.toMatchObject({
+                    statusCode: 400,
+                    message: expect.stringContaining('Unrecognized key: "nope"')
+                });
+            });
+
+            it('should respond with a 405 for a v1 route that was removed in v2', async () => {
+                await expect(terasliceHarness.teraslice.cluster.post(`/ex/${exId}/_stop`))
+                    .rejects.toMatchObject({ statusCode: 405 });
+
+                // and the job is still running
+                await expect(job.status()).resolves.toEqual('running');
+            });
+
+            it('should not recover an execution that belongs to another job', async () => {
+                const otherJob = await terasliceHarness.teraslice.jobs.submit(
+                    terasliceHarness.newJob('generator'), true
+                );
+                const otherJobId = otherJob.id();
+
+                await expect(terasliceHarness.teraslice.cluster.post(`/jobs/${otherJobId}/_recover`, null, {
+                    searchParams: { ex_id: exId }
+                })).rejects.toMatchObject({
+                    statusCode: 400,
+                    message: expect.stringContaining(`Execution ${exId} does not belong to job ${otherJobId}`)
+                });
+            });
         });
     });
 
