@@ -585,8 +585,15 @@ export const SliceTapResultSchema = z.object({
     workerId: z.string().optional()
         .meta({ description: 'The worker that processed the tapped slice' }),
     sliceId: z.string(),
-    records: z.array(z.record(z.string(), z.unknown()))
-        .meta({ description: 'Records the job\'s processors returned for the slice' }),
+    records: z.array(z.array(z.object({
+        record: z.record(z.string(), z.unknown()).meta({ description: 'The record\'s data' }),
+        metadata: z.record(z.string(), z.unknown())
+            .meta({ description: 'The record\'s DataEntity metadata, e.g. `_key`, `_createTime`' }),
+    }))).meta({
+        description: 'One entry per operation, in job order: `records[0]` is the reader, '
+            + '`records[1]` the first processor, and so on. Each holds at most `size` records; '
+            + 'an operation that returned none has an empty array.',
+    }),
 }).meta({
     id: 'SliceTapResult',
     description: 'Records from the next slice a worker processes',

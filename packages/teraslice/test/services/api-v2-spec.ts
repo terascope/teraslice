@@ -69,7 +69,12 @@ const sliceErrors = [{
 const tapResult = {
     workerId: 'worker-1',
     sliceId: 'slice-1',
-    records: [{ id: 1 }, { id: 2 }],
+    // one array per operation, as the worker's tap observer collects them
+    records: [
+        [{ record: { id: 1 }, metadata: { _key: '1' } }],
+        [{ record: { id: 1, seen: true }, metadata: { _key: '1' } }],
+        [],
+    ],
 };
 const newExecution = { job_id: 'job-1', ex_id: 'ex-2' };
 const warning = {
