@@ -716,8 +716,9 @@ export const StopJobQuerySchema = z.strictObject({
         .min(0)
         .optional()
         .meta({
-            description: 'Milliseconds. native only; ignored on kubernetesV2. '
-                + 'Empty or 0 means no timeout',
+            description: 'Milliseconds. native only. Accepted for parity with v1, but '
+                + 'currently has no effect: processes stop within the cluster\'s '
+                + '`shutdown_timeout`',
         }),
     blocking: z.stringbool().default(true)
         .meta({
