@@ -3,7 +3,7 @@ import {
     has, toString, pDelay, pMap,
     pRetry, isKey
 } from '@terascope/core-utils';
-import { Teraslice } from '@terascope/types';
+import { Teraslice, TerasliceApiV2 } from '@terascope/types';
 import chalk from 'chalk';
 import * as diff from 'diff';
 import path from 'node:path';
@@ -24,6 +24,15 @@ import {
 } from '../interfaces.js';
 
 const statusEnum = Teraslice.ExecutionStatusEnum;
+
+/**
+ * Stored jobs have no defaults, so `workers` can be missing. The cluster
+ * default is min(cpu count, 5), so 5 is the most a missing value can mean.
+ *
+ * TODO: when the CLI switches to /v2, use the resolved `ex.workers` fetched
+ * in addJobs() first, and keep this only for jobs with no execution.
+ */
+const MAX_DEFAULT_WORKERS = 5;
 
 const display = new Display();
 
@@ -346,7 +355,7 @@ export default class Jobs {
         let batch: JobMetadata[] = [];
 
         for (const job of this.jobs) {
-            const { workers } = job.config;
+            const workers = job.config.workers ?? MAX_DEFAULT_WORKERS;
 
             // to prevent big jobs from putting the batch way over the limit
             if (workers > maxWorkersInBatch && batch.length > 0) {
@@ -435,7 +444,10 @@ export default class Jobs {
             this.commandFailed(`Job had ${failedSlices} failed slices and completed ${slicesCompleted} slices`, job);
         }
 
-        const requestedWorkers = job.config.workers;
+        // The stored job has no defaults; the execution has the resolved count.
+        // TODO: when the CLI switches to /v2, use the `ex.workers` fetched in
+        // addJobs() instead of this extra request.
+        const requestedWorkers = job.config.workers ?? (await job.api.execution()).workers;
 
         // should this fail? or try to add workers?
         if (this.correctNumberWorkers(currentWorkers, requestedWorkers) === false) {
@@ -662,10 +674,12 @@ export default class Jobs {
                 status
             };
 
-            // The stored job has no defaults, so fields like `workers` can be
-            // missing (see `job.config.workers` in the watch check). Cast until
-            // JobMetadata.config is retyped to the stored job record.
-            jobMetadata.config = await jobApi.config() as Teraslice.JobConfig;
+            // TODO: when the CLI switches to /v2, fetch `config({ ex: 'workers' })`
+            // to get the resolved worker count from the latest execution. Keep
+            // `ex` out of `config` (it would end up in exports and diffs) and
+            // store it on JobMetadata, e.g. `workers: config.workers ?? ex?.workers`.
+            // A job with no execution still needs a fallback.
+            jobMetadata.config = await jobApi.config();
 
             this.jobs.push(jobMetadata as JobMetadata);
         }
@@ -845,9 +859,9 @@ export default class Jobs {
         reply.green(`Saved jobFile(s) to ${this.config.outdir}`);
     }
 
-    async exportOne(jobConfig: Teraslice.JobConfig) {
+    async exportOne(jobConfig: TerasliceApiV2.JobWithExecution) {
         await pRetry(() => {
-            const filePath = this.createUniqueFilePath(jobConfig.name);
+            const filePath = this.createUniqueFilePath(jobConfig.name ?? 'Custom Job');
             return saveJobConfigToFile(jobConfig, filePath, this.config.clusterUrl);
         });
     }
