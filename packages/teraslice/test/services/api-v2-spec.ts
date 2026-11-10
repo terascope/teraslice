@@ -443,7 +443,9 @@ describe('HTTP API v2', () => {
             it.each([
                 ['size', 'ten'],
                 ['size', '-1'],
+                ['size', '1.5'],
                 ['from', '-1'],
+                ['from', '2.5'],
                 ['active', ''],
                 ['deleted', 'nope'],
             ])('should respond with a 400 for %s=%j', async (key, value) => {
@@ -846,16 +848,14 @@ describe('HTTP API v2', () => {
                 expect(getSliceTap).toHaveBeenCalledWith(exId, { size: 10 });
             });
 
-            it('should tap every record for size=all', async () => {
-                const response = await request('GET', '/v2/jobs/job-1/tap', {
-                    searchParams: { size: 'all' }
-                });
+            it.each(['all', '0'])('should tap every record for size=%j', async (size) => {
+                const response = await request('GET', '/v2/jobs/job-1/tap', { searchParams: { size } });
 
                 expect(response.statusCode).toEqual(200);
                 expect(getSliceTap).toHaveBeenCalledWith(exId, { size: 0 });
             });
 
-            it.each(['0', '', 'some', '1.5'])('should respond with a 400 for size=%j', async (size) => {
+            it.each(['', '-1', 'some', '1.5'])('should respond with a 400 for size=%j', async (size) => {
                 const response = await request('GET', '/v2/jobs/job-1/tap', { searchParams: { size } });
 
                 expect(response.statusCode).toEqual(400);

@@ -561,11 +561,22 @@ export type SliceErrorList = z.output<typeof SliceErrorListSchema>;
 
 /** Query of `GET /jobs/:jobId/tap` */
 export const GetJobTapQuerySchema = z.strictObject({
-    size: z.union([z.literal('all'),
-        z.coerce.number<number>().int()
-            .min(1)])
+    size: z.union([
+        z.literal('all'),
+        // `0` means the whole slice, so an empty `?size=` must not coerce to it:
+        // map `''` to NaN, which fails the number check. Typing `v` keeps the
+        // client input type `number`, and toJSONSchema uses the inner schema.
+        z.preprocess(
+            (v: number) => ((v as unknown) === '' ? NaN : v),
+            z.coerce.number<number>().int()
+                .min(0)
+        ),
+    ], { error: 'Expected "all" or an integer >= 0' })
         .default(10)
-        .meta({ description: 'Number of records to capture, or "all" for the whole slice' }),
+        .meta({
+            description: 'Number of records to capture; `0` or "all" captures the whole '
+                + 'slice. Empty (`?size=`) is rejected.',
+        }),
 });
 
 export const SliceTapResultSchema = z.object({
