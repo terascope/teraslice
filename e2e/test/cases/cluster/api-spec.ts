@@ -1,6 +1,6 @@
 import { createReadStream } from 'node:fs';
 import { cloneDeep, pDelay } from '@terascope/core-utils';
-import { JobConfig } from '@terascope/types';
+import { JobConfig, TerasliceApiV2 } from '@terascope/types';
 import { TerasliceHarness } from '../../teraslice-harness.js';
 import { config } from '../../config.js';
 import { baseConfig } from '../../setup-config.js';
@@ -180,6 +180,44 @@ describe('cluster api', () => {
     it('api end point /txt/assets/assetName/version should return a text table', async () => {
         const response = await terasliceHarness.teraslice.cluster.txt('assets/ex1/0.0.1');
         expect(response).toBeString();
+    });
+
+    describe('GET /jobs/<jobId>/tap', () => {
+        let job: Job;
+        let ex: Ex;
+
+        beforeAll(async () => {
+            const jobSpec = terasliceHarness.newJob('generator');
+            // Set resource constraints on workers within CI
+            if (TEST_PLATFORM === 'kubernetesV2') {
+                jobSpec.resources_requests_cpu = 0.05;
+            }
+
+            job = await terasliceHarness.teraslice.jobs.submit(jobSpec);
+            const { ex_id: exId } = await job.execution();
+            ex = terasliceHarness.teraslice.executions.wrap(exId);
+            await terasliceHarness.waitForExStatus(ex, 'running', 100, 1000);
+        });
+
+        afterAll(async () => {
+            await job.stop({ blocking: true });
+        });
+
+        // the tap route is passed through without a response check on the
+        // server, so this is the only test of the shape a real worker sends
+        it('should return the records each operation produced, matching SliceTapResultSchema', async () => {
+            const result = await job.tap({ size: '5' });
+
+            const { records } = TerasliceApiV2.SliceTapResultSchema.parse(result);
+
+            // one entry per operation: data_generator, then noop
+            expect(records).toBeArrayOfSize(2);
+            records.forEach((opRecords) => {
+                expect(opRecords).toBeArrayOfSize(5);
+            });
+            // noop passes the generated records through unchanged
+            expect(records[1]).toEqual(records[0]);
+        });
     });
 
     describe('DELETE /jobs/<jobId>', () => {
