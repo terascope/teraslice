@@ -76,15 +76,6 @@ describe('cluster api', () => {
         jobSpec.apis[0].index = terasliceHarness.getExampleIndex(100);
         jobSpec.apis[1].index = specIndex;
 
-        async function didError(p: Promise<unknown>) {
-            try {
-                await p;
-                return false;
-            } catch (_err) {
-                return true;
-            }
-        }
-
         const job = await terasliceHarness.teraslice.jobs.submit(jobSpec);
         const jobId = job.id();
 
@@ -94,14 +85,17 @@ describe('cluster api', () => {
         await terasliceHarness.waitForExStatus(ex, 'completed', 100, 1000);
         await pDelay(100);
 
-        const result = await Promise.all([
-            didError(terasliceHarness.teraslice.cluster.post(`/jobs/${jobId}/_resume`)),
-            didError(terasliceHarness.teraslice.cluster.post(`/jobs/${jobId}/_pause`)),
-            didError(ex.resume()),
-            didError(ex.pause())
-        ]);
+        const notActive = {
+            statusCode: 404,
+            message: expect.stringContaining(`no active execution context was found for ex_id: ${exId}`)
+        };
 
-        expect(result).toEqual([true, true, true, true]);
+        await Promise.all([
+            expect(terasliceHarness.teraslice.cluster.post(`/jobs/${jobId}/_resume`)).rejects.toMatchObject(notActive),
+            expect(terasliceHarness.teraslice.cluster.post(`/jobs/${jobId}/_pause`)).rejects.toMatchObject(notActive),
+            expect(ex.resume()).rejects.toMatchObject(notActive),
+            expect(ex.pause()).rejects.toMatchObject(notActive)
+        ]);
     });
 
     it('api end point /assets should return an array of json objects of asset metadata', async () => {
@@ -231,7 +225,7 @@ describe('cluster api', () => {
         it('will not list a deleted job by default', async () => {
             const list = await terasliceHarness.teraslice.jobs.list();
             const jobIds = list.map((jobConfig) => jobConfig.job_id);
-            expect(jobIds).toEqual(expect.arrayContaining([expect.not.stringMatching(jobId)]));
+            expect(jobIds).not.toContain(jobId);
         });
 
         it('will list a deleted job when passed "{ deleted: true }"', async () => {
