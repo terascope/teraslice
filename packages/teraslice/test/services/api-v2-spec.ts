@@ -1257,6 +1257,25 @@ describe('HTTP API v2', () => {
 
             expect(failures).toEqual([]);
         });
+
+        // A schema written inline in routes.ts gives clients no type, so they'd
+        // write their own copy that can drift.
+        it('should all be named exports of @terascope/types', () => {
+            const { routes } = createV2Registry(api);
+            const exported = new Set<unknown>(Object.values(TerasliceApiV2));
+
+            const inline: string[] = [];
+            for (const route of routes) {
+                for (const part of ['params', 'query', 'body', 'response'] as const) {
+                    const schema = route[part];
+                    if (schema && !exported.has(schema)) {
+                        inline.push(`${route.method.toUpperCase()} ${route.path} ${part}`);
+                    }
+                }
+            }
+
+            expect(inline).toEqual([]);
+        });
     });
 
     // api/api.ts imports createV2Registry from v2/routes.ts, so a runtime
