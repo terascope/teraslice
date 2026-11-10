@@ -67,7 +67,7 @@ export class ApiService {
         this.app = app;
     }
 
-    async _changeWorkers(exId: string, query: any) {
+    private async _changeWorkers(exId: string, query: any) {
         let msg;
         let workerNum: number | undefined;
         const keyOptions = { add: true, remove: true, total: true };
@@ -671,7 +671,7 @@ export class ApiService {
         this._updatePromMetrics();
     }
 
-    async _waitForStop(exId: string, blocking?: boolean): Promise<Record<string, any>> {
+    private async _waitForStop(exId: string, blocking?: boolean): Promise<Record<string, any>> {
         return new Promise((resolve) => {
             const checkExecution = () => {
                 this.executionService.getExecutionContext(exId)
