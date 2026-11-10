@@ -772,7 +772,10 @@ const totalZero = 'On kubernetesV2, `0` scales the workers down to none without 
 export const ChangeJobWorkersQuerySchema = z.strictObject({
     add: workerCount(1, `Number of workers to add. ${oneWorkerKey}`),
     remove: workerCount(
-        1, `Number of workers to remove; must be less than the current count. ${oneWorkerKey}`
+        1,
+        'Number of workers to remove. On kubernetesV2, removing every worker scales the '
+        + 'workers down to none without stopping the execution; native rejects removing '
+        + `as many as the execution has, or more. ${oneWorkerKey}`
     ),
     total: workerCount(0, `Number of workers to scale to. ${totalZero} ${oneWorkerKey}`),
 }).refine(
