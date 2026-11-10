@@ -4,7 +4,7 @@ import {
     pDelay, isString, toString,
     TSError, toHumanTime
 } from '@terascope/core-utils';
-import { GetJobQuery, JobWithExecution, Teraslice } from '@terascope/types';
+import { Teraslice, TerasliceApiV2 } from '@terascope/types';
 import { ClientConfig, RequestOptions } from './interfaces.js';
 import Client from './client.js';
 
@@ -93,7 +93,9 @@ export default class Job extends Client {
         return this.post(`/jobs/${this._jobId}/_recover`, null, options);
     }
 
-    async update(jobSpec: Teraslice.JobConfig): Promise<Teraslice.ApiJobUpdateResponse> {
+    async update(
+        jobSpec: Teraslice.JobConfig | TerasliceApiV2.JobConfigBody
+    ): Promise<Teraslice.ApiJobUpdateResponse> {
         return this.put(`/jobs/${this._jobId}`, jobSpec);
     }
 
@@ -102,9 +104,8 @@ export default class Job extends Client {
     ): Promise<Teraslice.ApiJobUpdateResponse> {
         const current = await this.config();
         // A stored job holds only what was submitted (no defaults), so this
-        // isn't a full JobConfig. The server accepts it as the raw spec it
-        // was stored from; replace the cast once the PUT body is typed.
-        const body = Object.assign({}, current, jobSpec) as Teraslice.JobConfig;
+        // isn't a full JobConfig, but it is a valid PUT body
+        const body: TerasliceApiV2.JobConfigBody = Object.assign({}, current, jobSpec);
         return this.update(body);
     }
 
@@ -200,9 +201,9 @@ export default class Job extends Client {
      * limited to the listed fields (comma-separated; empty for every field).
      */
     async config(
-        query: GetJobQuery = {},
+        query: TerasliceApiV2.GetJobQuery = {},
         searchOptions: RequestOptions = {}
-    ): Promise<JobWithExecution> {
+    ): Promise<TerasliceApiV2.JobWithExecution> {
         return this.get(`/jobs/${this._jobId}`, this.makeOptions(query, searchOptions));
     }
 

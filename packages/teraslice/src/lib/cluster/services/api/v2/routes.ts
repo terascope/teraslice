@@ -6,8 +6,7 @@ import { type Logger, type ExecutionStatus, TerasliceApiV2 } from '@terascope/ty
 import type { ApiService } from '../api.js';
 import type { ControllerStats } from '../../../../../interfaces.js';
 import {
-    sendError, handleTerasliceRequest, createJobActiveQuery,
-    addDeletedToQuery, addFilterToQuery, buildConnectorList
+    createJobActiveQuery, addDeletedToQuery, addFilterToQuery, buildConnectorList
 } from '../../../../utils/api_utils.js';
 import { getPackageJSON } from '../../../../utils/file_utils.js';
 import { createRouteRegistry, type RouteRegistry } from '../../../../utils/v2_routes.js';
@@ -78,8 +77,6 @@ function sortOrDefault(sort: string): string {
  */
 export function createV2Registry(api: ApiService): RouteRegistry {
     const registry = createRouteRegistry();
-    // Routes not yet migrated to the method helpers are added to `v2routes` directly
-    const { router: v2routes } = registry;
 
     async function getLatestExId(jobId: string): Promise<string> {
         const exId = await api.jobsService.getLatestExecutionId(jobId);
@@ -214,16 +211,15 @@ export function createV2Registry(api: ApiService): RouteRegistry {
         return jobs.map((job) => fromStorage(job));
     }, { errorMessage: 'Could not retrieve list of jobs' });
 
-    v2routes.post('/jobs', (req, res) => {
-        if (!req.body?.operations) {
-            sendError(res, 400, 'No job was posted');
-            return;
-        }
-
-        const shouldRun = `${req.query.start}` !== 'false';
-
-        const requestHandler = handleTerasliceRequest(req, res, 'Job submission failed');
-        requestHandler(() => api.jobsService.submitJob(req.body, shouldRun));
+    registry.post('/jobs', {
+        operationId: 'submitJob',
+        summary: 'Submit a job, and start it unless `start` is `false`',
+        tags: ['Jobs'],
+        query: TerasliceApiV2.SubmitJobQuerySchema,
+        body: TerasliceApiV2.JobConfigBodySchema,
+        response: TerasliceApiV2.SubmitJobResultSchema,
+    }, ({ query, body }) => api.jobsService.submitJob(body, query.start), {
+        errorMessage: 'Job submission failed'
     });
 
     registry.get('/jobs/:jobId', {
@@ -244,17 +240,17 @@ export function createV2Registry(api: ApiService): RouteRegistry {
         return fromStorage(job);
     }, { errorMessage: 'Could not retrieve job' });
 
-    v2routes.put('/jobs/:jobId', (req, res) => {
-        const { jobId } = req.params;
-
-        if (!req.body || Object.keys(req.body).length === 0) {
-            sendError(res, 400, `no data was provided to update job ${jobId}`);
-            return;
-        }
-
-        const requestHandler = handleTerasliceRequest(req, res, 'Could not update job');
-        requestHandler(() => api.jobsService.updateJob(jobId, req.body));
-    });
+    // The body replaces the stored job; it isn't merged into it
+    registry.put('/jobs/:jobId', {
+        operationId: 'updateJob',
+        summary: 'Replace a job\'s config',
+        tags: ['Jobs'],
+        params: TerasliceApiV2.JobIdParams,
+        body: TerasliceApiV2.JobConfigBodySchema,
+        response: TerasliceApiV2.UpdatedJobSchema,
+    }, async ({ params, body }) => fromStorage(
+        await api.jobsService.updateJob(params.jobId, body)
+    ), { errorMessage: 'Could not update job' });
 
     registry.delete('/jobs/:jobId', {
         operationId: 'deleteJob',

@@ -458,25 +458,81 @@ describe('HTTP API v2', () => {
             });
         });
 
-        it('should submit a job', async () => {
-            const jobSpec = { name: 'test', operations: [{ _op: 'noop' }] };
+        describe('POST /v2/jobs', () => {
+            const jobSpec = { name: 'test', operations: [{ _op: 'test-reader' }, { _op: 'noop' }] };
 
-            const response = await request('POST', '/v2/jobs', {
-                json: jobSpec,
-                searchParams: { start: 'false' }
+            it('should submit and start a job by default', async () => {
+                submitJob.mockResolvedValue(newExecution);
+
+                const response = await request('POST', '/v2/jobs', { json: jobSpec });
+
+                expect(response.statusCode).toEqual(200);
+                expect(response.body).toEqual(newExecution);
+                expect(submitJob).toHaveBeenCalledWith(jobSpec, true);
             });
 
-            expect(response.statusCode).toEqual(200);
-            expect(response.body).toEqual({ job_id: 'job-1' });
-            expect(submitJob).toHaveBeenCalledWith(jobSpec, false);
-        });
+            it('should only store the job for start=false', async () => {
+                const response = await request('POST', '/v2/jobs', {
+                    json: jobSpec,
+                    searchParams: { start: 'false' }
+                });
 
-        it('should respond with a 400 when no job is posted', async () => {
-            const response = await request('POST', '/v2/jobs', { json: {} });
+                expect(response.statusCode).toEqual(200);
+                expect(response.body).toEqual({ job_id: 'job-1' });
+                expect(submitJob).toHaveBeenCalledWith(jobSpec, false);
+            });
 
-            expect(response.statusCode).toEqual(400);
-            expect(response.body).toMatchObject({ message: 'No job was posted' });
-            expect(submitJob).not.toHaveBeenCalled();
+            it('should pass the job through as sent, for the job validator', async () => {
+                // extra keys are kept, and values the job schema coerces aren't checked here
+                const sent = { ...jobSpec, workers: '5', __metadata: { cli: { cluster: 'localhost:5678' } } };
+
+                const response = await request('POST', '/v2/jobs', { json: sent });
+
+                expect(response.statusCode).toEqual(200);
+                expect(submitJob).toHaveBeenCalledWith(sent, true);
+            });
+
+            it('should keep the status of a job validation error', async () => {
+                submitJob.mockRejectedValue(
+                    new TSError('Job cannot include a job_id on submit', { statusCode: 422 })
+                );
+
+                const response = await request('POST', '/v2/jobs', {
+                    json: { ...jobSpec, job_id: 'job-1' }
+                });
+
+                expect(response.statusCode).toEqual(422);
+                expect(response.body.message).toContain('job_id');
+            });
+
+            it.each([
+                ['no body', undefined, 'expected object'],
+                ['an empty body', {}, 'operations'],
+                ['no operations', { name: 'test' }, 'operations'],
+                ['an operation without _op', { operations: [{ _op: 'noop' }, { size: 1 }] }, '_op'],
+            ])('should respond with a 400 for %s', async (_desc, body, expected) => {
+                const response = await request('POST', '/v2/jobs', { json: body });
+
+                expect(response.statusCode).toEqual(400);
+                expect(response.body.message).toContain('Invalid request body');
+                expect(response.body.message).toContain(expected);
+                expect(submitJob).not.toHaveBeenCalled();
+            });
+
+            it.each([
+                ['start', ''],
+                ['start', 'nope'],
+                ['run', 'true'],
+            ])('should respond with a 400 for %s=%j', async (key, value) => {
+                const response = await request('POST', '/v2/jobs', {
+                    json: jobSpec,
+                    searchParams: { [key]: value }
+                });
+
+                expect(response.statusCode).toEqual(400);
+                expect(response.body.message).toContain('Invalid request query');
+                expect(submitJob).not.toHaveBeenCalled();
+            });
         });
 
         describe('GET /v2/jobs/:jobId', () => {
@@ -532,20 +588,40 @@ describe('HTTP API v2', () => {
             });
         });
 
-        it('should update a job', async () => {
-            const update = { name: 'updated' };
+        describe('PUT /v2/jobs/:jobId', () => {
+            const update = { name: 'updated', operations: [{ _op: 'test-reader' }, { _op: 'noop' }] };
 
-            const response = await request('PUT', '/v2/jobs/job-1', { json: update });
+            it('should update a job', async () => {
+                updateJob.mockResolvedValue({ ...job, ...update, warnings: [warning] });
 
-            expect(response.statusCode).toEqual(200);
-            expect(updateJob).toHaveBeenCalledWith('job-1', update);
-        });
+                const response = await request('PUT', '/v2/jobs/job-1', { json: update });
 
-        it('should respond with a 400 when no update data is provided', async () => {
-            const response = await request('PUT', '/v2/jobs/job-1', { json: {} });
+                expect(response.statusCode).toEqual(200);
+                expect(response.body).toMatchObject({ name: 'updated', warnings: [warning] });
+                expect(updateJob).toHaveBeenCalledWith('job-1', update);
+            });
 
-            expect(response.statusCode).toEqual(400);
-            expect(updateJob).not.toHaveBeenCalled();
+            it.each([
+                ['an empty body', {}],
+                // v1 stored this as the whole job, dropping its operations
+                ['only active: false', { active: false }],
+            ])('should respond with a 400 for %s', async (_desc, body) => {
+                const response = await request('PUT', '/v2/jobs/job-1', { json: body });
+
+                expect(response.statusCode).toEqual(400);
+                expect(response.body.message).toContain('Invalid request body');
+                expect(updateJob).not.toHaveBeenCalled();
+            });
+
+            it('should keep the status of an update error', async () => {
+                updateJob.mockRejectedValue(
+                    new TSError('Job job-1 has been deleted and cannot be updated.', { statusCode: 410 })
+                );
+
+                const response = await request('PUT', '/v2/jobs/job-1', { json: update });
+
+                expect(response.statusCode).toEqual(410);
+            });
         });
 
         it('should soft delete a job', async () => {
@@ -1096,6 +1172,18 @@ describe('HTTP API v2', () => {
             expect(TerasliceApiV2.UpdatedJobSchema.safeParse(
                 { ...job, warnings: [warning] }
             ).error).toBeUndefined();
+            expect(TerasliceApiV2.SubmitJobResultSchema.safeParse(
+                { ...newExecution, warnings: [warning] }
+            ).error).toBeUndefined();
+            expect(TerasliceApiV2.SubmitJobResultSchema.safeParse({ job_id: 'job-1' }).error)
+                .toBeUndefined();
+        });
+
+        it('should accept a job submitted without a name', () => {
+            // the job schema defaults name, and jobs are stored as submitted
+            const { name: _name, ...noName } = job;
+
+            expect(TerasliceApiV2.JobRecordSchema.safeParse(noName).error).toBeUndefined();
         });
 
         it('should accept a job stored as submitted, without defaults and with extra keys', () => {

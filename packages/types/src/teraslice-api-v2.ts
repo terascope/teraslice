@@ -420,19 +420,21 @@ export const ExecutionRecordSchema = z.looseObject({
  * Unlike an execution, a job is stored as submitted (`jobsService.submitJob`
  * and `updateJob` store the raw spec, not the validated config), so
  * defaults are never filled in: any config field the client left out is
- * absent. Only `name` and `operations` are required, because validation
- * requires them.
+ * absent. Only `operations` is required, because validation requires it.
  */
 export const JobRecordSchema = z.looseObject({
     ...z.object(jobConfigShape).partial().shape,
-    name: jobConfigShape.name,
+    name: jobConfigShape.name.optional()
+        .meta({
+            description: 'Name of the job; defaults to "Custom Job"',
+        }),
     operations: jobConfigShape.operations,
     ...recordShape,
     _context: z.literal('job'),
 }).meta({
     id: 'JobRecord',
-    description: 'A job config as it was submitted: fields left out are absent, not '
-        + 'defaulted. The latest execution (`GET /jobs/{jobId}/ex`) has the resolved '
+    description: 'A job config as it was submitted, before defaults are applied. '
+        + 'The latest execution (`GET /jobs/{jobId}/ex`) has the resolved '
         + `config. ${jobConfigDocs}`,
 });
 
@@ -646,16 +648,60 @@ export const NewExecutionSchema = z.object({
 
 export type NewExecution = z.output<typeof NewExecutionSchema>;
 
-/** Response of `_active` and `_inactive` */
+/** Response of `PUT /jobs/:jobId`, `_active` and `_inactive` */
 export const UpdatedJobSchema = JobRecordSchema.extend({
     warnings: jobWarnings
         .meta({
-            description: 'Only set when validating the job produced warnings. '
-                + '`_inactive` skips validation, so it never sets this.'
+            description: 'Only set when validating the job produced warnings. Making an '
+                + 'active job inactive (`_inactive`, or a `PUT` with `active: false`) skips '
+                + 'validation, so it never sets this.'
         }),
 }).meta({ id: 'UpdatedJob', description: 'The job as stored after the update' });
 
 export type UpdatedJob = z.output<typeof UpdatedJobSchema>;
+
+/** ################ Job bodies ############### */
+
+/**
+ * Body of `POST /jobs` and `PUT /jobs/:jobId`. Only checks that there are
+ * `operations`, each with an `_op`. `jobsService` validates the whole config
+ * against the cluster's job schema, which depends on the cluster (connector
+ * names, kubernetesV2-only fields) and coerces values (`"5"` for `workers`,
+ * `"true"` for `active`), so typing every field here would reject jobs that
+ * validation accepts. Loose because job validation only warns about
+ * undeclared keys and op options depend on the asset.
+ */
+export const JobConfigBodySchema = z.looseObject({
+    operations: z.array(
+        z.looseObject({ _op: z.string().meta({ description: 'The operation name' }) })
+    ),
+}).meta({
+    id: 'JobConfigBody',
+    description: 'A job config. Validated against this cluster\'s job schema '
+        + '(`GET /cluster/job-schema`) and stored as sent, without defaults.',
+});
+
+export type JobConfigBody = z.input<typeof JobConfigBodySchema>;
+
+/** Query of `POST /jobs` */
+export const SubmitJobQuerySchema = z.strictObject({
+    start: z.stringbool().default(true)
+        .meta({
+            description: '`true` (the default) stores the job and starts it; `false` only '
+                + 'stores it',
+        }),
+});
+
+/** Response of `POST /jobs` */
+export const SubmitJobResultSchema = z.object({
+    job_id: z.string(),
+    ex_id: z.string().optional()
+        .meta({ description: 'The execution that was created; only set when `start` is `true`' }),
+    warnings: jobWarnings,
+}).meta({ id: 'SubmitJobResult' });
+
+export type SubmitJobQuery = z.input<typeof SubmitJobQuerySchema>;
+export type SubmitJobResult = z.output<typeof SubmitJobResultSchema>;
 
 /** Query of `POST /jobs/:jobId/_stop` */
 export const StopJobQuerySchema = z.strictObject({
