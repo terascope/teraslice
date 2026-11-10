@@ -246,7 +246,7 @@ describe('cluster api', () => {
         });
 
         it('will not update a deleted job', async () => {
-            await expect(terasliceHarness.teraslice.jobs.put(`/jobs/${jobId}`, { workers: 1 })).rejects.toThrow(`Job ${jobId} has been deleted and cannot be updated.`);
+            await expect(terasliceHarness.teraslice.jobs.put(`/jobs/${jobId}`, { ...jobSpec, workers: 1 })).rejects.toThrow(`Job ${jobId} has been deleted and cannot be updated.`);
         });
 
         it('will not recover a deleted job', async () => {
