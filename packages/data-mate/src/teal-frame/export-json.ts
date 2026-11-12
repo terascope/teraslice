@@ -288,13 +288,12 @@ class Renderer {
     }
 
     /**
-     * A LIST column's elements, each rendered, with NULL for a nil element and nothing removed.
-     * The caller applies the nil rules as it streams, as `ListVector.getRowIterator` does.
+     * One element of a LIST column, rendered from the column `v0`, with NULL for a nil element
+     * and nothing removed. The caller applies the nil rules as it streams, as
+     * `ListVector.getRowIterator` does.
     */
-    listElements(node: FieldNode, accessor: string): string {
-        const element = this.value({ ...node, isArray: false }, 'v0', 1);
-        return `CASE WHEN ${accessor} IS NULL THEN NULL`
-            + ` ELSE list_transform(${accessor}, lambda v0 : ${element}) END`;
+    listElement(node: FieldNode): string {
+        return this.value({ ...node, isArray: false }, 'v0', 1);
     }
 
     /** True when a value renders as something other than nil - see {@link rowFilter}. */
@@ -434,10 +433,11 @@ class Renderer {
 }
 
 /**
- * SQL rendering one LIST column's elements as JSON text (see `TealFrame.listValues`), and
- * whether the elements are objects, which decides whether `skipNilObjectValues` applies.
+ * SQL rendering one element of a LIST column, read from a column named `v0` (for example an
+ * `unnest` of the list), as `ListVector.toJSONCompatibleValue` renders it: NULL for a nil
+ * element, which the caller keeps or skips.
 */
-export function buildJsonListElements(
+export function buildJsonListElement(
     config: DataTypeConfig | ReadonlyDataTypeConfig,
     column: string,
     options: JsonExportOptions = {}
@@ -447,7 +447,7 @@ export function buildJsonListElements(
         throw new TypeError(`Column "${column}" is not a list in this frame's config`);
     }
     return {
-        sql: new Renderer(resolveRules(options)).listElements(node, quoteIdentifier(column)),
+        sql: new Renderer(resolveRules(options)).listElement(node),
         isObject: node.type === FieldType.Object,
     };
 }
