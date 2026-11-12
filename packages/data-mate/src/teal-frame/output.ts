@@ -56,12 +56,9 @@ export function jsonLinesSQL(
 }
 
 /**
- * Yields one row's LIST column element by element, like `ListVector.getRowIterator`.
- *
- * The list is unnested and each element rendered as it is streamed, a chunk at a time, so
- * neither DuckDB nor JS holds the rendered list as one value, which for a large result would
- * be huge. An unnest of one row yields the elements in list order. A nil list yields as one
- * nil element does, as `ListVector.getRowIterator` does.
+ * Yields one row's LIST column element by element, like `ListVector.getRowIterator`. The list
+ * is unnested and each element rendered as it streams, so the rendered list is never held as
+ * one value. A nil list yields as one nil element does.
 */
 export async function* listValues(
     ctx: DuckContext,

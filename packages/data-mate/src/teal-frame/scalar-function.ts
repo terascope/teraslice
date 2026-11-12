@@ -53,8 +53,8 @@ export interface ScalarFunctionSpec {
     */
     fnForArgs?: (argsText: string) => ScalarFunctionImpl;
     /**
-     * The arguments JSON is an expression of each row (`json_object('delimiter', "delim")`)
-     * instead of a constant, so it is read for every row. Only used with `fnForArgs`.
+     * The arguments JSON differs per row (`json_object('delimiter', "delim")`), so it is read
+     * for every row. Only used with `fnForArgs`.
     */
     argsPerRow?: boolean;
     /**
@@ -121,9 +121,9 @@ export function createScalarFunction(spec: ScalarFunctionSpec): DuckDBScalarFunc
         mainFunction: (_info, chunk, output) => {
             const values = chunk.getColumnValues(0) as unknown[];
             /**
-             * The arguments are one constant literal per call (`udfCall`), so only the first row
-             * is read. Reading the whole column would copy the JSON into a JS string for every
-             * row, which is very slow for a large `lookup` table.
+             * Constant arguments (`udfCall`) are read from the first row only: reading the whole
+             * column would copy the JSON into a JS string for every row, which is very slow for a
+             * large `lookup` table. Per-row arguments (`argsPerRow`) are read for every row.
             */
             const argsTexts = forArgs && spec.argsPerRow
                 ? chunk.getColumnValues(1) as string[]

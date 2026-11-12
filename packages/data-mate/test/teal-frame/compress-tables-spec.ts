@@ -60,8 +60,7 @@ describe('compressTables', () => {
         await Promise.all([frame.destroy(), materialized.destroy()]);
     });
 
-    // DuckDB compresses an in-memory table as it grows (at its automatic checkpoints) only with
-    // COMPRESS; a plain one stays uncompressed at this size (39 MiB, compressed 6-15 MiB)
+    // only with COMPRESS does DuckDB compress an in-memory table as it grows
     it('stores the rows of a growing table compressed', async () => {
         const frame = await TealFrame.create({
             version: 1,

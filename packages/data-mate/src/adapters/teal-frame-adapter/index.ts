@@ -28,14 +28,10 @@ export interface TealFrameAdapterOptions<T extends Record<string, any>> {
     */
     args?: T;
     /**
-     * Arguments whose value comes from each row, as SQL expressions over the row's columns
-     * (`{ delimiter: '"delim"' }`), the counterpart of `dataFrameAdapter`'s
-     * `args: (rowIndex) => ...`.
-     *
-     * Each row's arguments, with `args`, are validated and given to `create()` like
-     * `dataFrameAdapter` does for each row, so the UDF always runs (a `sql` definition binds its
-     * arguments once). The output type comes from `args` alone, since it is the same for every
-     * row. A function that changes the field type (`cast`) does not take them.
+     * Arguments read from each row, as SQL expressions (`{ delimiter: '"delim"' }`), like
+     * `dataFrameAdapter`'s `args: (rowIndex) => ...`. Each row's arguments are validated and
+     * given to `create()`, so the function always runs as a UDF. The output type comes from
+     * `args` alone. Not supported by functions that change the field type (`cast`).
     */
     rowArgs?: { readonly [K in keyof T]?: string };
     /** Database to register on. Defaults to the process-wide one. */
