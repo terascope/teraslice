@@ -91,7 +91,11 @@ describe('quoting', () => {
             expect(wholeNumber(10, 'size')).toBe(10);
         });
 
-        it.each([-1, 1.5, Number.NaN, Number.MAX_SAFE_INTEGER + 2])(
+        it('accepts a non-negative integer as text', () => {
+            expect(wholeNumber('10', 'size')).toBe(10);
+        });
+
+        it.each([-1, 1.5, Number.NaN, Number.MAX_SAFE_INTEGER + 2, true, false, null, [], '', 'ten'])(
             'refuses %p, naming the argument it was given for', (input) => {
                 expect(() => wholeNumber(input, 'size'))
                     .toThrow('Expected size to be a non-negative integer');

@@ -1,7 +1,7 @@
 import { DataTypeConfig, SQLDialectName, SQLSearchParams } from '@terascope/types';
 import { DataType } from '@terascope/data-types';
 import {
-    getSQLDialect, groupByClause, quoteIdentifier,
+    getSQLDialect, groupByClause, joinClause, quoteIdentifier,
     quoteLiteral, toSQLSort, wholeNumber, type SQLSortInput
 } from '@terascope/sql-builder';
 import { appendInTransaction } from './append.js';
@@ -20,7 +20,8 @@ import { deepSelectSQL, emptySkippedObjects } from './deep-select.js';
 import { distinctLines, parseLines, writeLines } from './line-stream.js';
 import {
     AppendOptions, AppendSource, FrameConfig, FrameOptions,
-    FromRecordsOptions, JoinOptions, SelectList, SelectOptions, Source
+    FromRecordsOptions, JoinOptions, LimitPerGroupOptions, SelectList, SelectOptions, Source,
+    UnionOptions
 } from './interfaces.js';
 
 /**
@@ -219,7 +220,7 @@ export class TealFrame {
         await this.ensureTable();
         const table = this.source.kind === 'table' ? this.source.table : '';
         // on its own connection and in a transaction; see `appendInTransaction`
-        return appendInTransaction(this.ctx.instance, this.config, table, source, options);
+        return appendInTransaction(() => this.ctx.connect(), this.config, table, source, options);
     }
 
     /**
@@ -395,17 +396,82 @@ export class TealFrame {
 
         const as = options.as ?? 'a';
         const otherAs = options.otherAs ?? 'b';
-        const type = (options.type ?? 'inner').toUpperCase();
+        const join = joinClause(
+            options.type ?? 'inner',
+            `${other.from} AS ${quoteIdentifier(otherAs)}`,
+            options.on
+        );
 
         const sql = joinSQL(
-            `SELECT ${list}`
-            + ` FROM ${this.from} AS ${quoteIdentifier(as)}`
-            + ` ${type} JOIN ${other.from} AS ${quoteIdentifier(otherAs)}`
-            + ` ON ${options.on}`,
+            `SELECT ${list} FROM ${this.from} AS ${quoteIdentifier(as)}`,
+            join,
             groupByClause(options.groupBy)
         );
 
         return this.derive(sql, { config: options.config, columns: names });
+    }
+
+    /**
+     * Appends the rows of other frames, returning a new frame (`UNION ALL BY NAME`).
+     *
+     * Every row of every frame is kept, duplicates too. Columns are matched by name: the
+     * result has every frame's columns, in the order they are first seen, and a column a frame
+     * does not have is null in its rows. The frames are composed into one statement, so the
+     * union of many filtered frames runs as one query.
+     *
+     * All the frames must be in the same database, and none may be ordered, because a union
+     * does not keep row order.
+    */
+    union(others: readonly TealFrame[], options: UnionOptions = {}): TealFrame {
+        if (others.length === 0) {
+            throw new TypeError('union requires at least one other frame');
+        }
+        if (others.some((other) => other.ctx !== this.ctx)) {
+            throw new TypeError(
+                'union requires every frame to be in the same database:'
+                + ' a frame in another database cannot see this frame\'s tables'
+            );
+        }
+        const frames = [this, ...others];
+        assertOrderSafe('union', frames.some((frame) => frame.isOrdered));
+
+        const columns = [...new Set(frames.flatMap((frame) => frame.columns))];
+        const config = options.config ?? unionConfig(frames);
+        const sql = frames.map((frame) => `SELECT * FROM ${frame.from}`).join(' UNION ALL BY NAME ');
+
+        return this.derive(sql, { config, columns });
+    }
+
+    /**
+     * Keeps the first rows of each group, returning a new frame
+     * (`QUALIFY row_number() OVER (PARTITION BY ... ORDER BY ...) <= count`).
+     *
+     * `orderBy` decides which rows of a group are first, and `offset` skips that many of them
+     * first, like `limit` does for the whole frame. Without a count, every row after the offset
+     * is kept. Null is a group of its own, like `GROUP BY`. The result is not ordered: sort it
+     * if the order matters. Ties are not ordered deterministically, as with `orderBy`, so end
+     * `orderBy` with a unique field.
+     *
+     * @param count The most rows kept for each group.
+    */
+    limitPerGroup(count: number | undefined, options: LimitPerGroupOptions): TealFrame {
+        const { groupBy, orderBy, offset = 0 } = options;
+        if (count != null) wholeNumber(count, 'limitPerGroup\'s count');
+        wholeNumber(offset, 'limitPerGroup\'s offset');
+        if (orderBy.length === 0) {
+            throw new TypeError('limitPerGroup requires at least one sort term');
+        }
+        this.assertOrderSafe('limitPerGroup');
+        if (count == null && offset === 0) return this;
+
+        const partition = groupBy.length ? `PARTITION BY ${groupBy.join(', ')} ` : '';
+        const position = `row_number() OVER (${partition}ORDER BY ${dialect.orderBy(orderBy.map(toSQLSort))})`;
+        const bounds = [
+            ...(offset > 0 ? [`${position} > ${offset}`] : []),
+            ...(count != null ? [`${position} <= ${offset + count}`] : []),
+        ];
+
+        return this.derive(`SELECT * FROM ${this.from} QUALIFY ${bounds.join(' AND ')}`);
     }
 
     /**
@@ -667,6 +733,18 @@ export class TealFrame {
             await this.ctx.run(`DROP TABLE IF EXISTS ${quoteIdentifier(this.source.table)}`);
         }
     }
+}
+
+/**
+ * The fields of every frame, in the order they are first seen, the first frame's config
+ * winning for a field more than one frame has.
+*/
+function unionConfig(frames: readonly TealFrame[]): FrameConfig {
+    const entries = frames.flatMap((frame) => Object.entries(frame.config.fields));
+    const fields = Object.fromEntries(entries.filter(
+        ([field], index) => entries.findIndex(([other]) => other === field) === index
+    ));
+    return { ...frames[0].config, fields };
 }
 
 /** A config's top-level columns, as `toDuckDB` lays them out. */

@@ -118,3 +118,65 @@ export interface SQLSortInput {
 export function toSQLSort(sort: SQLSortInput): SQLSort {
     return { ...sort, order: sort.order ?? 'asc' };
 }
+
+/** The joins a statement can make, as {@link joinClause} takes them. */
+export type SQLJoinType = 'inner' | 'left' | 'right' | 'full' | 'cross';
+
+const JOIN_TYPES = ['INNER', 'LEFT', 'RIGHT', 'FULL', 'CROSS'] as const;
+
+/**
+ * Validate a join type and return it as its keyword.
+ *
+ * The type is written into the statement as a keyword, so it is checked at runtime, like
+ * {@link sortDirection}.
+*/
+export function joinType(value: unknown): typeof JOIN_TYPES[number] {
+    const type = isString(value) ? value.toUpperCase() : undefined;
+    const found = JOIN_TYPES.find((joinKeyword) => joinKeyword === type);
+
+    if (found == null) {
+        throw new TSError(`Expected a join type of inner, left, right, full or cross, got ${value}`, {
+            statusCode: 400,
+            context: { safe: true }
+        });
+    }
+
+    return found;
+}
+
+/**
+ * A `JOIN` clause, such as `LEFT JOIN <relation> ON <condition>`.
+ *
+ * The relation and the condition are SQL and are used as-is, like an `ORDER BY` expression:
+ * the relation is usually an aliased table or subquery (`"child" AS "c"`), and the condition
+ * refers to the aliases. A cross join takes no condition; every other join requires one.
+*/
+export function joinClause(type: SQLJoinType, relation: string, on?: string): string {
+    const keyword = joinType(type);
+
+    if (!relation?.trim()) {
+        throw new TSError('A join requires a relation', {
+            statusCode: 400,
+            context: { safe: true }
+        });
+    }
+
+    if (keyword === 'CROSS') {
+        if (on != null) {
+            throw new TSError('A CROSS JOIN does not take a condition', {
+                statusCode: 400,
+                context: { safe: true }
+            });
+        }
+        return `CROSS JOIN ${relation}`;
+    }
+
+    if (!on?.trim()) {
+        throw new TSError(`${keyword === 'INNER' ? 'An' : 'A'} ${keyword} JOIN requires a condition`, {
+            statusCode: 400,
+            context: { safe: true }
+        });
+    }
+
+    return `${keyword} JOIN ${relation} ON ${on}`;
+}

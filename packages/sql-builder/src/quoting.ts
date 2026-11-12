@@ -1,6 +1,6 @@
 import {
     TSError, getValidDateOrThrow, isNumber,
-    toBoolean, isBooleanLike, isString
+    toBoolean, isBooleanLike, isString, isNumberLike
 } from '@terascope/core-utils';
 
 /**
@@ -126,7 +126,8 @@ export function quoteNumber(value: unknown): string {
  * checked to prevent SQL injection.
 */
 export function wholeNumber(value: unknown, name: string): number {
-    const num = Number(value);
+    // `Number` alone turns true, false, null and [] into 1 or 0
+    const num = isNumberLike(value) ? Number(value) : Number.NaN;
 
     if (!Number.isSafeInteger(num) || num < 0) {
         throw new TSError(`Expected ${name} to be a non-negative integer, got ${value}`, {

@@ -53,6 +53,11 @@ export interface ScalarFunctionSpec {
     */
     fnForArgs?: (argsText: string) => ScalarFunctionImpl;
     /**
+     * The arguments JSON differs per row (`json_object('delimiter', "delim")`), so it is read
+     * for every row. Only used with `fnForArgs`.
+    */
+    argsPerRow?: boolean;
+    /**
      * Call `fn` for rows where the argument is null. Defaults to false, which matches
      * `DataFrame`: `transformVectorToBuilder` iterates `vector.values()`, which skips nil
      * entries, so a transform never receives a null. DuckDB passes nulls to a UDF, so the skip
@@ -116,13 +121,16 @@ export function createScalarFunction(spec: ScalarFunctionSpec): DuckDBScalarFunc
         mainFunction: (_info, chunk, output) => {
             const values = chunk.getColumnValues(0) as unknown[];
             /**
-             * The arguments are one constant literal per call (`udfCall`), so only the first row
-             * is read. Reading the whole column would copy the JSON into a JS string for every
-             * row, which is very slow for a large `lookup` table.
+             * Constant arguments (`udfCall`) are read from the first row only: reading the whole
+             * column would copy the JSON into a JS string for every row, which is very slow for a
+             * large `lookup` table. Per-row arguments (`argsPerRow`) are read for every row.
             */
-            const impl = forArgs
+            const argsTexts = forArgs && spec.argsPerRow
+                ? chunk.getColumnValues(1) as string[]
+                : undefined;
+            const impl = forArgs && !argsTexts
                 ? forArgs(chunk.getColumnVector(1).getItem(0) as string)
-                : spec.fn!;
+                : spec.fn;
 
             for (let row = 0; row < chunk.rowCount; row++) {
                 const value = values[row];
@@ -132,7 +140,8 @@ export function createScalarFunction(spec: ScalarFunctionSpec): DuckDBScalarFunc
                     continue;
                 }
 
-                const result = impl(toInput(value), row);
+                const rowImpl = argsTexts ? forArgs!(argsTexts[row]) : impl!;
+                const result = rowImpl(toInput(value), row);
                 output.setItem(row, (result == null ? null : convert(result)) as any);
             }
 

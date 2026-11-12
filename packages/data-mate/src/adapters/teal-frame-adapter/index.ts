@@ -1,4 +1,4 @@
-import { isNil } from '@terascope/core-utils';
+import { getTypeOf, isNil } from '@terascope/core-utils';
 import { DataTypeFieldConfig, DataTypeFields, FieldType } from '@terascope/types';
 import { validateFunctionArgs } from '../argument-validator/index.js';
 import { validateAccepts, getFieldTypesFromFieldConfigAndChildConfig } from '../../column/index.js';
@@ -23,11 +23,17 @@ export interface TealFrameAdapterOptions<T extends Record<string, any>> {
      * Function arguments, bound once at registration.
      *
      * As with `dataFrameAdapter`'s static arguments, they are constant for the whole query, so
-     * `create()` is called once and its closure becomes the UDF body. Per-row arguments
-     * (`args: (rowIndex) => ...` in `dataFrameAdapter`) are not supported; a row-dependent
-     * argument would have to be passed as an extra column.
+     * `create()` is called once and its closure becomes the UDF body. An argument whose value
+     * comes from each row goes in `rowArgs` instead.
     */
     args?: T;
+    /**
+     * Arguments read from each row, as SQL expressions (`{ delimiter: '"delim"' }`), like
+     * `dataFrameAdapter`'s `args: (rowIndex) => ...`. Each row's arguments are validated and
+     * given to `create()`, so the function always runs as a UDF. The output type comes from
+     * `args` alone. Not supported by functions that change the field type (`cast`).
+    */
+    rowArgs?: { readonly [K in keyof T]?: string };
     /** Database to register on. Defaults to the process-wide one. */
     database?: string;
     /**
@@ -94,6 +100,8 @@ async function adaptTransform<T extends Record<string, any>>(
     fnDef: FieldTransformConfig<T>,
     options: TealFrameAdapterOptions<T>
 ): Promise<TealFrameAdapterResult> {
+    if (hasRowArgs(options)) return adaptTransformForRows(fnDef, options);
+
     const { field, inputConfig } = options;
     const args = resolveArgs(fnDef, options.args);
 
@@ -268,6 +276,8 @@ async function adaptValidation<T extends Record<string, any>>(
     fnDef: FieldValidateConfig<T>,
     options: TealFrameAdapterOptions<T>
 ): Promise<TealFrameAdapterResult> {
+    if (hasRowArgs(options)) return adaptValidationForRows(fnDef, options);
+
     const { field, inputConfig } = options;
     const args = resolveArgs(fnDef, options.args);
     const column = quoteIdentifier(field);
@@ -329,6 +339,143 @@ async function adaptValidation<T extends Record<string, any>>(
         functionName,
         dispatch: emission ? 'sql+udf' : 'udf',
     };
+}
+
+function hasRowArgs<T extends Record<string, any>>(
+    options: TealFrameAdapterOptions<T>
+): boolean {
+    return Object.keys(options.rowArgs ?? {}).length > 0;
+}
+
+/**
+ * A transform whose arguments come from each row, like `dataFrameAdapter` with
+ * `args: (rowIndex) => ...`: each row's arguments are validated and given to `create()`.
+ * The UDF takes them as JSON, one argument set per row (see `rowArgumentsSQL`), and keeps
+ * the implementations of the argument sets it sees in its bounded LRU.
+*/
+async function adaptTransformForRows<T extends Record<string, any>>(
+    fnDef: FieldTransformConfig<T>,
+    options: TealFrameAdapterOptions<T>
+): Promise<TealFrameAdapterResult> {
+    const { field, inputConfig } = options;
+    if (fnDef.process_mode === ProcessMode.NONE) {
+        throw new Error(
+            `Function "${fnDef.name}" changes the field type, so it does not take per-row arguments`
+        );
+    }
+
+    const err = acceptsError(fnDef, inputConfig);
+    if (err) throw err;
+
+    const args = (options.args ?? {}) as T;
+    const outputConfig = fnDef.output_type
+        ? fnDef.output_type(inputConfig, args)
+        : inputConfig;
+
+    const fullValues = fnDef.process_mode === ProcessMode.FULL_VALUES;
+    const resultConfig = udfResult(fnDef, args, inputConfig, outputConfig, fullValues);
+    const parameter = udfParameter(inputConfig, fullValues);
+
+    const functionName = await registerScalarFunction({
+        name: udfName(fnDef.name, [
+            'transform per row', parameter, inputConfig.child_config, resultConfig, fullValues,
+        ]),
+        parameter,
+        parameterChildren: inputConfig.child_config,
+        returns: resultConfig.field_config as DataTypeFieldConfig,
+        returnsChildren: resultConfig.child_config,
+        fnForArgs: (text) => {
+            const rowArgs = validateFunctionArgs(fnDef, JSON.parse(text) as T);
+            const impl = fnDef.create({ args: rowArgs, inputConfig, outputConfig } as any);
+            return coercingResult(impl as ScalarFunctionImpl, resultConfig);
+        },
+        argsPerRow: true,
+        callWithNull: fullValues,
+        database: options.database,
+    });
+
+    const argsSQL = rowArgumentsSQL(args, options.rowArgs!);
+    return {
+        expression: applyToValues(
+            (value) => `${functionName}(${value}, ${argsSQL})`,
+            quoteIdentifier(field),
+            inputConfig,
+            fullValues
+        ),
+        outputConfig,
+        functionName,
+        dispatch: 'udf',
+    };
+}
+
+/**
+ * A validation whose arguments come from each row, see `adaptTransformForRows`
+*/
+async function adaptValidationForRows<T extends Record<string, any>>(
+    fnDef: FieldValidateConfig<T>,
+    options: TealFrameAdapterOptions<T>
+): Promise<TealFrameAdapterResult> {
+    const { field, inputConfig } = options;
+    if (acceptsError(fnDef, inputConfig)) {
+        return { expression: 'NULL', outputConfig: inputConfig, dispatch: 'none' };
+    }
+
+    const fullValues = fnDef.process_mode === ProcessMode.FULL_VALUES;
+    const parameter = udfParameter(inputConfig, fullValues);
+
+    const functionName = await registerScalarFunction({
+        name: udfName(fnDef.name, [
+            'validation per row', parameter, inputConfig.child_config,
+        ]),
+        parameter,
+        parameterChildren: inputConfig.child_config,
+        returns: { type: FieldType.Boolean },
+        fnForArgs: (text) => {
+            const rowArgs = validateFunctionArgs(fnDef, JSON.parse(text) as T);
+            return fnDef.create({ args: rowArgs, inputConfig } as any) as ScalarFunctionImpl;
+        },
+        argsPerRow: true,
+        callWithNull: fullValues,
+        database: options.database,
+    });
+
+    const argsSQL = rowArgumentsSQL((options.args ?? {}) as T, options.rowArgs!);
+    return {
+        expression: nullUnlessValid(
+            (value) => `${functionName}(${value}, ${argsSQL})`,
+            quoteIdentifier(field),
+            perElement(inputConfig, fullValues)
+        ),
+        outputConfig: inputConfig,
+        functionName,
+        dispatch: 'udf',
+    };
+}
+
+/**
+ * The SQL for each row's arguments JSON: the arguments that are the same for every row as
+ * JSON literals, and the row's arguments from their expressions. A row's null value is a
+ * JSON null, which the argument validation treats as not set.
+*/
+function rowArgumentsSQL<T extends Record<string, any>>(
+    args: T,
+    rowArgs: { readonly [K in keyof T]?: string }
+): string {
+    const entries: string[] = [];
+    for (const [name, value] of Object.entries(args)) {
+        if (Object.hasOwn(rowArgs, name)) continue;
+        if (!isJSON(value)) {
+            throw new Error(
+                `Argument "${name}" must be a string, finite number, boolean, null, array or plain object `
+                + `when another argument is per row, got ${getTypeOf(value)}`
+            );
+        }
+        entries.push(`${quoteLiteral(name)}, ${quoteLiteral(JSON.stringify(value))}::JSON`);
+    }
+    for (const [name, expression] of Object.entries(rowArgs)) {
+        entries.push(`${quoteLiteral(name)}, ${expression as string}`);
+    }
+    return `json_object(${entries.join(', ')})::VARCHAR`;
 }
 
 /**

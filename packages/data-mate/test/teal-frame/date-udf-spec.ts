@@ -78,7 +78,6 @@ describe('date values crossing the UDF boundary', () => {
                 FieldType.Number,
                 FieldType.Boolean,
                 FieldType.Long,
-                FieldType.Integer,
             ]) {
                 const convert = makeInputConverter(type);
 
@@ -87,6 +86,15 @@ describe('date values crossing the UDF boundary', () => {
                 expect(convert(9007199254740993n)).toBe(9007199254740993n);
                 expect(convert(null)).toBeNull();
             }
+        });
+
+        it('should make an Integer, stored as a BIGINT, the number DataFrame passes', () => {
+            const convert = makeInputConverter(FieldType.Integer);
+
+            expect(convert(7n)).toBe(7);
+            expect(convert(-2n)).toBe(-2);
+            expect(convert(7)).toBe(7);
+            expect(convert(null)).toBeNull();
         });
 
         it('should leave a nil alone rather than inventing an epoch', () => {

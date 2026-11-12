@@ -116,6 +116,25 @@ describe('TealFrame engine output paths', () => {
             const frame = frames.get('an empty list')!;
             await expect(collect(frame.listValues('total'))).rejects.toThrow(/not a list/);
         });
+
+        it('should stream a long list in its order, across many chunks', async () => {
+            const results = Array.from({ length: 10_000 }, (_, i) => ({ id: `r${i}`, n: 10_000 - i }));
+            const frame = await TealFrame.fromRecords(CONFIG, [{ total: 1, results }]);
+            try {
+                expect(await collect(frame.listValues('results'))).toEqual(results);
+            } finally {
+                await frame.destroy();
+            }
+        });
+
+        it('should yield nothing for a frame without rows', async () => {
+            const frame = await TealFrame.fromRecords(CONFIG, []);
+            try {
+                expect(await collect(frame.listValues('results'))).toEqual([]);
+            } finally {
+                await frame.destroy();
+            }
+        });
     });
 
     describe('countEmptyRows and removeEmptyRows', () => {

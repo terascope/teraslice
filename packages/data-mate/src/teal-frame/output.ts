@@ -3,7 +3,7 @@ import { DataType } from '@terascope/data-types';
 import { quoteIdentifier, quoteLiteral } from '@terascope/sql-builder';
 import { DuckContext } from './DuckContext.js';
 import {
-    buildJsonExpression, buildJsonListElements, buildJsonRowFilter, JsonExportOptions,
+    buildJsonExpression, buildJsonListElement, buildJsonRowFilter, JsonExportOptions,
     resolveRules
 } from './export-json.js';
 import { int64Column } from './parquet-columns.js';
@@ -14,6 +14,9 @@ import { FrameConfig } from './interfaces.js';
  * `ndjson`, `writeNDJSON` and `rows(options)`, and `listValues`. Their contracts are documented
  * on `TealFrame`.
 */
+
+/** The name `listValues` gives each rendered element. */
+const ELEMENT = '__element';
 
 /** Writes the frame to a zstd Parquet file, narrowing 128-bit columns to their declared type. */
 export async function writeParquet(
@@ -52,7 +55,11 @@ export function jsonLinesSQL(
     return `SELECT ${expression} AS json FROM ${from}` + (filter ? ` WHERE ${filter}` : '');
 }
 
-/** Yields one row's LIST column element by element, like `ListVector.getRowIterator`. */
+/**
+ * Yields one row's LIST column element by element, like `ListVector.getRowIterator`. The list
+ * is unnested and each element rendered as it streams, so the rendered list is never held as
+ * one value. A nil list yields as one nil element does.
+*/
 export async function* listValues(
     ctx: DuckContext,
     from: string,
@@ -64,7 +71,7 @@ export async function* listValues(
     if (rules.skipDuplicateObjects) {
         throw new Error('ListVector->getIterator is incompatible with skipDuplicateObjects');
     }
-    const { sql, isObject } = buildJsonListElements(config, column, options);
+    const { sql, isObject } = buildJsonListElement(config, column, options);
     const nilValue = rules.useNullForUndefined ? null : undefined;
     const skipNil = rules.skipNilListValues || (isObject && rules.skipNilObjectValues);
 
@@ -73,16 +80,13 @@ export async function* listValues(
         if (Number(values) === 0) return;
     }
 
-    const [row] = await ctx.rows(`SELECT ${sql} FROM ${from} LIMIT 1`);
-    if (row == null) return;
-
-    const elements = row[0] as (string | null)[] | null;
-    if (elements == null) {
-        if (!skipNil) yield nilValue;
-        return;
-    }
-    for (const element of elements) {
-        if (element != null) yield JSON.parse(element);
+    const list = quoteIdentifier(column);
+    const elements = ctx.streamRowObjects(
+        `SELECT ${sql} AS ${ELEMENT} FROM (SELECT unnest(coalesce(${list}, [NULL])) AS v0`
+        + ` FROM (SELECT ${list} FROM ${from} LIMIT 1))`
+    );
+    for await (const { [ELEMENT]: element } of elements) {
+        if (element != null) yield JSON.parse(element as string);
         else if (!skipNil) yield nilValue;
     }
 }

@@ -31,6 +31,7 @@ const CONFIG: DataTypeConfig = {
         json: { type: FieldType.Keyword },
         location: { type: FieldType.Keyword },
         anything: { type: FieldType.Any },
+        count: { type: FieldType.Integer },
     },
 };
 
@@ -45,6 +46,7 @@ const RECORDS = [
         json: '{"a":1,"b":[true,null,"s"]}',
         location: '60, 40',
         anything: { nested: { n: 1 }, list: [1, 'two'] },
+        count: 7,
     },
     {
         point: { lat: 50, lon: 50 },
@@ -56,6 +58,7 @@ const RECORDS = [
         json: '[1,2,3]',
         location: '-10.5, 20.25',
         anything: 'a string',
+        count: -2,
     },
     {
         point: null,
@@ -67,6 +70,7 @@ const RECORDS = [
         json: null,
         location: null,
         anything: null,
+        count: null,
     },
 ];
 
@@ -144,6 +148,8 @@ describe('UDF parameter and result types', () => {
         ['lookup', 'code', { in: { US: 'United States', CA: { name: 'Canada' } } }],
         // a JSON parameter
         ['toJSON', 'anything', undefined],
+        // an Integer parameter, stored as a BIGINT
+        ['add', 'count', { value: 5 }],
     ])('%s on %s runs as a UDF and matches DataFrame', async (fnName, field, args) => {
         const { result, actual, expected } = await bothWays(fnName, field, args);
 
