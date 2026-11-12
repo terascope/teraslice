@@ -8,18 +8,18 @@ import {
     TSError, startsWith, Logger, pWhile,
     isKey
 } from '@terascope/core-utils';
-import { createV2Router } from './api-v2.js';
 import { ExecutionStatusEnum, ConnectorListResponse, JobSchemaResponse } from '@terascope/types';
-import { ClusterMasterContext, TerasliceRequest, TerasliceResponse } from '../../../interfaces.js';
-import { makeLogger } from '../../workers/helpers/terafoundation.js';
-import { ExecutionService, JobsService, ClusterServiceType } from '../services/index.js';
-import type { JobsStorage, ExecutionStorage, StateStorage } from '../../storage/index.js';
+import { createV2Registry } from './v2/routes.js';
+import { ClusterMasterContext, TerasliceRequest, TerasliceResponse } from '../../../../interfaces.js';
+import { makeLogger } from '../../../workers/helpers/terafoundation.js';
+import { ExecutionService, JobsService, ClusterServiceType } from '../index.js';
+import type { JobsStorage, ExecutionStorage, StateStorage } from '../../../storage/index.js';
 import {
     makeTable, sendError, handleTerasliceRequest,
     getSearchOptions, createJobActiveQuery, addDeletedToQuery,
     addFilterToQuery, buildConnectorList, getSliceTapOptions
-} from '../../utils/api_utils.js';
-import { getPackageJSON } from '../../utils/file_utils.js';
+} from '../../../utils/api_utils.js';
+import { getPackageJSON } from '../../../utils/file_utils.js';
 
 const terasliceVersion = getPackageJSON().version;
 
@@ -67,7 +67,7 @@ export class ApiService {
         this.app = app;
     }
 
-    async _changeWorkers(exId: string, query: any) {
+    private async _changeWorkers(exId: string, query: any) {
         let msg;
         let workerNum: number | undefined;
         const keyOptions = { add: true, remove: true, total: true };
@@ -537,7 +537,9 @@ export class ApiService {
             requestHandler(() => this._controllerStats());
         });
 
-        this.app.use('/v2', createV2Router(this));
+        const v2routes = createV2Registry(this).router;
+
+        this.app.use('/v2', v2routes);
 
         // backwards compatibility for /v1 routes
         // TODO: Teraslice v4 deletes /v1 and the unversioned mount
@@ -669,7 +671,7 @@ export class ApiService {
         this._updatePromMetrics();
     }
 
-    async _waitForStop(exId: string, blocking?: boolean): Promise<Record<string, any>> {
+    private async _waitForStop(exId: string, blocking?: boolean): Promise<Record<string, any>> {
         return new Promise((resolve) => {
             const checkExecution = () => {
                 this.executionService.getExecutionContext(exId)

@@ -5,7 +5,7 @@ import express from 'express';
 import http from 'node:http';
 import { TestContext } from '@terascope/job-components';
 import { findPort } from '../../src/lib/utils/port_utils.js';
-import { ApiService } from '../../src/lib/cluster/services/api.js';
+import { ApiService } from '../../src/lib/cluster/services/api/api.js';
 import { getPackageJSON } from '../../src/lib/utils/file_utils.js';
 
 describe('HTTP API', () => {

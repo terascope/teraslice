@@ -4,7 +4,7 @@ import {
     pDelay, isString, toString,
     TSError, toHumanTime
 } from '@terascope/core-utils';
-import { Teraslice } from '@terascope/types';
+import { Teraslice, TerasliceApiV2 } from '@terascope/types';
 import { ClientConfig, RequestOptions } from './interfaces.js';
 import Client from './client.js';
 
@@ -93,7 +93,9 @@ export default class Job extends Client {
         return this.post(`/jobs/${this._jobId}/_recover`, null, options);
     }
 
-    async update(jobSpec: Teraslice.JobConfig): Promise<Teraslice.ApiJobUpdateResponse> {
+    async update(
+        jobSpec: Teraslice.JobConfig | TerasliceApiV2.JobConfigBody
+    ): Promise<Teraslice.ApiJobUpdateResponse> {
         return this.put(`/jobs/${this._jobId}`, jobSpec);
     }
 
@@ -101,7 +103,9 @@ export default class Job extends Client {
         jobSpec: Partial<Teraslice.JobConfig>
     ): Promise<Teraslice.ApiJobUpdateResponse> {
         const current = await this.config();
-        const body: Teraslice.JobConfig = Object.assign({}, current, jobSpec);
+        // A stored job holds only what was submitted (no defaults), so this
+        // isn't a full JobConfig, but it is a valid PUT body
+        const body: TerasliceApiV2.JobConfigBody = Object.assign({}, current, jobSpec);
         return this.update(body);
     }
 
@@ -192,8 +196,15 @@ export default class Job extends Client {
         return checkStatus();
     }
 
-    async config(requestOptions: RequestOptions = {}): Promise<Teraslice.JobConfig> {
-        return this.get(`/jobs/${this._jobId}`, requestOptions);
+    /**
+     * Get the job. With `query.ex`, the latest execution is added as `ex`,
+     * limited to the listed fields (comma-separated; empty for every field).
+     */
+    async config(
+        query: TerasliceApiV2.GetJobQuery = {},
+        searchOptions: RequestOptions = {}
+    ): Promise<TerasliceApiV2.JobWithExecution> {
+        return this.get(`/jobs/${this._jobId}`, this.makeOptions(query, searchOptions));
     }
 
     async errors(

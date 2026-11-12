@@ -419,7 +419,7 @@ export class ExecutionService {
         await this.clusterMasterServer.sendExecutionPause(exId);
         await this.executionStorage.setStatus(exId, status);
 
-        return { status };
+        return { status } as const;
     }
 
     async resumeExecution(exId: string) {
@@ -433,7 +433,7 @@ export class ExecutionService {
         await this.clusterMasterServer.sendExecutionResume(execution.ex_id);
         await this.executionStorage.setStatus(execution.ex_id, status);
 
-        return { status };
+        return { status } as const;
     }
 
     async getControllerStats(exId?: string): Promise<ControllerStats[]> {
@@ -459,7 +459,7 @@ export class ExecutionService {
 
         if (isEmpty(clients)) {
             if (specificId) {
-                throw new TSError(`Could not find active slicer for ex_id: ${specificId}`, {
+                throw new TSError(`Could not find active controller for ex_id: ${specificId}`, {
                     statusCode: 404
                 });
             }

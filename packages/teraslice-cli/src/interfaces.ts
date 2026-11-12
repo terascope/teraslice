@@ -1,6 +1,6 @@
 import type { CommandModule } from 'yargs';
 import { Job } from 'teraslice-client-js';
-import { Teraslice } from '@terascope/types';
+import { Teraslice, TerasliceApiV2 } from '@terascope/types';
 
 export type CMD = CommandModule;
 
@@ -15,7 +15,7 @@ export interface GithubAssetConfig {
 export interface JobMetadata {
     id: string;
     api: Job;
-    config: Teraslice.JobConfig;
+    config: TerasliceApiV2.JobWithExecution;
     status: Teraslice.ExecutionStatus | RegisteredStatus;
 }
 

@@ -8,7 +8,7 @@ import {
     cloneDeep,
     isKey
 } from '@terascope/core-utils';
-import { Teraslice } from '@terascope/types';
+import { Teraslice, TerasliceApiV2 } from '@terascope/types';
 import Config from './config.js';
 import Jobs from './jobs.js';
 import { getPackage } from './utils.js';
@@ -223,7 +223,7 @@ function hasMetadata(jobConfig: Record<string, any>): boolean {
 }
 
 export async function saveJobConfigToFile(
-    jobConfig: Teraslice.JobConfig,
+    jobConfig: TerasliceApiV2.JobWithExecution,
     filePath: string,
     clusterUrl: string
 ) {

@@ -551,6 +551,25 @@ describe('Teraslice Job', () => {
             });
         });
 
+        describe('when called with ex', () => {
+            const data = {
+                job_id: 'example-job-id',
+                ex: { _status: 'running' }
+            };
+
+            beforeEach(() => {
+                scope.get('/jobs/example-job-id')
+                    .query({ ex: '_status' })
+                    .reply(200, data);
+            });
+
+            it('should send ex as a query param', async () => {
+                const job = new Job({ baseUrl }, 'example-job-id');
+                const results = await job.config({ ex: '_status' });
+                expect(results).toEqual(data);
+            });
+        });
+
         describe('when called with with options', () => {
             beforeEach(() => {
                 scope.get('/jobs/some-job-id')
@@ -564,7 +583,7 @@ describe('Teraslice Job', () => {
 
             it('should resolve json results from Teraslice', async () => {
                 const job = new Job({ baseUrl }, 'some-job-id');
-                const results = await job.config(requestOptions);
+                const results = await job.config({}, requestOptions);
                 expect(results).toEqual({
                     job_id: 'example-job-id',
                     ex_id: 'example-ex-id',
