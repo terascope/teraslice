@@ -220,7 +220,7 @@ export class TealFrame {
         await this.ensureTable();
         const table = this.source.kind === 'table' ? this.source.table : '';
         // on its own connection and in a transaction; see `appendInTransaction`
-        return appendInTransaction(this.ctx.instance, this.config, table, source, options);
+        return appendInTransaction(() => this.ctx.connect(), this.config, table, source, options);
     }
 
     /**

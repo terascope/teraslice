@@ -2,12 +2,15 @@ import {
     DuckDBInstance, DuckDBConnection, DuckDBScalarFunction, DuckDBType
 } from '@duckdb/node-api';
 import { resolve } from 'node:path';
-import { quoteLiteral } from '@terascope/sql-builder';
+import { quoteIdentifier, quoteLiteral } from '@terascope/sql-builder';
 import { createScalarFunction, ScalarFunctionSpec } from './scalar-function.js';
 import { toPlainValue } from './plain-values.js';
 import { ValueShaper } from './row-shape.js';
 import { DuckDatabaseSettings } from './interfaces.js';
 import { extensionSettingsFromEnv, ExtensionSettings, loadExtensions } from './extensions.js';
+
+/** The catalog the tables of a compressed in-memory database live in. */
+const COMPRESSED_CATALOG = 'teal_compressed';
 
 /** DuckDB's hard per-chunk row limit. Appending more in one chunk throws. */
 export const MAX_CHUNK_ROWS = 2048;
@@ -36,8 +39,31 @@ export class DuckContext {
         /** The database path, so a frame can report where it lives. */
         readonly path: string,
         /** Fixed for the instance's life - DuckDB resolves extensions from it at LOAD. */
-        readonly extensionDirectory: string | undefined
+        readonly extensionDirectory: string | undefined,
+        /**
+         * The catalog every connection uses, when the tables are kept compressed. Fixed for
+         * the instance's life, as tables already made live where they were made.
+        */
+        readonly catalog: string | undefined
     ) {}
+
+    /**
+     * Opens another connection to the instance, using the database's catalog.
+     *
+     * `USE` belongs to a connection and cannot be set globally, so each connection sets it,
+     * or it would make and read tables in the default catalog.
+    */
+    async connect(): Promise<DuckDBConnection> {
+        const connection = await this.instance.connect();
+        if (this.catalog == null) return connection;
+        try {
+            await connection.run(`USE ${quoteIdentifier(this.catalog)}`);
+            return connection;
+        } catch (err) {
+            connection.disconnectSync();
+            throw err;
+        }
+    }
 
     /**
      * Registers a scalar function on the instance.
@@ -77,13 +103,24 @@ export class DuckContext {
         settings: DuckDatabaseSettings = {}
     ): Promise<DuckContext> {
         const extensions = resolveExtensionSettings(settings);
+        if (settings.compressTables && path !== ':memory:') {
+            throw new Error(
+                `compressTables is for an in-memory database, "${path}" is a file and is always compressed`
+            );
+        }
         const instance = await DuckDBInstance.create(path, instanceOptions(extensions));
 
         let connection: DuckDBConnection | undefined;
         try {
             connection = await instance.connect();
+            const catalog = settings.compressTables ? COMPRESSED_CATALOG : undefined;
+            if (catalog != null) {
+                const name = quoteIdentifier(catalog);
+                await connection.run(`ATTACH ':memory:' AS ${name} (COMPRESS)`);
+                await connection.run(`USE ${name}`);
+            }
             const context = new DuckContext(
-                instance, connection, path, extensions.extensionDirectory
+                instance, connection, path, extensions.extensionDirectory, catalog
             );
             await context.applySettings(settings);
             await loadExtensions(connection, extensions.autoinstallExtensions ?? true);
@@ -117,6 +154,13 @@ export class DuckContext {
                 + ` with ${this.extensionDirectory ?? 'the default'}, so`
                 + ` "${settings.extensionDirectory}" cannot take effect. Set`
                 + ` DUCKDB_EXTENSION_DIRECTORY, or configure before the first frame.`
+            );
+        }
+        if (settings.compressTables != null
+            && settings.compressTables !== (this.catalog != null)) {
+            throw new Error(
+                `compressTables is fixed once the database opens - "${this.path}" opened`
+                + ` ${this.catalog != null ? 'with' : 'without'} it. Configure before the first frame.`
             );
         }
         if (settings.autoinstallExtensions != null) {
@@ -172,7 +216,7 @@ export class DuckContext {
      * Like `streamRowObjects`, it uses its own connection.
     */
     async* streamColumnStrings(sql: string): AsyncIterableIterator<string> {
-        const connection = await this.instance.connect();
+        const connection = await this.connect();
 
         try {
             const result = await connection.stream(sql);
@@ -207,7 +251,7 @@ export class DuckContext {
         sql: string,
         shapers: ReadonlyMap<string, ValueShaper> = new Map()
     ): AsyncIterableIterator<Record<string, unknown>> {
-        const connection = await this.instance.connect();
+        const connection = await this.connect();
 
         try {
             const result = await connection.stream(sql);

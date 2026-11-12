@@ -47,6 +47,13 @@ export interface DuckDatabaseSettings {
      * sets it to false.
     */
     autoinstallExtensions?: boolean;
+    /**
+     * Keep the tables of an in-memory database compressed, as a database file keeps them
+     * (DuckDB's in-memory `COMPRESS`, off by default). A table takes several times less memory
+     * and appends cost more. It cannot be changed once the database is open, and a database
+     * file is always compressed, so it is refused for one.
+    */
+    compressTables?: boolean;
 }
 
 export interface DuckDatabaseOptions extends DuckDatabaseSettings {

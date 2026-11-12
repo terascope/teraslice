@@ -1,4 +1,4 @@
-import { DuckDBConnection, DuckDBDataChunk, DuckDBInstance } from '@duckdb/node-api';
+import { DuckDBConnection, DuckDBDataChunk } from '@duckdb/node-api';
 import { quoteIdentifier } from '@terascope/sql-builder';
 import { MAX_CHUNK_ROWS } from './DuckContext.js';
 import { AppendError, CoercionFailureError } from './errors.js';
@@ -140,13 +140,13 @@ export async function appendRecords(
  * lets appends proceed without write conflicts.
 */
 export async function appendInTransaction(
-    instance: DuckDBInstance,
+    connect: () => Promise<DuckDBConnection>,
     config: FrameConfig,
     table: string,
     source: AppendSource,
     options: AppendOptions
 ): Promise<number> {
-    const connection = await instance.connect();
+    const connection = await connect();
 
     try {
         await connection.run('BEGIN TRANSACTION');
