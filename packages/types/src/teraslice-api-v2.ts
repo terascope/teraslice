@@ -6,8 +6,9 @@ import {
 
 /** ############ V2 ROUTE SCHEMAS ############ */
 
-/** ################### / ################### */
+/** ################### / #################### */
 
+/** Response of `GET /` */
 export const ClusterInfoSchema = z.object({
     arch: z.string().meta({ description: 'CPU architecture of the cluster master, e.g. "x64"' }),
     clustering_type: z.enum(['native', 'kubernetesV2']),
@@ -64,6 +65,7 @@ export const NodeStateSchema = z.object({
     active: z.array(ProcessNodeSchema),
 }).meta({ id: 'NodeState' });
 
+/** Response of `GET /cluster/state` */
 export const ClusterStateSchema = z.record(z.string(), NodeStateSchema).meta({
     id: 'ClusterState',
     description: 'Node state keyed by node id',
@@ -99,6 +101,7 @@ export const AggregatedExecutionAnalyticsSchema = z.object({
         + 'lag by up to the analytics rate.',
 });
 
+/** Response of `GET /cluster/stats` */
 export const ClusterStatsSchema = z.object({
     controllers: AggregatedExecutionAnalyticsSchema,
 }).meta({ id: 'ClusterStats' });
@@ -143,7 +146,7 @@ export const ControllerStatsListSchema = z.array(ControllerStatsSchema);
 
 export type ControllerStatsList = z.output<typeof ControllerStatsListSchema>;
 
-/** ############### /job-schema ############## */
+/** ############## /job-schema ############### */
 
 const JSONSchemaNode = z.record(z.string(), z.unknown());
 
@@ -172,12 +175,13 @@ export const JobJSONSchemaSchema = z.looseObject({
     description: 'JSON Schema (draft-07) for a job config on this cluster',
 });
 
+/** Response of `GET /cluster/job-schema` */
 export const JobSchemaResponseSchema = z.object({
     version: z.string().meta({ description: 'Teraslice version, without a "v" prefix' }),
     job_schema: JobJSONSchemaSchema,
 }).meta({ id: 'JobSchemaResponse' });
 
-/** ############### /connectors ############## */
+/** ############## /connectors ############### */
 
 export const ConnectorInfoSchema = z.object({
     type: z.string(),
@@ -202,6 +206,7 @@ export const GroupedConnectorsSchema = z.record(z.string(), z.array(z.string()))
     description: 'Connection names keyed by connector type',
 });
 
+/** Response of `GET /cluster/connectors` */
 export const ConnectorListResponseSchema = z.object({
     connectors: z.union([z.array(ConnectorInfoSchema), GroupedConnectorsSchema]),
 }).meta({ id: 'ConnectorListResponse' });
@@ -220,7 +225,7 @@ export const GetClusterConnectorsQuerySchema = z.strictObject({
 
 export type GetClusterConnectorsQuery = z.input<typeof GetClusterConnectorsQuerySchema>;
 
-/** ########## Job and execution records ######### */
+/** ####### Job and execution records ######## */
 
 /** ISO 8601 timestamp. Stored records are JSON, so these are never Dates. */
 const Timestamp = z.string().meta({ description: 'ISO 8601 timestamp' });
@@ -382,6 +387,8 @@ export const ExecutionStatusSchema = z.enum(Object.keys(ExecutionStatusEnum) as 
  * stored as-is, so whatever extra keys a client sends are kept. An execution
  * is built from that spec merged with the validated config, so it keeps them
  * too.
+ *
+ * Response of `GET /jobs/:jobId/ex` and `GET /ex/:exId`
  */
 export const ExecutionRecordSchema = z.looseObject({
     ...jobConfigShape,
@@ -421,6 +428,8 @@ export const ExecutionRecordSchema = z.looseObject({
  * and `updateJob` store the raw spec, not the validated config), so
  * defaults are never filled in: any config field the client left out is
  * absent. Only `operations` is required, because validation requires it.
+ *
+ * Response of `DELETE /jobs/:jobId`
  */
 export const JobRecordSchema = z.looseObject({
     ...z.object(jobConfigShape).partial().shape,
@@ -438,7 +447,7 @@ export const JobRecordSchema = z.looseObject({
         + `config. ${jobConfigDocs}`,
 });
 
-/** ############## Search options ############# */
+/** ############# Search options ############# */
 
 const sortOrders = ['asc', 'desc'];
 
@@ -493,14 +502,15 @@ const deletedQuery = z.stringbool().default(false)
             + 'only records that aren\'t',
     });
 
-/** Path params of every /jobs/:jobId route */
+/** Path params of every `/jobs/:jobId` route */
 export const JobIdParams = z.strictObject({ jobId: z.string() });
 
-/** Path params of every /ex/:exId route */
+/** Path params of every `/ex/:exId` route */
 export const ExIdParams = z.strictObject({ exId: z.string() });
 
 /** ################# /jobs ################## */
 
+/** Response of `GET /jobs/:jobId` */
 export const JobWithExecutionSchema = JobRecordSchema.extend({
     ex: ExecutionRecordSchema.partial().optional()
         .meta({
@@ -551,7 +561,7 @@ export type JobWithExecutionList = z.output<typeof JobWithExecutionListSchema>;
 export const JobControllerStatsSchema = ControllerStatsListSchema
     .meta({ description: 'Has one entry; 404 if the execution isn\'t running' });
 
-/** ############### Slice errors ############## */
+/** ############## Slice errors ############## */
 
 /**
  * A slice's state record, from the state storage index. The errors routes
@@ -573,7 +583,7 @@ export const SliceStateRecordSchema = z.object({
         .meta({ description: 'Times the slice was retried; unset if it never was' }),
 }).meta({ id: 'SliceStateRecord' });
 
-/** Response of the slice errors routes */
+/** Response of `GET /jobs/:jobId/errors` and `GET /ex/:exId/errors` */
 export const SliceErrorListSchema = z.array(SliceStateRecordSchema);
 
 /** Query of `GET /jobs/:jobId/errors` */
@@ -582,7 +592,7 @@ export const GetJobErrorsQuerySchema = z.strictObject(searchQueryShape);
 export type GetJobErrorsQuery = z.input<typeof GetJobErrorsQuerySchema>;
 export type SliceErrorList = z.output<typeof SliceErrorListSchema>;
 
-/** ################ Slice tap ################ */
+/** ############### Slice tap ################ */
 
 /** Query of `GET /jobs/:jobId/tap` */
 export const GetJobTapQuerySchema = z.strictObject({
@@ -604,6 +614,7 @@ export const GetJobTapQuerySchema = z.strictObject({
         }),
 });
 
+/** Response of `GET /jobs/:jobId/tap` */
 export const SliceTapResultSchema = z.object({
     workerId: z.string().optional()
         .meta({ description: 'The worker that processed the tapped slice' }),
@@ -625,7 +636,7 @@ export const SliceTapResultSchema = z.object({
 export type GetJobTapQuery = z.input<typeof GetJobTapQuerySchema>;
 export type SliceTapResult = z.output<typeof SliceTapResultSchema>;
 
-/** ############### Job actions ############### */
+/** ############## Job results ############### */
 
 const deprecationReasonShape = {
     field: z.string().meta({ description: 'The deprecated field' }),
@@ -666,7 +677,7 @@ export const JobWarningSchema = z.object({
 const jobWarnings = z.array(JobWarningSchema).optional()
     .meta({ description: 'Only set when validating the job produced warnings' });
 
-/** Response of `_start` and `_recover` */
+/** Response of `POST /jobs/:jobId/_start` and `POST /jobs/:jobId/_recover` */
 export const NewExecutionSchema = z.object({
     job_id: z.string(),
     ex_id: z.string().meta({ description: 'The execution that was created' }),
@@ -678,7 +689,10 @@ export const NewExecutionSchema = z.object({
 
 export type NewExecution = z.output<typeof NewExecutionSchema>;
 
-/** Response of `PUT /jobs/:jobId`, `_active` and `_inactive` */
+/**
+ * Response of `PUT /jobs/:jobId`, `POST /jobs/:jobId/_active` and
+ * `POST /jobs/:jobId/_inactive`
+ */
 export const UpdatedJobSchema = JobRecordSchema.extend({
     warnings: jobWarnings
         .meta({
@@ -690,7 +704,7 @@ export const UpdatedJobSchema = JobRecordSchema.extend({
 
 export type UpdatedJob = z.output<typeof UpdatedJobSchema>;
 
-/** ################ Job bodies ############### */
+/** ############### Job bodies ############### */
 
 /**
  * Body of `POST /jobs` and `PUT /jobs/:jobId`. Only checks that there are
@@ -733,6 +747,8 @@ export const SubmitJobResultSchema = z.object({
 export type SubmitJobQuery = z.input<typeof SubmitJobQuerySchema>;
 export type SubmitJobResult = z.output<typeof SubmitJobResultSchema>;
 
+/** ############## Job actions ############### */
+
 /** Query of `POST /jobs/:jobId/_stop` */
 export const StopJobQuerySchema = z.strictObject({
     timeout: z.coerce.number<number>().int()
@@ -756,6 +772,7 @@ export const StopJobQuerySchema = z.strictObject({
         }),
 });
 
+/** Response of `POST /jobs/:jobId/_stop` */
 export const StopJobResultSchema = z.object({
     status: ExecutionStatusSchema
         .meta({ description: 'The execution status when the request returned' }),
@@ -766,9 +783,11 @@ export const StopJobResultSchema = z.object({
 export type StopJobQuery = z.input<typeof StopJobQuerySchema>;
 export type StopJobResult = z.output<typeof StopJobResultSchema>;
 
+/** Response of `POST /jobs/:jobId/_pause` */
 export const PauseJobResultSchema = z.object({ status: z.literal('paused') })
     .meta({ id: 'PauseJobResult' });
 
+/** Response of `POST /jobs/:jobId/_resume` */
 export const ResumeJobResultSchema = z.object({ status: z.literal('running') })
     .meta({ id: 'ResumeJobResult' });
 
@@ -806,6 +825,7 @@ export const ChangeJobWorkersQuerySchema = z.strictObject({
     { message: 'Send exactly one of add, remove or total' }
 );
 
+/** Response of `POST /jobs/:jobId/_workers` */
 export const ChangeJobWorkersResultSchema = z.object({
     message: z.string().meta({ description: 'Human-readable summary of the change' }),
 }).meta({ id: 'ChangeJobWorkersResult' });
@@ -819,6 +839,7 @@ export const UpdateJobSettingsQuerySchema = z.strictObject({
         .meta({ description: 'Log level for the running execution\'s processes' }),
 });
 
+/** Response of `POST /jobs/:jobId/_settings` */
 export const UpdateJobSettingsResultSchema = z.object({
     exId: z.string(),
     level: LogLevelSchema,
@@ -846,7 +867,7 @@ export const RecoverJobQuerySchema = z.strictObject({
 
 export type RecoverJobQuery = z.input<typeof RecoverJobQuerySchema>;
 
-/** ################### /ex ################## */
+/** ################## /ex ################### */
 
 /** Query of `GET /ex` */
 export const GetExecutionsQuerySchema = z.strictObject({
