@@ -94,6 +94,15 @@ describe('tealFrameAdapter with per-row arguments', () => {
         expect(values).toEqual(['Z-b', 'c_d', null]);
     });
 
+    it('refuses an argument for every row that has no JSON form', async () => {
+        await expect(applyTo(
+            'replaceLiteral', 'name', { search: '"search"' }, { replace: new Map() }
+        )).rejects.toThrow(
+            'Argument "replace" must be a string, finite number, boolean, null, array or plain object '
+            + 'when another argument is per row, got Map'
+        );
+    });
+
     it('applies a validation with the row\'s arguments, nulling the failures', async () => {
         const { values } = await applyTo('contains', 'name', { value: '"search"' });
 

@@ -1,4 +1,4 @@
-import { isNil } from '@terascope/core-utils';
+import { getTypeOf, isNil } from '@terascope/core-utils';
 import { DataTypeFieldConfig, DataTypeFields, FieldType } from '@terascope/types';
 import { validateFunctionArgs } from '../argument-validator/index.js';
 import { validateAccepts, getFieldTypesFromFieldConfigAndChildConfig } from '../../column/index.js';
@@ -465,7 +465,10 @@ function rowArgumentsSQL<T extends Record<string, any>>(
     for (const [name, value] of Object.entries(args)) {
         if (Object.hasOwn(rowArgs, name)) continue;
         if (!isJSON(value)) {
-            throw new Error(`Argument "${name}" can not be passed as JSON with per-row arguments`);
+            throw new Error(
+                `Argument "${name}" must be a string, finite number, boolean, null, array or plain object `
+                + `when another argument is per row, got ${getTypeOf(value)}`
+            );
         }
         entries.push(`${quoteLiteral(name)}, ${quoteLiteral(JSON.stringify(value))}::JSON`);
     }
