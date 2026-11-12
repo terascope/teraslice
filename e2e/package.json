@@ -41,6 +41,7 @@
         "test:opensearch3": "TEST_OPENSEARCH='true' OPENSEARCH_VERSION='3.1.0' TEST_KAFKA='true' ts-scripts test --suite e2e --",
         "test:s3AssetStorage": "TEST_OPENSEARCH='true' TEST_KAFKA='true' TEST_CEPH='true' ASSET_STORAGE_CONNECTION_TYPE='s3' ASSET_STORAGE_CONNECTION='default' ts-scripts test --suite e2e --",
         "test:s3AssetStorageEncrypted": "TEST_OPENSEARCH='true' TEST_KAFKA='true' TEST_CEPH='true' ENCRYPT_CEPH='true' ASSET_STORAGE_CONNECTION_TYPE='s3' ASSET_STORAGE_CONNECTION='default' ts-scripts test --suite e2e -- --testPathPatterns='assets-spec.ts'",
+        "test:v2": "TEST_OPENSEARCH='true' OPENSEARCH_VERSION='2.15.0' TEST_KAFKA='true' TEST_API_VERSION='v2' ts-scripts test --suite e2e --",
         "test:watch": "TEST_OPENSEARCH='true' TEST_KAFKA='true' ts-scripts test --suite e2e --watch --"
     },
     "devDependencies": {

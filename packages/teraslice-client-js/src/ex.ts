@@ -23,12 +23,32 @@ export default class Ex extends Client {
         return this._exId;
     }
 
+    /**
+     * /v2 only allows actions on a job's current execution,
+     * so the action goes through the job instead of the execution
+     */
+    // TODO: Teraslice v4 deletes /v1, remove the /ex return
+    // https://github.com/terascope/teraslice/issues/4584#issuecomment-6636093239
+    private async _actionPath(): Promise<string> {
+        if (!this.isV2) return `/ex/${this._exId}`;
+
+        const { job_id: jobId } = await this.config();
+        const { ex_id: currentExId } = await this.get(`/jobs/${jobId}/ex`);
+
+        if (currentExId !== this._exId) {
+            throw new TSError(`/v2 only supports actions on the current execution of a job, ${this._exId} is not the current execution of job ${jobId}`, {
+                statusCode: 400
+            });
+        }
+        return `/jobs/${jobId}`;
+    }
+
     async stop(
         query?: Teraslice.StopQuery,
         searchOptions: RequestOptions = {}
     ): Promise<Teraslice.ApiStoppedResponse> {
         const options = this.makeOptions(query, searchOptions);
-        return this.post(`/ex/${this._exId}/_stop`, null, options);
+        return this.post(`${await this._actionPath()}/_stop`, null, options);
     }
 
     async pause(
@@ -36,7 +56,7 @@ export default class Ex extends Client {
         searchOptions: RequestOptions = {}
     ): Promise<Teraslice.ApiPausedResponse> {
         const options = this.makeOptions(query, searchOptions);
-        return this.post(`/ex/${this._exId}/_pause`, null, options);
+        return this.post(`${await this._actionPath()}/_pause`, null, options);
     }
 
     async resume(
@@ -44,15 +64,28 @@ export default class Ex extends Client {
         searchOptions: RequestOptions = {}
     ): Promise<Teraslice.ApiResumeResponse> {
         const options = this.makeOptions(query, searchOptions);
-        return this.post(`/ex/${this._exId}/_resume`, null, options);
+        return this.post(`${await this._actionPath()}/_resume`, null, options);
     }
 
     async recover(
         query: Teraslice.RecoverQuery = {},
         searchOptions: RequestOptions = {}
     ): Promise<Ex> {
-        const options = this.makeOptions(query, searchOptions);
-        const result: Teraslice.ApiJobCreateResponse = await this.post(`/ex/${this._exId}/_recover`, null, options);
+        let result: Teraslice.ApiJobCreateResponse;
+
+        // TODO: Teraslice v4 deletes /v1, keep only the v2 branch
+        // https://github.com/terascope/teraslice/issues/4584#issuecomment-6636093239
+        if (this.isV2) {
+            const { job_id: jobId } = await this.config();
+            const options = this.makeOptions({
+                cleanup_type: query.cleanup,
+                ex_id: this._exId
+            }, searchOptions);
+            result = await this.post(`/jobs/${jobId}/_recover`, null, options);
+        } else {
+            const options = this.makeOptions(query, searchOptions);
+            result = await this.post(`/ex/${this._exId}/_recover`, null, options);
+        }
 
         // support older version of teraslice
         if (!result.ex_id) {
@@ -69,18 +102,21 @@ export default class Ex extends Client {
     }
 
     async slicer(requestOptions: RequestOptions = {}): Promise<Teraslice.ExecutionList> {
+        // TODO: Teraslice v4 deletes /v1, remove slicer() and use controller()
+        // https://github.com/terascope/teraslice/issues/4584#issuecomment-6636093239
+        if (this.isV2) return this.controller(requestOptions);
         return this.get(`/ex/${this._exId}/slicer`, requestOptions);
     }
 
     async controller(requestOptions: RequestOptions = {}): Promise<Teraslice.ExecutionList> {
-        return this.get(`/ex/${this._exId}/controller`, requestOptions);
+        return this.get(`${await this._actionPath()}/controller`, requestOptions);
     }
 
     async tap(
         query: { size?: string | 'all' } = {},
         searchOptions: RequestOptions = {}
     ): Promise<Teraslice.SliceTapResults> {
-        return this.get(`/ex/${this._exId}/tap`, this.makeOptions(query, searchOptions));
+        return this.get(`${await this._actionPath()}/tap`, this.makeOptions(query, searchOptions));
     }
 
     async config(requestOptions: RequestOptions = {}): Promise<Teraslice.ExecutionConfig> {
@@ -118,7 +154,7 @@ export default class Ex extends Client {
         requestOptions.responseType = 'text';
         const options = this.makeOptions(query, requestOptions);
 
-        const response = await this.post(`/ex/${this._exId}/_workers`, null, options);
+        const response = await this.post(`${await this._actionPath()}/_workers`, null, options);
         // for backwards compatibility
         if (typeof response === 'string') {
             try {

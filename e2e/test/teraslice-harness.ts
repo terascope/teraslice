@@ -26,7 +26,7 @@ const {
     NATIVE_DEFAULT_NODES, newId, DEFAULT_WORKERS, GENERATE_ONLY,
     EXAMPLE_INDEX_SIZES, EXAMPLE_INDEX_PREFIX, TEST_PLATFORM, TERASLICE_PORT,
     LOG_PATH, ENCRYPT_OPENSEARCH, OPENSEARCH_USER, OPENSEARCH_PASSWORD, ROOT_CERT_PATH,
-    FILE_LOGGING, OS_CONNECTION
+    FILE_LOGGING, OS_CONNECTION, TEST_API_VERSION
 } = config;
 
 const JobDict = Object.freeze({
@@ -79,6 +79,11 @@ export class TerasliceHarness {
         this.client = client;
         this.teraslice = new TerasliceClient({
             host: `http://${HOST_IP}:${TERASLICE_PORT}`,
+            // Picks /v1 or /v2. Client methods send each call to the right route for that
+            // version, so use them instead of writing api paths by hand.
+            // TODO: Teraslice v4 deletes /v1, remove this line so the client uses /v2
+            // https://github.com/terascope/teraslice/issues/4584#issuecomment-6636093239
+            apiVersion: `/${TEST_API_VERSION}`,
             timeout: 2 * 60 * 1000
         });
     }
@@ -713,22 +718,23 @@ export class TerasliceHarness {
         return baseAssetIds;
     }
 
+    // changeWorkers() calls /ex/:exId/_workers on v1 and /jobs/:jobId/_workers on v2
     async addWorkers(exId: string, workersToAdd: number): Promise<number> {
         const currentWorkers = (await this.teraslice.executions.wrap(exId).workers()).length;
         const workerCount = currentWorkers + workersToAdd;
-        await this.teraslice.jobs.post(`ex/${exId}/_workers?add=${workersToAdd}`);
+        await this.teraslice.executions.wrap(exId).changeWorkers('add', workersToAdd);
         return this.waitForWorkerCount(exId, workerCount);
     }
 
     async removeWorkers(exId: string, workersToRemove: number): Promise<number> {
         const currentWorkers = (await this.teraslice.executions.wrap(exId).workers()).length;
         const workerCount = currentWorkers - workersToRemove;
-        await this.teraslice.jobs.post(`ex/${exId}/_workers?remove=${workersToRemove}`);
+        await this.teraslice.executions.wrap(exId).changeWorkers('remove', workersToRemove);
         return this.waitForWorkerCount(exId, workerCount);
     }
 
     async setWorkers(exId: string, workerTotal: number): Promise<number> {
-        await this.teraslice.jobs.post(`ex/${exId}/_workers?total=${workerTotal}`);
+        await this.teraslice.executions.wrap(exId).changeWorkers('total', workerTotal);
         return this.waitForWorkerCount(exId, workerTotal);
     }
 }

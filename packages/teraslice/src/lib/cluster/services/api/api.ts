@@ -9,20 +9,21 @@ import {
     isKey
 } from '@terascope/core-utils';
 import { ExecutionStatusEnum, ConnectorListResponse, JobSchemaResponse } from '@terascope/types';
-import { ClusterMasterContext, TerasliceRequest, TerasliceResponse } from '../../../interfaces.js';
-import { makeLogger } from '../../workers/helpers/terafoundation.js';
-import { ExecutionService, JobsService, ClusterServiceType } from '../services/index.js';
-import type { JobsStorage, ExecutionStorage, StateStorage } from '../../storage/index.js';
+import { createV2Registry } from './v2/routes.js';
+import { ClusterMasterContext, TerasliceRequest, TerasliceResponse } from '../../../../interfaces.js';
+import { makeLogger } from '../../../workers/helpers/terafoundation.js';
+import { ExecutionService, JobsService, ClusterServiceType } from '../index.js';
+import type { JobsStorage, ExecutionStorage, StateStorage } from '../../../storage/index.js';
 import {
     makeTable, sendError, handleTerasliceRequest,
     getSearchOptions, createJobActiveQuery, addDeletedToQuery,
     addFilterToQuery, buildConnectorList, getSliceTapOptions
-} from '../../utils/api_utils.js';
-import { getPackageJSON } from '../../utils/file_utils.js';
+} from '../../../utils/api_utils.js';
+import { getPackageJSON } from '../../../utils/file_utils.js';
 
 const terasliceVersion = getPackageJSON().version;
 
-function validateCleanupType(cleanupType: RecoveryCleanupType) {
+export function validateCleanupType(cleanupType: RecoveryCleanupType) {
     if (cleanupType && !RecoveryCleanupType[cleanupType]) {
         const types = Object.values(RecoveryCleanupType);
         throw new TSError(`cleanup_type must be empty or set to ${types.join(', ')}`, {
@@ -31,7 +32,7 @@ function validateCleanupType(cleanupType: RecoveryCleanupType) {
     }
 }
 
-function validateGetDeletedOption(deletedOption: string) {
+export function validateGetDeletedOption(deletedOption: string) {
     if (!['true', 'false', ''].includes(deletedOption)) {
         throw new TSError('deleted query option must true or false', {
             statusCode: 400
@@ -536,7 +537,13 @@ export class ApiService {
             requestHandler(() => this._controllerStats());
         });
 
+        const v2routes = createV2Registry(this).router;
+
+        this.app.use('/v2', v2routes);
+
         // backwards compatibility for /v1 routes
+        // TODO: Teraslice v4 deletes /v1 and the unversioned mount
+        // https://github.com/terascope/teraslice/issues/4584#issuecomment-6636093239
         this.app.use(v1routes);
         this.app.use('/v1', v1routes);
 

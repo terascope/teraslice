@@ -57,7 +57,8 @@
         "socket.io-client": "catalog:",
         "terafoundation": "workspace:~",
         "terafoundation_kafka_connector": "catalog:",
-        "uuid": "catalog:"
+        "uuid": "catalog:",
+        "zod": "catalog:"
     },
     "devDependencies": {
         "@jest/globals": "catalog:",
