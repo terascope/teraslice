@@ -459,7 +459,7 @@ export class ExecutionService {
 
         if (isEmpty(clients)) {
             if (specificId) {
-                throw new TSError(`Could not find active slicer for ex_id: ${specificId}`, {
+                throw new TSError(`Could not find active controller for ex_id: ${specificId}`, {
                     statusCode: 404
                 });
             }

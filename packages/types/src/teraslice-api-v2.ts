@@ -440,6 +440,24 @@ export const JobRecordSchema = z.looseObject({
 
 /** ############## Search options ############# */
 
+const sortOrders = ['asc', 'desc'];
+
+/**
+ * Whether `sort` is `field`, `field:asc` or `field:desc`, comma-separated for
+ * more than one. Empty is allowed (the route uses the default). Checked
+ * because OpenSearch silently ignores an entry whose order isn't `asc` or
+ * `desc` (e.g. `_updated:sideways`) instead of rejecting it.
+ */
+function isValidSort(sort: string): boolean {
+    if (sort === '') return true;
+
+    return sort.split(',').every((entry) => {
+        const [field, order, ...rest] = entry.split(':');
+        if (!field.trim() || rest.length) return false;
+        return order === undefined || sortOrders.includes(order);
+    });
+}
+
 /**
  * Paging, sorting and filtering, shared by the list routes.
  */
@@ -455,8 +473,13 @@ const searchQueryShape = {
         .min(0)
         .default(0)
         .meta({ description: 'Number of matching records to skip, for paging' }),
-    sort: z.string().default('_updated:desc')
-        .meta({ description: 'Sort order as `field:asc` or `field:desc`; empty uses the default' }),
+    sort: z.string()
+        .refine(isValidSort, 'Expected field, field:asc or field:desc, comma-separated')
+        .default('_updated:desc')
+        .meta({
+            description: 'Sort order as `field`, `field:asc` or `field:desc`, comma-separated '
+                + 'for more than one; any other order is rejected. Empty uses the default',
+        }),
     filter: z.string().optional()
         .meta({
             description: 'Lucene query string, ANDed with the route\'s own query, '

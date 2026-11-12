@@ -129,7 +129,7 @@ Used by `GET /v2/jobs`, `GET /v2/ex`, `GET /v2/jobs/{jobId}/errors` and
 - `size: integer = 100` - maximum number of records to return. `from + size` is limited by the
   index's `max_result_window` (10,000 unless the cluster changes it).
 - `from: integer = 0` - number of matching records to skip, for paging
-- `sort: string = "_updated:desc"` - `field:asc` or `field:desc`. Empty uses the default.
+- `sort: string = "_updated:desc"` - `field`, `field:asc` or `field:desc`, comma-separated for more than one. Any other order is rejected with a 400. Empty uses the default.
 - `filter: string` - Lucene query, ANDed with the route's own query, e.g. `name:"my-job"`
 
 #### `deleted`

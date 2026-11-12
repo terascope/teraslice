@@ -446,6 +446,23 @@ describe('HTTP API v2', () => {
             });
 
             it.each([
+                'name',
+                'name:desc',
+                '_created:asc,name',
+            ])('should accept sort=%j', async (sort) => {
+                const response = await request('GET', '/v2/jobs', { searchParams: { sort } });
+
+                expect(response.statusCode).toEqual(200);
+                expect(search.mock.calls[0][3]).toBe(sort);
+            });
+
+            it.each([
+                ['sort', '_updated:sideways'],
+                ['sort', 'name:'],
+                ['sort', 'name:ASC'],
+                ['sort', 'name:asc,'],
+                ['sort', ':asc'],
+                ['sort', 'a:b:asc'],
                 ['size', 'ten'],
                 ['size', '-1'],
                 ['size', '1.5'],
