@@ -275,8 +275,9 @@ function isStrictObject(schema: z.ZodType): boolean {
 
 /**
  * Throws if the def's params or query schema would silently drop unknown
- * keys. Runs at registration, so a mistake fails ApiService startup rather
- * than a request.
+ * keys. We want unknown keys (typos) to throw an error instead of being
+ * silently ignored. Runs at registration, so a mistake fails ApiService
+ * startup rather than a request.
  */
 function assertStrictParts(def: AnyRouteDef): void {
     for (const part of ['params', 'query'] as const) {
