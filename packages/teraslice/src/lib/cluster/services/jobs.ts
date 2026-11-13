@@ -76,6 +76,7 @@ export class JobsService {
      * @param {string} jobId
     */
     async assertJobCanRun(jobId: string): Promise<void> {
+        await this.executionStorage.refresh();
         const activeExecution = await this._getActiveExecution(jobId, true);
 
         if (activeExecution) {
