@@ -39,6 +39,7 @@ describe('JobsService', () => {
         } as any;
         service.executionStorage = {
             search,
+            refresh: jest.fn(async () => {}),
             getTerminalStatuses: () => terminalStatuses.slice(),
         } as any;
 
@@ -60,6 +61,17 @@ describe('JobsService', () => {
             const { service } = setup();
 
             await expect(service.assertJobCanRun(jobId)).resolves.toBeUndefined();
+        });
+
+        it('should refresh the execution index before searching for an active execution', async () => {
+            const { service } = setup();
+            const { refresh, search } = service.executionStorage as any;
+
+            await service.assertJobCanRun(jobId);
+
+            expect(refresh).toHaveBeenCalledOnce();
+            expect(refresh.mock.invocationCallOrder[0])
+                .toBeLessThan(search.mock.invocationCallOrder[0]);
         });
 
         it('should throw a 409 when the job has an active execution', async () => {
