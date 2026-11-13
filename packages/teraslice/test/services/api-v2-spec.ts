@@ -967,16 +967,20 @@ describe('HTTP API v2', () => {
         const recoverJob = jest.fn<(...args: any[]) => Promise<any>>();
         const getExecutionContext = jest.fn<(...args: any[]) => Promise<any>>();
         const recoverExecution = jest.fn<(...args: any[]) => Promise<any>>();
+        const assertJobCanRun = jest.fn<(...args: any[]) => Promise<void>>();
+        const recoverFrom = { ex_id: 'ex-1', job_id: 'job-1' };
 
         beforeAll(() => {
             context.services.jobsService.recoverJob = recoverJob;
+            context.services.jobsService.assertJobCanRun = assertJobCanRun;
             context.services.executionService.getExecutionContext = getExecutionContext;
             context.services.executionService.recoverExecution = recoverExecution;
         });
 
         beforeEach(() => {
             recoverJob.mockReset().mockResolvedValue(newExecution);
-            getExecutionContext.mockReset().mockResolvedValue({ ex_id: 'ex-1', job_id: 'job-1' });
+            assertJobCanRun.mockReset().mockResolvedValue(undefined);
+            getExecutionContext.mockReset().mockResolvedValue(recoverFrom);
             recoverExecution.mockReset().mockResolvedValue(newExecution);
         });
 
@@ -1003,8 +1007,36 @@ describe('HTTP API v2', () => {
             });
 
             expect(response.statusCode).toEqual(200);
-            expect(recoverExecution).toHaveBeenCalledWith('ex-1', undefined);
+            expect(assertJobCanRun).toHaveBeenCalledWith('job-1');
+            expect(recoverExecution).toHaveBeenCalledWith(recoverFrom, undefined);
             expect(recoverJob).not.toHaveBeenCalled();
+        });
+
+        it('should respond with a 409 and not recover when ex_id is given and the job can\'t run', async () => {
+            assertJobCanRun.mockRejectedValue(new TSError(
+                'Job job-1 is currently running, cannot have the same job concurrently running',
+                { statusCode: 409 }
+            ));
+
+            const response = await request('POST', '/v2/jobs/job-1/_recover', {
+                searchParams: { ex_id: 'ex-1' }
+            });
+
+            expect(response.statusCode).toEqual(409);
+            expect(response.body.message).toContain('currently running');
+            expect(recoverExecution).not.toHaveBeenCalled();
+        });
+
+        it('should pass through a 409 from recoverJob', async () => {
+            recoverJob.mockRejectedValue(new TSError(
+                'There are orphaned resources for job: job-1, exId: ex-0. Please wait for Kubernetes to clean up orphaned resources.',
+                { statusCode: 409 }
+            ));
+
+            const response = await request('POST', '/v2/jobs/job-1/_recover');
+
+            expect(response.statusCode).toEqual(409);
+            expect(response.body.message).toContain('orphaned resources');
         });
 
         it('should respond with a 400 when the execution belongs to another job', async () => {

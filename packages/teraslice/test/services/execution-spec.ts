@@ -92,4 +92,76 @@ describe('ExecutionService', () => {
                 .rejects.toThrow('teraslice is shutting down');
         });
     });
+
+    describe('pauseExecution / resumeExecution', () => {
+        function setup(currentStatus: string) {
+            const context = new TestContext('execution-service') as any;
+            const sendExecutionPause = jest.fn<(...args: any[]) => Promise<any>>()
+                .mockResolvedValue(undefined);
+            const sendExecutionResume = jest.fn<(...args: any[]) => Promise<any>>()
+                .mockResolvedValue(undefined);
+            const setStatus = jest.fn<(...args: any[]) => Promise<any>>()
+                .mockResolvedValue(undefined);
+
+            const service = new ExecutionService(context, {
+                clusterMasterServer: {
+                    isClientReady: () => true,
+                    sendExecutionPause,
+                    sendExecutionResume
+                } as any
+            });
+            service.executionStorage = {
+                getActiveExecution: async (exId: string) => ({
+                    ex_id: exId, _status: currentStatus
+                }),
+                setStatus
+            } as any;
+
+            return { service, sendExecutionPause, sendExecutionResume, setStatus };
+        }
+
+        it.each(['running', 'failing'])('should pause a "%s" execution', async (current) => {
+            const { service, sendExecutionPause, setStatus } = setup(current);
+
+            await expect(service.pauseExecution('ex-1')).resolves.toEqual({ status: 'paused' });
+            expect(sendExecutionPause).toHaveBeenCalledWith('ex-1');
+            expect(setStatus).toHaveBeenCalledWith('ex-1', 'paused');
+        });
+
+        it('should resume a paused execution', async () => {
+            const { service, sendExecutionResume, setStatus } = setup('paused');
+
+            await expect(service.resumeExecution('ex-1')).resolves.toEqual({ status: 'running' });
+            expect(sendExecutionResume).toHaveBeenCalledWith('ex-1');
+            expect(setStatus).toHaveBeenCalledWith('ex-1', 'running');
+        });
+
+        it.each(['paused', 'stopping', 'initializing', 'scheduling', 'recovering'])(
+            'should reject pausing a "%s" execution with a 409',
+            async (current) => {
+                const { service, sendExecutionPause, setStatus } = setup(current);
+
+                await expect(service.pauseExecution('ex-1')).rejects.toMatchObject({
+                    statusCode: 409,
+                    message: `Execution ex-1 is "${current}", it can only be paused when "running" or "failing"`
+                });
+                expect(sendExecutionPause).not.toHaveBeenCalled();
+                expect(setStatus).not.toHaveBeenCalled();
+            }
+        );
+
+        it.each(['running', 'stopping', 'failing', 'initializing', 'scheduling', 'recovering'])(
+            'should reject resuming a "%s" execution with a 409',
+            async (current) => {
+                const { service, sendExecutionResume, setStatus } = setup(current);
+
+                await expect(service.resumeExecution('ex-1')).rejects.toMatchObject({
+                    statusCode: 409,
+                    message: `Execution ex-1 is "${current}", it can only be resumed when "paused"`
+                });
+                expect(sendExecutionResume).not.toHaveBeenCalled();
+                expect(setStatus).not.toHaveBeenCalled();
+            }
+        );
+    });
 });

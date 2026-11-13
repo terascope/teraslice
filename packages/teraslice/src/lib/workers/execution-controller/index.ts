@@ -1215,12 +1215,26 @@ export class ExecutionController {
 
             await this.setFailingStatus('slice failure watch dog');
 
+            let pausedWhileFailing = false;
+
             this.sliceFailureInterval = setInterval(() => {
                 const currentAnalyticsData = this.executionAnalytics.getAnalytics();
                 const currentErrorCount = currentAnalyticsData.failed;
                 const currentProcessedCount = currentAnalyticsData.processed;
                 const errorCountTheSame = currentErrorCount === errorCount;
                 const slicesHaveProcessedSinceError = currentProcessedCount > processedCount;
+
+                if (this.isPaused) {
+                    // don't write a status while paused; resume will write "running",
+                    // so the first check after resume restores "failing" if needed
+                    pausedWhileFailing = true;
+                    return;
+                }
+
+                if (pausedWhileFailing && !errorCountTheSame) {
+                    pausedWhileFailing = false;
+                    this.setFailingStatus('slice failure watch dog');
+                }
 
                 if (errorCountTheSame && slicesHaveProcessedSinceError) {
                     clearInterval(this.sliceFailureInterval);
