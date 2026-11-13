@@ -423,7 +423,11 @@ export class ApiService {
             const requestHandler = handleTerasliceRequest(req, res, 'Could not recover execution');
             requestHandler(async () => {
                 validateCleanupType(cleanupType as RecoveryCleanupType);
-                return executionService.recoverExecution(exId, cleanupType as RecoveryCleanupType);
+                const execution = await executionService.getExecutionContext(exId);
+                await jobsService.assertJobCanRun(execution.job_id);
+                return executionService.recoverExecution(
+                    execution, cleanupType as RecoveryCleanupType
+                );
             });
         });
 

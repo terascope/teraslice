@@ -395,7 +395,8 @@ export function createV2Registry(api: ApiService): RouteRegistry {
                 statusCode: 400
             });
         }
-        return api.executionService.recoverExecution(exId, cleanupType);
+        await api.jobsService.assertJobCanRun(jobId);
+        return api.executionService.recoverExecution(execution, cleanupType);
     }, { errorMessage: 'Could not recover job' });
 
     registry.get('/jobs/:jobId/ex', {
