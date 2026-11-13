@@ -589,7 +589,7 @@ export class ApiService {
             const requestHandler = handleTerasliceRequest(req, res, 'Could not get all workers');
             requestHandler(async () => {
                 const workers = await executionService.findAllWorkers() as Record<string, any>[];
-                return makeTable(req, defaults, workers.slice(from, size));
+                return makeTable(req, defaults, workers.slice(from, from + size));
             });
         });
 
@@ -602,7 +602,7 @@ export class ApiService {
                 const nodes = await clusterService.getClusterState();
 
                 const transform = Object.values(nodes)
-                    .slice(from, size)
+                    .slice(from, from + size)
                     .map((node: any) => Object.assign(
                         {},
                         node,
@@ -682,7 +682,7 @@ export class ApiService {
             const requestHandler = handleTerasliceRequest(req, res, 'Could not get all execution statistics');
             requestHandler(async () => {
                 const stats = await this._controllerStats();
-                return makeTable(req, defaults, stats.slice(from, size));
+                return makeTable(req, defaults, stats.slice(from, from + size));
             });
         });
 

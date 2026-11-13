@@ -1,6 +1,6 @@
 import 'jest-extended';
 import {
-    createJobActiveQuery, addDeletedToQuery, getSliceTapOptions
+    createJobActiveQuery, addDeletedToQuery, getSliceTapOptions, makeTable
 } from '../../src/lib/utils/api_utils.js';
 
 describe('apiUtils', () => {
@@ -70,6 +70,37 @@ describe('apiUtils', () => {
             expect(err.statusCode).toEqual(400);
             expect(err.message).toStartWith('Argument "size" must be "all", 0, or a positive integer');
             expect(err.message).toEndWith(`received ${JSON.stringify(size)}`);
+        });
+    });
+
+    describe('makeTable', () => {
+        function fakeReq(query: Record<string, string> = {}) {
+            return { query } as any;
+        }
+
+        /** The table's lines with padding trimmed; the output ends with a newline */
+        function toLines(table: string) {
+            return table.split('\n').slice(0, -1)
+                .map((line) => line.trim());
+        }
+
+        it('should print a row per record with the default columns', () => {
+            const data = [{ name: 'a', id: 1 }, { name: 'b', id: 2 }];
+
+            const lines = toLines(makeTable(fakeReq(), ['name', 'id'], data));
+
+            expect(lines).toHaveLength(4);
+            expect(lines[0]).toMatch(/^name\s+id$/);
+            expect(lines[2]).toMatch(/^a\s+1$/);
+            expect(lines[3]).toMatch(/^b\s+2$/);
+        });
+
+        it('should print only the header for an empty list', () => {
+            const lines = toLines(makeTable(fakeReq(), ['name', 'id'], []));
+
+            expect(lines).toHaveLength(3);
+            expect(lines[0]).toMatch(/^name\s+id$/);
+            expect(lines[2]).toBe('');
         });
     });
 });
