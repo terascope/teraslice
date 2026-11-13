@@ -44,6 +44,17 @@ export interface AnyBulkAction {
 }
 
 /**
+ * The records from one search plus the total number of matching documents.
+ * `relation` is `gte` when OpenSearch stopped counting at the `track_total_hits`
+ * limit (10,000 by default), so `total` is a minimum in that case.
+ */
+export interface SearchWithTotalResult<T = Record<string, any>> {
+    records: DataEntity<T>[];
+    total: number;
+    relation: 'eq' | 'gte';
+}
+
+/**
      * This is used for improved bulk sending function
     */
 export interface BulkActionMetadata {
@@ -126,6 +137,33 @@ export default function elasticsearchApi(
         return data.hits.hits.map(
             convertDocToDataEntity
         ) as unknown as ClientResponse.SearchResponse;
+    }
+
+    /**
+     * Search and return the records along with the total number of matches,
+     * from the same request. Ignores `full_response`: the records are always
+     * converted to DataEntities, as `search()` does without it.
+     *
+     * Pass `track_total_hits` in the query to change how far OpenSearch counts
+     * exactly; it can't be `false`, since the total is required.
+     */
+    async function searchWithTotal<T = Record<string, any>>(
+        query: ClientParams.SearchParams
+    ): Promise<SearchWithTotalResult<T>> {
+        const data = await _searchES(query);
+        const total = data.hits?.total;
+
+        if (total == null || typeof total !== 'object') {
+            throw new TSError('Search response is missing hits.total, track_total_hits must not be false', {
+                context: { connection },
+            });
+        }
+
+        return {
+            records: (data.hits.hits ?? []).map(convertDocToDataEntity) as DataEntity<T>[],
+            total: total.value,
+            relation: total.relation,
+        };
     }
 
     function _makeRequest(
@@ -1368,6 +1406,7 @@ export default function elasticsearchApi(
 
     return {
         search,
+        searchWithTotal,
         count,
         get: getFn,
         mget,
