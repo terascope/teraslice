@@ -68,12 +68,18 @@ export async function makeDuckDBEngine(
 
     await db.createTable(table, dataType, records);
 
+    // the type config cannot say a field is a list, the data type can, so a caller passes them
+    const arrayFields = Object.entries(dataType.fields)
+        .filter(([, config]) => config.array)
+        .map(([field]) => field);
+
     return {
         name: 'duckdb',
         async search(access, query, variables) {
             const sql = await access.restrictSQLQuery(query, {
                 variables,
                 params: { table, size: records.length },
+                ...(arrayFields.length && { array_fields: arrayFields }),
             });
 
             const rows = await db.run(sql);

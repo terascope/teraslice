@@ -37,6 +37,9 @@ const RELATION_FUNCTIONS: Readonly<Record<GeoShapeRelation, string>> = Object.fr
  * `spatial` extension, which does not autoload; run `LOAD spatial` at startup, or a geo query
  * fails with `Scalar Function with name "st_within" is not in the catalog`.
 */
+/** The name of one value of a list, inside a condition on its values. */
+const LIST_VALUE = '__xlucene_value';
+
 export class DuckDBDialect extends BaseSQLDialect {
     readonly name = SQLDialectName.duckdb;
 
@@ -54,6 +57,15 @@ export class DuckDBDialect extends BaseSQLDialect {
 
     toText(fieldExpr: string): string {
         return `CAST(${fieldExpr} AS VARCHAR)`;
+    }
+
+    /**
+     * The values of the list that pass, counted. `list_filter` drops a value whose condition is
+     * NULL, and a NULL list has no count, so the `COALESCE` makes it FALSE.
+    */
+    anyValue(listExpr: string, condition: (valueExpr: string) => string): string {
+        const value = quoteIdentifier(LIST_VALUE);
+        return `COALESCE(len(list_filter(${listExpr}, ${value} -> ${condition(value)})) > 0, FALSE)`;
     }
 
     /**

@@ -146,8 +146,19 @@ function buildNegationSQL(node: Negation, context: SQLContext): string | undefin
     return context.dialect.not(expression);
 }
 
+/**
+ * The field has a value. A list has one when any of its values is set, so an empty list is
+ * missing, as in Elasticsearch.
+*/
 function buildExistsSQL(node: Exists, context: SQLContext): string {
-    return context.dialect.exists(context.dialect.fieldRef(node.field));
+    const { dialect } = context;
+    const fieldExpr = dialect.fieldRef(node.field);
+
+    if (context.array_fields?.has(node.field)) {
+        return dialect.anyValue(fieldExpr, (valueExpr) => dialect.exists(valueExpr));
+    }
+
+    return dialect.exists(fieldExpr);
 }
 
 function buildTermLevelSQL(node: TermLikeNode, context: SQLContext): string | undefined {
@@ -165,12 +176,47 @@ function buildTermLevelSQL(node: TermLikeNode, context: SQLContext): string | un
 
     const fieldExpr = context.dialect.fieldRef(node.field);
 
+    if (context.array_fields?.has(node.field)) {
+        return buildListSQL(node, fieldExpr, context);
+    }
+
+    return buildValueSQL(node, fieldExpr, context);
+}
+
+/** One value of the field matches the node. */
+function buildValueSQL(
+    node: TermLikeNode,
+    fieldExpr: string,
+    context: SQLContext
+): string | undefined {
     if (isTerm(node)) return buildTermSQL(node, fieldExpr, context);
     if (isRegexp(node)) return buildRegexpSQL(node, fieldExpr, context);
     if (isWildcard(node)) return buildWildcardSQL(node, fieldExpr, context);
     if (isRange(node)) return buildRangeSQL(node, fieldExpr, context);
 
     return undefined;
+}
+
+/**
+ * A list field matches when any of its values does.
+ *
+ * Elasticsearch indexes each value of a list on its own, so `tags:a AND tags:b` matches a list
+ * holding both, and `NOT tags:a` matches an empty list. The node is built once for one value,
+ * and dropped when it cannot be, the same as for a single value.
+*/
+function buildListSQL(
+    node: TermLikeNode,
+    fieldExpr: string,
+    context: SQLContext
+): string | undefined {
+    let built = false;
+    const expression = context.dialect.anyValue(fieldExpr, (valueExpr) => {
+        const value = buildValueSQL(node, valueExpr, context);
+        built = value != null;
+        return value ?? context.dialect.matchNone();
+    });
+
+    return built ? expression : undefined;
 }
 
 /**
@@ -213,12 +259,17 @@ function buildFieldlessSQL(node: TermLikeNode, context: SQLContext): string | un
     return expandAcrossFields(node, Object.keys(context.type_config), context);
 }
 
+const GEO_TYPES: ReadonlySet<xLuceneFieldType> = new Set([
+    xLuceneFieldType.Geo, xLuceneFieldType.GeoPoint, xLuceneFieldType.GeoJSON,
+]);
+
 /**
  * The same term against many fields, each compared using its own type.
  *
  * A field whose type cannot hold the value is left out, because `"num" = 'hello'` is a cast
  * error that fails the whole query. Such a field could not match anyway, so the result is
- * the same as in Elasticsearch.
+ * the same as in Elasticsearch. Geo fields are left out too, as `multi_match` leaves them out:
+ * a word such as `Emu` would otherwise be read as a geohash.
 */
 function expandAcrossFields(
     node: TermLikeNode,
@@ -231,6 +282,8 @@ function expandAcrossFields(
     );
 
     const expressions = fields
+        // `multi_match` does not query a geo field, and a word is not a geohash
+        .filter((field) => !GEO_TYPES.has(typeConfig[field]))
         .filter((field) => !isTerm(node) || canRenderValueAs(value, typeConfig[field]))
         .map((field) => buildTermLevelSQL(
             { ...node, field, field_type: typeConfig[field] } as TermLikeNode, context
@@ -260,7 +313,60 @@ function buildTermSQL(
         return dialect.ipInCIDR(fieldExpr, `${value}`);
     }
 
+    if (node.field_type === xLuceneFieldType.Date) {
+        const unit = dateUnit(value);
+        if (unit) {
+            return dialect.and([
+                dialect.compare(fieldExpr, 'gte', unit.start, node.field_type),
+                dialect.compare(fieldExpr, 'lt', unit.end, node.field_type),
+            ]);
+        }
+    }
+
     return dialect.equals(fieldExpr, value, node.field_type);
+}
+
+/**
+ * A date written to the day, minute or second, in its own offset, without a fraction of a
+ * second: `2020-01-15`, `2020-01-15T12:30`, `2020-01-15T12:30:45+05:00`.
+ *
+ * The parser turns a time to the hour into a full time and a year into a number before this
+ * runs, and a month is not rounded, so those are left to an equality.
+*/
+const ROUNDED_DATE = /^(\d{4})-(\d{2})-(\d{2})(?:T(\d{2}):(\d{2})(?::(\d{2}))?(Z|[+-]\d{2}:?\d{2})?)?$/;
+
+const UNIT_MS = { day: 86_400_000, minute: 60_000, second: 1_000 } as const;
+
+/**
+ * The unit a date term matches, as Elasticsearch matches it: a term on a `date` field is a
+ * range from the first to the last millisecond of the smallest unit the value names, so
+ * `2020-01-15` is the whole day. Any other value is one point in time.
+*/
+function dateUnit(value: unknown): { start: string; end: string } | undefined {
+    if (typeof value !== 'string') return undefined;
+
+    const match = ROUNDED_DATE.exec(value);
+    if (!match) return undefined;
+
+    const [, year, month, day, hour, minute, second, offset] = match;
+    const unit = hour == null ? 'day' : second == null ? 'minute' : 'second';
+    const [h, m, sec] = [hour, minute, second].map((part) => Number(part ?? 0));
+    const local = Date.UTC(Number(year), Number(month) - 1, Number(day), h, m, sec);
+    const start = local - offsetMillis(offset);
+    if (Number.isNaN(start)) return undefined;
+
+    return {
+        start: new Date(start).toISOString(),
+        end: new Date(start + UNIT_MS[unit]).toISOString(),
+    };
+}
+
+/** `+05:00` is 5 hours ahead of UTC; no offset, or `Z`, is UTC. */
+function offsetMillis(offset: string | undefined): number {
+    if (!offset || offset === 'Z') return 0;
+    const sign = offset.startsWith('-') ? -1 : 1;
+    const digits = offset.slice(1).replace(':', '');
+    return sign * ((Number(digits.slice(0, 2)) * 60) + Number(digits.slice(2))) * 60_000;
 }
 
 function buildRegexpSQL(

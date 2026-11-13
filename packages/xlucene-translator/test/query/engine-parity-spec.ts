@@ -9,6 +9,10 @@ import {
 import { ipCases, ipRangeCases } from '../cases/ips.js';
 import { prefixWildcardCases, termCases } from '../cases/terms.js';
 import { makeDuckDBEngine, makeOpenSearchEngine, type ParityEngine } from '../helpers/engines.js';
+import {
+    datePrecisionCases, escapedWildcardCases, fieldlessCases, listCases,
+    valuesDataType, valuesRecords, valuesTypeConfig
+} from '../cases/values.js';
 
 /**
  * The same query over the same records in both engines, checked against one expected answer.
@@ -132,6 +136,67 @@ describe('query parity, opensearch vs duckdb', () => {
     ])('refuses an ip range with %s, in both engines', async (_name, query) => {
         await expect(access.restrictSearchQuery(query, { params: { index } })).toReject();
         await expect(access.restrictSQLQuery(query, { params: { table } })).toReject();
+    });
+
+    /**
+     * Fields whose values decide the match: lists, escaped wildcard characters, dates to less
+     * than a millisecond, and a query with no field beside a geo field (see `cases/values.ts`).
+    */
+    describe('given what a field holds', () => {
+        let valueEngines: ParityEngine[];
+
+        const valuesAccess = new QueryAccess({
+            allow_implicit_queries: true,
+            allow_empty_queries: true,
+            type_config: valuesTypeConfig,
+            filterNilVariables: true,
+        });
+
+        beforeAll(async () => {
+            valueEngines = await Promise.all([
+                makeOpenSearchEngine(`${index}values_`, valuesDataType, valuesRecords),
+                makeDuckDBEngine(`${table}_values`, valuesDataType, valuesRecords),
+            ]);
+        });
+
+        afterAll(async () => {
+            await Promise.all(valueEngines.map((engine) => engine.close()));
+        });
+
+        async function valueAnswers(
+            query: string, variables?: Record<string, unknown>
+        ): Promise<Record<string, string[]>> {
+            const entries = await Promise.all(valueEngines.map(async (engine) => (
+                [engine.name, await engine.search(valuesAccess, query, variables)] as const
+            )));
+            return Object.fromEntries(entries);
+        }
+
+        describe.each([
+            ['a list', listCases],
+            ['an escaped wildcard character', escapedWildcardCases],
+            ['a date to less than a millisecond', datePrecisionCases],
+            ['no field', fieldlessCases],
+        ])('given %s', (_group, cases) => {
+            it.each([...cases])('answers %s the same way', async (_name, query, ids) => {
+                const expected = [...ids].sort();
+
+                await expect(valueAnswers(query)).resolves.toEqual({
+                    opensearch: expected,
+                    duckdb: expected,
+                });
+            });
+        });
+
+        it.each([
+            ['one value', { v: 'Emu' }, ['01', '04']],
+            ['a list of values', { v: ['Yak', 'c'] }, ['01', '02', '07']],
+        ])('answers a variable with %s for a list the same way', async (_name, variables, ids) => {
+            await expect(valueAnswers('tags:$v', variables)).resolves.toEqual({
+                opensearch: ids,
+                duckdb: ids,
+            });
+        });
     });
 
     /** Checks that both engines hold the whole corpus. */

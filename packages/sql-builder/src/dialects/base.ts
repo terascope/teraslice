@@ -175,6 +175,8 @@ export abstract class BaseSQLDialect implements SQLDialect {
         return parens(`${fieldExpr} IS NOT NULL`);
     }
 
+    abstract anyValue(listExpr: string, condition: (valueExpr: string) => string): string;
+
     /**
      * Negate an expression so a missing field matches, as in Elasticsearch.
      *

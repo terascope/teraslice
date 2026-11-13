@@ -14,13 +14,18 @@ const cases: Record<string, SQLTestCase[]> = {
         ['bar:"it\'s"', '("bar" = \'it\'\'s\')'],
         ['bool:true', '("bool" = TRUE)'],
         ['num:50', '("num" = 50)'],
-        ['date:"2020-01-01"', '("date" = CAST(\'2020-01-01 00:00:00.000\' AS TIMESTAMP))'],
+        // a date to the day is the whole day, as Elasticsearch rounds it
+        ['date:"2020-01-01"', '(("date" >= CAST(\'2020-01-01 00:00:00.000\' AS TIMESTAMP)) AND ("date" < CAST(\'2020-01-02 00:00:00.000\' AS TIMESTAMP)))'],
+        ['date:"2020-01-01T00:00:00.000Z"', '("date" = CAST(\'2020-01-01 00:00:00.000\' AS TIMESTAMP))'],
         ['nested.name:hello', '("nested.name" = \'hello\')'],
         ['location:"20,20"', '(ST_Y("location") = 20 AND ST_X("location") = 20)'],
     ],
     'wildcards and regular expressions': [
         ['bar:h?llo', '("bar" LIKE \'h_llo\' ESCAPE \'\\\')'],
         ['bar:fizz*', '("bar" LIKE \'fizz%\' ESCAPE \'\\\')'],
+        // a backslash makes the next character itself
+        ['bar:fi\\*z*', '("bar" LIKE \'fi*z%\' ESCAPE \'\\\')'],
+        ['bar:fi\\?z*', '("bar" LIKE \'fi?z%\' ESCAPE \'\\\')'],
         ['bar:100%', '("bar" = \'100%\')'],
         ['bar:/h.*o/', '("bar" ~ \'^(?:h.*o)$\')'],
         ['bar:*', '("bar" IS NOT NULL)'],
@@ -135,7 +140,7 @@ const cases: Record<string, SQLTestCase[]> = {
         ['num:$n', '("num" = 50)', withVariables],
         ['num:$nums', '(("num" = 50) OR ("num" = 60))', withVariables],
         ['bool:$flag', '("bool" = TRUE)', withVariables],
-        ['date:$when', '("date" = CAST(\'2020-01-01 00:00:00.000\' AS TIMESTAMP))', withVariables],
+        ['date:$when', '(("date" >= CAST(\'2020-01-01 00:00:00.000\' AS TIMESTAMP)) AND ("date" < CAST(\'2020-01-02 00:00:00.000\' AS TIMESTAMP)))', withVariables],
         ['ip:$addr', '(CAST(CASE WHEN strpos("ip", \':\') > 0 THEN "ip" ELSE \'::ffff:\' || "ip" END AS inet) = CAST(\'::ffff:192.168.1.1\' AS inet))', withVariables],
         ['num:>=$low', '("num" >= 20)', withVariables],
         ['num:[$low TO $high]', '(("num" >= 20) AND ("num" <= 70))', withVariables],

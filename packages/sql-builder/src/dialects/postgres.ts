@@ -34,6 +34,9 @@ const WGS84 = 4326;
  * this repo's tests. The IP helpers come from {@link BaseSQLDialect}, because PostgreSQL
  * orders `inet` by family first just as DuckDB does.
 */
+/** The name of one value of a list, inside a condition on its values. */
+const LIST_VALUE = '__xlucene_value';
+
 export class PostgresDialect extends BaseSQLDialect {
     readonly name = SQLDialectName.postgres;
 
@@ -49,6 +52,12 @@ export class PostgresDialect extends BaseSQLDialect {
 
     toText(fieldExpr: string): string {
         return `CAST(${fieldExpr} AS text)`;
+    }
+
+    /** Any row of the unnested list passes; a NULL or empty list has none. */
+    anyValue(listExpr: string, condition: (valueExpr: string) => string): string {
+        const value = quoteIdentifier(LIST_VALUE);
+        return `EXISTS (SELECT 1 FROM unnest(${listExpr}) AS ${value} WHERE ${condition(value)})`;
     }
 
     geoPointParts(fieldExpr: string): SQLGeoPointColumn {
