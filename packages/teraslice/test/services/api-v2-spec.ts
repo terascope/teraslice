@@ -1226,6 +1226,96 @@ describe('HTTP API v2', () => {
         });
     });
 
+    describe('GET /v2/openapi.json', () => {
+        let statusCode: number;
+        let spec: any;
+
+        beforeAll(async () => {
+            ({ statusCode, body: spec } = await request('GET', '/v2/openapi.json'));
+        });
+
+        function operations(): [string, string, any][] {
+            return Object.entries(spec.paths).flatMap(([path, item]: [string, any]) => (
+                Object.entries(item).map(
+                    ([method, op]) => [path, method, op] as [string, string, any]
+                )
+            ));
+        }
+
+        it('should be an OpenAPI 3.1 document for this version', () => {
+            expect(statusCode).toEqual(200);
+            expect(spec.openapi).toEqual('3.1.0');
+            expect(spec.info.version).toEqual(version);
+        });
+
+        it('should include every registered route', () => {
+            const { routes } = createV2Registry(api);
+            const operationIds = operations().map(([, , op]) => op.operationId);
+
+            for (const route of routes) {
+                expect(operationIds).toContain(route.operationId);
+            }
+        });
+
+        it('should include the job submit and update routes', () => {
+            const jobConfigRef = { $ref: '#/components/schemas/JobConfig' };
+
+            expect(spec.paths['/v2/jobs'].post.requestBody.content['application/json'].schema)
+                .toEqual(jobConfigRef);
+            expect(spec.paths['/v2/jobs/{jobId}'].put.requestBody.content['application/json'].schema)
+                .toEqual(jobConfigRef);
+            expect(spec.components.schemas.JobConfig.properties.operations.items)
+                .toEqual({ $ref: '#/components/schemas/JobOperation' });
+        });
+
+        it('should have unique operationIds', () => {
+            const operationIds = operations().map(([, , op]) => op.operationId);
+            expect(new Set(operationIds).size).toEqual(operationIds.length);
+        });
+
+        it('should list every path param', () => {
+            for (const [path, method, op] of operations()) {
+                const names = Array.from(path.matchAll(/\{(\w+)\}/g), (match) => match[1]);
+                const pathParams = (op.parameters ?? [])
+                    .filter((param: any) => param.in === 'path')
+                    .map((param: any) => param.name);
+
+                expect({ route: `${method} ${path}`, params: pathParams.toSorted() })
+                    .toEqual({ route: `${method} ${path}`, params: names.toSorted() });
+            }
+        });
+
+        it('should only have refs that resolve to a component', () => {
+            const refs = Array.from(
+                JSON.stringify(spec).matchAll(/"\$ref":"([^"]+)"/g), (match) => match[1]
+            );
+            expect(refs).not.toBeEmpty();
+
+            const broken = refs.filter((ref) => {
+                const [, section, name] = ref.match(/^#\/components\/(schemas|responses)\/(.+)$/) ?? [];
+                return !section || !spec.components[section][name];
+            });
+            expect(broken).toEqual([]);
+        });
+    });
+
+    describe('GET /v2/api-docs', () => {
+        it('should return the docs page', async () => {
+            const response = await request('GET', '/v2/api-docs', { responseType: 'text' });
+
+            expect(response.statusCode).toEqual(200);
+            expect(response.headers['content-type']).toStartWith('text/html');
+            expect(response.body).toContain('spec-url="/v2/openapi.json"');
+        });
+
+        it('should serve the RapiDoc script', async () => {
+            const response = await request('GET', '/v2/api-docs/rapidoc-min.js', { responseType: 'text' });
+
+            expect(response.statusCode).toEqual(200);
+            expect(response.headers['content-type']).toContain('javascript');
+        });
+    });
+
     // jobConfigShape in @terascope/types lists the job config fields by hand
     // (see "Job field docs: single source" in the plan); keep it in step with
     // the convict job schema, which is the source of truth

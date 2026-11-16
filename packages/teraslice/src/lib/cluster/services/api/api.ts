@@ -1,5 +1,7 @@
 import { Router, Express, ErrorRequestHandler } from 'express';
 import bodyParser from 'body-parser';
+import { createRequire } from 'node:module';
+import { readFileSync } from 'node:fs';
 import { pipeline as streamPipeline } from 'node:stream/promises';
 import got, { OptionsInit } from 'got';
 import { RecoveryCleanupType, TerasliceConfig, generateJobJSONSchema } from '@terascope/job-components';
@@ -10,6 +12,8 @@ import {
 } from '@terascope/core-utils';
 import { ExecutionStatusEnum, ConnectorListResponse, JobSchemaResponse } from '@terascope/types';
 import { createV2Registry } from './v2/routes.js';
+import { generateV2Spec } from './v2/openapi.js';
+import { v2DocsPage } from './v2/docs-page.js';
 import { ClusterMasterContext, TerasliceRequest, TerasliceResponse } from '../../../../interfaces.js';
 import { makeLogger } from '../../../workers/helpers/terafoundation.js';
 import { ExecutionService, JobsService, ClusterServiceType } from '../index.js';
@@ -22,6 +26,10 @@ import {
 import { getPackageJSON } from '../../../utils/file_utils.js';
 
 const terasliceVersion = getPackageJSON().version;
+
+const rapidocScript = readFileSync(
+    createRequire(import.meta.url).resolve('rapidoc/dist/rapidoc-min.js'), 'utf8'
+);
 
 export function validateCleanupType(cleanupType: RecoveryCleanupType) {
     if (cleanupType && !RecoveryCleanupType[cleanupType]) {
@@ -537,9 +545,22 @@ export class ApiService {
             requestHandler(() => this._controllerStats());
         });
 
-        const v2routes = createV2Registry(this).router;
+        const v2 = createV2Registry(this);
 
-        this.app.use('/v2', v2routes);
+        this.app.get('/v2/openapi.json', (req, res) => {
+            const requestHandler = handleTerasliceRequest(req, res, 'Could not generate the OpenAPI spec');
+            requestHandler(() => generateV2Spec(v2.routes, this.context));
+        });
+
+        this.app.get('/v2/api-docs', (_req, res) => {
+            res.type('html').send(v2DocsPage());
+        });
+
+        this.app.get('/v2/api-docs/rapidoc-min.js', (_req, res) => {
+            res.type('application/javascript').send(rapidocScript);
+        });
+
+        this.app.use('/v2', v2.router);
 
         // backwards compatibility for /v1 routes
         // TODO: Teraslice v4 deletes /v1 and the unversioned mount
