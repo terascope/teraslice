@@ -3,8 +3,75 @@ import {
     DataEncoding, ExecutionStatusEnum, ProcessAssignment, RecoveryCleanupType,
     type ExecutionStatus
 } from './teraslice.js';
+import type { SearchTotalHitsRelation } from './elasticsearch-client/elasticsearch-types.js';
 
 /** ############ V2 ROUTE SCHEMAS ############ */
+
+/** ############### Pagination ############### */
+
+/**
+ * Written out as an object so the compiler checks it against
+ * `SearchTotalHitsRelation` both ways: leaving out a value is a missing
+ * key, and adding one is an excess property.
+ */
+const totalRelations = {
+    eq: 'eq',
+    gte: 'gte',
+} as const satisfies { [K in SearchTotalHitsRelation]: K };
+
+export const TotalRelationSchema = z.enum(totalRelations).meta({
+    id: 'TotalRelation',
+    description: '"eq": `total` is exact; "gte": at least `total` records match, '
+        + 'because counting stopped there',
+});
+
+export const PaginationSchema = z.object({
+    total: z.number().int()
+        .min(0)
+        .meta({ description: 'Number of matching records, across all pages' }),
+    total_relation: TotalRelationSchema,
+    from: z.number().int()
+        .min(0)
+        .meta({ description: 'The `from` of the request' }),
+    size: z.number().int()
+        .min(0)
+        .meta({ description: 'The `size` of the request; `data` can be shorter' }),
+    has_more: z.boolean().meta({
+        description: 'Whether there are records after this page. When `total_relation` '
+            + 'is "gte", this is true for any full page, so the next page can be empty.',
+    }),
+}).meta({ id: 'Pagination' });
+
+export type Pagination = z.output<typeof PaginationSchema>;
+
+/** A page of a list response: the page's items, and where it sits in the list */
+export function paginated<T extends z.ZodType>(itemSchema: T) {
+    return z.object({
+        data: z.array(itemSchema),
+        pagination: PaginationSchema,
+    });
+}
+
+/** A page of `T`, as returned by the routes that use `paginated()` */
+export interface Page<T> {
+    data: T[];
+    pagination: Pagination;
+}
+
+/**
+ * Paging for routes that page a list held in memory rather than a search.
+ * There's no `sort` or `filter`, and no `max_result_window`.
+ */
+const inMemoryPageQueryShape = {
+    size: z.coerce.number<number>().int()
+        .min(0)
+        .default(100)
+        .meta({ description: 'Maximum number of items to return' }),
+    from: z.coerce.number<number>().int()
+        .min(0)
+        .default(0)
+        .meta({ description: 'Number of items to skip, for paging' }),
+};
 
 /** ################### / #################### */
 
@@ -145,6 +212,16 @@ export const ControllerStatsSchema = AggregatedExecutionAnalyticsSchema.extend({
 export const ControllerStatsListSchema = z.array(ControllerStatsSchema);
 
 export type ControllerStatsList = z.output<typeof ControllerStatsListSchema>;
+
+/** Query of `GET /cluster/controllers`. Sorted by `ex_id` before paging */
+export const GetClusterControllersQuerySchema = z.strictObject(inMemoryPageQueryShape);
+
+/** Paged response of `GET /cluster/controllers` */
+export const ControllerStatsPageSchema = paginated(ControllerStatsSchema)
+    .meta({ id: 'ControllerStatsPage' });
+
+export type GetClusterControllersQuery = z.input<typeof GetClusterControllersQuerySchema>;
+export type ControllerStatsPage = z.output<typeof ControllerStatsPageSchema>;
 
 /** ############## /job-schema ############### */
 
@@ -558,6 +635,12 @@ export const JobWithExecutionListSchema = z.array(JobWithExecutionSchema)
 export type GetJobsQuery = z.input<typeof GetJobsQuerySchema>;
 export type JobWithExecutionList = z.output<typeof JobWithExecutionListSchema>;
 
+/** Paged response of `GET /jobs` */
+export const JobWithExecutionPageSchema = paginated(JobWithExecutionSchema)
+    .meta({ id: 'JobWithExecutionPage' });
+
+export type JobWithExecutionPage = z.output<typeof JobWithExecutionPageSchema>;
+
 /** Response of `GET /jobs/:jobId/controller` */
 export const JobControllerStatsSchema = ControllerStatsListSchema
     .meta({ description: 'Has one entry; 404 if the execution isn\'t running' });
@@ -592,6 +675,12 @@ export const GetJobErrorsQuerySchema = z.strictObject(searchQueryShape);
 
 export type GetJobErrorsQuery = z.input<typeof GetJobErrorsQuerySchema>;
 export type SliceErrorList = z.output<typeof SliceErrorListSchema>;
+
+/** Paged response of `GET /jobs/:jobId/errors` and `GET /ex/:exId/errors` */
+export const SliceErrorPageSchema = paginated(SliceStateRecordSchema)
+    .meta({ id: 'SliceErrorPage' });
+
+export type SliceErrorPage = z.output<typeof SliceErrorPageSchema>;
 
 /** ############### Slice tap ################ */
 
@@ -892,4 +981,10 @@ export const GetExecutionErrorsQuerySchema = z.strictObject(searchQueryShape);
 
 export type GetExecutionsQuery = z.input<typeof GetExecutionsQuerySchema>;
 export type ExecutionRecordList = z.output<typeof ExecutionRecordListSchema>;
+
+/** Paged response of `GET /ex` */
+export const ExecutionRecordPageSchema = paginated(ExecutionRecordSchema)
+    .meta({ id: 'ExecutionRecordPage' });
+
+export type ExecutionRecordPage = z.output<typeof ExecutionRecordPageSchema>;
 export type GetExecutionErrorsQuery = z.input<typeof GetExecutionErrorsQuerySchema>;
