@@ -1,6 +1,7 @@
 import nock from 'nock';
 import Ex from '../src/ex.js';
 import Executions from '../src/executions.js';
+import { v2Page } from './fixtures/v2-page.js';
 
 describe('Teraslice Executions', () => {
     let executions: Executions;
@@ -267,6 +268,33 @@ describe('Teraslice Executions', () => {
             await expect(v2Executions.errors({ size: 10 })).rejects.toThrow(
                 '/v2 requires an exId to get execution errors'
             );
+        });
+
+        it('should return the executions from the page for list', async () => {
+            nock('http://teraslice.example.dev/v2')
+                .get('/ex')
+                .query({ status: 'running' })
+                .reply(200, v2Page([{ ex_id: 'some-ex-id' }]));
+
+            const v2Executions = new Executions({
+                baseUrl: 'http://teraslice.example.dev',
+                apiVersion: '/v2'
+            });
+            await expect(v2Executions.list('running')).resolves.toEqual([{ ex_id: 'some-ex-id' }]);
+        });
+
+        it('should return the errors from the page for errors with an exId', async () => {
+            nock('http://teraslice.example.dev/v2')
+                .get('/ex/some-ex-id/errors')
+                .query({ size: 10 })
+                .reply(200, v2Page([{ slice_id: 'some-slice-id' }]));
+
+            const v2Executions = new Executions({
+                baseUrl: 'http://teraslice.example.dev',
+                apiVersion: '/v2'
+            });
+            await expect(v2Executions.errors('some-ex-id', { size: 10 }))
+                .resolves.toEqual([{ slice_id: 'some-slice-id' }]);
         });
     });
 

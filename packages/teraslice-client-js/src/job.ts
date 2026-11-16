@@ -211,7 +211,7 @@ export default class Job extends Client {
         query: Teraslice.SearchQuery = {},
         searchOptions: RequestOptions = {}
     ): Promise<Teraslice.ErrorRecord[]> {
-        return this.get(`/jobs/${this._jobId}/errors`, this.makeOptions(query, searchOptions));
+        return this.getList(`/jobs/${this._jobId}/errors`, this.makeOptions(query, searchOptions));
     }
 
     async tap(

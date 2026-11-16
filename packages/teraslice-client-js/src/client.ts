@@ -6,6 +6,7 @@ import {
 import { STATUS_CODES } from 'node:http';
 import { URL } from 'node:url';
 import got, { type Got, HTTPError } from 'got';
+import type { TerasliceApiV2 } from '@terascope/types';
 import { ClientConfig, RequestOptions } from './interfaces.js';
 
 export default class Client {
@@ -47,6 +48,18 @@ export default class Client {
 
     async get<T = any>(endpoint: string, options?: RequestOptions): Promise<T> {
         return this._makeRequest<T>('get', endpoint, options);
+    }
+
+    /**
+     * GET a list route. On /v2, list routes return a page,
+     * `{ data, pagination }`; this returns just `data`, so callers get an
+     * array on either version.
+     */
+    protected async getList<T = any>(endpoint: string, options?: RequestOptions): Promise<T[]> {
+        if (!this.isV2) return this.get<T[]>(endpoint, options);
+
+        const page = await this.get<TerasliceApiV2.Page<T>>(endpoint, options);
+        return page.data;
     }
 
     async post<T = any>(endpoint: string, data?: unknown, options?: RequestOptions): Promise<T> {

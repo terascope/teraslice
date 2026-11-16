@@ -1,5 +1,6 @@
 import nock from 'nock';
 import Cluster from '../src/cluster.js';
+import { v2Page } from './fixtures/v2-page.js';
 
 describe('Teraslice Cluster', () => {
     let cluster: Cluster;
@@ -237,7 +238,7 @@ describe('Teraslice Cluster', () => {
         it('should use the controllers route for slicers', async () => {
             nock('http://teraslice.example.dev/v2')
                 .get('/cluster/controllers')
-                .reply(200, [{ ex_id: 'some-ex-id' }]);
+                .reply(200, v2Page([{ ex_id: 'some-ex-id' }]));
 
             const v2Cluster = new Cluster({
                 baseUrl: 'http://teraslice.example.dev',
@@ -245,6 +246,18 @@ describe('Teraslice Cluster', () => {
             });
             const results = await v2Cluster.slicers();
             expect(results).toEqual([{ ex_id: 'some-ex-id' }]);
+        });
+
+        it('should return the controllers from the page', async () => {
+            nock('http://teraslice.example.dev/v2')
+                .get('/cluster/controllers')
+                .reply(200, v2Page([{ ex_id: 'some-ex-id' }]));
+
+            const v2Cluster = new Cluster({
+                baseUrl: 'http://teraslice.example.dev',
+                apiVersion: '/v2'
+            });
+            await expect(v2Cluster.controllers()).resolves.toEqual([{ ex_id: 'some-ex-id' }]);
         });
     });
 

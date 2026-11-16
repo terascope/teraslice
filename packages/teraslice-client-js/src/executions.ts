@@ -38,7 +38,7 @@ export default class Executions extends Client {
 
     async list(options?: ListOptions): Promise<Teraslice.ExecutionConfig[]> {
         const query = _parseListOptions(options);
-        return this.get('/ex', { searchParams: query } as RequestOptions);
+        return this.getList('/ex', { searchParams: query } as RequestOptions);
     }
 
     async errors(
@@ -51,7 +51,7 @@ export default class Executions extends Client {
                 options.searchParams = opts;
             }
 
-            return this.get(`/ex/${exId}/errors`, options as RequestOptions);
+            return this.getList(`/ex/${exId}/errors`, options as RequestOptions);
         }
 
         // TODO: Teraslice v4 deletes /v1, make exId required

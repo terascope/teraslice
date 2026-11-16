@@ -53,7 +53,7 @@ export default class Jobs extends Client {
         query?: Teraslice.JobSearchParams,
         searchOptions: RequestOptions = {}
     ): Promise<Teraslice.JobConfig[]> {
-        return this.get('/jobs', this.makeOptions(query, searchOptions));
+        return this.getList('/jobs', this.makeOptions(query, searchOptions));
     }
 
     /**

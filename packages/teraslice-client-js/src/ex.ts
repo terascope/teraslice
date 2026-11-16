@@ -129,7 +129,7 @@ export default class Ex extends Client {
     }
 
     async errors(options?: Teraslice.SearchQuery): Promise<Teraslice.ErrorRecord[]> {
-        return this.get(`/ex/${this._exId}/errors`, {
+        return this.getList(`/ex/${this._exId}/errors`, {
             searchParams: options,
         });
     }

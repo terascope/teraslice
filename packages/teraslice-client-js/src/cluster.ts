@@ -37,7 +37,7 @@ export default class Cluster extends Client {
     }
 
     async controllers(): Promise<Teraslice.ExecutionList> {
-        return this.get('/cluster/controllers');
+        return this.getList('/cluster/controllers');
     }
 
     async connectors(
