@@ -23,7 +23,7 @@ export type RouteTag = 'Cluster' | 'Jobs' | 'Executions';
 export type ParamsSchema = z.ZodObject<z.ZodRawShape, z.core.$ZodObjectConfig>;
 
 /** Parsed (output) type of a schema, or `undefined` when the route omits it */
-type Parsed<S> = S extends z.ZodType ? z.output<S> : undefined;
+export type Parsed<S> = S extends z.ZodType ? z.output<S> : undefined;
 
 /** The validated request a v2 handler receives */
 export interface RouteInput<P, Q, B> {

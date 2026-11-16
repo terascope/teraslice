@@ -69,6 +69,18 @@ const sliceErrors = [{
     _updated: '2026-11-05T00:00:01.000Z',
     error: 'Error: boom\n    at ...',
 }];
+/** A storage `searchWithTotal()` result */
+function withTotal<T>(records: T[], total = records.length, relation = 'eq') {
+    return { records, total, relation };
+}
+
+/** The `pagination` of a page, with the defaults of a request with no paging params */
+function pagination(fields: Record<string, any> = {}) {
+    return {
+        total: 1, total_relation: 'eq', from: 0, size: 100, has_more: false, ...fields
+    };
+}
+
 const tapResult = {
     workerId: 'worker-1',
     sliceId: 'slice-1',
@@ -219,8 +231,47 @@ describe('HTTP API v2', () => {
             const response = await request('GET', '/v2/cluster/controllers');
 
             expect(response.statusCode).toEqual(200);
-            expect(response.body).toEqual([{ ex_id: 'ex-1' }]);
+            expect(response.body).toEqual({
+                data: [{ ex_id: 'ex-1' }],
+                pagination: pagination(),
+            });
             expect(getControllerStats).toHaveBeenCalledWith();
+        });
+
+        it('should page the controller stats sorted by ex_id', async () => {
+            getControllerStats.mockResolvedValue(
+                ['ex-c', 'ex-a', 'ex-e', 'ex-b', 'ex-d'].map((ex_id) => ({ ex_id }))
+            );
+
+            const first = await request('GET', '/v2/cluster/controllers', {
+                searchParams: { size: '2' }
+            });
+            const last = await request('GET', '/v2/cluster/controllers', {
+                searchParams: { from: '4', size: '2' }
+            });
+
+            expect(first.body).toEqual({
+                data: [{ ex_id: 'ex-a' }, { ex_id: 'ex-b' }],
+                pagination: pagination({ total: 5, size: 2, has_more: true }),
+            });
+            expect(last.body).toEqual({
+                data: [{ ex_id: 'ex-e' }],
+                pagination: pagination({ total: 5, from: 4, size: 2 }),
+            });
+        });
+
+        it.each([
+            ['size', '-1'],
+            ['from', '1.5'],
+            ['sort', 'ex_id'],
+        ])('should respond with a 400 for controllers %s=%j', async (key, value) => {
+            const response = await request('GET', '/v2/cluster/controllers', {
+                searchParams: { [key]: value }
+            });
+
+            expect(response.statusCode).toEqual(400);
+            expect(response.body.message).toContain(key);
+            expect(getControllerStats).not.toHaveBeenCalled();
         });
 
         it('should keep the status of a controller stats error', async () => {
@@ -340,7 +391,7 @@ describe('HTTP API v2', () => {
     });
 
     describe('/v2/jobs', () => {
-        const search = jest.fn<(...args: any[]) => Promise<any>>();
+        const searchWithTotal = jest.fn<(...args: any[]) => Promise<any>>();
         const get = jest.fn<(...args: any[]) => Promise<any>>();
         const submitJob = jest.fn<(...args: any[]) => Promise<any>>();
         const updateJob = jest.fn<(...args: any[]) => Promise<any>>();
@@ -349,10 +400,10 @@ describe('HTTP API v2', () => {
         const setActiveState = jest.fn<(...args: any[]) => Promise<any>>();
         const getLatestExecution = jest.fn<(...args: any[]) => Promise<any>>();
         const getJobWithExInfo = jest.fn<(...args: any[]) => Promise<any>>();
-        const getJobsWithExInfo = jest.fn<(...args: any[]) => Promise<any>>();
+        const getJobsWithExInfoAndTotal = jest.fn<(...args: any[]) => Promise<any>>();
 
         beforeAll(() => {
-            context.stores.jobsStorage.search = search;
+            context.stores.jobsStorage.searchWithTotal = searchWithTotal;
             context.stores.jobsStorage.get = get;
             context.services.jobsService.submitJob = submitJob;
             context.services.jobsService.updateJob = updateJob;
@@ -361,11 +412,11 @@ describe('HTTP API v2', () => {
             context.services.jobsService.setActiveState = setActiveState;
             context.services.jobsService.getLatestExecution = getLatestExecution;
             context.services.jobsService.getJobWithExInfo = getJobWithExInfo;
-            context.services.jobsService.getJobsWithExInfo = getJobsWithExInfo;
+            context.services.jobsService.getJobsWithExInfoAndTotal = getJobsWithExInfoAndTotal;
         });
 
         beforeEach(() => {
-            search.mockReset().mockResolvedValue([job]);
+            searchWithTotal.mockReset().mockResolvedValue(withTotal([job]));
             get.mockReset().mockResolvedValue({ job_id: 'job-1' });
             submitJob.mockReset().mockResolvedValue({ job_id: 'job-1' });
             updateJob.mockReset().mockResolvedValue({ job_id: 'job-1' });
@@ -374,7 +425,7 @@ describe('HTTP API v2', () => {
             setActiveState.mockReset().mockResolvedValue({ job_id: 'job-1' });
             getLatestExecution.mockReset().mockResolvedValue({ ex_id: 'ex-1' });
             getJobWithExInfo.mockReset();
-            getJobsWithExInfo.mockReset();
+            getJobsWithExInfoAndTotal.mockReset();
         });
 
         describe('GET /v2/jobs', () => {
@@ -382,8 +433,8 @@ describe('HTTP API v2', () => {
                 const response = await request('GET', '/v2/jobs');
 
                 expect(response.statusCode).toEqual(200);
-                expect(response.body).toEqual([job]);
-                expect(search).toHaveBeenCalledWith(
+                expect(response.body).toEqual({ data: [job], pagination: pagination() });
+                expect(searchWithTotal).toHaveBeenCalledWith(
                     `job_id:* AND ${notDeleted}`, 0, 100, '_updated:desc'
                 );
             });
@@ -394,7 +445,7 @@ describe('HTTP API v2', () => {
                 });
 
                 expect(response.statusCode).toEqual(200);
-                expect(search).toHaveBeenCalledWith(
+                expect(searchWithTotal).toHaveBeenCalledWith(
                     `job_id:* AND !active:false AND ${notDeleted}`, 0, 100, '_updated:desc'
                 );
             });
@@ -408,29 +459,31 @@ describe('HTTP API v2', () => {
                 });
 
                 expect(response.statusCode).toEqual(200);
-                expect(search).toHaveBeenCalledWith(
+                expect(searchWithTotal).toHaveBeenCalledWith(
                     '(job_id:* AND active:false AND _deleted:true) AND (name:foo)', 10, 5, 'name:asc'
                 );
             });
 
             it('should add the latest execution with only the fields in ?ex', async () => {
-                getJobsWithExInfo.mockResolvedValue([{ ...job, ex: { _status: 'running' } }]);
+                getJobsWithExInfoAndTotal.mockResolvedValue(
+                    withTotal([{ ...job, ex: { _status: 'running' } }])
+                );
 
                 const response = await request('GET', '/v2/jobs', { searchParams: { ex: '_status' } });
 
                 expect(response.statusCode).toEqual(200);
-                expect(response.body[0].ex).toEqual({ _status: 'running' });
-                expect(getJobsWithExInfo).toHaveBeenCalledWith(
+                expect(response.body.data[0].ex).toEqual({ _status: 'running' });
+                expect(getJobsWithExInfoAndTotal).toHaveBeenCalledWith(
                     expect.any(String), 0, 100, '_updated:desc', ['_status']
                 );
             });
 
             it('should add every execution field for an empty ?ex', async () => {
-                getJobsWithExInfo.mockResolvedValue([{ ...job, ex: execution }]);
+                getJobsWithExInfoAndTotal.mockResolvedValue(withTotal([{ ...job, ex: execution }]));
 
                 await request('GET', '/v2/jobs', { searchParams: { ex: '' } });
 
-                expect(getJobsWithExInfo).toHaveBeenCalledWith(
+                expect(getJobsWithExInfoAndTotal).toHaveBeenCalledWith(
                     expect.any(String), 0, 100, '_updated:desc', undefined
                 );
             });
@@ -439,11 +492,11 @@ describe('HTTP API v2', () => {
                 const response = await request('GET', '/v2/jobs', { searchParams: { size: '50000' } });
 
                 expect(response.statusCode).toEqual(200);
-                expect(search.mock.calls[0][2]).toBe(50000);
+                expect(searchWithTotal.mock.calls[0][2]).toBe(50000);
             });
 
             it('should explain a page past max_result_window', async () => {
-                search.mockRejectedValue(makeResultWindowError(10000, 10100));
+                searchWithTotal.mockRejectedValue(makeResultWindowError(10000, 10100));
 
                 const response = await request('GET', '/v2/jobs', { searchParams: { from: '10000' } });
 
@@ -452,7 +505,7 @@ describe('HTTP API v2', () => {
             });
 
             it('should explain a page past max_result_window with ?ex', async () => {
-                getJobsWithExInfo.mockRejectedValue(makeResultWindowError(10000, 10100));
+                getJobsWithExInfoAndTotal.mockRejectedValue(makeResultWindowError(10000, 10100));
 
                 const response = await request('GET', '/v2/jobs', {
                     searchParams: { from: '10000', ex: '_status' }
@@ -462,10 +515,51 @@ describe('HTTP API v2', () => {
                 expect(response.body.message).toBe(resultWindowMessage);
             });
 
+            it('should report the total and whether there are more pages', async () => {
+                searchWithTotal.mockResolvedValue(withTotal([job, job], 5));
+
+                const first = await request('GET', '/v2/jobs', { searchParams: { size: '2' } });
+                const last = await request('GET', '/v2/jobs', {
+                    searchParams: { from: '3', size: '2' }
+                });
+
+                expect(first.body.pagination).toEqual(
+                    pagination({ total: 5, size: 2, has_more: true })
+                );
+                expect(last.body.pagination).toEqual(
+                    pagination({ total: 5, from: 3, size: 2, has_more: false })
+                );
+            });
+
+            it('should report the total with ?ex', async () => {
+                getJobsWithExInfoAndTotal.mockResolvedValue(withTotal([{ ...job, ex: {} }], 7));
+
+                const response = await request('GET', '/v2/jobs', {
+                    searchParams: { ex: '_status', size: '1' }
+                });
+
+                expect(response.body.pagination).toEqual(
+                    pagination({ total: 7, size: 1, has_more: true })
+                );
+            });
+
+            it('should return just the total for size=0', async () => {
+                searchWithTotal.mockResolvedValue(withTotal([], 12));
+
+                const response = await request('GET', '/v2/jobs', { searchParams: { size: '0' } });
+
+                expect(response.statusCode).toEqual(200);
+                expect(response.body).toEqual({
+                    data: [],
+                    pagination: pagination({ total: 12, size: 0, has_more: true }),
+                });
+                expect(searchWithTotal.mock.calls[0][2]).toBe(0);
+            });
+
             it('should use the default sort for an empty ?sort, like v1', async () => {
                 await request('GET', '/v2/jobs', { searchParams: { sort: '' } });
 
-                expect(search.mock.calls[0][3]).toBe('_updated:desc');
+                expect(searchWithTotal.mock.calls[0][3]).toBe('_updated:desc');
             });
 
             it.each([
@@ -476,7 +570,7 @@ describe('HTTP API v2', () => {
                 const response = await request('GET', '/v2/jobs', { searchParams: { sort } });
 
                 expect(response.statusCode).toEqual(200);
-                expect(search.mock.calls[0][3]).toBe(sort);
+                expect(searchWithTotal.mock.calls[0][3]).toBe(sort);
             });
 
             it.each([
@@ -499,7 +593,7 @@ describe('HTTP API v2', () => {
                 expect(response.statusCode).toEqual(400);
                 expect(response.body.message).toContain('Invalid request query');
                 expect(response.body.message).toContain(key);
-                expect(search).not.toHaveBeenCalled();
+                expect(searchWithTotal).not.toHaveBeenCalled();
             });
         });
 
@@ -746,7 +840,7 @@ describe('HTTP API v2', () => {
         const setLogLevel = jest.fn<(...args: any[]) => Promise<any>>();
         const getControllerStats = jest.fn<(...args: any[]) => Promise<any>>();
         const getSliceTap = jest.fn<(...args: any[]) => Promise<any>>();
-        const search = jest.fn<(...args: any[]) => Promise<any>>();
+        const searchWithTotal = jest.fn<(...args: any[]) => Promise<any>>();
 
         const workerMocks = { add: addWorkers, remove: removeWorkers, total: setWorkers };
         const workerCalls = () => Object.values(workerMocks).flatMap((mock) => mock.mock.calls);
@@ -764,7 +858,7 @@ describe('HTTP API v2', () => {
             context.services.executionService.setLogLevel = setLogLevel;
             context.services.executionService.getControllerStats = getControllerStats;
             context.services.executionService.getSliceTap = getSliceTap;
-            context.stores.stateStorage.search = search;
+            context.stores.stateStorage.searchWithTotal = searchWithTotal;
         });
 
         beforeEach(() => {
@@ -782,7 +876,7 @@ describe('HTTP API v2', () => {
             setLogLevel.mockReset();
             getControllerStats.mockReset().mockResolvedValue([{ ex_id: exId }]);
             getSliceTap.mockReset().mockResolvedValue(Buffer.from(JSON.stringify(tapResult)));
-            search.mockReset().mockResolvedValue(sliceErrors);
+            searchWithTotal.mockReset().mockResolvedValue(withTotal(sliceErrors));
         });
 
         it.each([
@@ -946,8 +1040,8 @@ describe('HTTP API v2', () => {
             const response = await request('GET', '/v2/jobs/job-1/errors');
 
             expect(response.statusCode).toEqual(200);
-            expect(response.body).toEqual(sliceErrors);
-            expect(search).toHaveBeenCalledWith(
+            expect(response.body).toEqual({ data: sliceErrors, pagination: pagination() });
+            expect(searchWithTotal).toHaveBeenCalledWith(
                 `state:error AND ex_id:"${exId}"`, 0, 100, '_updated:desc'
             );
         });
@@ -1098,21 +1192,21 @@ describe('HTTP API v2', () => {
     });
 
     describe('GET /v2/ex', () => {
-        const search = jest.fn<(...args: any[]) => Promise<any>>();
-        const stateSearch = jest.fn<(...args: any[]) => Promise<any>>();
+        const searchWithTotal = jest.fn<(...args: any[]) => Promise<any>>();
+        const stateSearchWithTotal = jest.fn<(...args: any[]) => Promise<any>>();
         const getExecutionContext = jest.fn<(...args: any[]) => Promise<any>>();
         const getLatestExecutionId = jest.fn<(...args: any[]) => Promise<any>>();
 
         beforeAll(() => {
-            context.stores.executionStorage.search = search;
-            context.stores.stateStorage.search = stateSearch;
+            context.stores.executionStorage.searchWithTotal = searchWithTotal;
+            context.stores.stateStorage.searchWithTotal = stateSearchWithTotal;
             context.services.executionService.getExecutionContext = getExecutionContext;
             context.services.jobsService.getLatestExecutionId = getLatestExecutionId;
         });
 
         beforeEach(() => {
-            search.mockReset().mockResolvedValue([execution]);
-            stateSearch.mockReset().mockResolvedValue(sliceErrors);
+            searchWithTotal.mockReset().mockResolvedValue(withTotal([execution]));
+            stateSearchWithTotal.mockReset().mockResolvedValue(withTotal(sliceErrors));
             getExecutionContext.mockReset().mockResolvedValue(execution);
             getLatestExecutionId.mockReset();
         });
@@ -1121,8 +1215,8 @@ describe('HTTP API v2', () => {
             const response = await request('GET', '/v2/ex');
 
             expect(response.statusCode).toEqual(200);
-            expect(response.body).toEqual([execution]);
-            expect(search).toHaveBeenCalledWith(
+            expect(response.body).toEqual({ data: [execution], pagination: pagination() });
+            expect(searchWithTotal).toHaveBeenCalledWith(
                 `ex_id:* AND ${notDeleted}`, 0, 100, '_updated:desc'
             );
         });
@@ -1133,7 +1227,7 @@ describe('HTTP API v2', () => {
             });
 
             expect(response.statusCode).toEqual(200);
-            expect(search).toHaveBeenCalledWith(
+            expect(searchWithTotal).toHaveBeenCalledWith(
                 `ex_id:* AND job_id:"job-1" AND (_status:"running" OR _status:"failing") AND ${notDeleted}`,
                 0,
                 100,
@@ -1145,11 +1239,23 @@ describe('HTTP API v2', () => {
             const response = await request('GET', '/v2/ex', { searchParams: { status: 'borked' } });
 
             expect(response.statusCode).toEqual(200);
-            expect(search.mock.calls[0][0]).toContain('_status:"borked"');
+            expect(searchWithTotal.mock.calls[0][0]).toContain('_status:"borked"');
+        });
+
+        it('should report the total and whether there are more pages', async () => {
+            searchWithTotal.mockResolvedValue(withTotal([execution], 3));
+
+            const response = await request('GET', '/v2/ex', {
+                searchParams: { from: '1', size: '1' }
+            });
+
+            expect(response.body.pagination).toEqual(
+                pagination({ total: 3, from: 1, size: 1, has_more: true })
+            );
         });
 
         it('should explain a page past max_result_window', async () => {
-            search.mockRejectedValue(makeResultWindowError(10000, 10100));
+            searchWithTotal.mockRejectedValue(makeResultWindowError(10000, 10100));
 
             const response = await request('GET', '/v2/ex', { searchParams: { from: '10000' } });
 
@@ -1181,11 +1287,32 @@ describe('HTTP API v2', () => {
                 });
 
                 expect(response.statusCode).toEqual(200);
-                expect(response.body).toEqual(sliceErrors);
-                expect(stateSearch).toHaveBeenCalledWith(
+                expect(response.body).toEqual({
+                    data: sliceErrors,
+                    pagination: pagination({ size: 10 }),
+                });
+                expect(stateSearchWithTotal).toHaveBeenCalledWith(
                     '(state:error AND ex_id:"ex-2") AND (slicer_id:1)', 0, 10, '_updated:desc'
                 );
                 expect(getLatestExecutionId).not.toHaveBeenCalled();
+            });
+
+            it('should pass a lower-bound total through, with has_more from a full page', async () => {
+                stateSearchWithTotal.mockResolvedValue(withTotal(sliceErrors, 10000, 'gte'));
+
+                const full = await request('GET', '/v2/ex/ex-2/errors', {
+                    searchParams: { size: '1' }
+                });
+                const short = await request('GET', '/v2/ex/ex-2/errors', {
+                    searchParams: { size: '2' }
+                });
+
+                expect(full.body.pagination).toEqual(pagination({
+                    total: 10000, total_relation: 'gte', size: 1, has_more: true
+                }));
+                expect(short.body.pagination).toEqual(pagination({
+                    total: 10000, total_relation: 'gte', size: 2, has_more: false
+                }));
             });
 
             it('should respond with a 400 for an unknown query param', async () => {
@@ -1194,11 +1321,11 @@ describe('HTTP API v2', () => {
                 });
 
                 expect(response.statusCode).toEqual(400);
-                expect(stateSearch).not.toHaveBeenCalled();
+                expect(stateSearchWithTotal).not.toHaveBeenCalled();
             });
 
             it('should explain a page past max_result_window', async () => {
-                stateSearch.mockRejectedValue(makeResultWindowError(10000, 10100));
+                stateSearchWithTotal.mockRejectedValue(makeResultWindowError(10000, 10100));
 
                 const response = await request('GET', '/v2/ex/ex-2/errors', {
                     searchParams: { from: '10000' }
@@ -1260,8 +1387,9 @@ describe('HTTP API v2', () => {
         it('should match the response schemas', () => {
             expect(TerasliceApiV2.JobWithExecutionSchema.safeParse(job).error).toBeUndefined();
             expect(TerasliceApiV2.ExecutionRecordSchema.safeParse(execution).error).toBeUndefined();
-            expect(TerasliceApiV2.SliceErrorListSchema.safeParse(sliceErrors).error)
-                .toBeUndefined();
+            expect(TerasliceApiV2.SliceErrorPageSchema.safeParse(
+                { data: sliceErrors, pagination: pagination() }
+            ).error).toBeUndefined();
             expect(TerasliceApiV2.SliceTapResultSchema.safeParse(tapResult).error).toBeUndefined();
             expect(TerasliceApiV2.NewExecutionSchema.safeParse(
                 { ...newExecution, warnings: [warning] }

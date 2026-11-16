@@ -208,15 +208,15 @@ export const ControllerStatsSchema = AggregatedExecutionAnalyticsSchema.extend({
     description: 'Live statistics from a running execution controller',
 });
 
-/** Response of `GET /cluster/controllers` */
 export const ControllerStatsListSchema = z.array(ControllerStatsSchema);
 
+export type ControllerStats = z.output<typeof ControllerStatsSchema>;
 export type ControllerStatsList = z.output<typeof ControllerStatsListSchema>;
 
 /** Query of `GET /cluster/controllers`. Sorted by `ex_id` before paging */
 export const GetClusterControllersQuerySchema = z.strictObject(inMemoryPageQueryShape);
 
-/** Paged response of `GET /cluster/controllers` */
+/** Response of `GET /cluster/controllers` */
 export const ControllerStatsPageSchema = paginated(ControllerStatsSchema)
     .meta({ id: 'ControllerStatsPage' });
 
@@ -498,6 +498,8 @@ export const ExecutionRecordSchema = z.looseObject({
     description: `An execution: one run of a job, with the job config it ran with. ${jobConfigDocs}`,
 });
 
+export type ExecutionRecord = z.output<typeof ExecutionRecordSchema>;
+
 /**
  * Loose for the same reason as `ExecutionRecordSchema`.
  *
@@ -628,14 +630,9 @@ export const GetJobsQuerySchema = z.strictObject({
         }),
 });
 
-/** Response of `GET /jobs` */
-export const JobWithExecutionListSchema = z.array(JobWithExecutionSchema)
-    .meta({ description: 'Each job has `ex` only when `?ex` is sent' });
-
 export type GetJobsQuery = z.input<typeof GetJobsQuerySchema>;
-export type JobWithExecutionList = z.output<typeof JobWithExecutionListSchema>;
 
-/** Paged response of `GET /jobs` */
+/** Response of `GET /jobs` */
 export const JobWithExecutionPageSchema = paginated(JobWithExecutionSchema)
     .meta({ id: 'JobWithExecutionPage' });
 
@@ -667,16 +664,14 @@ export const SliceStateRecordSchema = z.object({
         .meta({ description: 'Times the slice was retried; unset if it never was' }),
 }).meta({ id: 'SliceStateRecord' });
 
-/** Response of `GET /jobs/:jobId/errors` and `GET /ex/:exId/errors` */
-export const SliceErrorListSchema = z.array(SliceStateRecordSchema);
+export type SliceStateRecord = z.output<typeof SliceStateRecordSchema>;
 
 /** Query of `GET /jobs/:jobId/errors` */
 export const GetJobErrorsQuerySchema = z.strictObject(searchQueryShape);
 
 export type GetJobErrorsQuery = z.input<typeof GetJobErrorsQuerySchema>;
-export type SliceErrorList = z.output<typeof SliceErrorListSchema>;
 
-/** Paged response of `GET /jobs/:jobId/errors` and `GET /ex/:exId/errors` */
+/** Response of `GET /jobs/:jobId/errors` and `GET /ex/:exId/errors` */
 export const SliceErrorPageSchema = paginated(SliceStateRecordSchema)
     .meta({ id: 'SliceErrorPage' });
 
@@ -973,16 +968,12 @@ export const GetExecutionsQuerySchema = z.strictObject({
     deleted: deletedQuery,
 });
 
-/** Response of `GET /ex` */
-export const ExecutionRecordListSchema = z.array(ExecutionRecordSchema);
-
 /** Query of `GET /ex/:exId/errors` */
 export const GetExecutionErrorsQuerySchema = z.strictObject(searchQueryShape);
 
 export type GetExecutionsQuery = z.input<typeof GetExecutionsQuerySchema>;
-export type ExecutionRecordList = z.output<typeof ExecutionRecordListSchema>;
 
-/** Paged response of `GET /ex` */
+/** Response of `GET /ex` */
 export const ExecutionRecordPageSchema = paginated(ExecutionRecordSchema)
     .meta({ id: 'ExecutionRecordPage' });
 

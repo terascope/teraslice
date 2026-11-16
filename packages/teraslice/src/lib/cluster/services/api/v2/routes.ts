@@ -5,12 +5,16 @@ import {
 import { type Logger, type ExecutionStatus, TerasliceApiV2 } from '@terascope/types';
 import type { ApiService } from '../api.js';
 import type { ControllerStats } from '../../../../../interfaces.js';
+import type { RecordsWithTotal } from '../../../../storage/index.js';
 import {
     createJobActiveQuery, addDeletedToQuery, addFilterToQuery, buildConnectorList,
     explainResultWindowError
 } from '../../../../utils/api_utils.js';
 import { getPackageJSON } from '../../../../utils/file_utils.js';
-import { createRouteRegistry, type RouteRegistry } from '../../../../utils/v2_routes.js';
+import { pageInMemory, toPage } from '../../../../utils/pagination.js';
+import {
+    createRouteRegistry, type RouteRegistry, type Parsed
+} from '../../../../utils/v2_routes.js';
 
 const terasliceVersion = getPackageJSON().version;
 
@@ -56,12 +60,18 @@ function toControllerStatsResponse(
     }));
 }
 
-/** The paging, sorting and filter options every list route parses */
-interface SearchOptions {
-    size: number;
-    from: number;
-    sort: string;
-    filter?: string;
+function byExId(a: { ex_id: string }, b: { ex_id: string }): number {
+    if (a.ex_id < b.ex_id) return -1;
+    if (a.ex_id > b.ex_id) return 1;
+    return 0;
+}
+
+/** Applies `fn` to each record, keeping the total */
+function mapRecords<T, U>(
+    { records, total, relation }: RecordsWithTotal<T>,
+    fn: (record: T) => U
+): RecordsWithTotal<U> {
+    return { records: records.map(fn), total, relation };
 }
 
 /**
@@ -123,16 +133,87 @@ export function createV2Registry(api: ApiService): RouteRegistry {
         }
     }
 
-    async function searchErrors(
-        exId: string, { size, from, sort, filter }: SearchOptions
-    ): Promise<TerasliceApiV2.SliceErrorList> {
-        const errorQuery = addFilterToQuery(`state:error AND ex_id:"${exId}"`, filter ?? '');
-        // StateStorage.search returns the backend's untyped search result,
-        // unlike JobsStorage/ExecutionStorage, which cast to their record type
-        const slices = await pagedSearch(
-            () => api.stateStorage.search(errorQuery, from, size, sortOrDefault(sort))
+    /*
+     * The list functions return one page of records with the total, for the
+     * JSON routes to wrap with `toPage()`. Each runs its search through
+     * `pagedSearch()`, so every caller gets the max_result_window message.
+     */
+
+    async function listJobs(
+        query: Parsed<typeof TerasliceApiV2.GetJobsQuerySchema>
+    ): Promise<RecordsWithTotal<TerasliceApiV2.JobWithExecution>> {
+        const { size, from } = query;
+        const { active, deleted, ex } = query;
+        const sort = sortOrDefault(query.sort);
+
+        let partialQuery = createJobActiveQuery(active === undefined ? '' : `${active}`);
+        partialQuery = addDeletedToQuery(`${deleted}`, partialQuery);
+        const searchQuery = addFilterToQuery(partialQuery, query.filter ?? '');
+
+        if (ex === undefined) {
+            const jobs = await pagedSearch(
+                () => api.jobsStorage.searchWithTotal(searchQuery, from, size, sort)
+            );
+            return mapRecords(jobs, fromStorage);
+        }
+
+        // `?ex=` (no fields) includes the whole execution
+        const fields = parseList(ex);
+        const jobs = await pagedSearch(() => api.jobsService.getJobsWithExInfoAndTotal(
+            searchQuery, from, size, sort, fields.length ? fields : undefined
+        ));
+        return mapRecords(jobs, fromStorage);
+    }
+
+    async function listExecutions(
+        query: Parsed<typeof TerasliceApiV2.GetExecutionsQuerySchema>
+    ): Promise<RecordsWithTotal<TerasliceApiV2.ExecutionRecord>> {
+        const { size, from } = query;
+        const { job_id: jobId, deleted } = query;
+        const sort = sortOrDefault(query.sort);
+        const statuses = parseList(query.status);
+
+        let partialQuery = 'ex_id:*';
+
+        if (jobId) {
+            partialQuery += ` AND job_id:"${jobId}"`;
+        }
+
+        if (statuses.length) {
+            const statusTerms = statuses.map((s) => `_status:"${s}"`).join(' OR ');
+            partialQuery += ` AND (${statusTerms})`;
+        }
+
+        partialQuery = addDeletedToQuery(`${deleted}`, partialQuery);
+        const searchQuery = addFilterToQuery(partialQuery, query.filter ?? '');
+
+        const executions = await pagedSearch(
+            () => api.executionStorage.searchWithTotal(searchQuery, from, size, sort)
         );
-        return slices as TerasliceApiV2.SliceErrorList;
+        return mapRecords(executions, fromStorage);
+    }
+
+    async function searchErrors(
+        exId: string,
+        { size, from, sort, filter }: Parsed<typeof TerasliceApiV2.GetJobErrorsQuerySchema>
+    ): Promise<RecordsWithTotal<TerasliceApiV2.SliceStateRecord>> {
+        const errorQuery = addFilterToQuery(`state:error AND ex_id:"${exId}"`, filter ?? '');
+        // StateStorage returns the backend's untyped records, unlike
+        // JobsStorage/ExecutionStorage, which cast to their record type
+        const slices = await pagedSearch(
+            () => api.stateStorage.searchWithTotal(errorQuery, from, size, sortOrDefault(sort))
+        );
+        return slices as RecordsWithTotal<TerasliceApiV2.SliceStateRecord>;
+    }
+
+    /**
+     * Sorted by `ex_id`, so pages are stable while the set of controllers is.
+     */
+    async function listControllers(
+        { from, size }: Parsed<typeof TerasliceApiV2.GetClusterControllersQuerySchema>
+    ): Promise<RecordsWithTotal<TerasliceApiV2.ControllerStats>> {
+        const stats = toControllerStatsResponse(await api.executionService.getControllerStats());
+        return pageInMemory(stats, byExId, from, size);
     }
 
     // Cluster
@@ -191,8 +272,9 @@ export function createV2Registry(api: ApiService): RouteRegistry {
         operationId: 'getClusterControllers',
         summary: 'Get statistics for every running execution controller',
         tags: ['Cluster'],
-        response: TerasliceApiV2.ControllerStatsListSchema,
-    }, async () => toControllerStatsResponse(await api.executionService.getControllerStats()), {
+        query: TerasliceApiV2.GetClusterControllersQuerySchema,
+        response: TerasliceApiV2.ControllerStatsPageSchema,
+    }, async ({ query }) => toPage(await listControllers(query), query.from, query.size), {
         errorMessage: 'Could not get execution statistics'
     });
 
@@ -203,30 +285,10 @@ export function createV2Registry(api: ApiService): RouteRegistry {
         summary: 'List jobs',
         tags: ['Jobs'],
         query: TerasliceApiV2.GetJobsQuerySchema,
-        response: TerasliceApiV2.JobWithExecutionListSchema,
-    }, async ({ query }) => {
-        const { size, from } = query;
-        const { active, deleted, ex } = query;
-        const sort = sortOrDefault(query.sort);
-
-        let partialQuery = createJobActiveQuery(active === undefined ? '' : `${active}`);
-        partialQuery = addDeletedToQuery(`${deleted}`, partialQuery);
-        const searchQuery = addFilterToQuery(partialQuery, query.filter ?? '');
-
-        if (ex === undefined) {
-            const jobs = await pagedSearch(
-                () => api.jobsStorage.search(searchQuery, from, size, sort)
-            );
-            return jobs.map((job) => fromStorage(job));
-        }
-
-        // `?ex=` (no fields) includes the whole execution
-        const fields = parseList(ex);
-        const jobs = await pagedSearch(() => api.jobsService.getJobsWithExInfo(
-            searchQuery, from, size, sort, fields.length ? fields : undefined
-        ));
-        return jobs.map((job) => fromStorage(job));
-    }, { errorMessage: 'Could not retrieve list of jobs' });
+        response: TerasliceApiV2.JobWithExecutionPageSchema,
+    }, async ({ query }) => toPage(await listJobs(query), query.from, query.size), {
+        errorMessage: 'Could not retrieve list of jobs'
+    });
 
     registry.post('/jobs', {
         operationId: 'submitJob',
@@ -432,10 +494,10 @@ export function createV2Registry(api: ApiService): RouteRegistry {
         tags: ['Jobs'],
         params: TerasliceApiV2.JobIdParams,
         query: TerasliceApiV2.GetJobErrorsQuerySchema,
-        response: TerasliceApiV2.SliceErrorListSchema,
+        response: TerasliceApiV2.SliceErrorPageSchema,
     }, async ({ params, query }) => {
         const exId = await getLatestExId(params.jobId);
-        return searchErrors(exId, query);
+        return toPage(await searchErrors(exId, query), query.from, query.size);
     }, { errorMessage: 'Could not get errors for job' });
 
     registry.get('/jobs/:jobId/controller', {
@@ -472,32 +534,10 @@ export function createV2Registry(api: ApiService): RouteRegistry {
         summary: 'List executions',
         tags: ['Executions'],
         query: TerasliceApiV2.GetExecutionsQuerySchema,
-        response: TerasliceApiV2.ExecutionRecordListSchema,
-    }, async ({ query }) => {
-        const { size, from } = query;
-        const { job_id: jobId, deleted } = query;
-        const sort = sortOrDefault(query.sort);
-        const statuses = parseList(query.status);
-
-        let partialQuery = 'ex_id:*';
-
-        if (jobId) {
-            partialQuery += ` AND job_id:"${jobId}"`;
-        }
-
-        if (statuses.length) {
-            const statusTerms = statuses.map((s) => `_status:"${s}"`).join(' OR ');
-            partialQuery += ` AND (${statusTerms})`;
-        }
-
-        partialQuery = addDeletedToQuery(`${deleted}`, partialQuery);
-        const searchQuery = addFilterToQuery(partialQuery, query.filter ?? '');
-
-        const executions = await pagedSearch(
-            () => api.executionStorage.search(searchQuery, from, size, sort)
-        );
-        return executions.map((ex) => fromStorage(ex));
-    }, { errorMessage: 'Could not retrieve list of execution contexts' });
+        response: TerasliceApiV2.ExecutionRecordPageSchema,
+    }, async ({ query }) => toPage(await listExecutions(query), query.from, query.size), {
+        errorMessage: 'Could not retrieve list of execution contexts'
+    });
 
     registry.get('/ex/:exId', {
         operationId: 'getExecution',
@@ -515,8 +555,10 @@ export function createV2Registry(api: ApiService): RouteRegistry {
         tags: ['Executions'],
         params: TerasliceApiV2.ExIdParams,
         query: TerasliceApiV2.GetExecutionErrorsQuerySchema,
-        response: TerasliceApiV2.SliceErrorListSchema,
-    }, ({ params, query }) => searchErrors(params.exId, query), {
+        response: TerasliceApiV2.SliceErrorPageSchema,
+    }, async ({ params, query }) => toPage(
+        await searchErrors(params.exId, query), query.from, query.size
+    ), {
         errorMessage: 'Could not get errors for execution'
     });
 
