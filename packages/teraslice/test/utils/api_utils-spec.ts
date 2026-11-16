@@ -1,7 +1,10 @@
 import 'jest-extended';
+import { TSError, parseErrorInfo } from '@terascope/core-utils';
 import {
-    createJobActiveQuery, addDeletedToQuery, getSliceTapOptions, makeTable
+    createJobActiveQuery, addDeletedToQuery, getSliceTapOptions, makeTable,
+    explainResultWindowError
 } from '../../src/lib/utils/api_utils.js';
+import { makeResultWindowError } from './search-errors.js';
 
 describe('apiUtils', () => {
     it('should be able to create the proper job queries', () => {
@@ -70,6 +73,45 @@ describe('apiUtils', () => {
             expect(err.statusCode).toEqual(400);
             expect(err.message).toStartWith('Argument "size" must be "all", 0, or a positive integer');
             expect(err.message).toEndWith(`received ${JSON.stringify(size)}`);
+        });
+    });
+
+    describe('explainResultWindowError', () => {
+        it('should match what OpenSearch errors parse to', () => {
+            // guards the fixture: this is the message the real error produced
+            expect(parseErrorInfo(makeResultWindowError()).message).toStartWith(
+                'OpenSearch Error: Search Phase Execution: [Illegal Argument] Reason: Result Window Is Too Large'
+            );
+        });
+
+        it('should replace the message, keeping the limit and the requested window', () => {
+            const err = explainResultWindowError(makeResultWindowError(50000, 50100));
+
+            expect(err).toBeInstanceOf(TSError);
+            expect((err as TSError).statusCode).toBe(400);
+            expect((err as TSError).message).toBe(
+                'from + size must be less than or equal to 50000 (the index\'s max_result_window), '
+                + 'got 50100. Use filter to narrow the search.'
+            );
+        });
+
+        it('should still explain the error when the numbers are missing', () => {
+            const err = explainResultWindowError(
+                new TSError('Result window is too large', { statusCode: 400 })
+            );
+
+            expect((err as TSError).statusCode).toBe(400);
+            expect((err as TSError).message).toBe(
+                'from + size is larger than the index\'s max_result_window. Use filter to narrow the search.'
+            );
+        });
+
+        it.each([
+            ['a different 400', new TSError('Failed to parse query', { statusCode: 400 })],
+            ['the same message with another status', new TSError('Result window is too large', { statusCode: 500 })],
+            ['a plain Error', new Error('boom')],
+        ])('should return %s unchanged', (_label, input) => {
+            expect(explainResultWindowError(input)).toBe(input);
         });
     });
 

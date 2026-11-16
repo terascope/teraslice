@@ -6,7 +6,8 @@ import { type Logger, type ExecutionStatus, TerasliceApiV2 } from '@terascope/ty
 import type { ApiService } from '../api.js';
 import type { ControllerStats } from '../../../../../interfaces.js';
 import {
-    createJobActiveQuery, addDeletedToQuery, addFilterToQuery, buildConnectorList
+    createJobActiveQuery, addDeletedToQuery, addFilterToQuery, buildConnectorList,
+    explainResultWindowError
 } from '../../../../utils/api_utils.js';
 import { getPackageJSON } from '../../../../utils/file_utils.js';
 import { createRouteRegistry, type RouteRegistry } from '../../../../utils/v2_routes.js';
@@ -72,6 +73,18 @@ function sortOrDefault(sort: string): string {
 }
 
 /**
+ * Runs a paged search, replacing OpenSearch's message for paging past
+ * `max_result_window` with one that makes sense to API callers.
+ */
+async function pagedSearch<T>(search: () => Promise<T>): Promise<T> {
+    try {
+        return await search();
+    } catch (err) {
+        throw explainResultWindowError(err);
+    }
+}
+
+/**
  * Routes for the beta /v2 API. Mounted only at /v2, with no unversioned alias.
  * See https://github.com/terascope/teraslice/issues/4584
  */
@@ -116,7 +129,9 @@ export function createV2Registry(api: ApiService): RouteRegistry {
         const errorQuery = addFilterToQuery(`state:error AND ex_id:"${exId}"`, filter ?? '');
         // StateStorage.search returns the backend's untyped search result,
         // unlike JobsStorage/ExecutionStorage, which cast to their record type
-        const slices = await api.stateStorage.search(errorQuery, from, size, sortOrDefault(sort));
+        const slices = await pagedSearch(
+            () => api.stateStorage.search(errorQuery, from, size, sortOrDefault(sort))
+        );
         return slices as TerasliceApiV2.SliceErrorList;
     }
 
@@ -199,15 +214,17 @@ export function createV2Registry(api: ApiService): RouteRegistry {
         const searchQuery = addFilterToQuery(partialQuery, query.filter ?? '');
 
         if (ex === undefined) {
-            const jobs = await api.jobsStorage.search(searchQuery, from, size, sort);
+            const jobs = await pagedSearch(
+                () => api.jobsStorage.search(searchQuery, from, size, sort)
+            );
             return jobs.map((job) => fromStorage(job));
         }
 
         // `?ex=` (no fields) includes the whole execution
         const fields = parseList(ex);
-        const jobs = await api.jobsService.getJobsWithExInfo(
+        const jobs = await pagedSearch(() => api.jobsService.getJobsWithExInfo(
             searchQuery, from, size, sort, fields.length ? fields : undefined
-        );
+        ));
         return jobs.map((job) => fromStorage(job));
     }, { errorMessage: 'Could not retrieve list of jobs' });
 
@@ -476,7 +493,9 @@ export function createV2Registry(api: ApiService): RouteRegistry {
         partialQuery = addDeletedToQuery(`${deleted}`, partialQuery);
         const searchQuery = addFilterToQuery(partialQuery, query.filter ?? '');
 
-        const executions = await api.executionStorage.search(searchQuery, from, size, sort);
+        const executions = await pagedSearch(
+            () => api.executionStorage.search(searchQuery, from, size, sort)
+        );
         return executions.map((ex) => fromStorage(ex));
     }, { errorMessage: 'Could not retrieve list of execution contexts' });
 

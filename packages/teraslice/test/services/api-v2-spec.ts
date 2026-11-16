@@ -14,10 +14,13 @@ import { findPort } from '../../src/lib/utils/port_utils.js';
 import { ApiService } from '../../src/lib/cluster/services/api/api.js';
 import { createV2Registry } from '../../src/lib/cluster/services/api/v2/routes.js';
 import { getPackageJSON } from '../../src/lib/utils/file_utils.js';
+import { makeResultWindowError } from '../utils/search-errors.js';
 
 const dirname = nodePath.dirname(fileURLToPath(import.meta.url));
 
 const notDeleted = '(_deleted:false OR (* AND -_deleted:*))';
+const resultWindowMessage = 'from + size must be less than or equal to 10000 '
+    + '(the index\'s max_result_window), got 10100. Use filter to narrow the search.';
 
 const jobConfig = {
     name: 'test-job',
@@ -437,6 +440,26 @@ describe('HTTP API v2', () => {
 
                 expect(response.statusCode).toEqual(200);
                 expect(search.mock.calls[0][2]).toBe(50000);
+            });
+
+            it('should explain a page past max_result_window', async () => {
+                search.mockRejectedValue(makeResultWindowError(10000, 10100));
+
+                const response = await request('GET', '/v2/jobs', { searchParams: { from: '10000' } });
+
+                expect(response.statusCode).toEqual(400);
+                expect(response.body.message).toBe(resultWindowMessage);
+            });
+
+            it('should explain a page past max_result_window with ?ex', async () => {
+                getJobsWithExInfo.mockRejectedValue(makeResultWindowError(10000, 10100));
+
+                const response = await request('GET', '/v2/jobs', {
+                    searchParams: { from: '10000', ex: '_status' }
+                });
+
+                expect(response.statusCode).toEqual(400);
+                expect(response.body.message).toBe(resultWindowMessage);
             });
 
             it('should use the default sort for an empty ?sort, like v1', async () => {
@@ -1125,6 +1148,15 @@ describe('HTTP API v2', () => {
             expect(search.mock.calls[0][0]).toContain('_status:"borked"');
         });
 
+        it('should explain a page past max_result_window', async () => {
+            search.mockRejectedValue(makeResultWindowError(10000, 10100));
+
+            const response = await request('GET', '/v2/ex', { searchParams: { from: '10000' } });
+
+            expect(response.statusCode).toEqual(400);
+            expect(response.body.message).toBe(resultWindowMessage);
+        });
+
         describe('GET /v2/ex/:exId', () => {
             it('should return an execution', async () => {
                 const response = await request('GET', '/v2/ex/ex-1');
@@ -1163,6 +1195,17 @@ describe('HTTP API v2', () => {
 
                 expect(response.statusCode).toEqual(400);
                 expect(stateSearch).not.toHaveBeenCalled();
+            });
+
+            it('should explain a page past max_result_window', async () => {
+                stateSearch.mockRejectedValue(makeResultWindowError(10000, 10100));
+
+                const response = await request('GET', '/v2/ex/ex-2/errors', {
+                    searchParams: { from: '10000' }
+                });
+
+                expect(response.statusCode).toEqual(400);
+                expect(response.body.message).toBe(resultWindowMessage);
             });
         });
     });

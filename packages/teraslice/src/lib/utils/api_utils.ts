@@ -180,6 +180,29 @@ export function addDeletedToQuery(deleted: string, query: string) {
     return `${query} AND _deleted:true`;
 }
 
+const resultWindowPattern = /result window is too large/i;
+const resultWindowNumbersPattern = /less than or equal to: \[(\d+)\] but was \[(\d+)\]/i;
+
+/**
+ * Searches that page past an index's `max_result_window` fail with a 400
+ * whose message points at the scroll API, which API callers can't use.
+ * Returns a 400 with a message that keeps the limit and suggests `filter`
+ * instead; any other error is returned unchanged.
+ */
+export function explainResultWindowError(err: unknown): unknown {
+    const { statusCode, message } = parseErrorInfo(err);
+    if (statusCode !== 400 || !resultWindowPattern.test(message)) return err;
+
+    const [, limit, requested] = message.match(resultWindowNumbersPattern) ?? [];
+    const detail = limit && requested
+        ? `from + size must be less than or equal to ${limit} (the index's max_result_window), got ${requested}`
+        : 'from + size is larger than the index\'s max_result_window';
+
+    return new TSError(`${detail}. Use filter to narrow the search.`, {
+        statusCode: 400,
+    });
+}
+
 /**
  * Combines a base query from an endpoint with an optional filter using AND from lucene.
  * @param query - The base Lucene query string

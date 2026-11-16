@@ -476,7 +476,8 @@ const searchQueryShape = {
         .default(100)
         .meta({
             description: 'Maximum number of records to return. `from + size` is limited by '
-                + 'the index\'s `max_result_window` (10,000 unless the cluster changes it)',
+                + 'the index\'s `max_result_window` (10,000 unless the cluster changes it); '
+                + 'a request past it is rejected with a 400',
         }),
     from: z.coerce.number<number>().int()
         .min(0)
