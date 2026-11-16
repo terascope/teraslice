@@ -6,7 +6,9 @@ import { Context, RecoveryCleanupType } from '@terascope/job-components';
 import { v4 as uuid } from 'uuid';
 import { JobConfig, ExecutionConfig } from '@terascope/types';
 import { makeLogger } from '../workers/helpers/terafoundation.js';
-import { TerasliceElasticsearchStorage, TerasliceESStorageConfig } from './backends/elasticsearch_store.js';
+import {
+    TerasliceElasticsearchStorage, TerasliceESStorageConfig, RecordsWithTotal
+} from './backends/elasticsearch_store.js';
 import { getPackageJSON } from '../utils/file_utils.js';
 
 const INIT_STATUS = ['pending', 'scheduling', 'initializing'];
@@ -94,6 +96,21 @@ export class ExecutionStorage {
     ): Promise<ExecutionConfig[]> {
         const results = await this.backend.search(query, from, size, sort, fields);
         return results as ExecutionConfig[];
+    }
+
+    /**
+     * Like `search()`, but also returns the exact total number of matching executions
+     */
+    async searchWithTotal(
+        query: string | Record<string, any>,
+        from?: number,
+        size?: number,
+        sort?: string,
+        fields?: string | string[]
+    ): Promise<RecordsWithTotal<ExecutionConfig>> {
+        return this.backend.searchWithTotal<ExecutionConfig>(
+            query, from, size, sort, fields, undefined, true
+        );
     }
 
     async create(record: JobConfig | ExecutionConfig, status = 'pending'): Promise<ExecutionConfig> {

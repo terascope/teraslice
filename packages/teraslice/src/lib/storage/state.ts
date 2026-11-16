@@ -6,7 +6,9 @@ import {
 } from '@terascope/core-utils';
 import { timeseriesIndex, TimeseriesFormat } from '../utils/date_utils.js';
 import { makeLogger } from '../workers/helpers/terafoundation.js';
-import { TerasliceElasticsearchStorage, TerasliceESStorageConfig } from './backends/elasticsearch_store.js';
+import {
+    TerasliceElasticsearchStorage, TerasliceESStorageConfig, RecordsWithTotal
+} from './backends/elasticsearch_store.js';
 
 export const SliceState = Object.freeze({
     pending: 'pending',
@@ -275,6 +277,21 @@ export class StateStorage {
         fields?: string | string[]
     ) {
         return this.backend.search(query, from, size, sort || '_updated:desc', fields);
+    }
+
+    /**
+     * Like `search()`, but also returns the total number of matching records.
+     * The state index can be large, so this keeps OpenSearch's default
+     * `track_total_hits` (10,000): past that, `relation` is `gte`.
+     */
+    async searchWithTotal(
+        query: string | Record<string, any>,
+        from?: number,
+        size?: number,
+        sort?: string,
+        fields?: string | string[]
+    ): Promise<RecordsWithTotal<Record<string, any>>> {
+        return this.backend.searchWithTotal(query, from, size, sort || '_updated:desc', fields);
     }
 
     async count(

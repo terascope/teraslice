@@ -6,7 +6,9 @@ import {
 } from '@terascope/core-utils';
 import elasticsearchApi, { Client, BulkRecord } from '@terascope/elasticsearch-api';
 import { getClient, Context } from '@terascope/job-components';
-import { ClientParams, DataTypeConfig, ESMapping } from '@terascope/types';
+import {
+    ClientParams, DataTypeConfig, ESMapping, ESTypes
+} from '@terascope/types';
 import { DataType } from '@terascope/data-types';
 import { makeLogger } from '../../workers/helpers/terafoundation.js';
 import { timeseriesIndex } from '../../utils/date_utils.js';
@@ -63,6 +65,17 @@ export interface TerasliceESStorageConfig {
     logRecord?: boolean;
     forceRefresh?: boolean;
     logger?: Logger;
+}
+
+/**
+ * One page of records plus the total number of matching records. `relation`
+ * is `gte` when OpenSearch stopped counting at the `track_total_hits` limit,
+ * so `total` is a minimum in that case.
+ */
+export interface RecordsWithTotal<T> {
+    records: T[]; // TODO: review this later
+    total: number;
+    relation: ESTypes.SearchTotalHitsRelation;
 }
 
 export interface TerasliceStorageOptions {
@@ -228,6 +241,51 @@ export class TerasliceElasticsearchStorage {
         fields?: string | string[],
         index = this.defaultIndexName
     ) {
+        const esQuery = this._buildSearchQuery(query, from, size, sort, fields, index);
+        return this.api.search(esQuery);
+    }
+
+    /**
+     * Like `search()`, but also returns the total number of matching records
+     * from the same request.
+     *
+     * `trackTotalHits` sets how high OpenSearch counts (`track_total_hits`):
+     * - `true`: no limit, `total` is always exact.
+     * - a number: count up to that number.
+     * - left out: count up to OpenSearch's default of 10,000.
+     *
+     * If more records match than the limit, `total` is the limit and
+     * `relation` is `gte`. Otherwise `total` is exact and `relation` is `eq`.
+     */
+    async searchWithTotal<T = Record<string, any>>(
+        query: string | Record<string, any>,
+        from = 0,
+        size = 10000,
+        sort?: string,
+        fields?: string | string[],
+        index = this.defaultIndexName,
+        trackTotalHits?: boolean | number
+    ): Promise<RecordsWithTotal<T>> {
+        if (trackTotalHits === false) {
+            throw new Error('trackTotalHits can\'t be false, the total is required');
+        }
+
+        const esQuery = this._buildSearchQuery(query, from, size, sort, fields, index);
+        if (trackTotalHits != null) {
+            esQuery.track_total_hits = trackTotalHits;
+        }
+
+        return this.api.searchWithTotal<T>(esQuery);
+    }
+
+    private _buildSearchQuery(
+        query: string | Record<string, any>,
+        from: number,
+        size: number,
+        sort: string | undefined,
+        fields: string | string[] | undefined,
+        index: string
+    ): ClientParams.SearchParams {
         if (from != null && !isInteger(from)) {
             throw new Error(`from parameter must be a integer, got ${from}`);
         }
@@ -255,7 +313,7 @@ export class TerasliceElasticsearchStorage {
             esQuery._source_includes = fields;
         }
 
-        return this.api.search(esQuery);
+        return esQuery;
     }
 
     /*

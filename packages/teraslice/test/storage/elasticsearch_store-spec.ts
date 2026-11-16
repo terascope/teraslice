@@ -4,6 +4,85 @@ import { debugLogger } from '@terascope/core-utils';
 import { TerasliceElasticsearchStorage } from '../../src/lib/storage/backends/elasticsearch_store.js';
 
 describe('TerasliceElasticsearchStorage', () => {
+    describe('->searchWithTotal', () => {
+        let store: TerasliceElasticsearchStorage;
+        let searchWithTotal: jest.Mock<(...args: any[]) => Promise<any>>;
+        let search: jest.Mock<(...args: any[]) => Promise<any>>;
+
+        beforeEach(() => {
+            const context = { sysconfig: { teraslice: {} } } as any;
+            store = new TerasliceElasticsearchStorage({
+                context,
+                indexName: 'test__jobs',
+                recordType: 'job',
+                idField: 'job_id',
+                storageName: 'jobs',
+                logger: debugLogger('elasticsearch-store-spec'),
+            });
+            searchWithTotal = jest.fn<(...args: any[]) => Promise<any>>();
+            search = jest.fn<(...args: any[]) => Promise<any>>();
+            store.api = { searchWithTotal, search } as any;
+        });
+
+        it('should return the records and a total past the page', async () => {
+            const result = { records: [{ job_id: 'a' }, { job_id: 'b' }], total: 57, relation: 'eq' };
+            searchWithTotal.mockResolvedValue(result);
+
+            await expect(store.searchWithTotal('job_id:*', 10, 2, '_created:desc', ['job_id'], undefined, true))
+                .resolves.toEqual(result);
+
+            expect(searchWithTotal).toHaveBeenCalledWith({
+                index: 'test__jobs',
+                from: 10,
+                size: 2,
+                sort: '_created:desc',
+                q: 'job_id:*',
+                _source_includes: ['job_id'],
+                track_total_hits: true,
+            });
+        });
+
+        it('should build the same query as search() and leave out track_total_hits by default', async () => {
+            searchWithTotal.mockResolvedValue({ records: [], total: 10000, relation: 'gte' });
+            search.mockResolvedValue([]);
+            const body = { query: { match_all: {} } };
+
+            await store.searchWithTotal(body, 0, 100, undefined, undefined, 'other*');
+            await store.search(body, 0, 100, undefined, undefined, 'other*');
+
+            const [query] = searchWithTotal.mock.calls[0];
+            expect(query).toEqual(search.mock.calls[0][0]);
+            expect(query).toEqual({
+                index: 'other*', from: 0, size: 100, sort: undefined, body
+            });
+            expect(query).not.toHaveProperty('track_total_hits');
+        });
+
+        it('should pass a numeric trackTotalHits through', async () => {
+            searchWithTotal.mockResolvedValue({ records: [], total: 0, relation: 'eq' });
+
+            await store.searchWithTotal('*', 0, 10, undefined, undefined, undefined, 500);
+
+            expect(searchWithTotal.mock.calls[0][0]).toHaveProperty('track_total_hits', 500);
+        });
+
+        it('should reject trackTotalHits: false', async () => {
+            await expect(store.searchWithTotal('*', 0, 10, undefined, undefined, undefined, false))
+                .rejects.toThrow('trackTotalHits can\'t be false');
+            expect(searchWithTotal).not.toHaveBeenCalled();
+        });
+
+        it('should check from, size and sort like search()', async () => {
+            await expect(store.searchWithTotal('*', 1.5 as any))
+                .rejects.toThrow('from parameter must be a integer, got 1.5');
+            await expect(store.searchWithTotal('*', 0, 'ten' as any))
+                .rejects.toThrow('size parameter must be a integer, got ten');
+            await expect(store.searchWithTotal('*', 0, 10, 5 as any))
+                .rejects.toThrow('sort parameter must be a string, got 5');
+            expect(searchWithTotal).not.toHaveBeenCalled();
+        });
+    });
+
     describe('when shutdown is forced', () => {
         const timeout = 500;
         let store: TerasliceElasticsearchStorage;

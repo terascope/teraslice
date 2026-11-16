@@ -47,11 +47,14 @@ export interface AnyBulkAction {
  * The records from one search plus the total number of matching documents.
  * `relation` is `gte` when OpenSearch stopped counting at the `track_total_hits`
  * limit (10,000 by default), so `total` is a minimum in that case.
+ *
+ * Each record is a DataEntity holding the document's fields as its own
+ * properties. DataEntity's type doesn't include those fields, so `& T` adds them.
  */
 export interface SearchWithTotalResult<T = Record<string, any>> {
-    records: DataEntity<T>[];
+    records: (DataEntity<T> & T)[];
     total: number;
-    relation: 'eq' | 'gte';
+    relation: ESTypes.SearchTotalHitsRelation;
 }
 
 /**
@@ -160,7 +163,7 @@ export default function elasticsearchApi(
         }
 
         return {
-            records: (data.hits.hits ?? []).map(convertDocToDataEntity) as DataEntity<T>[],
+            records: (data.hits.hits ?? []).map(convertDocToDataEntity) as (DataEntity<T> & T)[],
             total: total.value,
             relation: total.relation,
         };
