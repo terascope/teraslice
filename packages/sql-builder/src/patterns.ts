@@ -35,6 +35,40 @@ export function wildcardToLikePattern(value: string): string {
     return pattern;
 }
 
+/**
+ * Convert an Elasticsearch (Lucene) regular expression to a POSIX/RE2 one.
+ *
+ * Lucene has no anchors, the whole value always has to match, so `^` and `$` are the characters
+ * themselves: the regexp `^al.*` matches only a value starting with `^al`. Outside a class they
+ * are escaped; `[^a]` keeps its meaning, a class that excludes `a`. A backslash still makes the
+ * next character itself.
+*/
+export function luceneRegexpToPattern(value: string): string {
+    let pattern = '';
+    let inClass = false;
+    for (let index = 0; index < value.length; index++) {
+        const char = value[index];
+        if (char === '\\' && index + 1 < value.length) {
+            pattern += char + value[index + 1];
+            index += 1;
+        } else if (inClass) {
+            if (char === ']') inClass = false;
+            pattern += char;
+        } else if (char === '[') {
+            inClass = true;
+            pattern += char;
+            // `[^` and `[]` start a class, so neither is the end of it or an anchor
+            if (value[index + 1] === '^') pattern += value[++index];
+            if (value[index + 1] === ']') pattern += value[++index];
+        } else if (char === '^' || char === '$') {
+            pattern += `\\${char}`;
+        } else {
+            pattern += char;
+        }
+    }
+    return pattern;
+}
+
 /** Whether a wildcard value matches any value, so no pattern match is needed. */
 export function isMatchAllWildcard(value: unknown): boolean {
     return value === '*';

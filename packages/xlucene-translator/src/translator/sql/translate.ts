@@ -152,6 +152,17 @@ function buildNegationSQL(node: Negation, context: SQLContext): string | undefin
 */
 function buildExistsSQL(node: Exists, context: SQLContext): string {
     const { dialect } = context;
+    if (inObjectList(node.field, context)) return dialect.matchNone();
+
+    const children = objectLeaves(node.field, context);
+    if (children.length) {
+        // an object exists when any of its fields has a value, as in Elasticsearch, which
+        // indexes only the values: `{}` and `{ name: null }` are missing
+        return dialect.or(children.map(
+            (child) => buildExistsSQL({ ...node, field: child }, context)
+        ));
+    }
+
     const fieldExpr = dialect.fieldRef(node.field);
 
     if (context.array_fields?.has(node.field)) {
@@ -173,6 +184,8 @@ function buildTermLevelSQL(node: TermLikeNode, context: SQLContext): string | un
     if (!node.field || node.field === '*') {
         return buildFieldlessSQL(node, context);
     }
+
+    if (inObjectList(node.field, context)) return context.dialect.matchNone();
 
     const fieldExpr = context.dialect.fieldRef(node.field);
 
@@ -259,6 +272,39 @@ function buildFieldlessSQL(node: TermLikeNode, context: SQLContext): string | un
     return expandAcrossFields(node, Object.keys(context.type_config), context);
 }
 
+/**
+ * A list of objects, or a field in one. Elasticsearch maps a list of objects as `nested`, which
+ * a query reaches only through a `nested` query, so nothing in it ever matches and the list
+ * itself does not exist to `_exists_`. Without this, SQL would read a member of a LIST column
+ * and fail.
+*/
+function inObjectList(field: string, context: SQLContext): boolean {
+    for (const list of context.array_fields ?? []) {
+        if (field.startsWith(`${list}.`)) return true;
+        if (field === list && context.type_config[list] === xLuceneFieldType.Object) return true;
+    }
+    return false;
+}
+
+/**
+ * The fields under an object field, the ones that hold values (not objects themselves), or
+ * none for a field that is not an object or declares no fields.
+*/
+function objectLeaves(field: string, context: SQLContext): string[] {
+    const typeConfig = context.type_config;
+    if (typeConfig[field] !== xLuceneFieldType.Object) return [];
+
+    const prefix = `${field}.`;
+    const under = Object.keys(typeConfig).filter((name) => name.startsWith(prefix));
+    return under.filter((name) => typeConfig[name] !== xLuceneFieldType.Object
+        || !under.some((other) => other.startsWith(`${name}.`)));
+}
+
+/** Address fields, which Elasticsearch refuses a wildcard or a regexp on. */
+const IP_TYPES: ReadonlySet<xLuceneFieldType> = new Set([
+    xLuceneFieldType.IP, xLuceneFieldType.IPRange,
+]);
+
 const GEO_TYPES: ReadonlySet<xLuceneFieldType> = new Set([
     xLuceneFieldType.Geo, xLuceneFieldType.GeoPoint, xLuceneFieldType.GeoJSON,
 ]);
@@ -284,7 +330,15 @@ function expandAcrossFields(
     const expressions = fields
         // `multi_match` does not query a geo field, and a word is not a geohash
         .filter((field) => !GEO_TYPES.has(typeConfig[field]))
+        // nor a field in a list of objects, which Elasticsearch indexes as `nested`
+        .filter((field) => !inObjectList(field, context))
+        // a pattern is only for text, `multi_match` leaves an address field out of it
+        .filter((field) => isTerm(node) || !IP_TYPES.has(typeConfig[field]))
         .filter((field) => !isTerm(node) || canRenderValueAs(value, typeConfig[field]))
+        // `multi_match` reads a boolean only from the words `true` and `false`, while a
+        // boolean field's own term also takes `1`, `yes` or `TRUE`
+        .filter((field) => typeConfig[field] !== xLuceneFieldType.Boolean
+            || value === true || value === false || value === 'true' || value === 'false')
         .map((field) => buildTermLevelSQL(
             { ...node, field, field_type: typeConfig[field] } as TermLikeNode, context
         ))
@@ -327,15 +381,24 @@ function buildTermSQL(
 }
 
 /**
- * A date written to the day, minute or second, in its own offset, without a fraction of a
- * second: `2020-01-15`, `2020-01-15T12:30`, `2020-01-15T12:30:45+05:00`.
+ * A date written to the month, day, minute or second, in its own offset, without a fraction of
+ * a second: `2020-01`, `2020-01-15`, `2020-01-15T12:30`, `2020-01-15T12:30:45+05:00`.
  *
- * The parser turns a time to the hour into a full time and a year into a number before this
- * runs, and a month is not rounded, so those are left to an equality.
+ * A month is the first day of it, as Elasticsearch reads `2020-01` as `2020-01-01` and rounds
+ * that day. The parser turns a time to the hour into a full time and a year into a number
+ * before this runs, so those are left to an equality.
 */
-const ROUNDED_DATE = /^(\d{4})-(\d{2})-(\d{2})(?:T(\d{2}):(\d{2})(?::(\d{2}))?(Z|[+-]\d{2}:?\d{2})?)?$/;
+const ROUNDED_DATE = /^(\d{4})-(\d{2})(?:-(\d{2})(?:T(\d{2}):(\d{2})(?::(\d{2}))?(Z|[+-]\d{2}:?\d{2})?)?)?$/;
 
 const UNIT_MS = { day: 86_400_000, minute: 60_000, second: 1_000 } as const;
+
+/** The comparison and the end of the unit for a rounded range bound, by its operator. */
+const ROUNDED_BOUND = {
+    gte: ['gte', 'start'],
+    gt: ['gte', 'end'],
+    lte: ['lt', 'end'],
+    lt: ['lt', 'start'],
+} as const;
 
 /**
  * The unit a date term matches, as Elasticsearch matches it: a term on a `date` field is a
@@ -351,7 +414,7 @@ function dateUnit(value: unknown): { start: string; end: string } | undefined {
     const [, year, month, day, hour, minute, second, offset] = match;
     const unit = hour == null ? 'day' : second == null ? 'minute' : 'second';
     const [h, m, sec] = [hour, minute, second].map((part) => Number(part ?? 0));
-    const local = Date.UTC(Number(year), Number(month) - 1, Number(day), h, m, sec);
+    const local = Date.UTC(Number(year), Number(month) - 1, Number(day ?? 1), h, m, sec);
     const start = local - offsetMillis(offset);
     if (Number.isNaN(start)) return undefined;
 
@@ -369,11 +432,21 @@ function offsetMillis(offset: string | undefined): number {
     return sign * ((Number(digits.slice(0, 2)) * 60) + Number(digits.slice(2))) * 60_000;
 }
 
+/** Refuse a pattern on an address field, with Elasticsearch's reason, as a request error. */
+function assertPatternField(node: Regexp | Wildcard, kind: string): void {
+    if (!IP_TYPES.has(node.field_type)) return;
+    throw new TSError(
+        `Can only use ${kind} queries on keyword and text fields - not on [${node.field}] which is of type [${node.field_type}]`,
+        { statusCode: 400, context: { safe: true } }
+    );
+}
+
 function buildRegexpSQL(
     node: Regexp,
     fieldExpr: string,
     context: SQLContext
 ): string | undefined {
+    assertPatternField(node, 'regexp');
     const value = getFieldValue(node.value, context.variables, true);
     if (value == null) return undefined;
 
@@ -385,6 +458,7 @@ function buildWildcardSQL(
     fieldExpr: string,
     context: SQLContext
 ): string | undefined {
+    assertPatternField(node, 'wildcard');
     const value = getFieldValue(node.value, context.variables, true);
     if (value == null) return undefined;
 
@@ -415,9 +489,18 @@ function buildRangeSQL(
 
     const expressions = (['gte', 'gt', 'lte', 'lt'] as const)
         .filter((operator) => range[operator] != null)
-        .map((operator) => dialect.compare(
-            fieldExpr, operator, range[operator], rangeFieldType(node, operator)
-        ));
+        .map((operator) => {
+            const fieldType = rangeFieldType(node, operator);
+            const unit = fieldType === xLuceneFieldType.Date
+                ? dateUnit(range[operator])
+                : undefined;
+            if (!unit) return dialect.compare(fieldExpr, operator, range[operator], fieldType);
+
+            // Elasticsearch rounds a bound to the unit it names: `gt` and `lte` to the unit's
+            // end, so `<=2020-01-15` includes the whole day, and `gte` and `lt` to its start
+            const [compare, bound] = ROUNDED_BOUND[operator];
+            return dialect.compare(fieldExpr, compare, unit[bound], fieldType);
+        });
 
     // both bounds were infinite, so the range only asks that the field have a value
     if (!expressions.length) return dialect.exists(fieldExpr);

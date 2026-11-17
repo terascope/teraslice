@@ -12,7 +12,7 @@ import {
     parens, wholeNumber, quoteBoolean, quoteIdentifier,
     quoteLiteral, quoteNumber, toLiteralString, toUTCTimestampText
 } from '../quoting.js';
-import { isMatchAllWildcard, wildcardToLikePattern } from '../patterns.js';
+import { isMatchAllWildcard, luceneRegexpToPattern, wildcardToLikePattern } from '../patterns.js';
 import { inferFieldType, isTextFieldType } from '../field-types.js';
 import { orderByTerms } from '../clauses.js';
 
@@ -168,7 +168,7 @@ export abstract class BaseSQLDialect implements SQLDialect {
 
     regexp(fieldExpr: string, value: string, fieldType?: xLuceneFieldType): string {
         const expr = isTextFieldType(fieldType) ? fieldExpr : this.toText(fieldExpr);
-        return this.regexpMatch(expr, value);
+        return this.regexpMatch(expr, luceneRegexpToPattern(value));
     }
 
     exists(fieldExpr: string): string {

@@ -161,7 +161,11 @@ export class DuckDBDialect extends BaseSQLDialect {
         relation: GeoShapeRelation,
         isPointColumn: boolean
     ): string {
-        const fn = RELATION_FUNCTIONS[relation];
+        // a point within a shape includes a point on its edge, as Elasticsearch's polygon query
+        // on a geo-point does; `ST_Within` excludes the boundary, `ST_Intersects` does not
+        const fn = isPointColumn && relation === GeoShapeRelation.Within
+            ? 'ST_Intersects'
+            : RELATION_FUNCTIONS[relation];
 
         if (fn == null) {
             throw new TypeError(`Unsupported geo relation "${relation}"`);
@@ -214,10 +218,11 @@ export class DuckDBDialect extends BaseSQLDialect {
 
     /**
      * `regexp_full_match` rather than `regexp_matches`, because Elasticsearch's `regexp`
-     * query is anchored: `bar:/h.*o/` matches `hello` and not `xhellox`.
+     * query is anchored: `bar:/h.*o/` matches `hello` and not `xhellox`. The `s` option lets
+     * `.` match a newline, as it does in Lucene.
     */
     protected regexpMatch(expr: string, value: string): string {
-        return `regexp_full_match(${expr}, ${this.stringLiteral(value)})`;
+        return `regexp_full_match(${expr}, ${this.stringLiteral(value)}, 's')`;
     }
 
     /**

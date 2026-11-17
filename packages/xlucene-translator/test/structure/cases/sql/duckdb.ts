@@ -26,7 +26,10 @@ const cases: Record<string, SQLTestCase[]> = {
         ['bar:fi\\*z*', '("bar" LIKE \'fi*z%\' ESCAPE \'\\\')'],
         ['bar:fi\\?z*', '("bar" LIKE \'fi?z%\' ESCAPE \'\\\')'],
         ['bar:100%', '("bar" = \'100%\')'],
-        ['bar:/h.*o/', 'regexp_full_match("bar", \'h.*o\')'],
+        // `s`: a `.` matches a newline, as in Lucene
+        ['bar:/h.*o/', 'regexp_full_match("bar", \'h.*o\', \'s\')'],
+        // Lucene has no anchors, `^` and `$` are the characters themselves
+        ['bar:/^h.*o$/', 'regexp_full_match("bar", \'\\^h.*o\\$\', \'s\')'],
         ['bar:*', '("bar" IS NOT NULL)'],
     ],
     /**
@@ -49,10 +52,11 @@ const cases: Record<string, SQLTestCase[]> = {
         ['num:[* TO 70]', '("num" <= 70)'],
         ['num:[* TO 70}', '("num" < 70)'],
         ['num:[* TO *]', '("num" IS NOT NULL)'],
-        ['date:["2020-01-01" TO "2020-06-01"]', '(("date".ms >= 1577836800000) AND ("date".ms <= 1590969600000))'],
-        ['date:{"2020-01-01" TO "2020-06-01"}', '(("date".ms > 1577836800000) AND ("date".ms < 1590969600000))'],
+        // a bound to the day is rounded as Elasticsearch does: `gt` and `lte` to its end
+        ['date:["2020-01-01" TO "2020-06-01"]', '(("date".ms >= 1577836800000) AND ("date".ms < 1591056000000))'],
+        ['date:{"2020-01-01" TO "2020-06-01"}', '(("date".ms >= 1577923200000) AND ("date".ms < 1590969600000))'],
         ['date:["2020-01-01" TO "2020-06-01"}', '(("date".ms >= 1577836800000) AND ("date".ms < 1590969600000))'],
-        ['date:{"2020-01-01" TO "2020-06-01"]', '(("date".ms > 1577836800000) AND ("date".ms <= 1590969600000))'],
+        ['date:{"2020-01-01" TO "2020-06-01"]', '(("date".ms >= 1577923200000) AND ("date".ms < 1591056000000))'],
         ['date:>="2020-01-01"', '("date".ms >= 1577836800000)'],
         ['date:[* TO "2020-06-01"}', '("date".ms < 1590969600000)'],
         ['bar:[alpha TO delta]', '(("bar" >= \'alpha\') AND ("bar" <= \'delta\'))'],

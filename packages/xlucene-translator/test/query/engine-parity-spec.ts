@@ -10,6 +10,10 @@ import { ipCases, ipRangeCases } from '../cases/ips.js';
 import { prefixWildcardCases, termCases } from '../cases/terms.js';
 import { makeDuckDBEngine, makeOpenSearchEngine, type ParityEngine } from '../helpers/engines.js';
 import {
+    edgesDataType, edgesRecords, edgesTypeConfig, dateBoundCases, regexpCases, geoEdgeCases,
+    fieldlessEdgeCases, objectCases, scalarEdgeCases
+} from '../cases/edges.js';
+import {
     datePrecisionCases, escapedWildcardCases, fieldlessCases, listCases,
     valuesDataType, valuesRecords, valuesTypeConfig
 } from '../cases/values.js';
@@ -206,6 +210,65 @@ describe('query parity, opensearch vs duckdb', () => {
         await expect(answers('*')).resolves.toEqual({
             opensearch: expected,
             duckdb: expected,
+        });
+    });
+
+    /**
+     * Where SQL and Elasticsearch read a query differently unless the translator corrects it:
+     * rounded date bounds, regexp anchors, polygon edges, booleans and lists of objects in a
+     * query with no field, and objects with no values (see `cases/edges.ts`).
+    */
+    describe('given values at the edges', () => {
+        let edgeEngines: ParityEngine[];
+
+        const edgesAccess = new QueryAccess({
+            allow_implicit_queries: true,
+            allow_empty_queries: true,
+            prevent_prefix_wildcard: false,
+            type_config: edgesTypeConfig,
+        });
+
+        beforeAll(async () => {
+            edgeEngines = await Promise.all([
+                makeOpenSearchEngine(`${index}edges_`, edgesDataType, edgesRecords),
+                makeDuckDBEngine(`${table}_edges`, edgesDataType, edgesRecords),
+            ]);
+        });
+
+        afterAll(async () => {
+            await Promise.all(edgeEngines.map((engine) => engine.close()));
+        });
+
+        async function edgeAnswers(query: string): Promise<Record<string, string[]>> {
+            const entries = await Promise.all(edgeEngines.map(async (engine) => (
+                [engine.name, await engine.search(edgesAccess, query)] as const
+            )));
+            return Object.fromEntries(entries);
+        }
+
+        describe.each([
+            ['a date bound', dateBoundCases],
+            ['a regexp', regexpCases],
+            ['a geo edge', geoEdgeCases],
+            ['no field', fieldlessEdgeCases],
+            ['an object', objectCases],
+            ['a scalar edge', scalarEdgeCases],
+        ])('given %s', (_group, cases) => {
+            it.each([...cases])('answers %s the same way', async (_name, query, ids) => {
+                const expected = [...ids].sort();
+
+                await expect(edgeAnswers(query)).resolves.toEqual({
+                    opensearch: expected,
+                    duckdb: expected,
+                });
+            });
+        });
+
+        it.each(['ip:10.0.*', 'ip:/10\\.0\\..*/'])('refuses %s, a pattern on an address field, in both', async (query) => {
+            for (const engine of edgeEngines) {
+                await expect(engine.search(edgesAccess, query))
+                    .rejects.toThrow(/Can only use (wildcard|regexp) queries on keyword and text fields/);
+            }
         });
     });
 });
