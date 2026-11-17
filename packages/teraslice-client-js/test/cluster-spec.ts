@@ -309,9 +309,19 @@ describe('Teraslice Cluster', () => {
                 await expect(v2Cluster.txt('slicers')).resolves.toEqual('controllers-txt-response');
             });
 
-            it.each(['assets', 'assets/ex1'])('should reject %s, which has no /v2 table', async (type) => {
-                await expect(v2Cluster.txt(type)).rejects.toThrow(
-                    `"${type}" is not a valid type. Must be one of ["controllers","ex","jobs","nodes","workers"]`
+            it.each([
+                'assets', 'assets/ex1', 'assets/ex1/0.0.1',
+            ])('should get v1\'s /txt/%s, which has no /v2 table', async (type) => {
+                nock('http://teraslice.example.dev')
+                    .get(`/txt/${type}`)
+                    .reply(200, 'assets-txt-response');
+
+                await expect(v2Cluster.txt(type)).resolves.toEqual('assets-txt-response');
+            });
+
+            it('should reject an invalid type', async () => {
+                await expect(v2Cluster.txt('invalid')).rejects.toThrow(
+                    '"invalid" is not a valid type. Must be one of ["assets","controllers","ex","jobs","nodes","workers"]'
                 );
             });
         });
