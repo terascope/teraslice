@@ -296,6 +296,11 @@ class Renderer {
         return this.value({ ...node, isArray: false }, 'v0', 1);
     }
 
+    /** One value of a field, rendered as it is inside a row - see {@link buildJsonValue}. */
+    field(node: FieldNode, accessor: string): string {
+        return this.node(node, accessor, 0);
+    }
+
     /** True when a value renders as something other than nil - see {@link rowFilter}. */
     private present(node: FieldNode, accessor: string, depth: number): string {
         // an empty list or tuple is nil only under skipEmptyArrays, and whether it is empty
@@ -450,6 +455,36 @@ export function buildJsonListElement(
         sql: new Renderer(resolveRules(options)).listElement(node),
         isObject: node.type === FieldType.Object,
     };
+}
+
+/**
+ * SQL rendering one field's value as JSON text, exactly as {@link buildJsonExpression} renders it
+ * inside a row: a Date as ISO 8601, a Long above 2^53 exactly, a geo point as `{lat, lon}`, a
+ * Tuple as a list and an Object with the same nil rules. NULL for a nil value.
+ *
+ * It is for SQL that needs a value as JSON, such as the variables of a template, where DuckDB's
+ * own `to_json` would write the stored form (a Date's `{ ms, tz_offset }` struct).
+ *
+ * @param field a field of the config; a dotted path reaches into objects, not into a list
+ * @param accessor the SQL reading the value; by default the column, or its member for a path
+*/
+export function buildJsonValue(
+    config: DataTypeConfig | ReadonlyDataTypeConfig,
+    field: string,
+    accessor = field.split('.').reduce(member, ''),
+    options: JsonExportOptions = {}
+): string {
+    let level = buildTree((config.fields ?? {}) as DataTypeFields);
+    let node: FieldNode | undefined;
+    for (const part of field.split('.')) {
+        if (node?.isArray) {
+            throw new TypeError(`Field "${field}" is inside a list, which has one value per element`);
+        }
+        node = level[part];
+        if (node == null) throw new TypeError(`Field "${field}" is not in this frame's config`);
+        level = node.children ?? {};
+    }
+    return new Renderer(resolveRules(options)).field(node!, accessor);
 }
 
 /**

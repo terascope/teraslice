@@ -9,9 +9,8 @@ import {
 } from '../../function-configs/interfaces.js';
 import { inspect } from 'node:util';
 import { quoteIdentifier, quoteLiteral } from '@terascope/sql-builder';
-import { ScalarFunctionImpl } from '../../teal-frame/scalar-function.js';
-import { registerScalarFunction, makeBigIntInputNormalizer } from '../../teal-frame/index.js';
-import { coerceToType } from '../../builder/type-coercion.js';
+import { ScalarFunctionImpl, makeResultCoercion } from '../../teal-frame/scalar-function.js';
+import { registerScalarFunction } from '../../teal-frame/index.js';
 import { instantSQL, localSQL, fromTimestampSQL } from '../../teal-frame/date-value.js';
 
 export interface TealFrameAdapterOptions<T extends Record<string, any>> {
@@ -229,26 +228,12 @@ async function adaptTypeChange<T extends Record<string, any>>(
     };
 }
 
-/**
- * Coerces a function result into its output config as a `DataFrame` Builder does (every
- * Builder's `_valueFrom` is `coerceToType(config)`). A result that does not match its
- * `output_type` is converted or throws the same way: `setDefault` or `toJSON` on an Integer
- * column gives `"5"`, and `ceil(1e21)` into an Integer throws.
- *
- * The bigint normalizer runs first, as on ingest: `toBigIntOrThrow` adds 1 to a value it parses
- * past 2^53 but returns a bigint unchanged, and the value converter later subtracts 1. Passing a
- * large bigint as a decimal string keeps it exact. See `makeBigIntInputNormalizer`.
-*/
+/** Coerces a result into its output config as a Builder does; see `makeResultCoercion`. */
 function resultCoercion(config: DataTypeFieldAndChildren): (value: unknown) => unknown {
-    const fieldConfig = config.field_config as DataTypeFieldConfig;
-    const childConfig = config.child_config as DataTypeFields | undefined;
-    const coerce = coerceToType(fieldConfig, childConfig);
-    const normalize = makeBigIntInputNormalizer(fieldConfig, childConfig);
-
-    return (value) => {
-        if (value == null) return value;
-        return coerce(normalize ? normalize(value) : value);
-    };
+    return makeResultCoercion(
+        config.field_config as DataTypeFieldConfig,
+        config.child_config as DataTypeFields | undefined
+    );
 }
 
 function coercingResult(

@@ -26,6 +26,12 @@ import { FrameConfig } from './interfaces.js';
 export interface ExpandValuesOptions {
     /** `true` zips the lists by position; `false` stacks one block of rows per field. */
     readonly correlate: boolean;
+    /**
+     * A column holding each row's position. The expanded rows are numbered again in it, from 0,
+     * in the input's position order and then each row's own expanded order, so a later step can
+     * sort them. The rows are not sorted by it.
+    */
+    readonly position?: string;
 }
 
 const PAIR = '__teal_expand';
@@ -76,11 +82,21 @@ export function expandValuesSQL(
         if (declared[field]?.array !== true) throw invalid(field);
     }
 
+    if (options.position != null && !columns.includes(options.position)) {
+        throw new TSError(`Unknown position column "${options.position}" in @expandValues`, {
+            statusCode: 400,
+            context: { safe: true },
+        });
+    }
+
     const wanted = new Set(fields);
     const expanded = columns.filter((column) => wanted.has(column));
     const pick = (column: string) => {
         const k = expanded.indexOf(column);
         const ref = quoteIdentifier(column);
+        if (column === options.position) {
+            return `row_number() OVER (ORDER BY ${ref}, ${PAIR}.k, ${PAIR}.i) - 1 AS ${ref}`;
+        }
         if (k === -1) return ref;
         const which = options.correlate ? `${PAIR}.k = 0` : `${PAIR}.k = ${k}`;
         return `CASE WHEN ${which} THEN ${ref}[${PAIR}.i] END AS ${ref}`;
