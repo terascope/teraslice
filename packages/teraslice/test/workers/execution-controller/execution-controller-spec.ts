@@ -161,6 +161,72 @@ describe('ExecutionController', () => {
             // @ts-expect-error
             expect(exController.sliceFailureInterval).not.toBeNil();
         });
+
+        describe('when the execution is paused while failing', () => {
+            // mirror ExecutionService: message the controller, then write the status
+            async function pause() {
+                await exController.pause();
+                await executionStorage.setStatus(testContext.exId, 'paused');
+            }
+
+            async function resume() {
+                await exController.resume();
+                await executionStorage.setStatus(testContext.exId, 'running');
+            }
+
+            beforeEach(async () => {
+                exController.executionAnalytics.increment('processed');
+                exController.executionAnalytics.increment('failed');
+                // @ts-expect-error
+                await exController._startSliceFailureWatchDog();
+            });
+
+            it('should not overwrite "paused" when in-flight slices complete', async () => {
+                await expect(executionStorage.getStatus(testContext.exId)).resolves.toEqual('failing');
+                await pause();
+
+                exController.executionAnalytics.increment('processed');
+                await pDelay(probationWindow * 2 + 100);
+
+                await expect(executionStorage.getStatus(testContext.exId)).resolves.toEqual('paused');
+                // @ts-expect-error
+                expect(exController.sliceFailureInterval).not.toBeNil();
+            });
+
+            it('should count slices completed during the pause towards probation after resume', async () => {
+                await pause();
+                exController.executionAnalytics.increment('processed');
+                await pDelay(probationWindow + 100);
+
+                await resume();
+                await pDelay(probationWindow * 2 + 100);
+
+                await expect(executionStorage.getStatus(testContext.exId)).resolves.toEqual('running');
+                // @ts-expect-error
+                expect(exController.sliceFailureInterval).toBeNil();
+            });
+
+            it.each(['during the pause', 'after resume'])(
+                'should restore "failing" after resume if a slice fails %s',
+                async (when) => {
+                    await pause();
+                    if (when === 'during the pause') {
+                        exController.executionAnalytics.increment('failed');
+                    }
+                    await pDelay(probationWindow + 100);
+
+                    await resume();
+                    if (when === 'after resume') {
+                        exController.executionAnalytics.increment('failed');
+                    }
+                    await pDelay(probationWindow * 2 + 100);
+
+                    await expect(executionStorage.getStatus(testContext.exId)).resolves.toEqual('failing');
+                    // @ts-expect-error
+                    expect(exController.sliceFailureInterval).not.toBeNil();
+                }
+            );
+        });
     });
 
     describe('when testing setFailingStatus', () => {
