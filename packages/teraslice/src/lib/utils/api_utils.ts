@@ -5,7 +5,7 @@ import {
     TSError, isNumber
 } from '@terascope/core-utils';
 import {
-    ConnectorInfo, GroupedConnectors, ConnectorQueryOptions, Teraslice
+    ConnectorInfo, GroupedConnectors, ConnectorQueryOptions, Teraslice, TerasliceApiV2
 } from '@terascope/types';
 import { TerasliceRequest, TerasliceResponse } from '../../interfaces.js';
 import type { SliceTapOptions } from '../cluster/services/interfaces.js';
@@ -14,31 +14,100 @@ import type { SliceTapOptions } from '../cluster/services/interfaces.js';
 // before api_response_timeout closes Teraslice API server socket
 export const HTTP_RESPONSE_MARGIN = 1000;
 
+/**
+ * Returns a function that gives a record's value for each column. A missing
+ * value prints as `emptyChar`.
+ */
+export type TableMappingFn = (item: any) => (field: string) => unknown;
+
+export interface PrintTableOptions {
+    /** The records, one per row */
+    data: readonly Record<string, any>[];
+    /** The columns, in order. A dotted path reads a nested value */
+    fields: readonly string[];
+    /** Whether to print the column names and the line under them */
+    headers: boolean;
+    /** Replaces the default lookup, `get(item, field, 'N/A')` */
+    mappingFn?: TableMappingFn;
+}
+
+/**
+ * Prints records as a plain-text table. An empty list prints just the
+ * column names. `data` is left unchanged.
+ */
+export function printTable({
+    data, fields, headers, mappingFn
+}: PrintTableOptions): string {
+    // An empty list prints one blank row, so the table still has its columns
+    const isEmpty = data.length === 0;
+    const rows = isEmpty ? [{}] : data;
+    const emptyChar = isEmpty ? '' : 'N/A';
+
+    return Table.print(rows, (item, cell) => {
+        const fn = mappingFn ? mappingFn(item) : (field: string) => get(item, field, emptyChar);
+        fields.forEach((field) => {
+            cell(field, fn(field));
+        });
+    }, (table) => (headers ? table.toString() : table.print()));
+}
+
+export interface PrintPagedTableOptions<T extends Record<string, any>> extends Omit<PrintTableOptions, 'data'> {
+    /** One page of a /v2 list */
+    page: TerasliceApiV2.Page<T>;
+}
+
+/**
+ * Prints one page of a /v2 list as a plain-text table, then a footer such as:
+ *
+ * ```
+ * Showing 101-200 of 10,000+
+ * next: ?from=200&size=100
+ * ```
+ *
+ * The total ends in `+` when it's a lower bound (`gte`). The `next` line is
+ * left out when there's no more, or `size` is 0. With `headers: false` there's
+ * no footer either, so the output is only rows.
+ */
+export function printPagedTable<T extends Record<string, any>>({
+    page, ...options
+}: PrintPagedTableOptions<T>): string {
+    const table = printTable({ ...options, data: page.data });
+    if (!options.headers) return table;
+
+    return `${table}\n${pageFooter(page)}`;
+}
+
+function pageFooter({ data, pagination }: TerasliceApiV2.Page<unknown>): string {
+    const {
+        total, total_relation: relation, from, size, has_more: hasMore
+    } = pagination;
+    const totalText = `${total.toLocaleString('en-US')}${relation === 'gte' ? '+' : ''}`;
+    const shown = data.length === 0
+        ? 'Showing 0'
+        : `Showing ${from + 1}-${from + data.length}`;
+
+    const lines = [`${shown} of ${totalText}`];
+    if (hasMore && size > 0) {
+        lines.push(`next: ?from=${from + size}&size=${size}`);
+    }
+    return `${lines.join('\n')}\n`;
+}
+
+/**
+ * The v1 table: reads `fields` and `headers` from the request's query.
+ * Remove with v1. /v2 uses `printTable` or `printPagedTable`.
+ */
 export function makeTable(
     req: TerasliceRequest,
     defaults: string[],
     data: Record<string, any>[],
-    mappingFn?: (item: any) => any
+    mappingFn?: TableMappingFn
 ) {
-    const query = fieldsQuery(req.query, defaults);
-    let emptyChar = 'N/A';
-
-    // used to create an empty table if there are no jobs
-    if (data.length === 0) {
-        emptyChar = '';
-        data.push({});
-    }
-
-    return Table.print(data, (item, cell) => {
-        const fn = mappingFn ? mappingFn(item) : (field: string) => get(item, field, emptyChar);
-        query.forEach((field) => {
-            cell(field, fn(field));
-        });
-    }, (table) => {
-        if (('headers' in req.query) && req.query.headers === 'false') {
-            return table.print();
-        }
-        return table.toString();
+    return printTable({
+        data,
+        fields: fieldsQuery(req.query, defaults),
+        headers: req.query.headers !== 'false',
+        mappingFn,
     });
 }
 

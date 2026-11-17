@@ -32,6 +32,30 @@ export function toPage<T>(
 }
 
 /**
+ * The headers a /v2/txt list route sends, so a client can page without
+ * parsing the footer. Each maps to its description, for a text route's
+ * `responseHeaders`.
+ */
+export const paginationResponseHeaders = {
+    'X-Total-Count': 'The number of matching records. A lower bound when X-Total-Relation is gte',
+    'X-Total-Relation': 'eq when X-Total-Count is exact, gte when it is a lower bound',
+    'X-From': 'The offset of the first record in the response',
+    'X-Size': 'The requested page size',
+} as const;
+
+/** The `paginationResponseHeaders` values for one page */
+export function paginationHeaders(
+    pagination: TerasliceApiV2.Pagination
+): Record<keyof typeof paginationResponseHeaders, string> {
+    return {
+        'X-Total-Count': String(pagination.total),
+        'X-Total-Relation': pagination.total_relation,
+        'X-From': String(pagination.from),
+        'X-Size': String(pagination.size),
+    };
+}
+
+/**
  * Pages a list held in memory, in the same shape as a search, so it can be
  * passed to `toPage()`. Sorts a copy, so `list` is left as it is. The
  * total is the list's length, so it's always exact.

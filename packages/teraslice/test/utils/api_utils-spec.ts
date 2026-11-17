@@ -1,9 +1,11 @@
 import 'jest-extended';
 import { TSError, parseErrorInfo } from '@terascope/core-utils';
+import type { TerasliceApiV2 } from '@terascope/types';
 import {
     createJobActiveQuery, addDeletedToQuery, getSliceTapOptions, makeTable,
-    explainResultWindowError
+    explainResultWindowError, printTable, printPagedTable
 } from '../../src/lib/utils/api_utils.js';
+import { paginationHeaders, paginationResponseHeaders } from '../../src/lib/utils/pagination.js';
 import { makeResultWindowError } from './search-errors.js';
 
 describe('apiUtils', () => {
@@ -143,6 +145,126 @@ describe('apiUtils', () => {
             expect(lines).toHaveLength(3);
             expect(lines[0]).toMatch(/^name\s+id$/);
             expect(lines[2]).toBe('');
+        });
+
+        it('should leave an empty list empty', () => {
+            const data: Record<string, any>[] = [];
+            makeTable(fakeReq(), ['name'], data);
+            expect(data).toEqual([]);
+        });
+
+        it('should use fields and headers=false from the query', () => {
+            const data = [{ name: 'a', id: 1 }];
+            const lines = toLines(makeTable(fakeReq({ fields: 'id', headers: 'false' }), ['name', 'id'], data));
+
+            expect(lines).toEqual(['1']);
+        });
+    });
+
+    describe('printPagedTable', () => {
+        const data = [{ name: 'a' }, { name: 'b' }];
+
+        function page(
+            records: Record<string, any>[],
+            pagination: Partial<TerasliceApiV2.Pagination> = {}
+        ): TerasliceApiV2.Page<Record<string, any>> {
+            return {
+                data: records,
+                pagination: {
+                    total: records.length,
+                    total_relation: 'eq',
+                    from: 0,
+                    size: 100,
+                    has_more: false,
+                    ...pagination,
+                },
+            };
+        }
+
+        /** The lines after the table's blank separator line */
+        function footer(output: string) {
+            const lines = output.split('\n').slice(0, -1);
+            return lines.slice(lines.lastIndexOf('') + 1);
+        }
+
+        it('should print the table, then which records are shown', () => {
+            const output = printPagedTable({ page: page(data), fields: ['name'], headers: true });
+
+            expect(output).toStartWith(printTable({ data, fields: ['name'], headers: true }));
+            expect(footer(output)).toEqual(['Showing 1-2 of 2']);
+        });
+
+        it('should give the next page when there is more', () => {
+            const output = printPagedTable({
+                page: page(data, {
+                    total: 1523, from: 100, size: 2, has_more: true
+                }),
+                fields: ['name'],
+                headers: true,
+            });
+
+            expect(footer(output)).toEqual(['Showing 101-102 of 1,523', 'next: ?from=102&size=2']);
+        });
+
+        it('should mark a lower-bound total with +', () => {
+            const output = printPagedTable({
+                page: page(data, {
+                    total: 10000, total_relation: 'gte', size: 2, has_more: true
+                }),
+                fields: ['name'],
+                headers: true,
+            });
+
+            expect(footer(output)).toEqual(['Showing 1-2 of 10,000+', 'next: ?from=2&size=2']);
+        });
+
+        it('should leave out next with size 0', () => {
+            const output = printPagedTable({
+                page: page([], { total: 5, size: 0, has_more: true }),
+                fields: ['name'],
+                headers: true,
+            });
+
+            expect(footer(output)).toEqual(['Showing 0 of 5']);
+        });
+
+        it('should print an empty page as the column names and the footer', () => {
+            const empty: Record<string, any>[] = [];
+            const output = printPagedTable({
+                page: page(empty, { total: 5, from: 10 }),
+                fields: ['name'],
+                headers: true,
+            });
+
+            expect(output.split('\n')[0].trim()).toBe('name');
+            expect(footer(output)).toEqual(['Showing 0 of 5']);
+            expect(empty).toEqual([]);
+        });
+
+        it('should print only rows with headers false', () => {
+            const output = printPagedTable({
+                page: page(data, { total: 10, has_more: true }),
+                fields: ['name'],
+                headers: false,
+            });
+
+            expect(output.split('\n').map((line) => line.trim())).toEqual(['a', 'b', '']);
+        });
+    });
+
+    describe('paginationHeaders', () => {
+        it('should give every documented header as a string', () => {
+            const headers = paginationHeaders({
+                total: 10000, total_relation: 'gte', from: 200, size: 100, has_more: true
+            });
+
+            expect(headers).toEqual({
+                'X-Total-Count': '10000',
+                'X-Total-Relation': 'gte',
+                'X-From': '200',
+                'X-Size': '100',
+            });
+            expect(Object.keys(headers)).toEqual(Object.keys(paginationResponseHeaders));
         });
     });
 });
