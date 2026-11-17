@@ -29,6 +29,9 @@ const CONFIG: DataTypeConfig = {
         'list.y': { type: FieldType.Integer },
         loose: { type: FieldType.Object },
         when: { type: FieldType.Date },
+        pair: { type: FieldType.Tuple },
+        'pair.0': { type: FieldType.Keyword },
+        'pair.1': { type: FieldType.Integer },
     },
 };
 
@@ -40,6 +43,7 @@ const RECORDS = [
         list: [{ x: 'x1', y: 1 }, null, { x: 'x2' }],
         loose: { anything: [1, 'two'] },
         when: '2024-01-01T00:00:00.000Z',
+        pair: ['p', 2],
     },
     {
         id: '2', config: null, joined: null, list: null, loose: null, when: null,
@@ -93,6 +97,7 @@ describe('TealFrame.deepSelect', () => {
         ['a whole array of objects and a scalar, out of order', ['list', 'id']],
         ['an untyped object and a date', ['loose', 'when']],
         ['names that do not exist, beside one that does', ['nope', 'id', 'config.nope']],
+        ['a tuple, which keeps its positions and is output as a list', ['id', 'pair']],
     ];
 
     it.each(CASES)('%s matches DataFrame', async (_label, selectors) => {
@@ -109,6 +114,44 @@ describe('TealFrame.deepSelect', () => {
         const selected = frame.deepSelect(['nope']);
         expect(selected.columns).toEqual([]);
         expect(await selected.size()).toEqual(dataFrame.deepSelect(['nope']).size);
+    });
+
+    describe('a list of objects inside a list of objects', () => {
+        const NESTED: DataTypeConfig = {
+            version: 1,
+            fields: {
+                x: { type: FieldType.Object, array: true },
+                'x.name': { type: FieldType.Keyword },
+                'x.a': { type: FieldType.Object, array: true },
+                'x.a.bar': { type: FieldType.Keyword },
+                'x.a.baz': { type: FieldType.Integer },
+            },
+        };
+        let nested: TealFrame;
+
+        beforeAll(async () => {
+            nested = await TealFrame.fromRecords(NESTED, [
+                { x: [{ name: 'n1', a: [{ bar: 'b1', baz: 1 }, { bar: 'b2', baz: 2 }] }, { name: 'n2', a: [] }] },
+                { x: null },
+            ]);
+        });
+
+        afterAll(() => nested.destroy());
+
+        it.each([
+            ['a member of the inner list',
+                ['x.a.bar'],
+                [
+                    { x: [{ a: [{ bar: 'b1' }, { bar: 'b2' }] }, { a: [] }] }, {},
+                ]],
+            ['a member of each list',
+                ['x.name', 'x.a.bar'],
+                [
+                    { x: [{ name: 'n1', a: [{ bar: 'b1' }, { bar: 'b2' }] }, { name: 'n2', a: [] }] }, {},
+                ]],
+        ])('selects %s', async (_label, selectors, expected) => {
+            expect(plain(await rows(nested.deepSelect(selectors)))).toEqual(expected);
+        });
     });
 
     describe('pruneEmptyObjects', () => {

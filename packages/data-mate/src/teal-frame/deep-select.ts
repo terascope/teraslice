@@ -40,6 +40,10 @@ function isObject(config: DataTypeFieldConfig | undefined): boolean {
     return config?.type === FieldType.Object;
 }
 
+function isTuple(config: DataTypeFieldConfig | undefined): boolean {
+    return config?.type === FieldType.Tuple;
+}
+
 /** Maps each matched top-level column to the child paths kept under it, in config order. */
 function match(fields: Fields, selectors: readonly string[]): Map<string, Set<string>> {
     const matched = new Map<string, Set<string>>();
@@ -78,11 +82,18 @@ function under(paths: Iterable<string>, member: string): Set<string> {
         .map((path) => path.slice(prefix.length)));
 }
 
-/** Applies `one` to the value, or to each element when it is a list; null stays null. */
-function each(expression: string, array: boolean, one: (value: string) => string): string {
+/**
+ * Applies `one` to the value, or to each element when it is a list; null stays null. Each depth
+ * names its element differently, so an element is never read as a column or an outer element
+ * of the same name (a list of objects in a list of objects).
+*/
+function each(
+    expression: string, array: boolean, depth: number, one: (value: string) => string
+): string {
     if (!array) return one(expression);
+    const element = `__teal_element_${depth}`;
     return `CASE WHEN ${expression} IS NULL THEN NULL`
-        + ` ELSE list_transform(${expression}, lambda x : ${one('x')}) END`;
+        + ` ELSE list_transform(${expression}, lambda ${element} : ${one(element)}) END`;
 }
 
 /**
@@ -93,20 +104,21 @@ function narrow(
     expression: string,
     config: DataTypeFieldConfig,
     children: Fields,
-    kept: ReadonlySet<string>
+    kept: ReadonlySet<string>,
+    depth = 0
 ): string {
     const all = Object.keys(children);
     if (all.length === 0 || all.every((path) => kept.has(path))) return expression;
 
     const array = config.array === true;
     if (kept.size === 0) {
-        return each(expression, array, (value) => `CASE WHEN ${value} IS NULL THEN NULL ELSE ${
+        return each(expression, array, depth, (value) => `CASE WHEN ${value} IS NULL THEN NULL ELSE ${
             allowsEmpty(config) ? 'CAST(\'{}\' AS JSON)' : `CAST(to_json(${value}) AS JSON)`
         } END`);
     }
 
     const members = [...kept].filter((path) => !path.includes('.'));
-    return each(expression, array, (value) => {
+    return each(expression, array, depth, (value) => {
         const packed = members.map((member) => {
             const ref = `${value}.${quoteIdentifier(member)}`;
             const memberConfig = children[member];
@@ -114,7 +126,7 @@ function narrow(
                 ? getChildDataTypeConfig(children as DataTypeFields, member, FieldType.Object) ?? {}
                 : {};
             return `${quoteIdentifier(member)} := ${
-                narrow(ref, memberConfig, memberChildren, under(kept, member))
+                narrow(ref, memberConfig, memberChildren, under(kept, member), depth + 1)
             }`;
         });
         return `CASE WHEN ${value} IS NULL THEN NULL ELSE struct_pack(${packed.join(', ')}) END`;
@@ -138,10 +150,14 @@ export function deepSelectSQL(
     const fieldsOut: DataTypeFields = {};
     for (const [base, selected] of matched) {
         const baseConfig = fields[base];
-        const children = isObject(baseConfig)
-            ? getChildDataTypeConfig(fields as DataTypeFields, base, FieldType.Object) ?? {}
+        const baseType = baseConfig.type as FieldType;
+        const children = isObject(baseConfig) || isTuple(baseConfig)
+            ? getChildDataTypeConfig(fields as DataTypeFields, base, baseType) ?? {}
             : {};
-        const kept = keptChildren(children, selected);
+        // a Tuple is kept whole with its positions' configs, it is output as a list from them
+        const kept = isTuple(baseConfig)
+            ? new Set(Object.keys(children))
+            : keptChildren(children, selected);
         const all = Object.keys(children);
         const whole = all.length === 0 || all.every((path) => kept.has(path));
 

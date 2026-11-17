@@ -4,6 +4,7 @@ import {
     TealFrame, closeDuckDatabase, tealFrameAdapter, dataFrameAdapter, DataFrame,
     functionConfigRepository, FunctionDefinitionConfig
 } from '../../src/index.js';
+import { getChildDataTypeConfig } from '../../src/core/utils.js';
 
 /**
  * Tests UDFs that take LIST, STRUCT, JSON or GEOMETRY parameters or return a LIST, STRUCT or JSON
@@ -32,6 +33,13 @@ const CONFIG: DataTypeConfig = {
         location: { type: FieldType.Keyword },
         anything: { type: FieldType.Any },
         count: { type: FieldType.Integer },
+        big: { type: FieldType.Long },
+        obj: { type: FieldType.Object },
+        'obj.x': { type: FieldType.Keyword },
+        'obj.y': { type: FieldType.Keyword },
+        pair: { type: FieldType.Tuple },
+        'pair.0': { type: FieldType.Keyword },
+        'pair.1': { type: FieldType.Long },
     },
 };
 
@@ -47,6 +55,9 @@ const RECORDS = [
         location: '60, 40',
         anything: { nested: { n: 1 }, list: [1, 'two'] },
         count: 7,
+        big: '9007199254740993',
+        obj: { x: 'a' },
+        pair: ['k', '9007199254740993'],
     },
     {
         point: { lat: 50, lon: 50 },
@@ -59,6 +70,9 @@ const RECORDS = [
         location: '-10.5, 20.25',
         anything: 'a string',
         count: -2,
+        big: 5,
+        obj: {},
+        pair: ['j', 5],
     },
     {
         point: null,
@@ -71,6 +85,9 @@ const RECORDS = [
         location: null,
         anything: null,
         count: null,
+        big: null,
+        obj: null,
+        pair: null,
     },
 ];
 
@@ -109,9 +126,14 @@ describe('UDF parameter and result types', () => {
 
     /** The function on `field` through the UDF alone, and what `DataFrame` gives for the same. */
     async function bothWays(fnName: string, field: string, args?: Record<string, unknown>) {
+        // the children go with an Object or Tuple, as a caller with the frame's config passes them
+        const children = getChildDataTypeConfig(fields, field, fields[field].type as FieldType);
         const result = await tealFrameAdapter(repo[fnName], {
             field,
-            inputConfig: { field_config: fields[field] },
+            inputConfig: {
+                field_config: fields[field],
+                ...(children && Object.keys(children).length && { child_config: children }),
+            },
             args,
             preferSql: false,
         });
@@ -150,6 +172,9 @@ describe('UDF parameter and result types', () => {
         ['toJSON', 'anything', undefined],
         // an Integer parameter, stored as a BIGINT
         ['add', 'count', { value: 5 }],
+        // an Object with children, where DataFrame leaves out a missing member
+        ['toJSON', 'obj', undefined],
+        ['createID', 'obj', undefined],
     ])('%s on %s runs as a UDF and matches DataFrame', async (fnName, field, args) => {
         const { result, actual, expected } = await bothWays(fnName, field, args);
 
