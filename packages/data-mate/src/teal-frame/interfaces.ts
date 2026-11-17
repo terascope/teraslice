@@ -43,8 +43,9 @@ export interface DuckDatabaseSettings {
     extensionDirectory?: string;
     /**
      * Whether a missing extension may be downloaded. Defaults to
-     * `DUCKDB_AUTOINSTALL_EXTENSIONS`, then true. A container image with bundled extensions
-     * sets it to false.
+     * `DUCKDB_AUTOINSTALL_EXTENSIONS`, then false: nothing is downloaded while a query runs,
+     * the extensions are installed first with `duckdb-extensions install` (an image does it
+     * when it is built). Where there is no network a download waits minutes before failing.
     */
     autoinstallExtensions?: boolean;
     /**

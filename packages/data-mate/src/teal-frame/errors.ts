@@ -56,8 +56,9 @@ export class DuckExtensionError extends Error {
             .join('\n');
         const fix = failure.autoinstall
             ? 'the download failed, so this machine cannot reach the extension repository'
-            : 'autoinstall is off, so they must be installed when the image is built:'
-                + ` \`duckdb-extensions install --dir ${failure.directory}\``;
+            : 'they are not downloaded while a query runs, install them first:'
+                + ` \`duckdb-extensions install --dir ${failure.directory}\``
+                + ' (an image does it when it is built)';
 
         super(
             `DuckDB extension(s) ${names} could not be loaded (duckdb ${failure.version},`
