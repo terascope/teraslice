@@ -98,8 +98,8 @@ const txtRouteSpec = {
     responseHeaders: paginationResponseHeaders,
 } as const;
 
-/** The table options of a /txt route's query */
-type TxtTableQuery = Pick<Parsed<typeof TerasliceApiV2.GetTxtInMemoryQuerySchema>, 'fields' | 'headers'>;
+/** The table options every /txt route's query has, once parsed */
+type TxtTableQuery = Pick<Parsed<typeof TerasliceApiV2.GetTxtJobsQuerySchema>, 'fields' | 'headers'>;
 
 /**
  * The response of a /txt route: the page as a table with its footer, and
@@ -664,7 +664,7 @@ export function createV2Registry(api: ApiService): RouteRegistry {
         operationId: 'getWorkersTxtTable',
         summary: 'List the processes on every connected node as a text table, '
             + 'sorted by ex_id, assignment, then worker_id',
-        query: TerasliceApiV2.GetTxtInMemoryQuerySchema,
+        query: TerasliceApiV2.GetTxtWorkersQuerySchema,
     }, ({ query }) => {
         const { from, size } = query;
         const workers = api.executionService.findAllWorkers();
@@ -679,7 +679,7 @@ export function createV2Registry(api: ApiService): RouteRegistry {
         operationId: 'getNodesTxtTable',
         summary: 'List the cluster\'s nodes as a text table, sorted by node_id. '
             + '`active` is the number of processes',
-        query: TerasliceApiV2.GetTxtInMemoryQuerySchema,
+        query: TerasliceApiV2.GetTxtNodesQuerySchema,
     }, ({ query }) => {
         const { from, size } = query;
         const nodes = Object.values(api.clusterService.getClusterState());
@@ -695,7 +695,7 @@ export function createV2Registry(api: ApiService): RouteRegistry {
         ...txtRouteSpec,
         operationId: 'getControllersTxtTable',
         summary: 'List every running execution controller as a text table, sorted by ex_id',
-        query: TerasliceApiV2.GetTxtInMemoryQuerySchema,
+        query: TerasliceApiV2.GetTxtControllersQuerySchema,
     }, async ({ query }) => toTextTable(
         toPage(await listControllers(query), query.from, query.size),
         txtControllersColumns,

@@ -112,6 +112,17 @@ export const ProcessNodeSchema = z.object({
     description: 'A teraslice process running on a node',
 });
 
+export const ExecutionNodeWorkerSchema = ProcessNodeSchema.extend({
+    node_id: z.string().meta({ description: 'The node the process runs on' }),
+    hostname: z.string().meta({ description: 'The hostname of the node' }),
+}).meta({
+    id: 'ExecutionNodeWorker',
+    description: 'A teraslice process, with the id and hostname of the node it runs on',
+});
+
+/** A process from every connected node, as `findAllWorkers()` returns it */
+export type ExecutionNodeWorker = z.output<typeof ExecutionNodeWorkerSchema>;
+
 const NotAvailable = z.literal('N/A');
 
 const naOnK8s = '"N/A" on kubernetesV2';
@@ -982,34 +993,109 @@ export type GetExecutionErrorsQuery = z.input<typeof GetExecutionErrorsQuerySche
 
 /** ################## /txt ################## */
 
-/** The table options every `/txt` route takes, on top of its list query */
-const txtQueryShape = {
-    fields: z.string().optional()
-        .meta({
-            description: 'Comma-separated columns, in order. A dotted path reads a nested '
-                + 'field, e.g. `ex._status` with `?ex`. Empty or left out uses the route\'s '
-                + 'default columns',
-        }),
-    headers: z.stringbool().default(true)
-        .meta({
-            description: '`false` leaves out the column names and the paging footer, '
-                + 'so the response is only rows',
-        }),
-};
-
-/** Query of `GET /txt/jobs` */
-export const GetTxtJobsQuerySchema = GetJobsQuerySchema.extend(txtQueryShape);
-
-/** Query of `GET /txt/ex` */
-export const GetTxtExecutionsQuerySchema = GetExecutionsQuerySchema.extend(txtQueryShape);
+/** Strips `optional`, `nullable` and `default` wrappers */
+function unwrapSchema(schema: z.ZodType): z.ZodType {
+    let inner = schema;
+    while (
+        inner instanceof z.ZodOptional
+        || inner instanceof z.ZodNullable
+        || inner instanceof z.ZodDefault
+    ) {
+        inner = inner.unwrap() as z.ZodType;
+    }
+    return inner;
+}
 
 /**
- * Query of `GET /txt/workers`, `/txt/nodes` and `/txt/controllers`, which
- * page through a list held in memory
+ * Whether `path` names a field of `schema`. Object fields are checked by
+ * name, including on loose objects, so a key the schema doesn't list is
+ * unknown. Below an array, a record or an unknown value any path is
+ * accepted, because the schema doesn't name those keys (e.g.
+ * `operations.0._op`, `env_vars.FOO`).
  */
-export const GetTxtInMemoryQuerySchema = z.strictObject({
+function hasFieldPath(schema: z.ZodType, path: readonly string[]): boolean {
+    if (path.length === 0) return true;
+
+    const inner = unwrapSchema(schema);
+    const [key, ...rest] = path;
+
+    if (inner instanceof z.ZodObject) {
+        return Object.hasOwn(inner.shape, key) && hasFieldPath(inner.shape[key], rest);
+    }
+    if (inner instanceof z.ZodUnion) {
+        return inner.options.some((option) => hasFieldPath(option as z.ZodType, path));
+    }
+    return inner instanceof z.ZodArray
+        || inner instanceof z.ZodRecord
+        || inner instanceof z.ZodUnknown;
+}
+
+/**
+ * The table options every `/txt` route takes, on top of its list query.
+ * `fields` must name fields of `record`, the route's row.
+ */
+function txtQueryShape(record: z.ZodObject, recordName: string) {
+    return {
+        fields: z.string()
+            .superRefine((fields, ctx) => {
+                const unknown = fields.split(',')
+                    .map((field) => field.trim())
+                    .filter((field) => field && !hasFieldPath(record, field.split('.')));
+                if (!unknown.length) return;
+
+                ctx.addIssue({
+                    code: 'custom',
+                    message: `Unknown ${unknown.length === 1 ? 'field' : 'fields'} `
+                        + `${unknown.map((field) => JSON.stringify(field)).join(', ')}. `
+                        + `Expected fields of ${recordName}: ${Object.keys(record.shape).join(', ')}`,
+                });
+            })
+            .optional()
+            .meta({
+                description: `Comma-separated columns, in order: fields of ${recordName}. A `
+                    + 'dotted path reads a nested field, e.g. `ex._status` with `?ex`. An '
+                    + 'unknown field is rejected. Empty or left out uses the route\'s '
+                    + 'default columns',
+            }),
+        headers: z.stringbool().default(true)
+            .meta({
+                description: '`false` leaves out the column names and the paging footer, '
+                    + 'so the response is only rows',
+            }),
+    };
+}
+
+/** Query of `GET /txt/jobs` */
+export const GetTxtJobsQuerySchema = GetJobsQuerySchema.extend(
+    txtQueryShape(JobWithExecutionSchema, 'JobWithExecution')
+);
+
+/** Query of `GET /txt/ex` */
+export const GetTxtExecutionsQuerySchema = GetExecutionsQuerySchema.extend(
+    txtQueryShape(ExecutionRecordSchema, 'ExecutionRecord')
+);
+
+/** Query of `GET /txt/workers` */
+export const GetTxtWorkersQuerySchema = z.strictObject({
     ...inMemoryPageQueryShape,
-    ...txtQueryShape,
+    ...txtQueryShape(ExecutionNodeWorkerSchema, 'ExecutionNodeWorker'),
+});
+
+/** A row of `GET /txt/nodes`: `active` is the number of processes */
+const TxtNodeRowSchema = NodeStateSchema.extend({
+    active: z.number(),
+});
+
+/** Query of `GET /txt/nodes` */
+export const GetTxtNodesQuerySchema = z.strictObject({
+    ...inMemoryPageQueryShape,
+    ...txtQueryShape(TxtNodeRowSchema, 'NodeState'),
+});
+
+/** Query of `GET /txt/controllers` */
+export const GetTxtControllersQuerySchema = z.strictObject({
+    ...inMemoryPageQueryShape,
+    ...txtQueryShape(ControllerStatsSchema, 'ControllerStats'),
 });
 
 /** Response of every `/txt` route */
@@ -1023,4 +1109,6 @@ export const TxtTableSchema = z.string().meta({
 
 export type GetTxtJobsQuery = z.input<typeof GetTxtJobsQuerySchema>;
 export type GetTxtExecutionsQuery = z.input<typeof GetTxtExecutionsQuerySchema>;
-export type GetTxtInMemoryQuery = z.input<typeof GetTxtInMemoryQuerySchema>;
+export type GetTxtWorkersQuery = z.input<typeof GetTxtWorkersQuerySchema>;
+export type GetTxtNodesQuery = z.input<typeof GetTxtNodesQuerySchema>;
+export type GetTxtControllersQuery = z.input<typeof GetTxtControllersQuerySchema>;

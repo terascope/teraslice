@@ -1587,6 +1587,57 @@ describe('HTTP API v2', () => {
             expect(rows[0]).toEqual(['name', 'job_id', 'workers_available', 'workers_active', 'failed', 'queued', 'processed']);
             expect(footer).toEqual(['Showing 0 of 0']);
         });
+
+        describe('fields', () => {
+            it.each([
+                ['/txt/jobs', 'job_id,name,active,lifecycle,slicers,workers,_created,_updated,_deleted_on'],
+                ['/txt/ex', 'name,lifecycle,slicers,workers,_status,ex_id,job_id,_created,_updated,_deleted_on'],
+                ['/txt/workers', 'assignment,job_id,ex_id,node_id,hostname,pid,pod_name,image,worker_id'],
+                ['/txt/nodes', 'node_id,state,hostname,total,active,pid,teraslice_version,node_version'],
+                ['/txt/controllers', 'name,job_id,workers_available,workers_active,failed,queued,processed'],
+            ])('%s should accept its default columns', async (path, fields) => {
+                const response = await requestText(path, { fields });
+
+                expect(response.statusCode).toEqual(200);
+            });
+
+            it.each([
+                '/txt/jobs', '/txt/ex', '/txt/workers', '/txt/nodes', '/txt/controllers',
+            ])('%s should reject an unknown field', async (path) => {
+                const response = await request('GET', `/v2${path}`, { searchParams: { fields: 'foo,bar' } });
+
+                expect(response.statusCode).toEqual(400);
+                expect(response.body.message).toInclude('Unknown fields "foo", "bar". Expected fields of');
+            });
+
+            it.each([
+                'ex._status',
+                'operations.0._op',
+                'env_vars.FOO',
+            ])('should accept the nested path %s', async (fields) => {
+                const response = await requestText('/txt/jobs', { fields });
+
+                expect(response.statusCode).toEqual(200);
+            });
+
+            it.each([
+                'ex.foo',
+                'name.length',
+                'toString',
+                'ex.toString',
+            ])('should reject the path %s', async (fields) => {
+                const response = await request('GET', '/v2/txt/jobs', { searchParams: { fields } });
+
+                expect(response.statusCode).toEqual(400);
+                expect(response.body.message).toInclude(`Unknown field "${fields}"`);
+            });
+
+            it('should reject a nested path on nodes\' active count', async () => {
+                const response = await requestText('/txt/nodes', { fields: 'active.0' });
+
+                expect(response.statusCode).toEqual(400);
+            });
+        });
     });
 
     describe('routes removed from v2', () => {
