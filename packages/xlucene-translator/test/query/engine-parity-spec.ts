@@ -29,12 +29,10 @@ import {
  * Not covered here:
  *
  * - Analyzed text. SQL has no analyzer, so a `text` field is matched whole instead of by
- *   token. Every field in the corpus is a `keyword` for that reason.
+ *   token, so the corpora have no `text` field.
  * - `geo_shape` relations. OpenSearch stores shapes at limited precision and answers
  *   `within`/`contains` differently from OGC semantics for some pairs. That comes from the
  *   storage, not the translation. `test/sql/duckdb-geo-spec.ts` covers the SQL side.
- * - Fieldless queries. `multi_match` searches every field, while SQL compares only fields
- *   whose type could hold the value, so the records match but the reasons differ.
  * - `knn`, which has no SQL equivalent and throws instead of generating SQL.
 */
 describe('query parity, opensearch vs duckdb', () => {

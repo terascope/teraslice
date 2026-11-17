@@ -1,6 +1,9 @@
 import 'jest-extended';
-import { FieldType, DataTypeConfig } from '@terascope/types';
-import { TealFrame, buildJsonValue, closeDuckDatabase } from '../../src/index.js';
+import { FieldType, DataTypeConfig, DataTypeFields } from '@terascope/types';
+import {
+    TealFrame, DataFrame, buildJsonValue, closeDuckDatabase
+} from '../../src/index.js';
+import { SAMPLES, ALREADY_LIST, CHILDREN } from './helpers/field-samples.js';
 
 /**
  * `buildJsonValue` renders one value as the row output renders it, for SQL that needs a value as
@@ -92,5 +95,71 @@ describe('buildJsonValue', () => {
         expect(() => buildJsonValue({ version: 1, fields: { x: { type: FieldType.Object, array: true }, 'x.a': { type: FieldType.Keyword } } }, 'x.a'))
             .toThrow(/inside a list/);
         expect(() => buildJsonValue(CONFIG, 'nope')).toThrow(/not in this frame's config/);
+    });
+});
+
+/**
+ * Every FieldType, alone and as a list, against `DataFrame`'s JSON: a value made of a row's
+ * fields (`_set`, a template) must hold each field as the response would. A row without the
+ * field is null. JSON is parsed keeping a whole number past 2^53 exact, so a Long off by one
+ * fails.
+*/
+describe('buildJsonValue for every FieldType', () => {
+    const OPTIONS = { useNullForUndefined: true, skipNilValues: false };
+
+    /** JSON.parse that keeps a whole number past 2^53 as an exact bigint */
+    function parseExact(text: string): unknown {
+        return JSON.parse(text, (_key, value, context?: { source?: string }) => (
+            typeof value === 'number' && !Number.isSafeInteger(value) && context?.source
+            && /^-?\d+$/.test(context.source)
+                ? BigInt(context.source)
+                : value
+        ));
+    }
+
+    function configFor(type: FieldType, array: boolean): DataTypeConfig {
+        const children = Object.entries(CHILDREN[type] ?? {})
+            .map(([name, config]) => [`field.${name}`, config]);
+        return {
+            version: 1,
+            fields: { field: { type, array }, ...Object.fromEntries(children) } as DataTypeFields,
+        };
+    }
+
+    async function compare(type: FieldType, array: boolean) {
+        const config = configFor(type, array);
+        const sample = SAMPLES[type];
+        const records = [{ field: array ? [sample] : sample }, {}];
+        const frame = await TealFrame.fromRecords(config, records);
+        try {
+            const sql = buildJsonValue(config, 'field', undefined, OPTIONS);
+            const values = await frame.rawRows(`SELECT ${sql} FROM ${frame.from}`);
+            const expected = DataFrame.fromJSON(config, records).toJSON(OPTIONS)
+                .map((row) => (row as Record<string, unknown>).field ?? null);
+            return {
+                value: values.map(([text]) => (text == null ? null : parseExact(String(text)))),
+                expected,
+            };
+        } finally {
+            await frame.destroy();
+        }
+    }
+
+    afterAll(async () => {
+        await closeDuckDatabase();
+    });
+
+    const types = Object.keys(SAMPLES) as FieldType[];
+
+    it.each(types)('renders %s as DataFrame does', async (type) => {
+        const { value, expected } = await compare(type, false);
+        expect(expected[0]).not.toBeNull();
+        expect(value).toEqual(expected);
+    });
+
+    it.each(types.filter((type) => !ALREADY_LIST.has(type)))('renders a list of %s as DataFrame does', async (type) => {
+        const { value, expected } = await compare(type, true);
+        expect(expected[0]).not.toBeNull();
+        expect(value).toEqual(expected);
     });
 });
