@@ -45,6 +45,63 @@ describe('Translator->toSQL', () => {
         });
     }
 
+    /**
+     * A list field matches when any of its values does. `array_fields` names them, because the
+     * type config cannot. The Postgres SQL is not run by any test, so it is hand-checked.
+    */
+    describe('given a list field', () => {
+        const cases: [query: string, duckdb: string, postgres: string][] = [
+            [
+                'bar:hello',
+                'COALESCE(len(list_filter("bar", "__xlucene_value" -> ("__xlucene_value" = \'hello\'))) > 0, FALSE)',
+                'EXISTS (SELECT 1 FROM unnest("bar") AS "__xlucene_value" WHERE ("__xlucene_value" = \'hello\'))',
+            ],
+            [
+                'num:>50',
+                'COALESCE(len(list_filter("num", "__xlucene_value" -> ("__xlucene_value" > 50))) > 0, FALSE)',
+                'EXISTS (SELECT 1 FROM unnest("num") AS "__xlucene_value" WHERE ("__xlucene_value" > 50))',
+            ],
+            [
+                '_exists_:bar',
+                'COALESCE(len(list_filter("bar", "__xlucene_value" -> ("__xlucene_value" IS NOT NULL))) > 0, FALSE)',
+                'EXISTS (SELECT 1 FROM unnest("bar") AS "__xlucene_value" WHERE ("__xlucene_value" IS NOT NULL))',
+            ],
+            [
+                'NOT bar:hello',
+                'COALESCE(NOT (COALESCE(len(list_filter("bar", "__xlucene_value" -> ("__xlucene_value" = \'hello\'))) > 0, FALSE)), TRUE)',
+                'COALESCE(NOT (EXISTS (SELECT 1 FROM unnest("bar") AS "__xlucene_value" WHERE ("__xlucene_value" = \'hello\'))), TRUE)',
+            ],
+        ];
+
+        describe.each(cases)('given %s', (query, duckdbSQL, postgresSQL) => {
+            it.each([
+                [SQLDialectName.duckdb, duckdbSQL],
+                [SQLDialectName.postgres, postgresSQL],
+            ])('should match any value in %s', (dialect, expected) => {
+                const translator = new Translator(query, { type_config: typeConfig });
+
+                expect(translator.toSQL({ dialect, array_fields: ['bar', 'num'] }).query)
+                    .toEqual(expected);
+            });
+        });
+
+        it('should compare a field that is not a list as one value', () => {
+            const translator = new Translator('baz:hello', { type_config: typeConfig });
+
+            expect(translator.toSQL({ array_fields: ['bar'] }).query).toEqual('("baz" = \'hello\')');
+        });
+    });
+
+    /**
+     * `multi_match` leaves geo fields out. `Emu` is also a valid geohash, which was compared
+     * to the point field as a location.
+    */
+    it('should not compare a query with no field to a geo field', () => {
+        const translator = new Translator('Emu', { type_config: typeConfig });
+
+        expect(translator.toSQL().query).not.toInclude('location');
+    });
+
     describe('the dialect option', () => {
         it('defaults to duckdb', () => {
             const translator = new Translator('bar:/h.*o/', { type_config: typeConfig });

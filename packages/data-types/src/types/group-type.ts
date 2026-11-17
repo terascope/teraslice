@@ -156,7 +156,8 @@ export default class GroupType extends BaseType {
  *
  * `[['a', T], ['b.c', U]]` becomes `STRUCT(a <T>, b STRUCT(c <U>))`. An intermediate level
  * that also has its own entry (`b` alongside `b.c`) is superseded by the struct built from
- * its descendants, since a STRUCT member cannot be both a scalar and a group.
+ * its descendants, since a STRUCT member cannot be both a scalar and a group; it stays a list
+ * (`b STRUCT(c <U>)[]`) when its own entry is an array.
  */
 function buildStruct(children: [name: string, type: BaseType][]): string {
     const direct = new Map<string, BaseType>();
@@ -179,10 +180,14 @@ function buildStruct(children: [name: string, type: BaseType][]): string {
     // order. A STRUCT cast maps members by name, so data written in another order still loads.
     const order = [...new Set(children.map(([name]) => name.split('.', 1)[0]))];
     const members = order.map((name) => {
-        const group = nested.get(name); // the group wins over the bare parent entry
-        if (group) return `${quoteDuckDBIdentifier(name)} ${buildStruct(group)}`;
-        const type = direct.get(name)!;
-        return `${quoteDuckDBIdentifier(name)} ${type.toDuckDB()[type.field]}`;
+        const group = nested.get(name);
+        const type = direct.get(name);
+        if (group) {
+            // the group gives the member's type, its own entry says if it is a list of them
+            const struct = buildStruct(group);
+            return `${quoteDuckDBIdentifier(name)} ${type?.config.array ? `${struct}[]` : struct}`;
+        }
+        return `${quoteDuckDBIdentifier(name)} ${type!.toDuckDB()[type!.field]}`;
     });
 
     return `STRUCT(${members.join(', ')})`;

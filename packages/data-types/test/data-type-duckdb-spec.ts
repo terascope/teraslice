@@ -101,6 +101,14 @@ describe('DataType -> DuckDB', () => {
             })).toEqual('STRUCT("inner" STRUCT("leaf" VARCHAR), "after" VARCHAR)');
         });
 
+        it('keeps a list of objects inside an object a list', () => {
+            expect(duckTypeOf(FieldType.Object, { array: true }, {
+                'field.name': { type: FieldType.Keyword },
+                'field.inner': { type: FieldType.Object, array: true },
+                'field.inner.leaf': { type: FieldType.Keyword },
+            })).toEqual('STRUCT("name" VARCHAR, "inner" STRUCT("leaf" VARCHAR)[])[]');
+        });
+
         it('stays JSON with no children, because the shape is unknowable', () => {
             expect(duckTypeOf(FieldType.Object)).toEqual('JSON');
         });

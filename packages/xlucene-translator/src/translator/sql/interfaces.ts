@@ -16,4 +16,6 @@ export interface UtilsTranslateSQLOptions {
     geo_sort_point?: GeoPoint;
     geo_sort_order: SortOrder;
     geo_sort_unit: GeoDistanceUnit;
+    /** The fields that hold a list of values, see `xLuceneSQLOptions.array_fields`. */
+    array_fields?: ReadonlySet<string>;
 }

@@ -105,11 +105,12 @@ export function getChildDataTypeConfig(
     // are the positional indexes in the tuple
     if (fieldType !== FieldType.Object && fieldType !== FieldType.Tuple) return;
 
+    // only fields under the base: `enduser.name` is not a child of `user`
+    const prefix = `${baseField}.`;
     const childConfig: DataTypeFields = {};
     for (const [field, fieldConfig] of Object.entries(config)) {
-        const withoutBase = field.replace(`${baseField}.`, '');
-        if (withoutBase !== field) {
-            childConfig[withoutBase] = fieldConfig;
+        if (field.startsWith(prefix)) {
+            childConfig[field.slice(prefix.length)] = fieldConfig;
         }
     }
     return childConfig;

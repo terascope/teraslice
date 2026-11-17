@@ -169,9 +169,10 @@ function structConverter(
         if (type === FieldType.Tuple) {
             return converters.map(({ name, convert }) => convert(entries[name] ?? null));
         }
-        return Object.fromEntries(
-            converters.map(({ name, convert }) => [name, convert(entries[name] ?? null)])
-        );
+        // `DataFrame` leaves a missing member out of the object; a Tuple keeps its positions
+        return Object.fromEntries(converters
+            .filter(({ name }) => entries[name] != null)
+            .map(({ name, convert }) => [name, convert(entries[name])]));
     };
 }
 

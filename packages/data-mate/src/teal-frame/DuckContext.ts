@@ -123,7 +123,7 @@ export class DuckContext {
                 instance, connection, path, extensions.extensionDirectory, catalog
             );
             await context.applySettings(settings);
-            await loadExtensions(connection, extensions.autoinstallExtensions ?? true);
+            await loadExtensions(connection, extensions.autoinstallExtensions ?? false);
             return context;
         } catch (err) {
             // Close both, as `disconnect()` does: a live connection keeps a closed instance open
@@ -300,15 +300,17 @@ function resolveExtensionSettings(settings: DuckDatabaseSettings): ExtensionSett
     };
 }
 
-/** Set at open, not by a later `SET`, so nothing can load from the wrong place first. */
+/**
+ * Set at open, not by a later `SET`, so nothing can load from the wrong place first.
+ * Autoinstall is always given: DuckDB's own default is on, and would download an extension
+ * while a query runs (waiting minutes where there is no network)
+*/
 function instanceOptions(extensions: ExtensionSettings): Record<string, string> {
     return {
         ...(extensions.extensionDirectory != null && {
             extension_directory: extensions.extensionDirectory,
         }),
-        ...(extensions.autoinstallExtensions != null && {
-            autoinstall_known_extensions: String(extensions.autoinstallExtensions),
-        }),
+        autoinstall_known_extensions: String(extensions.autoinstallExtensions ?? false),
     };
 }
 

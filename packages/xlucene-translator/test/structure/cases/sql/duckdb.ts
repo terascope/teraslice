@@ -13,15 +13,23 @@ const cases: Record<string, SQLTestCase[]> = {
         ['bar:"it\'s"', '("bar" = \'it\'\'s\')'],
         ['bool:true', '("bool" = TRUE)'],
         ['num:50', '("num" = 50)'],
-        ['date:"2020-01-01"', '("date".ms = 1577836800000)'],
+        // a date to the day is the whole day, as Elasticsearch rounds it
+        ['date:"2020-01-01"', '(("date".ms >= 1577836800000) AND ("date".ms < 1577923200000))'],
+        ['date:"2020-01-01T00:00:00.000Z"', '("date".ms = 1577836800000)'],
         ['nested.name:hello', '("nested"."name" = \'hello\')'],
         ['location:"20,20"', '(struct_extract("location", \'lat\') = 20 AND struct_extract("location", \'lon\') = 20)'],
     ],
     'wildcards and regular expressions': [
         ['bar:h?llo', '("bar" LIKE \'h_llo\' ESCAPE \'\\\')'],
         ['bar:fizz*', '("bar" LIKE \'fizz%\' ESCAPE \'\\\')'],
+        // a backslash makes the next character itself
+        ['bar:fi\\*z*', '("bar" LIKE \'fi*z%\' ESCAPE \'\\\')'],
+        ['bar:fi\\?z*', '("bar" LIKE \'fi?z%\' ESCAPE \'\\\')'],
         ['bar:100%', '("bar" = \'100%\')'],
-        ['bar:/h.*o/', 'regexp_full_match("bar", \'h.*o\')'],
+        // `s`: a `.` matches a newline, as in Lucene
+        ['bar:/h.*o/', 'regexp_full_match("bar", \'h.*o\', \'s\')'],
+        // Lucene has no anchors, `^` and `$` are the characters themselves
+        ['bar:/^h.*o$/', 'regexp_full_match("bar", \'\\^h.*o\\$\', \'s\')'],
         ['bar:*', '("bar" IS NOT NULL)'],
     ],
     /**
@@ -44,10 +52,11 @@ const cases: Record<string, SQLTestCase[]> = {
         ['num:[* TO 70]', '("num" <= 70)'],
         ['num:[* TO 70}', '("num" < 70)'],
         ['num:[* TO *]', '("num" IS NOT NULL)'],
-        ['date:["2020-01-01" TO "2020-06-01"]', '(("date".ms >= 1577836800000) AND ("date".ms <= 1590969600000))'],
-        ['date:{"2020-01-01" TO "2020-06-01"}', '(("date".ms > 1577836800000) AND ("date".ms < 1590969600000))'],
+        // a bound to the day is rounded as Elasticsearch does: `gt` and `lte` to its end
+        ['date:["2020-01-01" TO "2020-06-01"]', '(("date".ms >= 1577836800000) AND ("date".ms < 1591056000000))'],
+        ['date:{"2020-01-01" TO "2020-06-01"}', '(("date".ms >= 1577923200000) AND ("date".ms < 1590969600000))'],
         ['date:["2020-01-01" TO "2020-06-01"}', '(("date".ms >= 1577836800000) AND ("date".ms < 1590969600000))'],
-        ['date:{"2020-01-01" TO "2020-06-01"]', '(("date".ms > 1577836800000) AND ("date".ms <= 1590969600000))'],
+        ['date:{"2020-01-01" TO "2020-06-01"]', '(("date".ms >= 1577923200000) AND ("date".ms < 1591056000000))'],
         ['date:>="2020-01-01"', '("date".ms >= 1577836800000)'],
         ['date:[* TO "2020-06-01"}', '("date".ms < 1590969600000)'],
         ['bar:[alpha TO delta]', '(("bar" >= \'alpha\') AND ("bar" <= \'delta\'))'],
@@ -134,7 +143,7 @@ const cases: Record<string, SQLTestCase[]> = {
         ['num:$n', '("num" = 50)', withVariables],
         ['num:$nums', '(("num" = 50) OR ("num" = 60))', withVariables],
         ['bool:$flag', '("bool" = TRUE)', withVariables],
-        ['date:$when', '("date".ms = 1577836800000)', withVariables],
+        ['date:$when', '(("date".ms >= 1577836800000) AND ("date".ms < 1577923200000))', withVariables],
         ['ip:$addr', '(TRY_CAST(CASE WHEN contains("ip", \':\') THEN "ip" ELSE \'::ffff:\' || "ip" END AS INET) = INET \'::ffff:192.168.1.1\')', withVariables],
         ['num:>=$low', '("num" >= 20)', withVariables],
         ['num:[$low TO $high]', '(("num" >= 20) AND ("num" <= 70))', withVariables],

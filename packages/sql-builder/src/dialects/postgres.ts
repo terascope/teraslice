@@ -34,6 +34,9 @@ const WGS84 = 4326;
  * this repo's tests. The IP helpers come from {@link BaseSQLDialect}, because PostgreSQL
  * orders `inet` by family first just as DuckDB does.
 */
+/** The name of one value of a list, inside a condition on its values. */
+const LIST_VALUE = '__xlucene_value';
+
 export class PostgresDialect extends BaseSQLDialect {
     readonly name = SQLDialectName.postgres;
 
@@ -49,6 +52,12 @@ export class PostgresDialect extends BaseSQLDialect {
 
     toText(fieldExpr: string): string {
         return `CAST(${fieldExpr} AS text)`;
+    }
+
+    /** Any row of the unnested list passes; a NULL or empty list has none. */
+    anyValue(listExpr: string, condition: (valueExpr: string) => string): string {
+        const value = quoteIdentifier(LIST_VALUE);
+        return `EXISTS (SELECT 1 FROM unnest(${listExpr}) AS ${value} WHERE ${condition(value)})`;
     }
 
     geoPointParts(fieldExpr: string): SQLGeoPointColumn {
@@ -90,7 +99,11 @@ export class PostgresDialect extends BaseSQLDialect {
         relation: GeoShapeRelation,
         isPointColumn: boolean
     ): string {
-        const fn = RELATION_FUNCTIONS[relation];
+        // a point within a shape includes a point on its edge, as Elasticsearch's polygon query
+        // on a geo-point does; `ST_Within` excludes the boundary, `ST_Intersects` does not
+        const fn = isPointColumn && relation === GeoShapeRelation.Within
+            ? 'ST_Intersects'
+            : RELATION_FUNCTIONS[relation];
 
         if (fn == null) {
             throw new TypeError(`Unsupported geo relation "${relation}"`);

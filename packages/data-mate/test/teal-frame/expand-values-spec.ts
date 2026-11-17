@@ -165,6 +165,39 @@ describe('TealFrame.expandValues', () => {
         expect(plain(actual)).toEqual(plain(expected));
     });
 
+    describe('with a position column', () => {
+        // the positions run against the stored order and have gaps, as after a filter
+        let positioned: TealFrame;
+
+        beforeAll(() => {
+            positioned = frame.query(
+                `SELECT *, CAST(row_number() OVER (ORDER BY _key DESC) * 10 AS BIGINT) AS pos FROM ${frame.from}`,
+                { ...CONFIG, fields: { ...CONFIG.fields, pos: { type: FieldType.Long } } },
+                [...frame.columns, 'pos']
+            );
+        });
+
+        it.each([true, false])('numbers the expanded rows again from 0 in position order (correlate %s)', async (correlate) => {
+            const expanded = positioned.expandValues(['arr', 'str_arr'], { correlate, position: 'pos' });
+            const sorted = await rows(expanded.query(
+                `SELECT * FROM ${expanded.from} ORDER BY pos`, expanded.config, expanded.columns
+            )) as Record<string, unknown>[];
+
+            const inPositionOrder = [...RECORDS].sort((a, b) => b._key.localeCompare(a._key));
+            const expected = reference(
+                DataFrame.fromJSON<Record<string, any>>(CONFIG, inPositionOrder), ['arr', 'str_arr'], correlate
+            ).toJSON();
+
+            expect(sorted.map((row) => Number(row.pos))).toEqual(sorted.map((_row, i) => i));
+            expect(plain(sorted.map(({ pos, ...row }) => row))).toEqual(plain(expected));
+        });
+
+        it('refuses a position column the frame does not have', () => {
+            expect(() => frame.expandValues(['arr'], { correlate: true, position: 'nope' }))
+                .toThrow('Unknown position column "nope" in @expandValues');
+        });
+    });
+
     it('marks the expanded fields as no longer arrays', () => {
         const expanded = frame.expandValues(['arr'], { correlate: true });
         expect(expanded.config.fields.arr.array).toBeFalse();

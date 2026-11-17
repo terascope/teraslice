@@ -146,6 +146,14 @@ export interface xLuceneSQLOptions {
     geo_sort_point?: geo.GeoPoint;
     geo_sort_order?: SortOrder;
     geo_sort_unit?: geo.GeoDistanceUnit;
+    /**
+     * The fields that hold a list of values (`array: true` in a data type).
+     *
+     * Elasticsearch indexes each value of a list on its own, so a query on one matches when
+     * any value matches, and an empty list is the same as a missing field. The type config
+     * cannot say a field is a list, so a caller with the data type passes them.
+    */
+    array_fields?: readonly string[];
 }
 
 /**
@@ -242,6 +250,12 @@ export interface SQLDialect {
 
     /** The field has a value. */
     exists(fieldExpr: string): string;
+
+    /**
+     * Any value of a list column passes `condition`, which is given the expression of one
+     * value. Never NULL, so it can be negated: an empty or missing list passes nothing.
+    */
+    anyValue(listExpr: string, condition: (valueExpr: string) => string): string;
 
     /** The value cast to text, for a query with no field. */
     toText(fieldExpr: string): string;

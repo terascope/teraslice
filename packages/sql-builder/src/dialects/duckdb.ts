@@ -37,6 +37,9 @@ const RELATION_FUNCTIONS: Readonly<Record<GeoShapeRelation, string>> = Object.fr
  * `spatial` extension, which does not autoload; run `LOAD spatial` at startup, or a geo query
  * fails with `Scalar Function with name "st_within" is not in the catalog`.
 */
+/** The name of one value of a list, inside a condition on its values. */
+const LIST_VALUE = '__xlucene_value';
+
 export class DuckDBDialect extends BaseSQLDialect {
     readonly name = SQLDialectName.duckdb;
 
@@ -54,6 +57,15 @@ export class DuckDBDialect extends BaseSQLDialect {
 
     toText(fieldExpr: string): string {
         return `CAST(${fieldExpr} AS VARCHAR)`;
+    }
+
+    /**
+     * The values of the list that pass, counted. `list_filter` drops a value whose condition is
+     * NULL, and a NULL list has no count, so the `COALESCE` makes it FALSE.
+    */
+    anyValue(listExpr: string, condition: (valueExpr: string) => string): string {
+        const value = quoteIdentifier(LIST_VALUE);
+        return `COALESCE(len(list_filter(${listExpr}, ${value} -> ${condition(value)})) > 0, FALSE)`;
     }
 
     /**
@@ -149,7 +161,11 @@ export class DuckDBDialect extends BaseSQLDialect {
         relation: GeoShapeRelation,
         isPointColumn: boolean
     ): string {
-        const fn = RELATION_FUNCTIONS[relation];
+        // a point within a shape includes a point on its edge, as Elasticsearch's polygon query
+        // on a geo-point does; `ST_Within` excludes the boundary, `ST_Intersects` does not
+        const fn = isPointColumn && relation === GeoShapeRelation.Within
+            ? 'ST_Intersects'
+            : RELATION_FUNCTIONS[relation];
 
         if (fn == null) {
             throw new TypeError(`Unsupported geo relation "${relation}"`);
@@ -202,10 +218,11 @@ export class DuckDBDialect extends BaseSQLDialect {
 
     /**
      * `regexp_full_match` rather than `regexp_matches`, because Elasticsearch's `regexp`
-     * query is anchored: `bar:/h.*o/` matches `hello` and not `xhellox`.
+     * query is anchored: `bar:/h.*o/` matches `hello` and not `xhellox`. The `s` option lets
+     * `.` match a newline, as it does in Lucene.
     */
     protected regexpMatch(expr: string, value: string): string {
-        return `regexp_full_match(${expr}, ${this.stringLiteral(value)})`;
+        return `regexp_full_match(${expr}, ${this.stringLiteral(value)}, 's')`;
     }
 
     /**

@@ -62,7 +62,7 @@ export const STATIC_EXTENSIONS: readonly string[] = ['icu', 'json', 'parquet'];
 /** Where the extensions live. Unset means DuckDB's default, `~/.duckdb/extensions`. */
 export const EXTENSION_DIRECTORY_ENV = 'DUCKDB_EXTENSION_DIRECTORY';
 
-/** Set to `false` in an image, so a missing extension fails at startup instead of downloading. */
+/** Set to `true` to let a missing extension download as the database opens; off by default. */
 export const AUTOINSTALL_EXTENSIONS_ENV = 'DUCKDB_AUTOINSTALL_EXTENSIONS';
 
 export interface ExtensionSettings {
@@ -102,9 +102,10 @@ function parseBoolean(name: string, raw: string | undefined): boolean | undefine
 /**
  * Loads every required extension and throws one error naming all that are missing.
  *
- * With autoinstall on (the default, used in local development) a missing extension is installed
- * first, once per machine. With it off (in an image) nothing uses the network. Loading an
- * already-loaded extension is cheap, so calling this again is harmless.
+ * With autoinstall off (the default) nothing uses the network: the extensions are installed
+ * beforehand with `duckdb-extensions install`. With it on, a missing extension is downloaded
+ * first, once per machine. Loading an already-loaded extension is cheap, so calling this again
+ * is harmless.
 */
 export async function loadExtensions(
     connection: DuckDBConnection,

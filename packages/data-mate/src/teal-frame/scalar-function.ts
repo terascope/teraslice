@@ -2,7 +2,8 @@ import { DuckDBScalarFunction, VARCHAR } from '@duckdb/node-api';
 import {
     FieldType, DataTypeFieldConfig, DataTypeFields, ReadonlyDataTypeFields
 } from '@terascope/types';
-import { makeValueConverter } from './duck-values.js';
+import { coerceToType } from '../builder/type-coercion.js';
+import { makeBigIntInputNormalizer, makeValueConverter } from './duck-values.js';
 import { makeInputConverter, udfTypeFor } from './udf-types.js';
 
 /**
@@ -58,6 +59,12 @@ export interface ScalarFunctionSpec {
     */
     argsPerRow?: boolean;
     /**
+     * Coerce each result into `returns` as a `DataFrame` Builder does (`coerceToType`): `5` for a
+     * Keyword becomes `"5"`, and a value that cannot be one throws. Without it, a result must
+     * already be of the declared type, or DuckDB fails with `A string was expected`.
+    */
+    coerceResult?: boolean;
+    /**
      * Call `fn` for rows where the argument is null. Defaults to false, which matches
      * `DataFrame`: `transformVectorToBuilder` iterates `vector.values()`, which skips nil
      * entries, so a transform never receives a null. DuckDB passes nulls to a UDF, so the skip
@@ -107,6 +114,9 @@ export function createScalarFunction(spec: ScalarFunctionSpec): DuckDBScalarFunc
      * `makeInputConverter`.
     */
     const toInput = makeInputConverter(parameter, spec.parameterChildren);
+    const toResult = spec.coerceResult
+        ? makeResultCoercion(spec.returns, spec.returnsChildren as DataTypeFields | undefined)
+        : undefined;
     const forArgs = spec.fnForArgs ? perArgumentSet(spec.fnForArgs) : undefined;
     if (!forArgs && !spec.fn) {
         throw new TypeError(`Scalar function "${spec.name}" needs \`fn\` or \`fnForArgs\``);
@@ -141,11 +151,35 @@ export function createScalarFunction(spec: ScalarFunctionSpec): DuckDBScalarFunc
                 }
 
                 const rowImpl = argsTexts ? forArgs!(argsTexts[row]) : impl!;
-                const result = rowImpl(toInput(value), row);
+                const raw = rowImpl(toInput(value), row);
+                const result = toResult ? toResult(raw) : raw;
                 output.setItem(row, (result == null ? null : convert(result)) as any);
             }
 
             output.flush();
         },
     });
+}
+
+/**
+ * Coerces a function result into its declared type as a `DataFrame` Builder does (every
+ * Builder's `_valueFrom` is `coerceToType(config)`). A result that does not match is converted
+ * or throws the same way: `setDefault` or `toJSON` on an Integer column gives `"5"`, and
+ * `ceil(1e21)` into an Integer throws.
+ *
+ * The bigint normalizer runs first, as on ingest: `toBigIntOrThrow` adds 1 to a value it parses
+ * past 2^53 but returns a bigint unchanged, and the value converter later subtracts 1. Passing a
+ * large bigint as a decimal string keeps it exact. See `makeBigIntInputNormalizer`.
+*/
+export function makeResultCoercion(
+    fieldConfig: DataTypeFieldConfig,
+    childConfig?: DataTypeFields
+): (value: unknown) => unknown {
+    const coerce = coerceToType(fieldConfig, childConfig);
+    const normalize = makeBigIntInputNormalizer(fieldConfig, childConfig);
+
+    return (value) => {
+        if (value == null) return value;
+        return coerce(normalize ? normalize(value) : value);
+    };
 }

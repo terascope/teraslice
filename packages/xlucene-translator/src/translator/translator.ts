@@ -93,6 +93,7 @@ export class Translator {
             geo_sort_point: opts.geo_sort_point,
             geo_sort_order: opts.geo_sort_order || this._defaultGeoSortConfig.default_order,
             geo_sort_unit: opts.geo_sort_unit || this._defaultGeoSortConfig.default_unit,
+            array_fields: new Set(opts.array_fields),
         });
 
         logger.trace(`translated ${this.query ? this.query : '\'\''} query to sql`, result);

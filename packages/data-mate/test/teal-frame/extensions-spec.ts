@@ -15,9 +15,10 @@ const CONFIG: DataTypeConfig = {
 };
 
 /**
- * These run with the default extension directory and autoinstall on, as local development and
- * CI do, so the first run on a machine downloads the extensions. The "missing" cases point at
- * an empty directory with autoinstall off, which matches an image built without them.
+ * These run with the default extension directory, where `duckdb-extensions install` put the
+ * extensions (CI runs it before the tests; run it once on a new machine). Nothing downloads by
+ * default. The "missing" cases point at an empty directory, which matches an image built
+ * without them.
 */
 describe('duck extensions', () => {
     let scratch: string;
@@ -95,6 +96,14 @@ describe('duck extensions', () => {
             await expect(opening).rejects.toBeInstanceOf(DuckExtensionError);
             await expect(opening).rejects.toThrow(/httpfs, aws, inet, spatial/);
             await expect(opening).rejects.toThrow(/duckdb-extensions install --dir/);
+        });
+
+        it('does not download a missing extension unless autoinstall is turned on', async () => {
+            const database = join(scratch, 'no-download.db');
+            const opening = configureDuckDatabase({ database, extensionDirectory: empty });
+
+            await expect(opening).rejects.toBeInstanceOf(DuckExtensionError);
+            await expect(opening).rejects.toThrow(/not downloaded while a query runs/);
         });
 
         it('reads the directory and autoinstall from the environment', async () => {
@@ -181,7 +190,7 @@ describe('duck extensions', () => {
         });
 
         it('passes, with every check run, where the extensions are installed', async () => {
-            // the default directory, populated by the autoinstalling opens above
+            // the default directory, where duckdb-extensions install put them
             const report = await verifyExtensions();
 
             expect(report.failures).toEqual([]);
