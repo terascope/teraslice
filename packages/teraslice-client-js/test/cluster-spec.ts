@@ -216,6 +216,19 @@ describe('Teraslice Cluster', () => {
             });
         });
 
+        describe('when called with controllers and a query', () => {
+            beforeEach(() => {
+                scope.get('/txt/controllers')
+                    .query({ fields: 'name,ex_id', headers: 'false', size: '5' })
+                    .reply(200, 'controllers-txt-response');
+            });
+
+            it('should send the query', async () => {
+                const results = await cluster.txt('controllers', { fields: 'name,ex_id', headers: 'false', size: 5 });
+                expect(results).toEqual('controllers-txt-response');
+            });
+        });
+
         describe('when called with a invalid type', () => {
             beforeEach(() => {
                 scope.get('/txt/invalid')
@@ -224,7 +237,7 @@ describe('Teraslice Cluster', () => {
 
             it('should reject with invalid type', async () => {
                 expect.hasAssertions();
-                const errMsg = '"invalid" is not a valid type. Must be one of ["assets","slicers","ex","jobs","nodes","workers"]';
+                const errMsg = '"invalid" is not a valid type. Must be one of ["assets","slicers","controllers","ex","jobs","nodes","workers"]';
                 try {
                     await cluster.txt('invalid');
                 } catch (err) {
@@ -258,6 +271,49 @@ describe('Teraslice Cluster', () => {
                 apiVersion: '/v2'
             });
             await expect(v2Cluster.controllers()).resolves.toEqual([{ ex_id: 'some-ex-id' }]);
+        });
+
+        describe('->txt', () => {
+            const v2Cluster = new Cluster({
+                baseUrl: 'http://teraslice.example.dev',
+                apiVersion: '/v2'
+            });
+
+            it.each(['jobs', 'ex', 'workers', 'nodes', 'controllers'])('should get /v2/txt/%s', async (type) => {
+                nock('http://teraslice.example.dev/v2')
+                    .get(`/txt/${type}`)
+                    .reply(200, `${type}-txt-response`);
+
+                await expect(v2Cluster.txt(type)).resolves.toEqual(`${type}-txt-response`);
+            });
+
+            it('should send the query', async () => {
+                nock('http://teraslice.example.dev/v2')
+                    .get('/txt/jobs')
+                    .query({
+                        fields: 'job_id,ex._status', ex: '_status', from: '100', size: '50'
+                    })
+                    .reply(200, 'jobs-txt-response');
+
+                const results = await v2Cluster.txt('jobs', {
+                    fields: 'job_id,ex._status', ex: '_status', from: 100, size: 50
+                });
+                expect(results).toEqual('jobs-txt-response');
+            });
+
+            it('should use the controllers table for slicers', async () => {
+                nock('http://teraslice.example.dev/v2')
+                    .get('/txt/controllers')
+                    .reply(200, 'controllers-txt-response');
+
+                await expect(v2Cluster.txt('slicers')).resolves.toEqual('controllers-txt-response');
+            });
+
+            it.each(['assets', 'assets/ex1'])('should reject %s, which has no /v2 table', async (type) => {
+                await expect(v2Cluster.txt(type)).rejects.toThrow(
+                    `"${type}" is not a valid type. Must be one of ["controllers","ex","jobs","nodes","workers"]`
+                );
+            });
         });
     });
 

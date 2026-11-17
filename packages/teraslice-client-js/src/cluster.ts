@@ -3,12 +3,18 @@ import { Teraslice } from '@terascope/types';
 import util from 'node:util';
 import autoBind from 'auto-bind';
 import Client from './client.js';
-import { RequestOptions } from './interfaces.js';
+import { RequestOptions, TxtQuery } from './interfaces.js';
 
 function _deprecateSlicerName(fn: () => Promise<Teraslice.ExecutionList>) {
     const msg = 'api endpoints with /slicers are being deprecated in favor of the semantically correct term of /controllers';
     return util.deprecate(fn, msg);
 }
+
+/** The /v1 text tables; `assets` also matches `assets/<name>[/<version>]` */
+const v1TxtTypes = ['assets', 'slicers', 'controllers', 'ex', 'jobs', 'nodes', 'workers'];
+
+/** The /v2 text tables */
+const v2TxtTypes = ['controllers', 'ex', 'jobs', 'nodes', 'workers'];
 
 export default class Cluster extends Client {
     constructor(config: Record<string, any>) {
@@ -52,13 +58,28 @@ export default class Cluster extends Client {
         return this.get('/cluster/job-schema', searchOptions);
     }
 
-    async txt(type: string): Promise<string> {
-        const validTypes = ['assets', 'slicers', 'ex', 'jobs', 'nodes', 'workers'];
-        const isValid = validTypes.some((validType) => startsWith(type, validType));
+    /**
+     * A list as a plain-text table. `type` is the list: `jobs`, `ex`,
+     * `workers`, `nodes` or `controllers`, plus on /v1 `slicers` and `assets`
+     * (or `assets/<name>[/<version>]`). On /v2, `slicers` gets `controllers`,
+     * the same table; `assets` has no /v2 text route.
+     */
+    async txt(type: string, query: TxtQuery = {}): Promise<string> {
+        // TODO: Teraslice v4 deletes /v1, remove slicers and assets
+        // https://github.com/terascope/teraslice/issues/4584#issuecomment-6636093239
+        const name = this.isV2 && type === 'slicers' ? 'controllers' : type;
+        const validTypes = this.isV2 ? v2TxtTypes : v1TxtTypes;
+        const isValid = this.isV2
+            ? validTypes.includes(name)
+            : validTypes.some((validType) => startsWith(name, validType));
         if (!isValid) {
             const error = new Error(`"${type}" is not a valid type. Must be one of ${JSON.stringify(validTypes)}`);
             return Promise.reject(error);
         }
-        return this.get(`/txt/${type}`, { responseType: 'text' });
+
+        return this.get(`/txt/${name}`, {
+            responseType: 'text',
+            searchParams: query as Record<string, any>,
+        });
     }
 }

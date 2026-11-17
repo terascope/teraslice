@@ -142,9 +142,10 @@ function getAPIEndpoint(uri: string, apiVersion: string) {
     const endpoint = uri ? uri.trim().replace(/(^\/)|(\/$)/, '') : '';
     if (!apiVersion) return endpoint;
 
+    // v1's text routes are only served unversioned, at /txt
     const txtIndex = endpoint.indexOf('txt');
     const isTxt = txtIndex < 2 && txtIndex > -1;
-    if (isTxt) return endpoint;
+    if (isTxt && !isV2(apiVersion)) return endpoint;
 
     const versionPrefix = trimStart(apiVersion, '/');
     if (endpoint.startsWith(versionPrefix)) return endpoint;
