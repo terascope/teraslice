@@ -322,6 +322,7 @@ export function generateV2Spec(
             { name: 'Cluster', description: 'Cluster state and configuration' },
             { name: 'Jobs', description: 'Job definitions and lifecycle' },
             { name: 'Executions', description: 'Execution records, read only' },
+            { name: 'Text', description: 'Lists as plain-text tables, for terminals' },
         ],
         paths,
         components: {

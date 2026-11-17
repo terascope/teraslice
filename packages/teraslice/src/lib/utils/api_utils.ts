@@ -111,18 +111,23 @@ export function makeTable(
     });
 }
 
-function fieldsQuery(query: any, defaults: string[]): string[] {
-    if (!query.fields) {
-        return defaults || [];
-    }
+function fieldsQuery(query: any, defaults: string[]): readonly string[] {
+    // v1 /txt/workers passes no defaults on an unknown cluster type
+    return parseFields(query.fields, defaults ?? []);
+}
 
-    const results = parseList(query.fields);
+/**
+ * The table columns from a comma-separated `fields` query value. Empty or
+ * missing gives `defaults`.
+ */
+export function parseFields(
+    fields: string | undefined,
+    defaults: readonly string[]
+): readonly string[] {
+    if (!fields) return defaults;
 
-    if (results.length === 0) {
-        return defaults;
-    }
-
-    return results;
+    const results = parseList(fields);
+    return results.length ? results : defaults;
 }
 
 export function handleTerasliceRequest(

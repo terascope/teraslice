@@ -1337,6 +1337,258 @@ describe('HTTP API v2', () => {
         });
     });
 
+    describe('GET /v2/txt/*', () => {
+        const jobsSearchWithTotal = jest.fn<(...args: any[]) => Promise<any>>();
+        const getJobsWithExInfoAndTotal = jest.fn<(...args: any[]) => Promise<any>>();
+        const exSearchWithTotal = jest.fn<(...args: any[]) => Promise<any>>();
+        const findAllWorkers = jest.fn<(...args: any[]) => any>();
+        const getClusterState = jest.fn<(...args: any[]) => any>();
+        const getControllerStats = jest.fn<(...args: any[]) => Promise<any>>();
+
+        const worker = { job_id: 'job-1', node_id: 'node-1', hostname: 'host-1' };
+        const workers = [
+            {
+                ...worker, assignment: 'worker', worker_id: 10, ex_id: 'ex-b', pid: 110
+            },
+            {
+                ...worker, assignment: 'execution_controller', worker_id: 1, ex_id: 'ex-b', pid: 101
+            },
+            {
+                ...worker, assignment: 'worker', worker_id: 2, ex_id: 'ex-a', pid: 102
+            },
+            {
+                ...worker, assignment: 'worker', worker_id: 1, ex_id: 'ex-a', pid: 103
+            },
+        ];
+        const node = {
+            hostname: 'host',
+            pid: 1,
+            node_version: 'v24',
+            teraslice_version: 'v3.0.0',
+            total: 10,
+            state: 'connected',
+            available: 9,
+        };
+        const controller = {
+            job_id: 'job-1',
+            workers_available: 1,
+            workers_active: 2,
+            failed: 0,
+            queued: 3,
+            processed: 4,
+        };
+
+        beforeAll(() => {
+            context.stores.jobsStorage.searchWithTotal = jobsSearchWithTotal;
+            context.services.jobsService.getJobsWithExInfoAndTotal = getJobsWithExInfoAndTotal;
+            context.stores.executionStorage.searchWithTotal = exSearchWithTotal;
+            context.services.executionService.findAllWorkers = findAllWorkers;
+            context.services.clusterService.getClusterState = getClusterState;
+            context.services.executionService.getControllerStats = getControllerStats;
+        });
+
+        beforeEach(() => {
+            jobsSearchWithTotal.mockReset().mockResolvedValue(withTotal([job]));
+            getJobsWithExInfoAndTotal.mockReset()
+                .mockResolvedValue(withTotal([{ ...job, ex: { _status: 'running' } }]));
+            exSearchWithTotal.mockReset().mockResolvedValue(withTotal([execution]));
+            findAllWorkers.mockReset().mockReturnValue(workers);
+            getClusterState.mockReset().mockReturnValue({
+                'node-b': { ...node, node_id: 'node-b', active: [{}, {}] },
+                'node-a': { ...node, node_id: 'node-a', active: [{}] },
+            });
+            getControllerStats.mockReset().mockResolvedValue([
+                { ...controller, ex_id: 'ex-b', name: 'job-b' },
+                { ...controller, ex_id: 'ex-a', name: 'job-a' },
+            ]);
+        });
+
+        function requestText(path: string, searchParams: Record<string, string> = {}) {
+            return request('GET', `/v2${path}`, { searchParams, responseType: 'text' });
+        }
+
+        /**
+         * A table response as rows of cells (the column names, the line
+         * under them, then a row per record), and the footer lines
+         */
+        function parseTable(text: string) {
+            const lines = text.trimEnd().split('\n');
+            const blank = lines.indexOf('');
+            const table = blank === -1 ? lines : lines.slice(0, blank);
+            return {
+                rows: table.map((line) => line.trim().split(/\s+/)),
+                footer: blank === -1 ? [] : lines.slice(blank + 1),
+            };
+        }
+
+        /** The first cell of each record's row */
+        function firstColumn(text: string) {
+            return parseTable(text).rows.slice(2).map(([cell]) => cell);
+        }
+
+        describe('GET /v2/txt/jobs', () => {
+            it('should print v1\'s default columns, the footer and the paging headers', async () => {
+                jobsSearchWithTotal.mockResolvedValue(withTotal([job], 3));
+
+                const response = await requestText('/txt/jobs', { size: '1' });
+                const { rows, footer } = parseTable(response.body);
+
+                expect(response.statusCode).toEqual(200);
+                expect(response.headers['content-type']).toStartWith('text/plain');
+                expect(rows[0]).toEqual(['job_id', 'name', 'active', 'lifecycle', 'slicers', 'workers', '_created', '_updated']);
+                expect(rows[2]).toEqual(['job-1', 'test-job', 'true', 'persistent', '1', '2', job._created, job._updated]);
+                expect(footer).toEqual(['Showing 1-1 of 3', 'next: ?from=1&size=1']);
+                expect(response.headers).toMatchObject({
+                    'x-total-count': '3',
+                    'x-total-relation': 'eq',
+                    'x-from': '0',
+                    'x-size': '1',
+                });
+            });
+
+            it('should search like GET /v2/jobs', async () => {
+                await requestText('/txt/jobs', {
+                    active: 'true', from: '5', size: '5', sort: 'name:asc', filter: 'name:"a"'
+                });
+
+                expect(jobsSearchWithTotal).toHaveBeenCalledWith(
+                    `(job_id:* AND !active:false AND ${notDeleted}) AND (name:"a")`, 5, 5, 'name:asc'
+                );
+            });
+
+            it('should add _deleted_on with deleted=true', async () => {
+                const response = await requestText('/txt/jobs', { deleted: 'true' });
+
+                expect(parseTable(response.body).rows[0].at(-1)).toBe('_deleted_on');
+            });
+
+            it('should print only the rows of the fields asked for with headers=false', async () => {
+                jobsSearchWithTotal.mockResolvedValue(withTotal([job], 3));
+
+                const response = await requestText('/txt/jobs', { fields: 'name,job_id', headers: 'false' });
+
+                expect(parseTable(response.body)).toEqual({ rows: [['test-job', 'job-1']], footer: [] });
+                expect(response.headers['x-total-count']).toBe('3');
+            });
+
+            it('should print execution fields with ?ex', async () => {
+                const response = await requestText('/txt/jobs', { ex: '_status', fields: 'job_id,ex._status' });
+
+                expect(parseTable(response.body).rows[2]).toEqual(['job-1', 'running']);
+                expect(getJobsWithExInfoAndTotal.mock.calls[0][4]).toEqual(['_status']);
+            });
+
+            it('should reject an unknown param', async () => {
+                const response = await requestText('/txt/jobs', { bogus: '1' });
+
+                expect(response.statusCode).toEqual(400);
+            });
+        });
+
+        describe('GET /v2/txt/ex', () => {
+            it('should print v1\'s default columns', async () => {
+                const response = await requestText('/txt/ex');
+                const { rows, footer } = parseTable(response.body);
+
+                expect(rows[0]).toEqual(['name', 'lifecycle', 'slicers', 'workers', '_status', 'ex_id', 'job_id', '_created', '_updated']);
+                expect(rows[2]).toEqual(['test-job', 'persistent', '1', '2', 'running', 'ex-1', 'job-1', execution._created, execution._updated]);
+                expect(footer).toEqual(['Showing 1-1 of 1']);
+            });
+
+            it('should search like GET /v2/ex, adding _deleted_on with deleted=true', async () => {
+                const response = await requestText('/txt/ex', { job_id: 'job-1', deleted: 'true' });
+
+                expect(parseTable(response.body).rows[0].at(-1)).toBe('_deleted_on');
+                expect(exSearchWithTotal.mock.calls[0][0]).toBe('ex_id:* AND job_id:"job-1" AND _deleted:true');
+            });
+        });
+
+        describe('GET /v2/txt/workers', () => {
+            afterEach(() => {
+                context.sysconfig.teraslice.cluster_manager_type = 'native';
+            });
+
+            it('should sort by ex_id, assignment, then worker_id, as numbers', async () => {
+                const response = await requestText('/txt/workers', { fields: 'ex_id,assignment,worker_id' });
+
+                expect(parseTable(response.body).rows.slice(2)).toEqual([
+                    ['ex-a', 'worker', '1'],
+                    ['ex-a', 'worker', '2'],
+                    ['ex-b', 'execution_controller', '1'],
+                    ['ex-b', 'worker', '10'],
+                ]);
+            });
+
+            it('should page the sorted workers', async () => {
+                const response = await requestText('/txt/workers', { from: '1', size: '2', fields: 'pid' });
+
+                expect(firstColumn(response.body)).toEqual(['102', '101']);
+                expect(parseTable(response.body).footer).toEqual(['Showing 2-3 of 4', 'next: ?from=3&size=2']);
+            });
+
+            it.each([
+                ['native', ['assignment', 'job_id', 'ex_id', 'node_id', 'pid']],
+                ['kubernetesV2', ['assignment', 'job_id', 'ex_id', 'node_id', 'pod_name', 'image']],
+            ])('should print v1\'s default columns on %s', async (clusterType, columns) => {
+                context.sysconfig.teraslice.cluster_manager_type = clusterType;
+
+                const response = await requestText('/txt/workers');
+
+                expect(parseTable(response.body).rows[0]).toEqual(columns);
+            });
+        });
+
+        describe('GET /v2/txt/nodes', () => {
+            it('should sort by node_id and print active as a count', async () => {
+                const response = await requestText('/txt/nodes');
+                const { rows } = parseTable(response.body);
+
+                expect(rows[0]).toEqual(['node_id', 'state', 'hostname', 'total', 'active', 'pid', 'teraslice_version', 'node_version']);
+                expect(rows.slice(2)).toEqual([
+                    ['node-a', 'connected', 'host', '10', '1', '1', 'v3.0.0', 'v24'],
+                    ['node-b', 'connected', 'host', '10', '2', '1', 'v3.0.0', 'v24'],
+                ]);
+            });
+
+            it('should page the sorted nodes', async () => {
+                const response = await requestText('/txt/nodes', { from: '1' });
+
+                expect(firstColumn(response.body)).toEqual(['node-b']);
+                expect(response.headers['x-total-count']).toBe('2');
+            });
+        });
+
+        describe('GET /v2/txt/controllers', () => {
+            it('should print v1\'s default columns, sorted by ex_id', async () => {
+                const response = await requestText('/txt/controllers');
+                const { rows } = parseTable(response.body);
+
+                expect(rows[0]).toEqual(['name', 'job_id', 'workers_available', 'workers_active', 'failed', 'queued', 'processed']);
+                expect(rows.slice(2)).toEqual([
+                    ['job-a', 'job-1', '1', '2', '0', '3', '4'],
+                    ['job-b', 'job-1', '1', '2', '0', '3', '4'],
+                ]);
+            });
+
+            it('should page the sorted controllers', async () => {
+                const response = await requestText('/txt/controllers', { size: '1' });
+
+                expect(firstColumn(response.body)).toEqual(['job-a']);
+                expect(parseTable(response.body).footer).toEqual(['Showing 1-1 of 2', 'next: ?from=1&size=1']);
+            });
+        });
+
+        it('should print an empty page as the column names and the footer', async () => {
+            getControllerStats.mockResolvedValue([]);
+
+            const response = await requestText('/txt/controllers');
+            const { rows, footer } = parseTable(response.body);
+
+            expect(rows[0]).toEqual(['name', 'job_id', 'workers_available', 'workers_active', 'failed', 'queued', 'processed']);
+            expect(footer).toEqual(['Showing 0 of 0']);
+        });
+    });
+
     describe('routes removed from v2', () => {
         const pauseExecution = jest.fn<(...args: any[]) => Promise<any>>();
         const getControllerStats = jest.fn<(...args: any[]) => Promise<any>>();
@@ -1362,7 +1614,7 @@ describe('HTTP API v2', () => {
             ['GET', '/ex/ex-1/slicer'],
             ['GET', '/jobs/job-1/slicer'],
             ['GET', '/cluster/slicers'],
-            ['GET', '/txt/jobs'],
+            ['GET', '/txt/slicers'],
         ])('%s /v2%s should respond with a 405', async (method, path) => {
             const response = await request(method, `/v2${path}`);
 
@@ -1469,6 +1721,16 @@ describe('HTTP API v2', () => {
                 .toEqual(jobConfigRef);
             expect(spec.components.schemas.JobConfig.properties.operations.items)
                 .toEqual({ $ref: '#/components/schemas/JobOperation' });
+        });
+
+        it('should describe the txt routes as text/plain with the paging headers', () => {
+            const ok = spec.paths['/v2/txt/jobs'].get.responses[200];
+
+            expect(ok.content['text/plain'].schema)
+                .toEqual({ $ref: '#/components/schemas/TxtTable' });
+            expect(Object.keys(ok.headers))
+                .toEqual(['X-Total-Count', 'X-Total-Relation', 'X-From', 'X-Size']);
+            expect(spec.paths['/v2/txt/jobs'].get.tags).toEqual(['Text']);
         });
 
         it('should have unique operationIds', () => {

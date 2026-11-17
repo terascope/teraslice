@@ -979,3 +979,48 @@ export const ExecutionRecordPageSchema = paginated(ExecutionRecordSchema)
 
 export type ExecutionRecordPage = z.output<typeof ExecutionRecordPageSchema>;
 export type GetExecutionErrorsQuery = z.input<typeof GetExecutionErrorsQuerySchema>;
+
+/** ################## /txt ################## */
+
+/** The table options every `/txt` route takes, on top of its list query */
+const txtQueryShape = {
+    fields: z.string().optional()
+        .meta({
+            description: 'Comma-separated columns, in order. A dotted path reads a nested '
+                + 'field, e.g. `ex._status` with `?ex`. Empty or left out uses the route\'s '
+                + 'default columns',
+        }),
+    headers: z.stringbool().default(true)
+        .meta({
+            description: '`false` leaves out the column names and the paging footer, '
+                + 'so the response is only rows',
+        }),
+};
+
+/** Query of `GET /txt/jobs` */
+export const GetTxtJobsQuerySchema = GetJobsQuerySchema.extend(txtQueryShape);
+
+/** Query of `GET /txt/ex` */
+export const GetTxtExecutionsQuerySchema = GetExecutionsQuerySchema.extend(txtQueryShape);
+
+/**
+ * Query of `GET /txt/workers`, `/txt/nodes` and `/txt/controllers`, which
+ * page through a list held in memory
+ */
+export const GetTxtInMemoryQuerySchema = z.strictObject({
+    ...inMemoryPageQueryShape,
+    ...txtQueryShape,
+});
+
+/** Response of every `/txt` route */
+export const TxtTableSchema = z.string().meta({
+    id: 'TxtTable',
+    description: 'A plain-text table, one row per record, then a blank line and a footer: '
+        + '`Showing 101-200 of 1,523` (the total ends in `+` when `X-Total-Relation` is '
+        + '`gte`), and `next: ?from=200&size=100` when there are more. With `headers=false`, '
+        + 'only the rows.',
+});
+
+export type GetTxtJobsQuery = z.input<typeof GetTxtJobsQuerySchema>;
+export type GetTxtExecutionsQuery = z.input<typeof GetTxtExecutionsQuerySchema>;
+export type GetTxtInMemoryQuery = z.input<typeof GetTxtInMemoryQuerySchema>;

@@ -8,12 +8,14 @@ import type { ControllerStats } from '../../../../../interfaces.js';
 import type { RecordsWithTotal } from '../../../../storage/index.js';
 import {
     createJobActiveQuery, addDeletedToQuery, addFilterToQuery, buildConnectorList,
-    explainResultWindowError
+    explainResultWindowError, parseFields, printPagedTable
 } from '../../../../utils/api_utils.js';
 import { getPackageJSON } from '../../../../utils/file_utils.js';
-import { pageInMemory, toPage } from '../../../../utils/pagination.js';
 import {
-    createRouteRegistry, type RouteRegistry, type Parsed
+    pageInMemory, toPage, paginationHeaders, paginationResponseHeaders
+} from '../../../../utils/pagination.js';
+import {
+    createRouteRegistry, type RouteRegistry, type Parsed, type TextResult
 } from '../../../../utils/v2_routes.js';
 
 const terasliceVersion = getPackageJSON().version;
@@ -60,10 +62,81 @@ function toControllerStatsResponse(
     }));
 }
 
-function byExId(a: { ex_id: string }, b: { ex_id: string }): number {
-    if (a.ex_id < b.ex_id) return -1;
-    if (a.ex_id > b.ex_id) return 1;
+/**
+ * Compares by each key in turn, so pages are stable while the list is.
+ * Numbers compare as numbers, anything else as a string, by code unit.
+ * A missing value sorts first.
+ */
+function byKeys(...keys: string[]): (a: object, b: object) => number {
+    return (a, b) => {
+        for (const key of keys) {
+            const order = compareValues(
+                (a as Record<string, unknown>)[key],
+                (b as Record<string, unknown>)[key]
+            );
+            if (order !== 0) return order;
+        }
+        return 0;
+    };
+}
+
+function compareValues(a: unknown, b: unknown): number {
+    if (typeof a === 'number' && typeof b === 'number') return a - b;
+
+    const x = String(a ?? '');
+    const y = String(b ?? '');
+    if (x < y) return -1;
+    if (x > y) return 1;
     return 0;
+}
+
+/** The spec fields every /txt route shares */
+const txtRouteSpec = {
+    tags: ['Text'],
+    response: TerasliceApiV2.TxtTableSchema,
+    format: 'text',
+    responseHeaders: paginationResponseHeaders,
+} as const;
+
+/** The table options of a /txt route's query */
+type TxtTableQuery = Pick<Parsed<typeof TerasliceApiV2.GetTxtInMemoryQuerySchema>, 'fields' | 'headers'>;
+
+/**
+ * The response of a /txt route: the page as a table with its footer, and
+ * the paging headers. `fields` picks the columns, or `defaults` when empty.
+ */
+function toTextTable<T extends Record<string, any>>(
+    page: TerasliceApiV2.Page<T>,
+    defaults: readonly string[],
+    { fields, headers }: TxtTableQuery
+): TextResult {
+    return {
+        body: printPagedTable({ page, fields: parseFields(fields, defaults), headers }),
+        headers: paginationHeaders(page.pagination),
+    };
+}
+
+/** Default columns of `GET /txt/jobs` */
+const txtJobsColumns = ['job_id', 'name', 'active', 'lifecycle', 'slicers', 'workers', '_created', '_updated'];
+
+/** Default columns of `GET /txt/ex` */
+const txtExecutionsColumns = ['name', 'lifecycle', 'slicers', 'workers', '_status', 'ex_id', 'job_id', '_created', '_updated'];
+
+/** Default columns of `GET /txt/workers` per cluster type */
+const txtWorkersColumns: Record<string, readonly string[]> = {
+    native: ['assignment', 'job_id', 'ex_id', 'node_id', 'pid'],
+    kubernetesV2: ['assignment', 'job_id', 'ex_id', 'node_id', 'pod_name', 'image'],
+};
+
+/** Default columns of `GET /txt/nodes` */
+const txtNodesColumns = ['node_id', 'state', 'hostname', 'total', 'active', 'pid', 'teraslice_version', 'node_version'];
+
+/** Default columns of `GET /txt/controllers` */
+const txtControllersColumns = ['name', 'job_id', 'workers_available', 'workers_active', 'failed', 'queued', 'processed'];
+
+/** With `deleted=true`, the jobs and executions tables add when each was deleted */
+function withDeletedOn(columns: readonly string[], deleted: boolean): readonly string[] {
+    return deleted ? [...columns, '_deleted_on'] : columns;
 }
 
 /** Applies `fn` to each record, keeping the total */
@@ -213,7 +286,7 @@ export function createV2Registry(api: ApiService): RouteRegistry {
         { from, size }: Parsed<typeof TerasliceApiV2.GetClusterControllersQuerySchema>
     ): Promise<RecordsWithTotal<TerasliceApiV2.ControllerStats>> {
         const stats = toControllerStatsResponse(await api.executionService.getControllerStats());
-        return pageInMemory(stats, byExId, from, size);
+        return pageInMemory(stats, byKeys('ex_id'), from, size);
     }
 
     // Cluster
@@ -561,6 +634,73 @@ export function createV2Registry(api: ApiService): RouteRegistry {
     ), {
         errorMessage: 'Could not get errors for execution'
     });
+
+    // Text tables.
+
+    registry.get('/txt/jobs', {
+        ...txtRouteSpec,
+        operationId: 'getJobsTxtTable',
+        summary: 'List jobs as a text table',
+        query: TerasliceApiV2.GetTxtJobsQuerySchema,
+    }, async ({ query }) => toTextTable(
+        toPage(await listJobs(query), query.from, query.size),
+        withDeletedOn(txtJobsColumns, query.deleted),
+        query
+    ), { errorMessage: 'Could not get all jobs' });
+
+    registry.get('/txt/ex', {
+        ...txtRouteSpec,
+        operationId: 'getExecutionsTxtTable',
+        summary: 'List executions as a text table',
+        query: TerasliceApiV2.GetTxtExecutionsQuerySchema,
+    }, async ({ query }) => toTextTable(
+        toPage(await listExecutions(query), query.from, query.size),
+        withDeletedOn(txtExecutionsColumns, query.deleted),
+        query
+    ), { errorMessage: 'Could not get all executions' });
+
+    registry.get('/txt/workers', {
+        ...txtRouteSpec,
+        operationId: 'getWorkersTxtTable',
+        summary: 'List the processes on every connected node as a text table, '
+            + 'sorted by ex_id, assignment, then worker_id',
+        query: TerasliceApiV2.GetTxtInMemoryQuerySchema,
+    }, ({ query }) => {
+        const { from, size } = query;
+        const workers = api.executionService.findAllWorkers();
+        const page = pageInMemory(workers, byKeys('ex_id', 'assignment', 'worker_id'), from, size);
+        const clusterType = api.context.sysconfig.teraslice.cluster_manager_type;
+
+        return toTextTable(toPage(page, from, size), txtWorkersColumns[clusterType] ?? [], query);
+    }, { errorMessage: 'Could not get all workers' });
+
+    registry.get('/txt/nodes', {
+        ...txtRouteSpec,
+        operationId: 'getNodesTxtTable',
+        summary: 'List the cluster\'s nodes as a text table, sorted by node_id. '
+            + '`active` is the number of processes',
+        query: TerasliceApiV2.GetTxtInMemoryQuerySchema,
+    }, ({ query }) => {
+        const { from, size } = query;
+        const nodes = Object.values(api.clusterService.getClusterState());
+        const page = mapRecords(
+            pageInMemory(nodes, byKeys('node_id'), from, size),
+            (node) => ({ ...node, active: node.active.length })
+        );
+
+        return toTextTable(toPage(page, from, size), txtNodesColumns, query);
+    }, { errorMessage: 'Could not get all nodes' });
+
+    registry.get('/txt/controllers', {
+        ...txtRouteSpec,
+        operationId: 'getControllersTxtTable',
+        summary: 'List every running execution controller as a text table, sorted by ex_id',
+        query: TerasliceApiV2.GetTxtInMemoryQuerySchema,
+    }, async ({ query }) => toTextTable(
+        toPage(await listControllers(query), query.from, query.size),
+        txtControllersColumns,
+        query
+    ), { errorMessage: 'Could not get all execution statistics' });
 
     return registry;
 }

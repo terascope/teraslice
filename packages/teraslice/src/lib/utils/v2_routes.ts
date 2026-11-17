@@ -11,7 +11,7 @@ import { handleTerasliceRequest } from './api_utils.js';
 export type RouteMethod = 'get' | 'post' | 'put' | 'patch' | 'delete';
 
 /** Groups /v2 routes in the OpenAPI spec (`tags` field). */
-export type RouteTag = 'Cluster' | 'Jobs' | 'Executions';
+export type RouteTag = 'Cluster' | 'Jobs' | 'Executions' | 'Text';
 
 /**
  * Schema for path params or query params. Must be an object schema so the

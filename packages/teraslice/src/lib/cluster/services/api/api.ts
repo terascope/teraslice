@@ -162,7 +162,7 @@ export class ApiService {
 
         try {
             if (!isKey(got.stream, method)) {
-                throw new Error(`${method} is not a valid gotStream method`);
+                throw new Error(`${method} is not a supported HTTP method`);
             }
             const stream = got.stream[method](uri, options);
 
