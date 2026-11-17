@@ -511,7 +511,7 @@ export function createV2Registry(api: ApiService): RouteRegistry {
         return toControllerStatsResponse(await api.executionService.getControllerStats(exId));
     }, { errorMessage: 'Could not get controller statistics' });
 
-    // `raw`: getSliceTap returns the JSON already serialized, with the
+    // `format: 'raw'`: getSliceTap returns the JSON already serialized, with the
     // worker's records passed through unparsed
     registry.get('/jobs/:jobId/tap', {
         operationId: 'getJobTap',
@@ -520,7 +520,7 @@ export function createV2Registry(api: ApiService): RouteRegistry {
         params: TerasliceApiV2.JobIdParams,
         query: TerasliceApiV2.GetJobTapQuerySchema,
         response: TerasliceApiV2.SliceTapResultSchema,
-        raw: true,
+        format: 'raw',
     }, async ({ params, query: { size } }) => {
         const exId = await getLatestExId(params.jobId);
         // the slice tap takes 0 to mean every record

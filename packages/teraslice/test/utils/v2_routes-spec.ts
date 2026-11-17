@@ -5,10 +5,13 @@ import bodyParser from 'body-parser';
 import got from 'got';
 import { z } from 'zod';
 import { debugLogger, TSError } from '@terascope/core-utils';
+import { TestContext } from '@terascope/job-components';
 import { findPort } from '../../src/lib/utils/port_utils.js';
 import {
-    createRouteRegistry, type ParamsSchema, type RouteDef
+    createRouteRegistry, type ParamsSchema, type ResponseFormat,
+    type RouteDef, type TextResult
 } from '../../src/lib/utils/v2_routes.js';
+import { generateV2Spec } from '../../src/lib/cluster/services/api/v2/openapi.js';
 
 /**
  * Builds a full def for `register`, keeping the exact schema types. Routes
@@ -19,8 +22,9 @@ function defineRoute<
     P extends ParamsSchema | undefined = undefined,
     Q extends ParamsSchema | undefined = undefined,
     B extends z.ZodType | undefined = undefined,
-    R extends z.ZodType = z.ZodType
->(def: RouteDef<P, Q, B, R>): RouteDef<P, Q, B, R> {
+    R extends z.ZodType = z.ZodType,
+    F extends ResponseFormat = 'json'
+>(def: RouteDef<P, Q, B, R, F>): RouteDef<P, Q, B, R, F> {
     return def;
 }
 
@@ -99,15 +103,47 @@ describe('v2 route registry', () => {
         operationId: 'getRaw',
         summary: 'Returns serialized JSON',
         response: rawResponse,
-        raw: true,
+        format: 'raw',
     }, () => Buffer.from('{"a":1}'));
 
     rawRegistry.get('/raw-object', {
         operationId: 'getRawObject',
         summary: 'Wrongly returns an object from a raw route',
         response: rawResponse,
-        raw: true,
+        format: 'raw',
     }, () => ({ a: 1 }) as unknown as Buffer);
+
+    // `text` routes, on their own registry for the same reason
+    const textRegistry = createRouteRegistry();
+    const textSpec = {
+        response: z.string(),
+        format: 'text',
+        responseHeaders: { 'X-Total-Count': 'Number of matching records' },
+    } as const;
+
+    textRegistry.get('/text', {
+        ...textSpec,
+        operationId: 'getText',
+        summary: 'Returns a table',
+    }, () => ({ body: 'id\n1\n', headers: { 'X-Total-Count': '1' } }));
+
+    textRegistry.get('/text-no-headers', {
+        ...textSpec,
+        operationId: 'getTextNoHeaders',
+        summary: 'Returns a table without headers',
+    }, () => ({ body: '' }));
+
+    textRegistry.get('/text-string', {
+        ...textSpec,
+        operationId: 'getTextString',
+        summary: 'Wrongly returns a bare string from a text route',
+    }, () => 'id\n1\n' as unknown as TextResult);
+
+    textRegistry.get('/text-undeclared', {
+        ...textSpec,
+        operationId: 'getTextUndeclared',
+        summary: 'Sends a header it does not declare',
+    }, () => ({ body: '', headers: { 'X-Total-Count': '1', 'X-Nope': '1' } }));
 
     // `errorMessage` fallbacks, on their own registry for the same reason.
     // The fallback is only used when the thrown value has no message.
@@ -144,6 +180,7 @@ describe('v2 route registry', () => {
         });
         app.use(registry.router);
         app.use(rawRegistry.router);
+        app.use(textRegistry.router);
         app.use(messageRegistry.router);
 
         await new Promise((resolve, reject) => {
@@ -223,6 +260,42 @@ describe('v2 route registry', () => {
 
                 expect(() => createRouteRegistry().register(def, () => ({}))).not.toThrow();
             });
+        });
+
+        describe('with a response format', () => {
+            it('should throw for a text route whose response is not a string schema', () => {
+                const def = defineRoute({
+                    operationId: 'x',
+                    method: 'get',
+                    path: '/text',
+                    summary: 'Text',
+                    response,
+                    format: 'text',
+                });
+
+                expect(() => createRouteRegistry().register(def, () => ({ body: '' }))).toThrow(
+                    'v2 route GET /text: a text route\'s response must be a string schema'
+                );
+            });
+
+            it.each(['json', 'raw', undefined] as const)(
+                'should throw for responseHeaders on a %s route',
+                (format) => {
+                    const def = defineRoute({
+                        operationId: 'x',
+                        method: 'get',
+                        path: '/json',
+                        summary: 'JSON',
+                        response,
+                        format,
+                        responseHeaders: { 'X-Total-Count': 'Total' },
+                    });
+
+                    expect(() => createRouteRegistry().register(def, () => ({}) as any)).toThrow(
+                        'v2 route GET /json: only a text route can have responseHeaders'
+                    );
+                }
+            );
         });
 
         describe('that is already registered', () => {
@@ -410,8 +483,68 @@ describe('v2 route registry', () => {
             expect(body.message).toContain('v2 route GET /raw-object: raw handler must return a Buffer');
         });
 
-        it('should record raw on the def', () => {
-            expect(rawRegistry.routes.map((r) => r.raw)).toEqual([true, true]);
+        it('should record the format on the def', () => {
+            expect(rawRegistry.routes.map((r) => r.format)).toEqual(['raw', 'raw']);
+        });
+    });
+
+    describe('a text route', () => {
+        it('should send the body as text/plain with its headers', async () => {
+            const response = await got(`${baseUrl}/text`, { throwHttpErrors: false });
+
+            expect(response.statusCode).toBe(200);
+            expect(response.headers['content-type']).toStartWith('text/plain');
+            expect(response.headers['x-total-count']).toBe('1');
+            expect(response.body).toBe('id\n1\n');
+        });
+
+        it('should send an empty body as text/plain', async () => {
+            const response = await got(`${baseUrl}/text-no-headers`, { throwHttpErrors: false });
+
+            expect(response.statusCode).toBe(200);
+            expect(response.headers['content-type']).toStartWith('text/plain');
+            expect(response.headers).not.toHaveProperty('x-total-count');
+            expect(response.body).toBe('');
+        });
+
+        it('should respond with a 500 if the handler does not return { body }', async () => {
+            const { status, body } = await request('/text-string');
+
+            expect(status).toBe(500);
+            expect(body.message).toContain(
+                'v2 route GET /text-string: text handler must return { body: string }'
+            );
+        });
+
+        it('should respond with a 500 for a header not in responseHeaders', async () => {
+            const { status, body } = await request('/text-undeclared');
+
+            expect(status).toBe(500);
+            expect(body.message).toContain(
+                'v2 route GET /text-undeclared: headers not in responseHeaders: X-Nope'
+            );
+        });
+
+        it('should be documented as text/plain with its headers', () => {
+            const spec = generateV2Spec(textRegistry.routes, new TestContext('v2-routes-spec') as any);
+
+            expect(spec.paths?.['/v2/text'].get?.responses?.[200]).toEqual({
+                description: 'Success',
+                content: { 'text/plain': { schema: expect.objectContaining({ type: 'string' }) } },
+                headers: {
+                    'X-Total-Count': {
+                        description: 'Number of matching records',
+                        schema: { type: 'string' },
+                    },
+                },
+            });
+        });
+
+        it('should keep raw routes documented as JSON', () => {
+            const spec = generateV2Spec(rawRegistry.routes, new TestContext('v2-routes-spec') as any);
+
+            expect(spec.paths?.['/v2/raw'].get?.responses?.[200]?.content)
+                .toContainKey('application/json');
         });
     });
 
@@ -672,11 +805,31 @@ describe('v2 route registry', () => {
                     operationId: 'x', summary: 'X', response: z.object({ a: z.number() }),
                 };
 
-                raw.get('/raw', { ...spec, raw: true }, () => Buffer.from('{}'));
+                raw.get('/raw', { ...spec, format: 'raw' }, () => Buffer.from('{}'));
                 // @ts-expect-error a raw route returns a Buffer, not the response object
-                raw.get('/raw2', { ...spec, operationId: 'y', raw: true }, () => ({ a: 1 }));
+                raw.get('/raw2', { ...spec, operationId: 'y', format: 'raw' }, () => ({ a: 1 }));
                 // @ts-expect-error without raw, a Buffer isn't the response object
                 raw.get('/plain', { ...spec, operationId: 'z' }, () => Buffer.from('{}'));
+            }).not.toThrow();
+        });
+
+        it('should type a text handler as returning a TextResult', () => {
+            expect(() => {
+                const text = createRouteRegistry();
+                const spec = { operationId: 'x', summary: 'X', response: z.string() };
+
+                text.get('/text', { ...spec, format: 'text' }, () => ({ body: 'a' }));
+                text.get('/text2', { ...spec, operationId: 'y', format: 'text' }, () => ({
+                    body: 'a', headers: { 'X-Total-Count': '1' }
+                }));
+                // @ts-expect-error a text route returns { body }, not a bare string
+                text.get('/text3', { ...spec, operationId: 'z', format: 'text' }, () => 'a');
+                text.get('/text4', { ...spec, operationId: 'w', format: 'text' }, () => ({
+                    // @ts-expect-error header values are strings
+                    body: 'a', headers: { 'X-Total-Count': 1 }
+                }));
+                // @ts-expect-error not a ResponseFormat
+                text.get('/text5', { ...spec, operationId: 'v', format: 'csv' }, () => 'a');
             }).not.toThrow();
         });
 

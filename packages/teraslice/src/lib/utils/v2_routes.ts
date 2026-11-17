@@ -33,28 +33,48 @@ export interface RouteInput<P, Q, B> {
 }
 
 /**
- * What a handler returns: the response schema's output, or, on a `raw`
- * route, a Buffer that already holds the serialized JSON response.
+ * How a route sends its response, set by `format` on the route spec:
+ * - `json` (the default): the handler returns the response object, which is
+ *   sent as JSON.
+ * - `raw`: the handler returns a Buffer that already holds the serialized
+ *   JSON, which is sent as-is with a JSON content type. For pass-through
+ *   responses (the slice tap) where parsing just to re-serialize would cost a
+ *   copy of every record. `response` still describes the JSON for clients and
+ *   the spec, but the handler's return is no longer type checked against it.
+ * - `text`: the handler returns a `TextResult`, whose body is sent as
+ *   `text/plain` with its headers set. `response` must be a string schema.
  */
-export type RouteResult<R extends z.ZodType, X extends boolean>
-    = X extends true ? Buffer : z.output<R>;
+export type ResponseFormat = 'json' | 'raw' | 'text';
+
+/** What the handler of a `text` route returns */
+export interface TextResult {
+    body: string;
+    /** Response headers to set; each must be declared in `responseHeaders` */
+    headers?: Record<string, string>;
+}
+
+/** What a handler returns for each `ResponseFormat` */
+export type RouteResult<R extends z.ZodType, F extends ResponseFormat>
+    = F extends 'raw' ? Buffer
+        : F extends 'text' ? TextResult
+            : z.output<R>;
 
 /**
  * A v2 route handler. Receives the parsed params/query/body (coercion and
- * defaults applied) and returns the response body, typed as the response
- * schema's output (a Buffer on a `raw` route).
+ * defaults applied) and returns the response body: the response schema's
+ * output, a Buffer on a `raw` route, or a `TextResult` on a `text` route.
  */
 export type RouteHandler<
     P extends ParamsSchema | undefined,
     Q extends ParamsSchema | undefined,
     B extends z.ZodType | undefined,
     R extends z.ZodType,
-    X extends boolean = false
+    F extends ResponseFormat = 'json'
 > = (
     input: RouteInput<P, Q, B>,
     req: TerasliceRequest,
     res: TerasliceResponse
-) => RouteResult<R, X> | Promise<RouteResult<R, X>>;
+) => RouteResult<R, F> | Promise<RouteResult<R, F>>;
 
 /**
  * A route's path params as express passes them, before validation: the
@@ -84,7 +104,7 @@ export interface RouteSpec<
     Q extends ParamsSchema | undefined = undefined,
     B extends z.ZodType | undefined = undefined,
     R extends z.ZodType = z.ZodType,
-    X extends boolean = false
+    F extends ResponseFormat = 'json'
 > {
     /**
      * Unique id for the route, used as the OpenAPI `operationId` (and by
@@ -99,15 +119,14 @@ export interface RouteSpec<
     query?: Q;
     body?: B;
     response: R;
+    /** How the response is sent; see `ResponseFormat`. Defaults to `json` */
+    format?: F;
     /**
-     * The handler returns a Buffer of already-serialized JSON, which is sent
-     * as-is with a JSON content type instead of being re-serialized. For
-     * pass-through responses (the slice tap) where parsing just to
-     * re-serialize would cost a copy of every record. `response` still
-     * describes the JSON for clients and the spec, but the handler's return
-     * is no longer type checked against it.
+     * Headers a `text` route may send, with a description of each for the
+     * OpenAPI spec, e.g. `{ 'X-Total-Count': 'Number of matching records' }`.
+     * Only allowed on `text` routes.
      */
-    raw?: X;
+    responseHeaders?: Record<string, string>;
 }
 
 /**
@@ -118,14 +137,15 @@ export interface RouteSpec<
  * @template Q - query params schema
  * @template B - request body schema
  * @template R - response body schema
+ * @template F - response format
  */
 export interface RouteDef<
     P extends ParamsSchema | undefined = undefined,
     Q extends ParamsSchema | undefined = undefined,
     B extends z.ZodType | undefined = undefined,
     R extends z.ZodType = z.ZodType,
-    X extends boolean = false
-> extends RouteSpec<P, Q, B, R, X> {
+    F extends ResponseFormat = 'json'
+> extends RouteSpec<P, Q, B, R, F> {
     method: RouteMethod;
     /** Express-style path, relative to /v2, e.g. `/jobs/:jobId` */
     path: string;
@@ -137,7 +157,7 @@ export type AnyRouteDef = RouteDef<
     ParamsSchema | undefined,
     z.ZodType | undefined,
     z.ZodType,
-    boolean
+    ResponseFormat
 >;
 
 /** Registers a route for one HTTP method; see `RouteRegistry.register` */
@@ -146,11 +166,11 @@ export type MethodRegister = <
     Q extends ParamsSchema | undefined = undefined,
     B extends z.ZodType | undefined = undefined,
     R extends z.ZodType = z.ZodType,
-    X extends boolean = false
+    F extends ResponseFormat = 'json'
 >(
     path: string,
-    spec: RouteSpec<P, Q, B, R, X>,
-    handler: RouteHandler<P, Q, B, R, X>,
+    spec: RouteSpec<P, Q, B, R, F>,
+    handler: RouteHandler<P, Q, B, R, F>,
     options?: RegisterOptions<P>
 ) => void;
 
@@ -166,6 +186,8 @@ export interface RouteRegistry {
      * - `params` or `query` isn't a `z.strictObject`
      * - the `params` keys don't match the path's `:params`
      * - the method + path, or the operationId, is already registered
+     * - a `text` route's `response` isn't a string schema, or a route that
+     *   isn't `text` sets `responseHeaders`
      *
      * On each request, validates against the def's schemas and responds with
      * a 400 in the standard `sendError` shape if:
@@ -173,17 +195,19 @@ export interface RouteRegistry {
      * - the def has no `query` schema and any query param is sent
      * - the def has no `body` schema and a non-empty body is sent
      *
-     * On a `raw` route, a handler result that isn't a Buffer is a 500.
+     * On a `raw` route, a handler result that isn't a Buffer is a 500. On a
+     * `text` route, so is a result without a string body, or with a header
+     * that isn't in `responseHeaders`.
      */
     register<
         P extends ParamsSchema | undefined,
         Q extends ParamsSchema | undefined,
         B extends z.ZodType | undefined,
         R extends z.ZodType,
-        X extends boolean = false
+        F extends ResponseFormat = 'json'
     >(
-        def: RouteDef<P, Q, B, R, X>,
-        handler: RouteHandler<P, Q, B, R, X>,
+        def: RouteDef<P, Q, B, R, F>,
+        handler: RouteHandler<P, Q, B, R, F>,
         options?: RegisterOptions<P>
     ): void;
     /**
@@ -289,6 +313,47 @@ function assertStrictParts(def: AnyRouteDef): void {
 }
 
 /**
+ * Throws if a `text` route's `response` isn't a string schema (it describes
+ * the body in the spec), or if a route that isn't `text` declares
+ * `responseHeaders` (only a `text` handler can send headers).
+ */
+function assertFormat(def: AnyRouteDef): void {
+    if (def.format === 'text') {
+        if (def.response._zod.def.type !== 'string') {
+            throw new Error(`${routeLabel(def)}: a text route's response must be a string schema`);
+        }
+        return;
+    }
+
+    if (def.responseHeaders) {
+        throw new Error(`${routeLabel(def)}: only a text route can have responseHeaders`);
+    }
+}
+
+/**
+ * Checks a `text` handler's result and returns its body, after setting its
+ * headers and the `text/plain` content type.
+ */
+function sendText(def: AnyRouteDef, result: unknown, res: TerasliceResponse): string {
+    if (!isPlainObject(result) || typeof (result as TextResult).body !== 'string') {
+        throw new TSError(`${routeLabel(def)}: text handler must return { body: string }`);
+    }
+
+    const { body, headers = {} } = result as TextResult;
+    const declared = Object.keys(def.responseHeaders ?? {});
+    const undeclared = Object.keys(headers).filter((name) => !declared.includes(name));
+    if (undeclared.length) {
+        throw new TSError(
+            `${routeLabel(def)}: headers not in responseHeaders: ${undeclared.join(', ')}`
+        );
+    }
+
+    res.set(headers);
+    res.type('text/plain');
+    return body;
+}
+
+/**
  * Names of the params in an express path, e.g. `/jobs/:jobId` → `['jobId']`.
  * Covers named params (`:name`) and named wildcards (`*name`).
  */
@@ -348,6 +413,7 @@ export function createRouteRegistry(router: Router = Router()): RouteRegistry {
 
     const register: RouteRegistry['register'] = (def, handler, { errorMessage } = {}) => {
         assertStrictParts(def);
+        assertFormat(def);
         assertParamsMatchPath(def);
         assertUnique(def, routes);
 
@@ -363,9 +429,11 @@ export function createRouteRegistry(router: Router = Router()): RouteRegistry {
                     body: parseBody(def.body, req.body),
                 } as Parameters<typeof handler>[0];
 
-                if (!def.raw) return handler(input, req, res);
-
                 const result = await handler(input, req, res);
+
+                if (def.format === 'text') return sendText(def, result, res);
+                if (def.format !== 'raw') return result;
+
                 if (!Buffer.isBuffer(result)) {
                     throw new TSError(`${routeLabel(def)}: raw handler must return a Buffer`);
                 }
