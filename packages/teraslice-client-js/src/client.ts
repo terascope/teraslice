@@ -62,6 +62,22 @@ export default class Client {
         return page.data;
     }
 
+    /**
+     * GET one page of a /v2 list route, `{ data, pagination }`. v1 list
+     * routes return only an array, so this is a 400 on v1.
+     */
+    protected async getPage<P extends TerasliceApiV2.Page<unknown>>(
+        endpoint: string,
+        options?: RequestOptions
+    ): Promise<P> {
+        if (!this.isV2) {
+            throw new TSError('Pages need apiVersion /v2, v1 list routes don\'t return pagination', {
+                statusCode: 400
+            });
+        }
+        return this.get<P>(endpoint, options);
+    }
+
     async post<T = any>(endpoint: string, data?: unknown, options?: RequestOptions): Promise<T> {
         return this._makeRequest<T>('post', endpoint, options, data);
     }

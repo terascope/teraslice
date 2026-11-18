@@ -1,5 +1,5 @@
 import { TSError } from '@terascope/core-utils';
-import { Teraslice } from '@terascope/types';
+import { Teraslice, TerasliceApiV2 } from '@terascope/types';
 import autoBind from 'auto-bind';
 import Client from './client.js';
 import Job from './job.js';
@@ -54,6 +54,18 @@ export default class Jobs extends Client {
         searchOptions: RequestOptions = {}
     ): Promise<Teraslice.JobConfig[]> {
         return this.getList('/jobs', this.makeOptions(query, searchOptions));
+    }
+
+    /**
+     * One page of jobs, with its `pagination`. Send `pagination.next_cursor`
+     * as `cursor`, with the same query, for the next page; or use `pages()`.
+     * /v2 only.
+     */
+    async listPage(
+        query: TerasliceApiV2.GetJobsQuery = {},
+        searchOptions: RequestOptions = {}
+    ): Promise<TerasliceApiV2.JobWithExecutionPage> {
+        return this.getPage('/jobs', this.makeOptions(query, searchOptions));
     }
 
     /**

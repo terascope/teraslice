@@ -1,7 +1,13 @@
 import type { TerasliceApiV2 } from '@terascope/types';
 
-/** A /v2 list response holding `data` as one complete page */
-export function v2Page<T>(data: T[]): TerasliceApiV2.Page<T> {
+/**
+ * A /v2 list response holding `data`, by default as one complete page.
+ * `pagination` overrides its pagination, e.g. a `next_cursor`.
+ */
+export function v2Page<T>(
+    data: T[],
+    pagination: Partial<TerasliceApiV2.Pagination> = {}
+): TerasliceApiV2.Page<T> {
     return {
         data,
         pagination: {
@@ -10,6 +16,7 @@ export function v2Page<T>(data: T[]): TerasliceApiV2.Page<T> {
             size: 100,
             has_more: false,
             next_cursor: null,
+            ...pagination,
         },
     };
 }

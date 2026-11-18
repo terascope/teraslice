@@ -281,6 +281,26 @@ describe('Teraslice Jobs', () => {
             const v2Jobs = new Jobs({ baseUrl: 'http://teraslice.example.dev', apiVersion: '/v2' });
             await expect(v2Jobs.list({ size: 10 })).resolves.toEqual(list);
         });
+
+        it('should return the whole page for listPage, and send the cursor', async () => {
+            const page = v2Page(list, {
+                total: 5, from: 2, size: 1, has_more: true, next_cursor: 'next'
+            });
+            nock('http://teraslice.example.dev/v2')
+                .get('/jobs')
+                .query({ size: 1, cursor: 'abc', active: true })
+                .reply(200, page);
+
+            const v2Jobs = new Jobs({ baseUrl: 'http://teraslice.example.dev', apiVersion: '/v2' });
+            await expect(v2Jobs.listPage({ size: 1, cursor: 'abc', active: 'true' }))
+                .resolves.toEqual(page);
+        });
+    });
+
+    describe('->listPage on /v1', () => {
+        it('should reject, since v1 has no pagination', async () => {
+            await expect(jobs.listPage()).rejects.toThrow('Pages need apiVersion /v2');
+        });
     });
 
     // nock >= 15 patches the shared http module, so undo it before the next test file in the worker
