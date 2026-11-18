@@ -14,13 +14,14 @@ import { findPort } from '../../src/lib/utils/port_utils.js';
 import { ApiService } from '../../src/lib/cluster/services/api/api.js';
 import { createV2Registry } from '../../src/lib/cluster/services/api/v2/routes.js';
 import { getPackageJSON } from '../../src/lib/utils/file_utils.js';
+import { encodeCursor, queryKey } from '../../src/lib/utils/cursor.js';
 import { makeResultWindowError } from '../utils/search-errors.js';
 
 const dirname = nodePath.dirname(fileURLToPath(import.meta.url));
 
 const notDeleted = '(_deleted:false OR (* AND -_deleted:*))';
 const resultWindowMessage = 'from + size must be less than or equal to 10000 '
-    + '(the index\'s max_result_window), got 10100. Use filter to narrow the search.';
+    + '(the index\'s max_result_window), got 10100. Use cursor to page further, or filter to narrow the search.';
 
 const jobConfig = {
     name: 'test-job',
@@ -73,6 +74,18 @@ const sliceErrors = [{
 function withTotal<T>(records: T[], total = records.length) {
     return { records, total };
 }
+
+/** A storage `searchWithTotal()` result with the last record's sort values */
+function withSort<T>(records: T[], total: number, lastSort: unknown[]) {
+    return { records, total, lastSort };
+}
+
+/** The JSON inside a cursor, which is opaque to clients */
+function readCursor(cursor: string) {
+    return JSON.parse(Buffer.from(cursor, 'base64url').toString('utf8'));
+}
+
+const differentQueryMessage = 'The cursor is for a different query';
 
 /** The `pagination` of a page, with the defaults of a request with no paging params */
 function pagination(fields: Record<string, any> = {}) {
@@ -252,12 +265,62 @@ describe('HTTP API v2', () => {
 
             expect(first.body).toEqual({
                 data: [{ ex_id: 'ex-a' }, { ex_id: 'ex-b' }],
-                pagination: pagination({ total: 5, size: 2, has_more: true }),
+                pagination: pagination({
+                    total: 5, size: 2, has_more: true, next_cursor: expect.any(String)
+                }),
             });
             expect(last.body).toEqual({
                 data: [{ ex_id: 'ex-e' }],
                 pagination: pagination({ total: 5, from: 4, size: 2 }),
             });
+        });
+
+        it('should page the controller stats with cursors', async () => {
+            getControllerStats.mockResolvedValue(
+                ['ex-c', 'ex-a', 'ex-e', 'ex-b', 'ex-d'].map((ex_id) => ({ ex_id }))
+            );
+
+            const seen: string[] = [];
+            let cursor: string | undefined;
+            do {
+                const { body } = await request('GET', '/v2/cluster/controllers', {
+                    searchParams: { size: '2', ...(cursor && { cursor }) }
+                });
+                expect(body.pagination.from).toBe(seen.length);
+                seen.push(...body.data.map(({ ex_id }: { ex_id: string }) => ex_id));
+                cursor = body.pagination.next_cursor ?? undefined;
+            } while (cursor);
+
+            expect(seen).toEqual(['ex-a', 'ex-b', 'ex-c', 'ex-d', 'ex-e']);
+        });
+
+        it('should start after the cursor\'s controller when it has gone away', async () => {
+            getControllerStats.mockResolvedValue(
+                ['ex-a', 'ex-b', 'ex-c', 'ex-d'].map((ex_id) => ({ ex_id }))
+            );
+            const first = await request('GET', '/v2/cluster/controllers', {
+                searchParams: { size: '2' }
+            });
+
+            getControllerStats.mockResolvedValue(
+                ['ex-a', 'ex-c', 'ex-d'].map((ex_id) => ({ ex_id }))
+            );
+            const second = await request('GET', '/v2/cluster/controllers', {
+                searchParams: { size: '2', cursor: first.body.pagination.next_cursor }
+            });
+
+            expect(second.body.data).toEqual([{ ex_id: 'ex-c' }, { ex_id: 'ex-d' }]);
+        });
+
+        it('should reject a cursor from another list', async () => {
+            const cursor = encodeCursor({ after: ['ex-a'], from: 1, key: queryKey('workers') });
+
+            const response = await request('GET', '/v2/cluster/controllers', {
+                searchParams: { cursor }
+            });
+
+            expect(response.statusCode).toEqual(400);
+            expect(response.body.message).toContain(differentQueryMessage);
         });
 
         it.each([
@@ -568,6 +631,144 @@ describe('HTTP API v2', () => {
                     pagination: pagination({ total: 12, size: 0, has_more: true }),
                 });
                 expect(searchWithTotal.mock.calls[0][0].size).toBe(0);
+            });
+
+            describe('cursor', () => {
+                /** The first page of 2 of 5 jobs, sorted by `sort` */
+                async function firstPage(searchParams: Record<string, string> = {}) {
+                    searchWithTotal.mockResolvedValueOnce(
+                        withSort([job, job], 5, [1700000000000, 'job-2'])
+                    );
+                    const response = await request('GET', '/v2/jobs', {
+                        searchParams: { size: '2', ...searchParams }
+                    });
+                    return response.body.pagination.next_cursor as string;
+                }
+
+                it('should return a cursor after the last job, counting the jobs', async () => {
+                    const cursor = await firstPage();
+
+                    expect(readCursor(cursor)).toEqual({
+                        v: 1, after: [1700000000000, 'job-2'], from: 2, key: expect.any(String)
+                    });
+                });
+
+                it('should search after the cursor from 0, reporting its from', async () => {
+                    const cursor = await firstPage({ sort: 'name:asc', filter: 'name:foo' });
+                    searchWithTotal.mockResolvedValue(withSort([job, job], 5, [1, 'job-4']));
+
+                    const response = await request('GET', '/v2/jobs', {
+                        searchParams: {
+                            size: '2', sort: 'name:asc', filter: 'name:foo', cursor
+                        }
+                    });
+
+                    expect(response.statusCode).toEqual(200);
+                    expect(searchWithTotal).toHaveBeenLastCalledWith({
+                        query: `(job_id:* AND ${notDeleted}) AND (name:foo)`,
+                        from: 0,
+                        searchAfter: [1700000000000, 'job-2'],
+                        size: 2,
+                        sort: 'name:asc',
+                    });
+                    expect(response.body.pagination).toEqual(pagination({
+                        total: 5, from: 2, size: 2, has_more: true, next_cursor: expect.any(String)
+                    }));
+                    expect(readCursor(response.body.pagination.next_cursor))
+                        .toMatchObject({ after: [1, 'job-4'], from: 4 });
+                });
+
+                it('should keep a long sentinel exact', async () => {
+                    searchWithTotal.mockResolvedValueOnce(
+                        withSort([job], 5, [9223372036854775807n, 'job-1'])
+                    );
+                    const first = await request('GET', '/v2/jobs', {
+                        searchParams: { size: '1', sort: '_deleted_on:asc' }
+                    });
+
+                    await request('GET', '/v2/jobs', {
+                        searchParams: {
+                            size: '1', sort: '_deleted_on:asc', cursor: first.body.pagination.next_cursor
+                        }
+                    });
+
+                    expect(searchWithTotal.mock.calls[1][0].searchAfter)
+                        .toEqual([9223372036854775807n, 'job-1']);
+                });
+
+                it('should pass the cursor through with ?ex', async () => {
+                    const cursor = await firstPage();
+                    getJobsWithExInfoAndTotal.mockResolvedValue(withTotal([{ ...job, ex: {} }], 5));
+
+                    const response = await request('GET', '/v2/jobs', {
+                        searchParams: { size: '3', ex: '_status', cursor }
+                    });
+
+                    expect(response.statusCode).toEqual(200);
+                    expect(getJobsWithExInfoAndTotal).toHaveBeenCalledWith(expect.objectContaining({
+                        from: 0, searchAfter: [1700000000000, 'job-2'], size: 3
+                    }));
+                });
+
+                it('should work with the default sort sent as an empty ?sort', async () => {
+                    const cursor = await firstPage();
+
+                    const response = await request('GET', '/v2/jobs', {
+                        searchParams: { sort: '', cursor }
+                    });
+
+                    expect(response.statusCode).toEqual(200);
+                });
+
+                it.each([
+                    ['sort', 'name:desc'],
+                    ['filter', 'name:bar'],
+                    ['active', 'true'],
+                    ['deleted', 'true'],
+                ])('should reject the cursor with another %s', async (key, value) => {
+                    const cursor = await firstPage();
+
+                    const response = await request('GET', '/v2/jobs', {
+                        searchParams: { [key]: value, cursor }
+                    });
+
+                    expect(response.statusCode).toEqual(400);
+                    expect(response.body.message).toContain(differentQueryMessage);
+                    expect(response.body.message).toContain('cursor');
+                    expect(searchWithTotal).toHaveBeenCalledTimes(1);
+                });
+
+                it('should reject a cursor that isn\'t one', async () => {
+                    const response = await request('GET', '/v2/jobs', {
+                        searchParams: { cursor: 'abc' }
+                    });
+
+                    expect(response.statusCode).toEqual(400);
+                    expect(response.body.message).toContain('Invalid cursor');
+                    expect(searchWithTotal).not.toHaveBeenCalled();
+                });
+
+                it('should have no cursor on the last page', async () => {
+                    searchWithTotal.mockResolvedValue(withSort([job], 5, [1, 'job-5']));
+
+                    const response = await request('GET', '/v2/jobs', {
+                        searchParams: { from: '4', size: '2' }
+                    });
+
+                    expect(response.body.pagination).toMatchObject({
+                        has_more: false, next_cursor: null
+                    });
+                });
+
+                it('should have no cursor for size=0', async () => {
+                    searchWithTotal.mockResolvedValue(withTotal([], 12));
+
+                    const response = await request('GET', '/v2/jobs', { searchParams: { size: '0' } });
+
+                    expect(response.body.pagination).toMatchObject({
+                        has_more: true, next_cursor: null
+                    });
+                });
             });
 
             it('should use the default sort for an empty ?sort, like v1', async () => {
@@ -1268,6 +1469,40 @@ describe('HTTP API v2', () => {
             );
         });
 
+        it('should page with cursors', async () => {
+            searchWithTotal.mockResolvedValueOnce(withSort([execution], 3, [1, 'ex-1']));
+            const first = await request('GET', '/v2/ex', {
+                searchParams: { size: '1', job_id: 'job-1', status: 'running' }
+            });
+
+            const second = await request('GET', '/v2/ex', {
+                searchParams: {
+                    size: '1', job_id: 'job-1', status: 'running', cursor: first.body.pagination.next_cursor
+                }
+            });
+
+            expect(second.statusCode).toEqual(200);
+            expect(second.body.pagination).toMatchObject({ from: 1 });
+            expect(searchWithTotal).toHaveBeenLastCalledWith(expect.objectContaining({
+                from: 0, searchAfter: [1, 'ex-1'], size: 1
+            }));
+        });
+
+        it.each([
+            ['job_id', 'job-2'],
+            ['status', 'failed'],
+        ])('should reject the cursor with another %s', async (key, value) => {
+            searchWithTotal.mockResolvedValueOnce(withSort([execution], 3, [1, 'ex-1']));
+            const first = await request('GET', '/v2/ex', { searchParams: { size: '1' } });
+
+            const response = await request('GET', '/v2/ex', {
+                searchParams: { [key]: value, cursor: first.body.pagination.next_cursor }
+            });
+
+            expect(response.statusCode).toEqual(400);
+            expect(response.body.message).toContain(differentQueryMessage);
+        });
+
         it('should explain a page past max_result_window', async () => {
             searchWithTotal.mockRejectedValue(makeResultWindowError(10000, 10100));
 
@@ -1324,6 +1559,34 @@ describe('HTTP API v2', () => {
                 expect(response.body.pagination).toEqual(pagination({
                     total: 12000, size: 1, has_more: true
                 }));
+            });
+
+            it('should page with cursors for the same execution only', async () => {
+                stateSearchWithTotal.mockResolvedValueOnce(
+                    withSort(sliceErrors, 3, [1700000000000, 'slice-1'])
+                );
+                const first = await request('GET', '/v2/ex/ex-2/errors', {
+                    searchParams: { size: '1' }
+                });
+                const cursor = first.body.pagination.next_cursor;
+
+                const second = await request('GET', '/v2/ex/ex-2/errors', {
+                    searchParams: { size: '1', cursor }
+                });
+                const otherEx = await request('GET', '/v2/ex/ex-3/errors', {
+                    searchParams: { size: '1', cursor }
+                });
+
+                expect(second.statusCode).toEqual(200);
+                expect(stateSearchWithTotal).toHaveBeenLastCalledWith({
+                    query: 'state:error AND ex_id:"ex-2"',
+                    from: 0,
+                    searchAfter: [1700000000000, 'slice-1'],
+                    size: 1,
+                    sort: '_updated:desc',
+                });
+                expect(otherEx.statusCode).toEqual(400);
+                expect(otherEx.body.message).toContain(differentQueryMessage);
             });
 
             it('should respond with a 400 for an unknown query param', async () => {
@@ -1439,7 +1702,7 @@ describe('HTTP API v2', () => {
 
         describe('GET /v2/txt/jobs', () => {
             it('should print v1\'s default columns, the footer and the paging headers', async () => {
-                jobsSearchWithTotal.mockResolvedValue(withTotal([job], 3));
+                jobsSearchWithTotal.mockResolvedValue(withSort([job], 3, [1, 'job-1']));
 
                 const response = await requestText('/txt/jobs', { size: '1' });
                 const { rows, footer } = parseTable(response.body);
@@ -1448,13 +1711,37 @@ describe('HTTP API v2', () => {
                 expect(response.headers['content-type']).toStartWith('text/plain');
                 expect(rows[0]).toEqual(['job_id', 'name', 'active', 'lifecycle', 'slicers', 'workers', '_created', '_updated']);
                 expect(rows[2]).toEqual(['job-1', 'test-job', 'true', 'persistent', '1', '2', job._created, job._updated]);
-                expect(footer).toEqual(['Showing 1-1 of 3', 'next: ?from=1&size=1']);
+                const cursor = response.headers['x-next-cursor'];
+                expect(footer).toEqual(['Showing 1-1 of 3', `next: ?size=1&cursor=${cursor}`]);
                 expect(response.headers).toMatchObject({
                     'x-total-count': '3',
                     'x-from': '0',
                     'x-size': '1',
                 });
+                expect(readCursor(cursor)).toMatchObject({ after: [1, 'job-1'], from: 1 });
                 expect(response.headers).not.toHaveProperty('x-total-relation');
+            });
+
+            it('should leave out the next cursor on the last page', async () => {
+                const response = await requestText('/txt/jobs');
+
+                expect(parseTable(response.body).footer).toEqual(['Showing 1-1 of 1']);
+                expect(response.headers).not.toHaveProperty('x-next-cursor');
+            });
+
+            it('should share cursors with GET /v2/jobs', async () => {
+                jobsSearchWithTotal.mockResolvedValueOnce(withSort([job], 3, [1, 'job-1']));
+                const json = await request('GET', '/v2/jobs', {
+                    searchParams: { size: '1', active: 'true' }
+                });
+
+                const response = await requestText('/txt/jobs', {
+                    size: '1', active: 'true', cursor: json.body.pagination.next_cursor
+                });
+
+                expect(response.statusCode).toEqual(200);
+                expect(response.body).toContain('Showing 2-2 of 1');
+                expect(jobsSearchWithTotal.mock.calls[1][0].searchAfter).toEqual([1, 'job-1']);
             });
 
             it('should search like GET /v2/jobs', async () => {
@@ -1536,8 +1823,18 @@ describe('HTTP API v2', () => {
             it('should page the sorted workers', async () => {
                 const response = await requestText('/txt/workers', { from: '1', size: '2', fields: 'pid' });
 
+                const cursor = response.headers['x-next-cursor'];
                 expect(firstColumn(response.body)).toEqual(['102', '101']);
-                expect(parseTable(response.body).footer).toEqual(['Showing 2-3 of 4', 'next: ?from=3&size=2']);
+                expect(parseTable(response.body).footer).toEqual(['Showing 2-3 of 4', `next: ?size=2&cursor=${cursor}`]);
+                expect(readCursor(cursor)).toMatchObject({
+                    after: ['ex-b', 'execution_controller', 1], from: 3
+                });
+
+                const next = await requestText('/txt/workers', { cursor, size: '2', fields: 'pid' });
+
+                expect(firstColumn(next.body)).toEqual(['110']);
+                expect(parseTable(next.body).footer).toEqual(['Showing 4-4 of 4']);
+                expect(next.headers).not.toHaveProperty('x-next-cursor');
             });
 
             it.each([
@@ -1570,6 +1867,17 @@ describe('HTTP API v2', () => {
                 expect(firstColumn(response.body)).toEqual(['node-b']);
                 expect(response.headers['x-total-count']).toBe('2');
             });
+
+            it('should page the sorted nodes with cursors', async () => {
+                const first = await requestText('/txt/nodes', { size: '1' });
+                const next = await requestText('/txt/nodes', {
+                    size: '1', cursor: first.headers['x-next-cursor']
+                });
+
+                expect(firstColumn(first.body)).toEqual(['node-a']);
+                expect(firstColumn(next.body)).toEqual(['node-b']);
+                expect(next.headers).not.toHaveProperty('x-next-cursor');
+            });
         });
 
         describe('GET /v2/txt/controllers', () => {
@@ -1587,8 +1895,21 @@ describe('HTTP API v2', () => {
             it('should page the sorted controllers', async () => {
                 const response = await requestText('/txt/controllers', { size: '1' });
 
+                const cursor = response.headers['x-next-cursor'];
                 expect(firstColumn(response.body)).toEqual(['job-a']);
-                expect(parseTable(response.body).footer).toEqual(['Showing 1-1 of 2', 'next: ?from=1&size=1']);
+                expect(parseTable(response.body).footer).toEqual(['Showing 1-1 of 2', `next: ?size=1&cursor=${cursor}`]);
+            });
+
+            it('should share cursors with GET /v2/cluster/controllers', async () => {
+                const json = await request('GET', '/v2/cluster/controllers', {
+                    searchParams: { size: '1' }
+                });
+
+                const response = await requestText('/txt/controllers', {
+                    size: '1', cursor: json.body.pagination.next_cursor
+                });
+
+                expect(firstColumn(response.body)).toEqual(['job-b']);
             });
         });
 
@@ -1817,8 +2138,26 @@ describe('HTTP API v2', () => {
             expect(ok.content['text/plain'].schema)
                 .toEqual({ $ref: '#/components/schemas/TxtTable' });
             expect(Object.keys(ok.headers))
-                .toEqual(['X-Total-Count', 'X-From', 'X-Size']);
+                .toEqual(['X-Total-Count', 'X-From', 'X-Size', 'X-Next-Cursor']);
             expect(spec.paths['/v2/txt/jobs'].get.tags).toEqual(['Text']);
+        });
+
+        it.each([
+            ['/v2/jobs'],
+            ['/v2/ex'],
+            ['/v2/jobs/{jobId}/errors'],
+            ['/v2/ex/{exId}/errors'],
+            ['/v2/cluster/controllers'],
+            ['/v2/txt/jobs'],
+            ['/v2/txt/ex'],
+            ['/v2/txt/workers'],
+            ['/v2/txt/nodes'],
+            ['/v2/txt/controllers'],
+        ])('should list the cursor query param on %s', (path) => {
+            const names = spec.paths[path].get.parameters.map((param: any) => param.name);
+
+            expect(names).toContain('cursor');
+            expect(names).toContain('from');
         });
 
         it('should have unique operationIds', () => {

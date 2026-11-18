@@ -93,7 +93,7 @@ describe('apiUtils', () => {
             expect((err as TSError).statusCode).toBe(400);
             expect((err as TSError).message).toBe(
                 'from + size must be less than or equal to 50000 (the index\'s max_result_window), '
-                + 'got 50100. Use filter to narrow the search.'
+                + 'got 50100. Use cursor to page further, or filter to narrow the search.'
             );
         });
 
@@ -104,7 +104,7 @@ describe('apiUtils', () => {
 
             expect((err as TSError).statusCode).toBe(400);
             expect((err as TSError).message).toBe(
-                'from + size is larger than the index\'s max_result_window. Use filter to narrow the search.'
+                'from + size is larger than the index\'s max_result_window. Use cursor to page further, or filter to narrow the search.'
             );
         });
 
@@ -194,19 +194,19 @@ describe('apiUtils', () => {
             expect(footer(output)).toEqual(['Showing 1-2 of 2']);
         });
 
-        it('should give the next page when there is more', () => {
+        it('should give the next page\'s cursor when there is one', () => {
             const output = printPagedTable({
                 page: page(data, {
-                    total: 1523, from: 100, size: 2, has_more: true
+                    total: 1523, from: 100, size: 2, has_more: true, next_cursor: 'abc'
                 }),
                 fields: ['name'],
                 headers: true,
             });
 
-            expect(footer(output)).toEqual(['Showing 101-102 of 1,523', 'next: ?from=102&size=2']);
+            expect(footer(output)).toEqual(['Showing 101-102 of 1,523', 'next: ?size=2&cursor=abc']);
         });
 
-        it('should leave out next with size 0', () => {
+        it('should leave out next without a cursor', () => {
             const output = printPagedTable({
                 page: page([], { total: 5, size: 0, has_more: true }),
                 fields: ['name'],
@@ -243,15 +243,24 @@ describe('apiUtils', () => {
     describe('paginationHeaders', () => {
         it('should give every documented header as a string', () => {
             const headers = paginationHeaders({
-                total: 10000, from: 200, size: 100, has_more: true, next_cursor: null
+                total: 10000, from: 200, size: 100, has_more: true, next_cursor: 'abc'
             });
 
             expect(headers).toEqual({
                 'X-Total-Count': '10000',
                 'X-From': '200',
                 'X-Size': '100',
+                'X-Next-Cursor': 'abc',
             });
             expect(Object.keys(headers)).toEqual(Object.keys(paginationResponseHeaders));
+        });
+
+        it('should leave out X-Next-Cursor without a next cursor', () => {
+            const headers = paginationHeaders({
+                total: 10000, from: 9900, size: 100, has_more: false, next_cursor: null
+            });
+
+            expect(headers).not.toHaveProperty('X-Next-Cursor');
         });
     });
 });

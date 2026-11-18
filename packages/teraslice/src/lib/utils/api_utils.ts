@@ -61,10 +61,12 @@ export interface PrintPagedTableOptions<T extends Record<string, any>> extends O
  *
  * ```
  * Showing 101-200 of 1,523
- * next: ?from=200&size=100
+ * next: ?size=100&cursor=eyJ2IjoxLC...
  * ```
  *
- * The `next` line is left out when there's no more, or `size` is 0. With `headers: false` there's
+ * The `next` line is left out when there's no `next_cursor`: on the last page, or with `size` 0.
+ * It doesn't repeat the request's other params, which the next request must also send. With
+ * `headers: false` there's
  * no footer either, so the output is only rows.
  */
 export function printPagedTable<T extends Record<string, any>>({
@@ -78,15 +80,15 @@ export function printPagedTable<T extends Record<string, any>>({
 
 function pageFooter({ data, pagination }: TerasliceApiV2.Page<unknown>): string {
     const {
-        total, from, size, has_more: hasMore
+        total, from, size, next_cursor: nextCursor
     } = pagination;
     const shown = data.length === 0
         ? 'Showing 0'
         : `Showing ${from + 1}-${from + data.length}`;
 
     const lines = [`${shown} of ${total.toLocaleString('en-US')}`];
-    if (hasMore && size > 0) {
-        lines.push(`next: ?from=${from + size}&size=${size}`);
+    if (nextCursor) {
+        lines.push(`next: ?size=${size}&cursor=${nextCursor}`);
     }
     return `${lines.join('\n')}\n`;
 }
@@ -258,8 +260,8 @@ const resultWindowNumbersPattern = /less than or equal to: \[(\d+)\] but was \[(
 /**
  * Searches that page past an index's `max_result_window` fail with a 400
  * whose message points at the scroll API, which API callers can't use.
- * Returns a 400 with a message that keeps the limit and suggests `filter`
- * instead; any other error is returned unchanged.
+ * Returns a 400 with a message that keeps the limit and suggests `cursor`
+ * or `filter` instead; any other error is returned unchanged.
  */
 export function explainResultWindowError(err: unknown): unknown {
     const { statusCode, message } = parseErrorInfo(err);
@@ -270,7 +272,7 @@ export function explainResultWindowError(err: unknown): unknown {
         ? `from + size must be less than or equal to ${limit} (the index's max_result_window), got ${requested}`
         : 'from + size is larger than the index\'s max_result_window';
 
-    return new TSError(`${detail}. Use filter to narrow the search.`, {
+    return new TSError(`${detail}. Use cursor to page further, or filter to narrow the search.`, {
         statusCode: 400,
     });
 }
