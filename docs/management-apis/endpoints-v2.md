@@ -65,25 +65,47 @@ Query params are received as strings. v2 reads them as follows:
 Every list route returns one page of the list, with where it sits in the whole list:
 
 ```sh
-$ curl 'localhost:5678/v2/jobs?from=100&size=100'
+$ curl 'localhost:5678/v2/jobs?size=100'
 {
     "data": [ ... ],
     "pagination": {
         "total": 1523,
-        "from": 100,
+        "from": 0,
         "size": 100,
-        "has_more": true
+        "has_more": true,
+        "next_cursor": "eyJ2IjoxLCJhZnRlciI6WzE3..."
     }
 }
 ```
 
 - `data` - the records on this page. It can be shorter than `size`, or empty.
 - `total` - the exact number of records matching the request, across all pages.
-- `from`, `size` - the request's `from` and `size`, after defaults.
+- `from` - how many records come before this page: the request's `from`, or the position its
+  `cursor` continues from.
+- `size` - the request's `size`, after defaults.
 - `has_more` - whether there are records after this page: `from + data.length < total`.
+- `next_cursor` - send it as `cursor` to get the next page. `null` on the last page, and with
+  `size=0`.
 
-To read every record, request `from=0`, then add `size` to `from` until `has_more` is `false`.
-`size=0` returns only the total.
+To read every record, follow `next_cursor` until it's `null`. Send the same params with each
+request, adding `cursor` and leaving out `from`:
+
+```sh
+curl 'localhost:5678/v2/jobs?sort=_created:desc&size=100'
+curl 'localhost:5678/v2/jobs?sort=_created:desc&size=100&cursor=eyJ2IjoxLCJhZnRlciI6WzE3...'
+```
+
+- A cursor is only valid with the params of the request that returned it. A different `sort`,
+  `filter` or route param (`active`, `deleted`, `status`, `job_id`), or a cursor from another
+  route or execution, is a **400**: `The cursor is for a different query`. `size`, `fields`,
+  `headers` and `ex` can change between pages.
+- `cursor` with a `from` other than 0 is a **400**.
+- A cursor is opaque: send it as it was returned. Anything else is a **400**: `Invalid cursor`.
+  It's about 120-170 characters, depending on the `sort`.
+- `size=0` returns only the total, so it has no `next_cursor`.
+
+`from` (with `size`) also picks a page, e.g. to jump to page 5. `from + size` is limited by the
+window on search routes (see below); `cursor` isn't.
 
 | Route | Paged by |
 | ----- | -------- |
@@ -94,7 +116,10 @@ To read every record, request `from=0`, then add `size` to `from` until `has_mor
 | `GET /v2/txt/workers` | in memory, sorted by `ex_id`, `assignment`, then `worker_id` |
 | `GET /v2/txt/nodes` | in memory, sorted by `node_id` |
 
-**Search routes** take the [list query](#list-query) (`from`, `size`, `sort`, `filter`).
+**Search routes** take the [list query](#list-query) (`from`, `size`, `cursor`, `sort`,
+`filter`). Each search also sorts by the record's id (`job_id`, `ex_id` or `slice_id`) after
+the `sort`, so records that tie on the `sort` are always in the same order.
+
 `from + size` can't go past the index's `max_result_window` (10,000 unless the cluster changes
 it). A request past it is a **400**:
 
@@ -102,17 +127,32 @@ it). A request past it is a **400**:
 $ curl 'localhost:5678/v2/jobs?from=9950&size=100'
 {
     "error": 400,
-    "message": "from + size must be less than or equal to 10000 (the index's max_result_window), got 10050. Use filter to narrow the search."
+    "message": "from + size must be less than or equal to 10000 (the index's max_result_window), got 10050. Use cursor to page further, or filter to narrow the search."
 }
 ```
 
-To reach records past the window, narrow the search with `filter` or change the `sort`.
+With `cursor`, only `size` is limited by the window, so following `next_cursor` reaches every
+record, however many there are.
 
-Search routes page with `from` and no snapshot, so a record written between two requests can
-shift the pages: a record can be skipped or returned twice.
+A cursor continues after the last record of its page, by that record's `sort` values and id.
+So records added or deleted before that point between requests don't shift the next page,
+and a record that doesn't change isn't returned twice. There's no snapshot, though:
 
-**In-memory routes** take only [`from` and `size`](#in-memory-list-query). They page a list the
-master holds, so there's no window and no `sort` or `filter`.
+- A record added after that point, or whose `sort` field changes (e.g. `_updated`), shows up
+  where it now sorts. Sort by a field that doesn't change, such as `_created`, to avoid that.
+- `total` is counted again on each page, but `from` is a count carried in the cursor. When
+  records before the cursor are added or deleted between requests, the two no longer agree,
+  and `has_more` (and so `next_cursor`) can be wrong near the end: an extra, empty last page
+  when records were added, or the last page ending early, before records that are still
+  there, when records were deleted.
+
+Paging with `from` has none of these guarantees: a record written between two requests can
+shift the pages, so a record can be skipped or returned twice.
+
+**In-memory routes** take only [`from`, `size` and `cursor`](#in-memory-list-query). They page
+a list the master holds, so there's no window and no `sort` or `filter`. A cursor continues
+after the last row's sort keys, so a row that goes away between requests doesn't shift the
+next page.
 
 ### Using v2 against different cluster versions
 
@@ -183,17 +223,19 @@ filters as its JSON list, plus [`fields` and `headers`](#text-table-query).
 | ------ | ---- | ----- | ---- |
 | GET | `/v2/txt/jobs` | [job list query](#job-list-query), [text table query](#text-table-query) | Jobs (`JobWithExecution`) |
 | GET | `/v2/txt/ex` | [execution list query](#execution-list-query), [text table query](#text-table-query) | Executions (`ExecutionRecord`) |
-| GET | `/v2/txt/workers` | [`from`, `size`](#in-memory-list-query), [text table query](#text-table-query) | Every process on every node (`ExecutionNodeWorker`) |
-| GET | `/v2/txt/nodes` | [`from`, `size`](#in-memory-list-query), [text table query](#text-table-query) | Nodes (`NodeState`); `active` is the number of processes |
-| GET | `/v2/txt/controllers` | [`from`, `size`](#in-memory-list-query), [text table query](#text-table-query) | Running execution controllers (`ControllerStats`) |
+| GET | `/v2/txt/workers` | [`from`, `size`, `cursor`](#in-memory-list-query), [text table query](#text-table-query) | Every process on every node (`ExecutionNodeWorker`) |
+| GET | `/v2/txt/nodes` | [`from`, `size`, `cursor`](#in-memory-list-query), [text table query](#text-table-query) | Nodes (`NodeState`); `active` is the number of processes |
+| GET | `/v2/txt/controllers` | [`from`, `size`, `cursor`](#in-memory-list-query), [text table query](#text-table-query) | Running execution controllers (`ControllerStats`) |
 
 The default columns are the same as v1's [TXT APIs](./endpoints-txt.md). `jobs` and `ex` add
 `_deleted_on` when `deleted=true`. `workers` depends on the cluster type: `pid` on native,
 `pod_name` and `image` on kubernetesV2.
 
 The response is the table, a blank line, and a footer with the rows shown and the total. When
-there are more rows, the footer has a `next` line with the next page's `from` and `size`. Add
-your other params (`sort`, `filter`, `fields`, …) to it yourself:
+there are more rows, the footer has a `next` line with the next page's `size` and
+[`cursor`](#paging). Add your other params (`sort`, `filter`, `fields`, …) to it yourself; the
+cursor needs the same `sort`, `filter` and route params. A text table and its JSON list share
+cursors, so a `next_cursor` from `GET /v2/jobs` works on `GET /v2/txt/jobs` and back.
 
 ```sh
 $ curl 'localhost:5678/v2/txt/jobs?fields=job_id,name,ex._status&ex=_status&size=2'
@@ -203,7 +245,7 @@ job_id                                name         ex._status
 d2a1a0b2-0ad3-4d4e-a7e2-8f5d2c3b4a11  another-job  completed
 
 Showing 1-2 of 1,523
-next: ?from=2&size=2
+next: ?size=2&cursor=eyJ2IjoxLCJhZnRlciI6WzE3...
 ```
 
 An empty page shows `Showing 0 of N`.
@@ -215,10 +257,11 @@ The paging is also sent in these HTTP response headers, on every response:
 | `X-Total-Count` | The exact number of matching records |
 | `X-From` | The offset of the first record in the response |
 | `X-Size` | The requested page size |
+| `X-Next-Cursor` | Send as `cursor` to get the next page. Left out on the last page, and with `size=0` |
 
 The `headers=false` query param leaves out the column names and the footer, so the body is
-only rows. The `X-Total-Count`, `X-From` and `X-Size` HTTP headers are still sent, so use
-them to page:
+only rows. The HTTP headers are still sent, so use them to page: send `X-Next-Cursor` as
+`cursor` until it's left out.
 
 ```sh
 $ curl -i 'localhost:5678/v2/txt/nodes?fields=node_id,active&headers=false'
@@ -1022,11 +1065,25 @@ The list routes return a page instead of a bare array:
 | `GET /jobs`, `GET /ex` | `[ ... ]` | `{ "data": [ ... ], "pagination": { ... } }` |
 | `GET /jobs/{jobId}/errors`, `GET /ex/{exId}/errors` | `[ ... ]` | `{ "data": [ ... ], "pagination": { ... } }` |
 | `GET /cluster/slicers`, `GET /cluster/controllers` | `[ ... ]` | `GET /v2/cluster/controllers`: `{ "data": [ ... ], "pagination": { ... } }` |
-| `GET /txt/*` | the table | the table, a blank line and a [footer](#text-tables), plus the `X-Total-Count`, `X-From` and `X-Size` HTTP headers |
+| `GET /txt/*` | the table | the table, a blank line and a [footer](#text-tables), plus the `X-Total-Count`, `X-From`, `X-Size` and `X-Next-Cursor` HTTP headers |
 
 To migrate, read the records from `data`. The records themselves are unchanged. In
 teraslice-client-js, the list methods (`jobs.list()`, `executions.list()`, `errors()`,
 `cluster.controllers()`) return the array on either version, so callers don't change.
+
+To page on v2, the client has methods that return the whole page: `jobs.listPage()`,
+`executions.listPage()`, `executions.errorsPage(exId)`, `job.errorsPage()`, `ex.errorsPage()`
+and `cluster.controllersPage()`. `pages()` follows `next_cursor` through all of them:
+
+```js
+import { TerasliceClient, pages } from 'teraslice-client-js';
+
+const client = new TerasliceClient({ host: 'http://localhost:5678', apiVersion: '/v2' });
+
+for await (const page of pages(client.jobs.listPage, { sort: '_created:desc', size: 500 })) {
+    console.log(page.data.map((job) => job.job_id));
+}
+```
 
 `GET /v2/jobs/{jobId}/controller` is not a list, and still returns a one-entry array.
 
@@ -1039,7 +1096,7 @@ Requests that worked on v1 but behave differently on v2:
 | Unknown query param, e.g. `?sizee=10` | ignored | 400 |
 | `?size=ten`, `?size=1.5` | 500, or truncated to `1` | 400 |
 | List `?size=` (empty) | default (100) | `0`: an empty list |
-| List `from + size` past `max_result_window` | 400, OpenSearch's message pointing to the scroll API | 400, with the limit and `from + size` |
+| List `from + size` past `max_result_window` | 400, OpenSearch's message pointing to the scroll API | 400, with the limit and `from + size`, suggesting `cursor` |
 | `/txt/workers`, `/txt/nodes`, `/txt/controllers` row order | cluster state order | sorted (see [Paging](#paging)) |
 | `/txt/*?fields=` an unknown field | a column of `N/A` | 400, listing the valid fields |
 | `/txt/ex?status=` / `?job_id=` | ignored | filters, as on `GET /v2/ex` |
