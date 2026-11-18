@@ -175,19 +175,24 @@ describe('JobsService', () => {
             await jobsService.initialize();
         });
 
-        it('should add each job\'s latest ex and keep the total from the search', async () => {
+        it('should add each job\'s latest ex and keep the total and sort values', async () => {
             searchWithTotal.mockResolvedValue({
                 records: [{ job_id: 'job-1' }, { job_id: 'job-2' }],
                 total: 42,
+                lastSort: [1700000000000, 'job-2'],
             });
             get.mockImplementation(async (jobId2: string) => ({ job_id: jobId2 }));
             exSearch.mockImplementation(async (query: string) => (
                 query.includes('job-1') ? [{ ex_id: 'ex-1', _status: 'running' }] : []
             ));
 
-            const result = await jobsService.getJobsWithExInfoAndTotal(
-                'job_id:*', 10, 2, '_created:desc', ['ex_id', '_status']
-            );
+            const result = await jobsService.getJobsWithExInfoAndTotal({
+                query: 'job_id:*',
+                from: 10,
+                size: 2,
+                sort: '_created:desc',
+                exFields: ['ex_id', '_status'],
+            });
 
             expect(result).toEqual({
                 records: [
@@ -195,8 +200,11 @@ describe('JobsService', () => {
                     { job_id: 'job-2', ex: {} },
                 ],
                 total: 42,
+                lastSort: [1700000000000, 'job-2'],
             });
-            expect(searchWithTotal).toHaveBeenCalledWith('job_id:*', 10, 2, '_created:desc');
+            expect(searchWithTotal).toHaveBeenCalledWith({
+                query: 'job_id:*', from: 10, size: 2, sort: '_created:desc'
+            });
             expect(exSearch).toHaveBeenCalledWith(
                 'job_id: "job-1"', undefined, 1, '_created:desc', ['ex_id', '_status']
             );
@@ -205,7 +213,7 @@ describe('JobsService', () => {
         it('should return the total for an empty page', async () => {
             searchWithTotal.mockResolvedValue({ records: [], total: 5 });
 
-            await expect(jobsService.getJobsWithExInfoAndTotal('*', 100, 10))
+            await expect(jobsService.getJobsWithExInfoAndTotal({ query: '*', from: 100, size: 10 }))
                 .resolves.toEqual({ records: [], total: 5 });
             expect(get).not.toHaveBeenCalled();
         });

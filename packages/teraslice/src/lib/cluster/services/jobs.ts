@@ -11,7 +11,9 @@ import { Teraslice, JobConfig, ExecutionConfig } from '@terascope/types';
 import { ClusterMasterContext } from '../../../interfaces.js';
 import { makeLogger } from '../../workers/helpers/terafoundation.js';
 import { spawnAssetLoader } from '../../workers/assets/spawn.js';
-import { JobsStorage, ExecutionStorage, RecordsWithTotal } from '../../storage/index.js';
+import {
+    JobsStorage, ExecutionStorage, RecordsWithTotal, PageSearch
+} from '../../storage/index.js';
 import type { ExecutionService } from './execution.js';
 
 /**
@@ -453,22 +455,18 @@ export class JobsService {
     }
 
     /**
-     * Like `getJobsWithExInfo()`, but also returns the exact total number of
-     * matching jobs, from the same search as the page
+     * Like `getJobsWithExInfo()`, but for one page of jobs, with the exact
+     * total number of matching jobs. `exFields` are the execution's fields
+     * to include, all of them by default.
     */
     async getJobsWithExInfoAndTotal(
-        query: string | Record<string, any>,
-        from?: number,
-        size?: number,
-        sort?: string,
-        ex_fields?: string[]
+        { exFields, ...search }: PageSearch & { exFields?: string[] }
     ): Promise<RecordsWithTotal<JobConfig>> {
-        const { records, total } = await this.jobsStorage.searchWithTotal(
-            query, from, size, sort
-        );
+        const { records, total, lastSort } = await this.jobsStorage.searchWithTotal(search);
         return {
-            records: await this._addExInfo(records, ex_fields),
+            records: await this._addExInfo(records, exFields),
             total,
+            lastSort,
         };
     }
 
