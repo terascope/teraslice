@@ -1,4 +1,4 @@
-import { TerasliceClient, Job } from 'teraslice-client-js';
+import { TerasliceClient, Job, pages } from 'teraslice-client-js';
 import type { TerasliceApiV2 } from '@terascope/types';
 import { TerasliceHarness } from '../../teraslice-harness.js';
 import { config } from '../../config.js';
@@ -36,17 +36,32 @@ describe('txt api', () => {
                 await terasliceHarness.teraslice.jobs.submit(terasliceHarness.newJob('generator'), true);
             }
 
+            // deleted jobs, which have a `_deleted_on` to sort by
+            for (let i = 0; i < 3; i++) {
+                const deleted = await v2.jobs.submit(terasliceHarness.newJob('generator'), true);
+                await deleted.deleteJob();
+            }
+
             // a running job, so the workers and controllers tables have rows
             const jobSpec = terasliceHarness.newJob('generator');
             if (TEST_PLATFORM === 'kubernetesV2') {
                 jobSpec.resources_requests_cpu = 0.05;
             }
             job = await terasliceHarness.teraslice.jobs.submit(jobSpec);
-            const { ex_id: exId } = await job.execution();
+            await waitForRunning(job);
+
+            // stopped and started again, so there are two executions to page through
+            await job.stop({ blocking: true });
+            await job.start();
+            await waitForRunning(job);
+        });
+
+        async function waitForRunning(runningJob: Job) {
+            const { ex_id: exId } = await runningJob.execution();
             await terasliceHarness.waitForExStatus(
                 terasliceHarness.teraslice.executions.wrap(exId), 'running', 100, 1000
             );
-        });
+        }
 
         afterAll(async () => {
             await job?.stop({ blocking: true });
@@ -96,52 +111,87 @@ describe('txt api', () => {
         });
 
         describe('paging through every record', () => {
-        /**
-         * Requests `path` a page at a time until `has_more` is false. Returns
-         * every record's `key` and the total from the first page.
-         */
-            async function pageThrough(path: string, key: string, sort: string) {
-                const first = await v2.cluster.get<TerasliceApiV2.Page<Record<string, any>>>(
-                    path, { searchParams: { sort, size: 1 } }
-                );
-                const { total } = first.pagination;
-                const size = Math.max(1, Math.ceil(total / 3));
+            type Page = TerasliceApiV2.Page<Record<string, any>>;
+            type ListPage = (query: Record<string, any>) => Promise<Page>;
 
-                const ids: string[] = [];
-                let from = 0;
-                let hasMore = true;
-                while (hasMore) {
-                    const page = await v2.cluster.get<TerasliceApiV2.Page<Record<string, any>>>(
-                        path, { searchParams: { sort, from, size } }
-                    );
-                    ids.push(...page.data.map((record) => record[key]));
-                    hasMore = page.pagination.has_more;
-                    from += size;
-                }
+            const listPages: Record<string, ListPage> = {
+                '/jobs': (query) => v2.jobs.listPage(query),
+                '/ex': (query) => v2.executions.listPage(query),
+            };
 
-                return { ids, total };
+            /** A page size that splits the list into about 3 pages */
+            async function pageSize(path: string, query: Record<string, any>) {
+                const { pagination } = await listPages[path]({ ...query, size: 0 });
+                expect(pagination.total).toBeGreaterThan(0);
+                const { total } = pagination;
+                return { total, size: Math.max(1, Math.floor(total / 3)) };
             }
 
-            it.each([
-                ['/jobs', 'job_id'],
-                ['/ex', 'ex_id'],
-            ])('%s should return each record once, matching the total', async (path, key) => {
-                const { ids, total } = await pageThrough(path, key, `${key}:asc`);
+            /** Every record's `key`, in order, paging with `from` until `has_more` is false */
+            async function idsWithFrom(
+                path: string, key: string, query: Record<string, any>, size: number
+            ) {
+                const ids: string[] = [];
+                let hasMore = true;
+                while (hasMore) {
+                    const page = await listPages[path]({ ...query, from: ids.length, size });
+                    ids.push(...page.data.map((record) => record[key]));
+                    hasMore = page.pagination.has_more;
+                }
+                return ids;
+            }
 
-                expect(total).toBeGreaterThan(0);
+            /** Every record's `key`, in order, following `next_cursor` to the last page */
+            async function idsWithCursor(
+                path: string, key: string, query: Record<string, any>, size: number
+            ) {
+                const ids: string[] = [];
+                let requests = 0;
+                for await (const page of pages(listPages[path], { ...query, size })) {
+                    // the cursor carries the count of records before its page
+                    expect(page.pagination.from).toBe(ids.length);
+                    ids.push(...page.data.map((record) => record[key]));
+                    requests++;
+                }
+                return { ids, requests };
+            }
+
+            // `_deleted_on` is missing on every job and execution that isn't deleted, so
+            // their sort values are OpenSearch's missing-value placeholders (the largest
+            // long ascending, the smallest descending), which the cursor must keep exact.
+            // The job_id/ex_id tiebreaker orders them.
+            it.each([
+                ['/jobs', 'job_id', { sort: 'job_id:asc' }],
+                ['/jobs', 'job_id', { sort: '_created:desc' }],
+                ['/jobs', 'job_id', { sort: '_deleted_on:asc' }],
+                ['/jobs', 'job_id', { sort: '_deleted_on:desc' }],
+                ['/jobs', 'job_id', { sort: '_deleted_on:desc,_created:asc' }],
+                ['/jobs', 'job_id', { sort: '_deleted_on:asc', deleted: 'true' }],
+                ['/jobs', 'job_id', { sort: '_deleted_on:desc', deleted: 'true' }],
+                ['/ex', 'ex_id', { sort: 'ex_id:asc' }],
+                ['/ex', 'ex_id', { sort: '_deleted_on:asc' }],
+                ['/ex', 'ex_id', { sort: '_deleted_on:desc' }],
+            ])('%s with %j should return each record once with cursors, as with from', async (path, key, query) => {
+                const { total, size } = await pageSize(path, query);
+
+                const { ids, requests } = await idsWithCursor(path, key, query, size);
+                expect(requests).toBeGreaterThan(1);
                 expect(ids).toBeArrayOfSize(total);
                 expect(new Set(ids).size).toBe(total);
+
+                await expect(idsWithFrom(path, key, query, size)).resolves.toEqual(ids);
             });
 
-            it('/txt/jobs should follow each footer\'s next link to the last page', async () => {
+            it('/txt/jobs should follow each footer\'s next cursor to the last page', async () => {
+                const sort = 'job_id:asc';
                 const size = 2;
                 const ids: string[] = [];
-                let from: number | undefined = 0;
+                let cursor: string | undefined;
                 let total = '';
 
-                while (from !== undefined) {
+                do {
                     const table: string = await v2.cluster.txt('jobs', {
-                        sort: 'job_id:asc', fields: 'job_id', from, size
+                        sort, fields: 'job_id', size, cursor
                     });
                     const [rows, footer] = table.split('\n\n');
                     ids.push(...rows.split('\n').slice(2)
@@ -149,12 +199,22 @@ describe('txt api', () => {
 
                     const [, count] = footer.match(/^Showing .* of ([\d,]+)$/m) ?? [];
                     total = count;
-                    const next = footer.match(/^next: \?from=(\d+)&size=\d+$/m);
-                    from = next ? Number(next[1]) : undefined;
-                }
+                    const next = footer.match(/^next: \?size=2&cursor=(\S+)$/m);
+                    cursor = next?.[1];
+                } while (cursor);
 
                 expect(ids).toBeArrayOfSize(Number(total.replaceAll(',', '')));
                 expect(new Set(ids).size).toBe(ids.length);
+                await expect(idsWithFrom('/jobs', 'job_id', { sort }, size)).resolves.toEqual(ids);
+            });
+
+            it('should reject a cursor sent with a different sort', async () => {
+                const { pagination } = await v2.jobs.listPage({ sort: 'job_id:asc', size: 1 });
+                expect(pagination.next_cursor).toBeString();
+
+                await expect(v2.jobs.listPage({
+                    sort: 'job_id:desc', size: 1, cursor: pagination.next_cursor as string
+                })).rejects.toMatchObject({ statusCode: 400 });
             });
         });
     });
