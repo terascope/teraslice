@@ -58,6 +58,7 @@ export interface SearchResult<TDocument = Record<string, any>> {
     _seq_no?: number;
     _source?: TDocument;
     _version?: number;
+    sort?: SearchSortResults;
 }
 
 export interface ShardFailure {

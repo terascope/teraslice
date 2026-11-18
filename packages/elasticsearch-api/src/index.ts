@@ -55,6 +55,63 @@ export interface SearchWithTotalResult<T = Record<string, any>> {
     records: (DataEntity<T> & T)[];
     total: number;
     relation: ESTypes.SearchTotalHitsRelation;
+    /**
+     * The last hit's `sort` values, for `search_after` to continue from.
+     * Undefined when there are no hits or the search has no sort.
+     */
+    lastSort?: SortValue[];
+}
+
+/**
+ * One `sort` value of a hit. A `bigint` is OpenSearch's exact sort value for
+ * a record missing a long, date or boolean field (see `toExactSortValue()`).
+ */
+export type SortValue = number | string | null | bigint;
+
+/** The largest and smallest values of an OpenSearch `long` (64-bit) */
+const LONG_MAX = 2n ** 63n - 1n;
+const LONG_MIN = -(2n ** 63n);
+
+/**
+ * OpenSearch sorts a record missing a long, date or boolean field as
+ * `LONG_MAX` (or `LONG_MIN`, sorting descending). JSON.parse rounds those to
+ * ±2^63, which OpenSearch rejects back in `search_after` for a date field, so
+ * they're returned as the exact `bigint`. No other value reaches ±2^63, since
+ * a long can't hold one.
+ */
+function toExactSortValue(value: number | string | null): SortValue {
+    if (typeof value !== 'number') return value;
+    if (value >= 2 ** 63) return LONG_MAX;
+    if (value <= -(2 ** 63)) return LONG_MIN;
+    return value;
+}
+
+/** Stands in for a `bigint` in `stringifyWithBigInts()` */
+const bigIntMarker = '\u0000bigint:';
+const bigIntMarkerPattern = /"\\u0000bigint:(-?\d+)"/g;
+
+/**
+ * JSON.stringify, writing each `bigint` as a JSON number with all its digits
+ */
+function stringifyWithBigInts(value: unknown): string {
+    return JSON.stringify(
+        value,
+        (_key, v) => (typeof v === 'bigint' ? `${bigIntMarker}${v}` : v)
+    ).replace(bigIntMarkerPattern, '$1');
+}
+
+/**
+ * The search with its body already serialized when `search_after` holds a
+ * `bigint`, which the client's JSON.stringify can't write. The client sends a
+ * string body as it is.
+ */
+function withExactSearchAfter(query: ClientParams.SearchParams): ClientParams.SearchParams {
+    const searchAfter: unknown = query.body?.search_after;
+
+    if (!Array.isArray(searchAfter) || !searchAfter.some((v) => typeof v === 'bigint')) {
+        return query;
+    }
+    return { ...query, body: stringifyWithBigInts(query.body) as any };
 }
 
 /**
@@ -149,11 +206,14 @@ export default function elasticsearchApi(
      *
      * Pass `track_total_hits` in the query to change how far OpenSearch counts
      * exactly; it can't be `false`, since the total is required.
+     *
+     * To get the next page, pass the result's `lastSort` as `body.search_after`,
+     * with the same query and sort.
      */
     async function searchWithTotal<T = Record<string, any>>(
         query: ClientParams.SearchParams
     ): Promise<SearchWithTotalResult<T>> {
-        const data = await _searchES(query);
+        const data = await _searchES(withExactSearchAfter(query));
         const total = data.hits?.total;
 
         if (total == null || typeof total !== 'object') {
@@ -162,10 +222,13 @@ export default function elasticsearchApi(
             });
         }
 
+        const hits = data.hits.hits ?? [];
+
         return {
-            records: (data.hits.hits ?? []).map(convertDocToDataEntity) as (DataEntity<T> & T)[],
+            records: hits.map(convertDocToDataEntity) as (DataEntity<T> & T)[],
             total: total.value,
             relation: total.relation,
+            lastSort: hits.at(-1)?.sort?.map(toExactSortValue),
         };
     }
 
