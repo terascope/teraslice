@@ -8,8 +8,10 @@ path. Routes and response shapes may still change before v2 is stable.
 
 - v2 is served only under `/v2`. Unlike v1, it has no unprefixed alias.
 - `/v1` is unchanged and remains the default. teraslice-cli and teraslice-client-js still call v1.
-- Assets and the `/txt` endpoints are not part of v2 yet. Keep using `/v1/assets` and
-  `/txt/*`.
+- List routes return a page, `{ data, pagination }`, with the total number of matching
+  records. See [Paging](#paging).
+- The `/txt` tables are under [`/v2/txt`](#text-tables), paged the same way.
+- Assets are not part of v2 yet. Keep using `/v1/assets` and `/txt/assets`.
 
 TypeScript clients can use the request and response schemas directly. They're Zod schemas
 exported from `@terascope/types` (e.g. `TerasliceApiV2.JobWithExecutionSchema`), each with a type
@@ -50,12 +52,67 @@ Query params are received as strings. v2 reads them as follows:
 
 ### Responses
 
-- Every successful request responds with **200** and JSON.
+- Every successful request responds with **200** and JSON, except the
+  [text tables](#text-tables), which respond with `text/plain`.
 - Timestamps (`_created`, `_updated`, `_deleted_on`, `started`, …) are ISO 8601 strings.
 - **Jobs are returned as they were submitted.** A field left out when the job was submitted is
   absent, not filled with its default. The latest execution (`GET /v2/jobs/{jobId}/ex`) has the
   resolved config with every default applied.
 - Job and execution records keep any fields the job was submitted with that are not listed in the their zod schemas.
+
+### Paging
+
+Every list route returns one page of the list, with where it sits in the whole list:
+
+```sh
+$ curl 'localhost:5678/v2/jobs?from=100&size=100'
+{
+    "data": [ ... ],
+    "pagination": {
+        "total": 1523,
+        "from": 100,
+        "size": 100,
+        "has_more": true
+    }
+}
+```
+
+- `data` - the records on this page. It can be shorter than `size`, or empty.
+- `total` - the exact number of records matching the request, across all pages.
+- `from`, `size` - the request's `from` and `size`, after defaults.
+- `has_more` - whether there are records after this page: `from + data.length < total`.
+
+To read every record, request `from=0`, then add `size` to `from` until `has_more` is `false`.
+`size=0` returns only the total.
+
+| Route | Paged by |
+| ----- | -------- |
+| `GET /v2/jobs`, `GET /v2/txt/jobs` | search |
+| `GET /v2/ex`, `GET /v2/txt/ex` | search |
+| `GET /v2/jobs/{jobId}/errors`, `GET /v2/ex/{exId}/errors` | search |
+| `GET /v2/cluster/controllers`, `GET /v2/txt/controllers` | in memory, sorted by `ex_id` |
+| `GET /v2/txt/workers` | in memory, sorted by `ex_id`, `assignment`, then `worker_id` |
+| `GET /v2/txt/nodes` | in memory, sorted by `node_id` |
+
+**Search routes** take the [list query](#list-query) (`from`, `size`, `sort`, `filter`).
+`from + size` can't go past the index's `max_result_window` (10,000 unless the cluster changes
+it). A request past it is a **400**:
+
+```sh
+$ curl 'localhost:5678/v2/jobs?from=9950&size=100'
+{
+    "error": 400,
+    "message": "from + size must be less than or equal to 10000 (the index's max_result_window), got 10050. Use filter to narrow the search."
+}
+```
+
+To reach records past the window, narrow the search with `filter` or change the `sort`.
+
+Search routes page with `from` and no snapshot, so a record written between two requests can
+shift the pages: a record can be skipped or returned twice.
+
+**In-memory routes** take only [`from` and `size`](#in-memory-list-query). They page a list the
+master holds, so there's no window and no `sort` or `filter`.
 
 ### Using v2 against different cluster versions
 
@@ -117,6 +174,64 @@ The **Query and body** column lists the query params each route takes, described
 | GET | `/v2/ex/{exId}/errors` | `size`, `from`, `sort`, `filter` | List the failed slices of an execution |
 <!-- END GENERATED V2 ROUTES -->
 
+### Text tables
+
+Plain-text versions of the lists, for people and scripts. Each has the same paging and
+filters as its JSON list, plus [`fields` and `headers`](#text-table-query).
+
+| Method | Path | Query | Rows |
+| ------ | ---- | ----- | ---- |
+| GET | `/v2/txt/jobs` | [job list query](#job-list-query), [text table query](#text-table-query) | Jobs (`JobWithExecution`) |
+| GET | `/v2/txt/ex` | [execution list query](#execution-list-query), [text table query](#text-table-query) | Executions (`ExecutionRecord`) |
+| GET | `/v2/txt/workers` | [`from`, `size`](#in-memory-list-query), [text table query](#text-table-query) | Every process on every node (`ExecutionNodeWorker`) |
+| GET | `/v2/txt/nodes` | [`from`, `size`](#in-memory-list-query), [text table query](#text-table-query) | Nodes (`NodeState`); `active` is the number of processes |
+| GET | `/v2/txt/controllers` | [`from`, `size`](#in-memory-list-query), [text table query](#text-table-query) | Running execution controllers (`ControllerStats`) |
+
+The default columns are the same as v1's [TXT APIs](./endpoints-txt.md). `jobs` and `ex` add
+`_deleted_on` when `deleted=true`. `workers` depends on the cluster type: `pid` on native,
+`pod_name` and `image` on kubernetesV2.
+
+The response is the table, a blank line, and a footer with the rows shown and the total. When
+there are more rows, the footer has a `next` line with the next page's `from` and `size`. Add
+your other params (`sort`, `filter`, `fields`, …) to it yourself:
+
+```sh
+$ curl 'localhost:5678/v2/txt/jobs?fields=job_id,name,ex._status&ex=_status&size=2'
+job_id                                name         ex._status
+------------------------------------  -----------  ----------
+5a50580c-4a50-48d9-80f8-ac70a00f3dbd  my-job       running
+d2a1a0b2-0ad3-4d4e-a7e2-8f5d2c3b4a11  another-job  completed
+
+Showing 1-2 of 1,523
+next: ?from=2&size=2
+```
+
+An empty page shows `Showing 0 of N`.
+
+The paging is also sent in these HTTP response headers, on every response:
+
+| HTTP header | Value |
+| ----------- | ----- |
+| `X-Total-Count` | The exact number of matching records |
+| `X-From` | The offset of the first record in the response |
+| `X-Size` | The requested page size |
+
+The `headers=false` query param leaves out the column names and the footer, so the body is
+only rows. The `X-Total-Count`, `X-From` and `X-Size` HTTP headers are still sent, so use
+them to page:
+
+```sh
+$ curl -i 'localhost:5678/v2/txt/nodes?fields=node_id,active&headers=false'
+HTTP/1.1 200 OK
+Content-Type: text/plain; charset=utf-8
+X-Total-Count: 2
+X-From: 0
+X-Size: 100
+
+node-1  3
+node-2  1
+```
+
 ## Query parameters and bodies
 
 ### Connectors query
@@ -134,7 +249,7 @@ Used by `GET /v2/cluster/connectors`.
 ### Job list query
 
 <!-- BEGIN GENERATED V2 SCHEMA GetJobsQuery: auto-generated by `pnpm sync`, manual changes will be lost -->
-Used by `GET /v2/jobs`.
+Used by `GET /v2/jobs` and `GET /v2/txt/jobs`.
 
 | Field | Type | Default | Description |
 | ----- | ---- | ------- | ----------- |
@@ -894,7 +1009,26 @@ On `/v2`, these paths respond with a **405**, except `GET /v2/ex/errors`. That o
 | `GET /v1/ex/{exId}/controller`, `GET /v1/ex/{exId}/tap` | `GET /v2/jobs/{jobId}/controller`, `GET /v2/jobs/{jobId}/tap` |
 | `GET /v1/cluster/slicers`, `GET /v1/jobs/{jobId}/slicer`, `GET /v1/ex/{exId}/slicer` | `GET /v2/cluster/controllers`, `GET /v2/jobs/{jobId}/controller` |
 | `GET /v1/ex/errors` | `GET /v2/ex/{exId}/errors` |
-| `/v1/assets`, `/txt/*` | Not in v2 yet |
+| `GET /txt/jobs`, `/txt/ex`, `/txt/workers`, `/txt/nodes`, `/txt/controllers` | `GET /v2/txt/…`, the same name |
+| `GET /txt/slicers` | `GET /v2/txt/controllers` |
+| `/v1/assets`, `/txt/assets*` | Not in v2 yet |
+
+### List responses
+
+The list routes return a page instead of a bare array:
+
+| Route | v1 | v2 |
+| ----- | -- | -- |
+| `GET /jobs`, `GET /ex` | `[ ... ]` | `{ "data": [ ... ], "pagination": { ... } }` |
+| `GET /jobs/{jobId}/errors`, `GET /ex/{exId}/errors` | `[ ... ]` | `{ "data": [ ... ], "pagination": { ... } }` |
+| `GET /cluster/slicers`, `GET /cluster/controllers` | `[ ... ]` | `GET /v2/cluster/controllers`: `{ "data": [ ... ], "pagination": { ... } }` |
+| `GET /txt/*` | the table | the table, a blank line and a [footer](#text-tables), plus the `X-Total-Count`, `X-From` and `X-Size` HTTP headers |
+
+To migrate, read the records from `data`. The records themselves are unchanged. In
+teraslice-client-js, the list methods (`jobs.list()`, `executions.list()`, `errors()`,
+`cluster.controllers()`) return the array on either version, so callers don't change.
+
+`GET /v2/jobs/{jobId}/controller` is not a list, and still returns a one-entry array.
 
 ### Behavior changes
 
@@ -905,6 +1039,10 @@ Requests that worked on v1 but behave differently on v2:
 | Unknown query param, e.g. `?sizee=10` | ignored | 400 |
 | `?size=ten`, `?size=1.5` | 500, or truncated to `1` | 400 |
 | List `?size=` (empty) | default (100) | `0`: an empty list |
+| List `from + size` past `max_result_window` | 400, OpenSearch's message pointing to the scroll API | 400, with the limit and `from + size` |
+| `/txt/workers`, `/txt/nodes`, `/txt/controllers` row order | cluster state order | sorted (see [Paging](#paging)) |
+| `/txt/*?fields=` an unknown field | a column of `N/A` | 400, listing the valid fields |
+| `/txt/ex?status=` / `?job_id=` | ignored | filters, as on `GET /v2/ex` |
 | `?deleted=` (empty) | deleted only | 400 |
 | `?deleted=yes` / `1` / `on` | 400 | `true` |
 | `?active=` or `?active=foo` | both active and inactive | 400 |
