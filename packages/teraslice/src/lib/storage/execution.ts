@@ -108,9 +108,7 @@ export class ExecutionStorage {
         sort?: string,
         fields?: string | string[]
     ): Promise<RecordsWithTotal<ExecutionConfig>> {
-        return this.backend.searchWithTotal<ExecutionConfig>(
-            query, from, size, sort, fields, undefined, true
-        );
+        return this.backend.searchWithTotal<ExecutionConfig>(query, from, size, sort, fields);
     }
 
     async create(record: JobConfig | ExecutionConfig, status = 'pending'): Promise<ExecutionConfig> {

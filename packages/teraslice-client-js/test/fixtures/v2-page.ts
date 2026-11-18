@@ -6,7 +6,6 @@ export function v2Page<T>(data: T[]): TerasliceApiV2.Page<T> {
         data,
         pagination: {
             total: data.length,
-            total_relation: 'eq',
             from: 0,
             size: 100,
             has_more: false,

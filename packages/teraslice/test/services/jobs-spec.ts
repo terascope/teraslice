@@ -179,7 +179,6 @@ describe('JobsService', () => {
             searchWithTotal.mockResolvedValue({
                 records: [{ job_id: 'job-1' }, { job_id: 'job-2' }],
                 total: 42,
-                relation: 'eq',
             });
             get.mockImplementation(async (jobId2: string) => ({ job_id: jobId2 }));
             exSearch.mockImplementation(async (query: string) => (
@@ -196,7 +195,6 @@ describe('JobsService', () => {
                     { job_id: 'job-2', ex: {} },
                 ],
                 total: 42,
-                relation: 'eq',
             });
             expect(searchWithTotal).toHaveBeenCalledWith('job_id:*', 10, 2, '_created:desc');
             expect(exSearch).toHaveBeenCalledWith(
@@ -205,10 +203,10 @@ describe('JobsService', () => {
         });
 
         it('should return the total for an empty page', async () => {
-            searchWithTotal.mockResolvedValue({ records: [], total: 5, relation: 'eq' });
+            searchWithTotal.mockResolvedValue({ records: [], total: 5 });
 
             await expect(jobsService.getJobsWithExInfoAndTotal('*', 100, 10))
-                .resolves.toEqual({ records: [], total: 5, relation: 'eq' });
+                .resolves.toEqual({ records: [], total: 5 });
             expect(get).not.toHaveBeenCalled();
         });
     });

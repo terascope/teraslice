@@ -70,14 +70,14 @@ const sliceErrors = [{
     error: 'Error: boom\n    at ...',
 }];
 /** A storage `searchWithTotal()` result */
-function withTotal<T>(records: T[], total = records.length, relation = 'eq') {
-    return { records, total, relation };
+function withTotal<T>(records: T[], total = records.length) {
+    return { records, total };
 }
 
 /** The `pagination` of a page, with the defaults of a request with no paging params */
 function pagination(fields: Record<string, any> = {}) {
     return {
-        total: 1, total_relation: 'eq', from: 0, size: 100, has_more: false, ...fields
+        total: 1, from: 0, size: 100, has_more: false, ...fields
     };
 }
 
@@ -1297,21 +1297,15 @@ describe('HTTP API v2', () => {
                 expect(getLatestExecutionId).not.toHaveBeenCalled();
             });
 
-            it('should pass a lower-bound total through, with has_more from a full page', async () => {
-                stateSearchWithTotal.mockResolvedValue(withTotal(sliceErrors, 10000, 'gte'));
+            it('should pass a total past 10,000 through', async () => {
+                stateSearchWithTotal.mockResolvedValue(withTotal(sliceErrors, 12000));
 
-                const full = await request('GET', '/v2/ex/ex-2/errors', {
+                const response = await request('GET', '/v2/ex/ex-2/errors', {
                     searchParams: { size: '1' }
                 });
-                const short = await request('GET', '/v2/ex/ex-2/errors', {
-                    searchParams: { size: '2' }
-                });
 
-                expect(full.body.pagination).toEqual(pagination({
-                    total: 10000, total_relation: 'gte', size: 1, has_more: true
-                }));
-                expect(short.body.pagination).toEqual(pagination({
-                    total: 10000, total_relation: 'gte', size: 2, has_more: false
+                expect(response.body.pagination).toEqual(pagination({
+                    total: 12000, size: 1, has_more: true
                 }));
             });
 
@@ -1440,10 +1434,10 @@ describe('HTTP API v2', () => {
                 expect(footer).toEqual(['Showing 1-1 of 3', 'next: ?from=1&size=1']);
                 expect(response.headers).toMatchObject({
                     'x-total-count': '3',
-                    'x-total-relation': 'eq',
                     'x-from': '0',
                     'x-size': '1',
                 });
+                expect(response.headers).not.toHaveProperty('x-total-relation');
             });
 
             it('should search like GET /v2/jobs', async () => {
@@ -1780,7 +1774,7 @@ describe('HTTP API v2', () => {
             expect(ok.content['text/plain'].schema)
                 .toEqual({ $ref: '#/components/schemas/TxtTable' });
             expect(Object.keys(ok.headers))
-                .toEqual(['X-Total-Count', 'X-Total-Relation', 'X-From', 'X-Size']);
+                .toEqual(['X-Total-Count', 'X-From', 'X-Size']);
             expect(spec.paths['/v2/txt/jobs'].get.tags).toEqual(['Text']);
         });
 

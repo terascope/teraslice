@@ -280,9 +280,8 @@ export class StateStorage {
     }
 
     /**
-     * Like `search()`, but also returns the total number of matching records.
-     * The state index can be large, so this keeps OpenSearch's default
-     * `track_total_hits` (10,000): past that, `relation` is `gte`.
+     * Like `search()`, but also returns the exact total number of matching
+     * records
      */
     async searchWithTotal(
         query: string | Record<string, any>,

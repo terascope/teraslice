@@ -60,12 +60,11 @@ export interface PrintPagedTableOptions<T extends Record<string, any>> extends O
  * Prints one page of a /v2 list as a plain-text table, then a footer such as:
  *
  * ```
- * Showing 101-200 of 10,000+
+ * Showing 101-200 of 1,523
  * next: ?from=200&size=100
  * ```
  *
- * The total ends in `+` when it's a lower bound (`gte`). The `next` line is
- * left out when there's no more, or `size` is 0. With `headers: false` there's
+ * The `next` line is left out when there's no more, or `size` is 0. With `headers: false` there's
  * no footer either, so the output is only rows.
  */
 export function printPagedTable<T extends Record<string, any>>({
@@ -79,14 +78,13 @@ export function printPagedTable<T extends Record<string, any>>({
 
 function pageFooter({ data, pagination }: TerasliceApiV2.Page<unknown>): string {
     const {
-        total, total_relation: relation, from, size, has_more: hasMore
+        total, from, size, has_more: hasMore
     } = pagination;
-    const totalText = `${total.toLocaleString('en-US')}${relation === 'gte' ? '+' : ''}`;
     const shown = data.length === 0
         ? 'Showing 0'
         : `Showing ${from + 1}-${from + data.length}`;
 
-    const lines = [`${shown} of ${totalText}`];
+    const lines = [`${shown} of ${total.toLocaleString('en-US')}`];
     if (hasMore && size > 0) {
         lines.push(`next: ?from=${from + size}&size=${size}`);
     }

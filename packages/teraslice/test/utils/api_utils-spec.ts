@@ -172,7 +172,6 @@ describe('apiUtils', () => {
                 data: records,
                 pagination: {
                     total: records.length,
-                    total_relation: 'eq',
                     from: 0,
                     size: 100,
                     has_more: false,
@@ -204,18 +203,6 @@ describe('apiUtils', () => {
             });
 
             expect(footer(output)).toEqual(['Showing 101-102 of 1,523', 'next: ?from=102&size=2']);
-        });
-
-        it('should mark a lower-bound total with +', () => {
-            const output = printPagedTable({
-                page: page(data, {
-                    total: 10000, total_relation: 'gte', size: 2, has_more: true
-                }),
-                fields: ['name'],
-                headers: true,
-            });
-
-            expect(footer(output)).toEqual(['Showing 1-2 of 10,000+', 'next: ?from=2&size=2']);
         });
 
         it('should leave out next with size 0', () => {
@@ -255,12 +242,11 @@ describe('apiUtils', () => {
     describe('paginationHeaders', () => {
         it('should give every documented header as a string', () => {
             const headers = paginationHeaders({
-                total: 10000, total_relation: 'gte', from: 200, size: 100, has_more: true
+                total: 10000, from: 200, size: 100, has_more: true
             });
 
             expect(headers).toEqual({
                 'X-Total-Count': '10000',
-                'X-Total-Relation': 'gte',
                 'X-From': '200',
                 'X-Size': '100',
             });

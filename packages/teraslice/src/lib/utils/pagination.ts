@@ -3,30 +3,20 @@ import type { RecordsWithTotal } from '../storage/index.js';
 
 /**
  * Builds a v2 list response from one page of records and the total.
- *
- * `has_more` depends on how exact the total is:
- * - `eq`: whether any records come after this page.
- * - `gte`: whether this page is full. The total is only a lower bound, so
- *   a full page is the only sign of more. When the last page is exactly
- *   full, this says `true` and the next page is empty.
+ * `has_more` is whether any records come after this page.
  */
 export function toPage<T>(
-    { records, total, relation }: RecordsWithTotal<T>,
+    { records, total }: RecordsWithTotal<T>,
     from: number,
     size: number
 ): TerasliceApiV2.Page<T> {
-    const hasMore = relation === 'eq'
-        ? from + records.length < total
-        : records.length === size;
-
     return {
         data: records,
         pagination: {
             total,
-            total_relation: relation,
             from,
             size,
-            has_more: hasMore,
+            has_more: from + records.length < total,
         },
     };
 }
@@ -37,8 +27,7 @@ export function toPage<T>(
  * `responseHeaders`.
  */
 export const paginationResponseHeaders = {
-    'X-Total-Count': 'The number of matching records. A lower bound when X-Total-Relation is gte',
-    'X-Total-Relation': 'eq when X-Total-Count is exact, gte when it is a lower bound',
+    'X-Total-Count': 'The exact number of matching records',
     'X-From': 'The offset of the first record in the response',
     'X-Size': 'The requested page size',
 } as const;
@@ -49,7 +38,6 @@ export function paginationHeaders(
 ): Record<keyof typeof paginationResponseHeaders, string> {
     return {
         'X-Total-Count': String(pagination.total),
-        'X-Total-Relation': pagination.total_relation,
         'X-From': String(pagination.from),
         'X-Size': String(pagination.size),
     };
@@ -58,7 +46,7 @@ export function paginationHeaders(
 /**
  * Pages a list held in memory, in the same shape as a search, so it can be
  * passed to `toPage()`. Sorts a copy, so `list` is left as it is. The
- * total is the list's length, so it's always exact.
+ * total is the list's length.
  */
 export function pageInMemory<T>(
     list: readonly T[],
@@ -69,6 +57,5 @@ export function pageInMemory<T>(
     return {
         records: list.toSorted(compareFn).slice(from, from + size),
         total: list.length,
-        relation: 'eq',
     };
 }

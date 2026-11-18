@@ -66,9 +66,7 @@ export class JobsStorage {
         sort?: string,
         fields?: string | string[]
     ): Promise<RecordsWithTotal<JobConfig>> {
-        return this.backend.searchWithTotal<JobConfig>(
-            query, from, size, sort, fields, undefined, true
-        );
+        return this.backend.searchWithTotal<JobConfig>(query, from, size, sort, fields);
     }
 
     async create(record: ValidatedJobConfig): Promise<JobConfig> {

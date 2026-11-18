@@ -463,13 +463,12 @@ export class JobsService {
         sort?: string,
         ex_fields?: string[]
     ): Promise<RecordsWithTotal<JobConfig>> {
-        const { records, total, relation } = await this.jobsStorage.searchWithTotal(
+        const { records, total } = await this.jobsStorage.searchWithTotal(
             query, from, size, sort
         );
         return {
             records: await this._addExInfo(records, ex_fields),
             total,
-            relation,
         };
     }
 

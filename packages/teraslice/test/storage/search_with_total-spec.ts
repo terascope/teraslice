@@ -19,42 +19,42 @@ describe('storage searchWithTotal', () => {
     }
 
     describe('JobsStorage', () => {
-        it('should ask for an exact total and return it with the page', async () => {
+        it('should return the page with its total', async () => {
             const storage = new JobsStorage(context);
             stubBackend(storage);
-            const result = { records: [{ job_id: 'a' }], total: 25, relation: 'eq' };
+            const result = { records: [{ job_id: 'a' }], total: 25 };
             backendSearchWithTotal.mockResolvedValue(result);
 
             await expect(storage.searchWithTotal('_context:job', 20, 1, '_created:desc', ['job_id']))
                 .resolves.toEqual(result);
 
             expect(backendSearchWithTotal).toHaveBeenCalledWith(
-                '_context:job', 20, 1, '_created:desc', ['job_id'], undefined, true
+                '_context:job', 20, 1, '_created:desc', ['job_id']
             );
         });
     });
 
     describe('ExecutionStorage', () => {
-        it('should ask for an exact total and return it with the page', async () => {
+        it('should return the page with its total', async () => {
             const storage = new ExecutionStorage(context);
             stubBackend(storage);
-            const result = { records: [{ ex_id: 'a' }], total: 3, relation: 'eq' };
+            const result = { records: [{ ex_id: 'a' }], total: 3 };
             backendSearchWithTotal.mockResolvedValue(result);
 
             await expect(storage.searchWithTotal('_context:ex', 0, 1))
                 .resolves.toEqual(result);
 
             expect(backendSearchWithTotal).toHaveBeenCalledWith(
-                '_context:ex', 0, 1, undefined, undefined, undefined, true
+                '_context:ex', 0, 1, undefined, undefined
             );
         });
     });
 
     describe('StateStorage', () => {
-        it('should keep the default track_total_hits and sort by _updated:desc', async () => {
+        it('should return the page with its total, sorted by _updated:desc', async () => {
             const storage = new StateStorage(context);
             stubBackend(storage);
-            const result = { records: [{ slice_id: 'a' }], total: 10000, relation: 'gte' };
+            const result = { records: [{ slice_id: 'a' }], total: 12000 };
             backendSearchWithTotal.mockResolvedValue(result);
 
             await expect(storage.searchWithTotal('state:error', 0, 100))
@@ -68,7 +68,7 @@ describe('storage searchWithTotal', () => {
         it('should pass a given sort through', async () => {
             const storage = new StateStorage(context);
             stubBackend(storage);
-            backendSearchWithTotal.mockResolvedValue({ records: [], total: 0, relation: 'eq' });
+            backendSearchWithTotal.mockResolvedValue({ records: [], total: 0 });
 
             await storage.searchWithTotal('state:error', 0, 100, 'slicer_order:asc');
 

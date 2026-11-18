@@ -5,59 +5,47 @@ import { toPage, pageInMemory } from '../../src/lib/utils/pagination.js';
 describe('pagination', () => {
     describe('toPage', () => {
         it('should nest the paging fields under pagination key', () => {
-            const page = toPage({ records: ['a', 'b'], total: 5, relation: 'eq' }, 0, 2);
+            const page = toPage({ records: ['a', 'b'], total: 5 }, 0, 2);
 
             expect(page).toEqual({
                 data: ['a', 'b'],
                 pagination: {
-                    total: 5, total_relation: 'eq', from: 0, size: 2, has_more: true
+                    total: 5, from: 0, size: 2, has_more: true
                 },
             });
         });
 
-        describe('with an exact total', () => {
-            it('should have more when records come after the page', () => {
-                expect(toPage({ records: ['c', 'd'], total: 5, relation: 'eq' }, 2, 2)
+        describe('has_more', () => {
+            it('should be true when records come after the page', () => {
+                expect(toPage({ records: ['c', 'd'], total: 5 }, 2, 2)
                     .pagination.has_more).toBeTrue();
             });
 
-            it('should not have more on a short last page', () => {
-                expect(toPage({ records: ['e'], total: 5, relation: 'eq' }, 4, 2)
+            it('should be false on a short last page', () => {
+                expect(toPage({ records: ['e'], total: 5 }, 4, 2)
                     .pagination.has_more).toBeFalse();
             });
 
-            it('should not have more on an exactly full last page', () => {
-                expect(toPage({ records: ['c', 'd'], total: 4, relation: 'eq' }, 2, 2)
+            it('should be false on an exactly full last page', () => {
+                expect(toPage({ records: ['c', 'd'], total: 4 }, 2, 2)
                     .pagination.has_more).toBeFalse();
             });
 
-            it('should not have more past the end', () => {
-                expect(toPage({ records: [], total: 4, relation: 'eq' }, 10, 2)
+            it('should be false past the end', () => {
+                expect(toPage({ records: [], total: 4 }, 10, 2)
                     .pagination.has_more).toBeFalse();
             });
 
-            it('should have more with size 0 when anything matches', () => {
-                expect(toPage({ records: [], total: 4, relation: 'eq' }, 0, 0)
+            it('should be true with size 0 when anything matches', () => {
+                expect(toPage({ records: [], total: 4 }, 0, 0)
                     .pagination.has_more).toBeTrue();
-                expect(toPage({ records: [], total: 0, relation: 'eq' }, 0, 0)
-                    .pagination.has_more).toBeFalse();
-            });
-        });
-
-        describe('with a lower-bound total', () => {
-            it('should have more when the page is full', () => {
-                expect(toPage({ records: ['a', 'b'], total: 10000, relation: 'gte' }, 9998, 2)
-                    .pagination.has_more).toBeTrue();
-            });
-
-            it('should not have more when the page is short', () => {
-                expect(toPage({ records: ['a'], total: 10000, relation: 'gte' }, 10500, 2)
+                expect(toPage({ records: [], total: 0 }, 0, 0)
                     .pagination.has_more).toBeFalse();
             });
         });
 
         it('should match the Pagination response schema', () => {
-            const page = toPage({ records: [], total: 10000, relation: 'gte' }, 0, 100);
+            const page = toPage({ records: [], total: 10000 }, 0, 100);
             expect(TerasliceApiV2.PaginationSchema.parse(page.pagination))
                 .toEqual(page.pagination);
         });
@@ -71,7 +59,6 @@ describe('pagination', () => {
             expect(pageInMemory(list, byId, 1, 2)).toEqual({
                 records: [{ id: 'b' }, { id: 'c' }],
                 total: 5,
-                relation: 'eq',
             });
         });
 
@@ -81,7 +68,7 @@ describe('pagination', () => {
 
         it('should return no records past the end, with the total', () => {
             expect(pageInMemory(list, byId, 10, 2)).toEqual({
-                records: [], total: 5, relation: 'eq'
+                records: [], total: 5
             });
         });
 
@@ -108,7 +95,7 @@ describe('pagination', () => {
 
     describe('paged response schemas', () => {
         const pagination = {
-            total: 1, total_relation: 'eq', from: 0, size: 100, has_more: false
+            total: 1, from: 0, size: 100, has_more: false
         };
 
         const sliceError = {
@@ -132,8 +119,8 @@ describe('pagination', () => {
             expect(TerasliceApiV2.SliceErrorPageSchema.safeParse(page).success).toBeFalse();
         });
 
-        it('should reject an unknown total_relation', () => {
-            const page = { data: [], pagination: { ...pagination, total_relation: 'lt' } };
+        it('should reject a negative total', () => {
+            const page = { data: [], pagination: { ...pagination, total: -1 } };
             expect(TerasliceApiV2.SliceErrorPageSchema.safeParse(page).success).toBeFalse();
         });
     });

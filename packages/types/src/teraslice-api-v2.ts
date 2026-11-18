@@ -3,33 +3,15 @@ import {
     DataEncoding, ExecutionStatusEnum, ProcessAssignment, RecoveryCleanupType,
     type ExecutionStatus
 } from './teraslice.js';
-import type { SearchTotalHitsRelation } from './elasticsearch-client/elasticsearch-types.js';
 
 /** ############ V2 ROUTE SCHEMAS ############ */
 
 /** ############### Pagination ############### */
 
-/**
- * Written out as an object so the compiler checks it against
- * `SearchTotalHitsRelation` both ways: leaving out a value is a missing
- * key, and adding one is an excess property.
- */
-const totalRelations = {
-    eq: 'eq',
-    gte: 'gte',
-} as const satisfies { [K in SearchTotalHitsRelation]: K };
-
-export const TotalRelationSchema = z.enum(totalRelations).meta({
-    id: 'TotalRelation',
-    description: '"eq": `total` is exact; "gte": at least `total` records match, '
-        + 'because counting stopped there',
-});
-
 export const PaginationSchema = z.object({
     total: z.number().int()
         .min(0)
-        .meta({ description: 'Number of matching records, across all pages' }),
-    total_relation: TotalRelationSchema,
+        .meta({ description: 'Exact number of matching records, across all pages' }),
     from: z.number().int()
         .min(0)
         .meta({ description: 'The `from` of the request' }),
@@ -37,8 +19,7 @@ export const PaginationSchema = z.object({
         .min(0)
         .meta({ description: 'The `size` of the request; `data` can be shorter' }),
     has_more: z.boolean().meta({
-        description: 'Whether there are records after this page. When `total_relation` '
-            + 'is "gte", this is true for any full page, so the next page can be empty.',
+        description: 'Whether there are records after this page: `from + data.length < total`',
     }),
 }).meta({ id: 'Pagination' });
 
@@ -1102,8 +1083,8 @@ export const GetTxtControllersQuerySchema = z.strictObject({
 export const TxtTableSchema = z.string().meta({
     id: 'TxtTable',
     description: 'A plain-text table, one row per record, then a blank line and a footer: '
-        + '`Showing 101-200 of 1,523` (the total ends in `+` when `X-Total-Relation` is '
-        + '`gte`), and `next: ?from=200&size=100` when there are more. With `headers=false`, '
+        + '`Showing 101-200 of 1,523`, and `next: ?from=200&size=100` when there are more. '
+        + 'With `headers=false`, '
         + 'only the rows.',
 });
 

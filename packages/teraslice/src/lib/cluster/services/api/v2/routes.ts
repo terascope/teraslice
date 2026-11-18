@@ -141,10 +141,10 @@ function withDeletedOn(columns: readonly string[], deleted: boolean): readonly s
 
 /** Applies `fn` to each record, keeping the total */
 function mapRecords<T, U>(
-    { records, total, relation }: RecordsWithTotal<T>,
+    { records, total }: RecordsWithTotal<T>,
     fn: (record: T) => U
 ): RecordsWithTotal<U> {
-    return { records: records.map(fn), total, relation };
+    return { records: records.map(fn), total };
 }
 
 /**

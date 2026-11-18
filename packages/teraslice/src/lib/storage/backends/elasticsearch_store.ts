@@ -7,7 +7,7 @@ import {
 import elasticsearchApi, { Client, BulkRecord } from '@terascope/elasticsearch-api';
 import { getClient, Context } from '@terascope/job-components';
 import {
-    ClientParams, DataTypeConfig, ESMapping, ESTypes
+    ClientParams, DataTypeConfig, ESMapping
 } from '@terascope/types';
 import { DataType } from '@terascope/data-types';
 import { makeLogger } from '../../workers/helpers/terafoundation.js';
@@ -67,15 +67,10 @@ export interface TerasliceESStorageConfig {
     logger?: Logger;
 }
 
-/**
- * One page of records plus the total number of matching records. `relation`
- * is `gte` when OpenSearch stopped counting at the `track_total_hits` limit,
- * so `total` is a minimum in that case.
- */
+/** One page of records plus the exact total number of matching records */
 export interface RecordsWithTotal<T> {
     records: T[]; // TODO: review this later
     total: number;
-    relation: ESTypes.SearchTotalHitsRelation;
 }
 
 export interface TerasliceStorageOptions {
@@ -246,16 +241,8 @@ export class TerasliceElasticsearchStorage {
     }
 
     /**
-     * Like `search()`, but also returns the total number of matching records
-     * from the same request.
-     *
-     * `trackTotalHits` sets how high OpenSearch counts (`track_total_hits`):
-     * - `true`: no limit, `total` is always exact.
-     * - a number: count up to that number.
-     * - left out: count up to OpenSearch's default of 10,000.
-     *
-     * If more records match than the limit, `total` is the limit and
-     * `relation` is `gte`. Otherwise `total` is exact and `relation` is `eq`.
+     * Like `search()`, but also returns the exact total number of matching
+     * records from the same request (`track_total_hits: true`).
      */
     async searchWithTotal<T = Record<string, any>>(
         query: string | Record<string, any>,
@@ -263,19 +250,13 @@ export class TerasliceElasticsearchStorage {
         size = 10000,
         sort?: string,
         fields?: string | string[],
-        index = this.defaultIndexName,
-        trackTotalHits?: boolean | number
+        index = this.defaultIndexName
     ): Promise<RecordsWithTotal<T>> {
-        if (trackTotalHits === false) {
-            throw new Error('trackTotalHits can\'t be false, the total is required');
-        }
-
         const esQuery = this._buildSearchQuery(query, from, size, sort, fields, index);
-        if (trackTotalHits != null) {
-            esQuery.track_total_hits = trackTotalHits;
-        }
+        esQuery.track_total_hits = true;
 
-        return this.api.searchWithTotal<T>(esQuery);
+        const { records, total } = await this.api.searchWithTotal<T>(esQuery);
+        return { records, total };
     }
 
     private _buildSearchQuery(
