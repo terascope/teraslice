@@ -10,7 +10,7 @@ describe('pagination', () => {
             expect(page).toEqual({
                 data: ['a', 'b'],
                 pagination: {
-                    total: 5, from: 0, size: 2, has_more: true
+                    total: 5, from: 0, size: 2, has_more: true, next_cursor: null
                 },
             });
         });
@@ -95,7 +95,7 @@ describe('pagination', () => {
 
     describe('paged response schemas', () => {
         const pagination = {
-            total: 1, from: 0, size: 100, has_more: false
+            total: 1, from: 0, size: 100, has_more: false, next_cursor: null
         };
 
         const sliceError = {

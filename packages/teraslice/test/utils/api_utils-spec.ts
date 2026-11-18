@@ -175,6 +175,7 @@ describe('apiUtils', () => {
                     from: 0,
                     size: 100,
                     has_more: false,
+                    next_cursor: null,
                     ...pagination,
                 },
             };
@@ -242,7 +243,7 @@ describe('apiUtils', () => {
     describe('paginationHeaders', () => {
         it('should give every documented header as a string', () => {
             const headers = paginationHeaders({
-                total: 10000, from: 200, size: 100, has_more: true
+                total: 10000, from: 200, size: 100, has_more: true, next_cursor: null
             });
 
             expect(headers).toEqual({

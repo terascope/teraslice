@@ -77,7 +77,7 @@ function withTotal<T>(records: T[], total = records.length) {
 /** The `pagination` of a page, with the defaults of a request with no paging params */
 function pagination(fields: Record<string, any> = {}) {
     return {
-        total: 1, from: 0, size: 100, has_more: false, ...fields
+        total: 1, from: 0, size: 100, has_more: false, next_cursor: null, ...fields
     };
 }
 
@@ -1651,6 +1651,29 @@ describe('HTTP API v2', () => {
 
                 expect(response.statusCode).toEqual(400);
             });
+        });
+    });
+
+    describe('cursor query param', () => {
+        it.each([
+            '/v2/jobs',
+            '/v2/ex',
+            '/v2/jobs/job-1/errors',
+            '/v2/ex/ex-1/errors',
+            '/v2/cluster/controllers',
+            '/v2/txt/jobs',
+            '/v2/txt/ex',
+            '/v2/txt/workers',
+            '/v2/txt/nodes',
+            '/v2/txt/controllers',
+        ])('should reject cursor with from on %s', async (path) => {
+            const response = await request('GET', path, {
+                searchParams: { cursor: 'abc', from: '100' },
+                responseType: 'text',
+            });
+
+            expect(response.statusCode).toEqual(400);
+            expect(response.body).toContain('Send cursor or from, not both');
         });
     });
 

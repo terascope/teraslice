@@ -17,6 +17,7 @@ export function toPage<T>(
             from,
             size,
             has_more: from + records.length < total,
+            next_cursor: null, // TODO: built from records' lastSort in the next step
         },
     };
 }

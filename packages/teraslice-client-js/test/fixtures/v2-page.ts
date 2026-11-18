@@ -9,6 +9,7 @@ export function v2Page<T>(data: T[]): TerasliceApiV2.Page<T> {
             from: 0,
             size: 100,
             has_more: false,
+            next_cursor: null,
         },
     };
 }

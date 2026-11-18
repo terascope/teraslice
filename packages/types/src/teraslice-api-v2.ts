@@ -14,13 +14,21 @@ export const PaginationSchema = z.object({
         .meta({ description: 'Exact number of matching records, across all pages' }),
     from: z.number().int()
         .min(0)
-        .meta({ description: 'The `from` of the request' }),
+        .meta({
+            description: 'Number of matching records before this page: the `from` of the '
+                + 'request, or where its `cursor` continues from',
+        }),
     size: z.number().int()
         .min(0)
         .meta({ description: 'The `size` of the request; `data` can be shorter' }),
     has_more: z.boolean().meta({
         description: 'Whether there are records after this page: `from + data.length < total`',
     }),
+    next_cursor: z.string().nullable()
+        .meta({
+            description: 'Send as `cursor` to get the next page. `null` on the last page, '
+                + 'and with `size=0`',
+        }),
 }).meta({ id: 'Pagination' });
 
 export type Pagination = z.output<typeof PaginationSchema>;
@@ -39,6 +47,31 @@ export interface Page<T> {
     pagination: Pagination;
 }
 
+/** The `cursor` query param, for a list described as `records` or `items` */
+function cursorQuery(described: 'records' | 'items') {
+    return z.string().min(1)
+        .optional()
+        .meta({
+            description: `The \`next_cursor\` of the previous page, to get the ${described} `
+                + 'after it. Send the same query params as that request; only `size` and '
+                + '`fields` can change. Can\'t be sent with `from`',
+        });
+}
+
+/**
+ * Rejects a `cursor` sent with a `from` other than 0. A refine keeps the
+ * schema a `ZodObject`, so it can still be extended (the /txt query schemas
+ * extend the JSON ones), and the refine carries over.
+ */
+function cursorOrFrom<T extends z.ZodObject>(schema: T): T {
+    return schema.refine(
+        (query: { from?: number; cursor?: string }) => (
+            query.cursor === undefined || !query.from
+        ),
+        { message: 'Send cursor or from, not both', path: ['cursor'] }
+    );
+}
+
 /**
  * Paging for routes that page a list held in memory rather than a search.
  * There's no `sort` or `filter`, and no `max_result_window`.
@@ -52,6 +85,7 @@ const inMemoryPageQueryShape = {
         .min(0)
         .default(0)
         .meta({ description: 'Number of items to skip, for paging' }),
+    cursor: cursorQuery('items'),
 };
 
 /** ################### / #################### */
@@ -206,7 +240,9 @@ export type ControllerStats = z.output<typeof ControllerStatsSchema>;
 export type ControllerStatsList = z.output<typeof ControllerStatsListSchema>;
 
 /** Query of `GET /cluster/controllers`. Sorted by `ex_id` before paging */
-export const GetClusterControllersQuerySchema = z.strictObject(inMemoryPageQueryShape);
+export const GetClusterControllersQuerySchema = cursorOrFrom(
+    z.strictObject(inMemoryPageQueryShape)
+);
 
 /** Response of `GET /cluster/controllers` */
 export const ControllerStatsPageSchema = paginated(ControllerStatsSchema)
@@ -546,14 +582,17 @@ const searchQueryShape = {
         .min(0)
         .default(100)
         .meta({
-            description: 'Maximum number of records to return. `from + size` is limited by '
-                + 'the index\'s `max_result_window` (10,000 unless the cluster changes it); '
-                + 'a request past it is rejected with a 400',
+            description: 'Maximum number of records to return. With `from`, `from + size` '
+                + 'can\'t be more than the index\'s `max_result_window` (10,000 unless the '
+                + 'cluster changes it), so `from` can\'t reach records past it; a request '
+                + 'past it is rejected with a 400. With `cursor`, `from` is always 0, so '
+                + 'size must be less than `max_result_window`',
         }),
     from: z.coerce.number<number>().int()
         .min(0)
         .default(0)
         .meta({ description: 'Number of matching records to skip, for paging' }),
+    cursor: cursorQuery('records'),
     sort: z.string()
         .refine(isValidSort, 'Expected field, field:asc or field:desc, comma-separated')
         .default('_updated:desc')
@@ -606,7 +645,7 @@ export type GetJobQuery = z.input<typeof GetJobQuerySchema>;
 export type JobWithExecution = z.output<typeof JobWithExecutionSchema>;
 
 /** Query of `GET /jobs` */
-export const GetJobsQuerySchema = z.strictObject({
+export const GetJobsQuerySchema = cursorOrFrom(z.strictObject({
     ...searchQueryShape,
     active: z.stringbool().optional()
         .meta({
@@ -620,7 +659,7 @@ export const GetJobsQuerySchema = z.strictObject({
                 + 'job\'s latest execution as `ex`, with only these fields. Empty (`?ex=`) '
                 + 'includes every field.',
         }),
-});
+}));
 
 export type GetJobsQuery = z.input<typeof GetJobsQuerySchema>;
 
@@ -659,7 +698,7 @@ export const SliceStateRecordSchema = z.object({
 export type SliceStateRecord = z.output<typeof SliceStateRecordSchema>;
 
 /** Query of `GET /jobs/:jobId/errors` */
-export const GetJobErrorsQuerySchema = z.strictObject(searchQueryShape);
+export const GetJobErrorsQuerySchema = cursorOrFrom(z.strictObject(searchQueryShape));
 
 export type GetJobErrorsQuery = z.input<typeof GetJobErrorsQuerySchema>;
 
@@ -947,7 +986,7 @@ export type RecoverJobQuery = z.input<typeof RecoverJobQuerySchema>;
 /** ################## /ex ################### */
 
 /** Query of `GET /ex` */
-export const GetExecutionsQuerySchema = z.strictObject({
+export const GetExecutionsQuerySchema = cursorOrFrom(z.strictObject({
     ...searchQueryShape,
     status: z.string().optional()
         .meta({
@@ -958,10 +997,10 @@ export const GetExecutionsQuerySchema = z.strictObject({
     job_id: z.string().optional()
         .meta({ description: 'Only return executions of this job' }),
     deleted: deletedQuery,
-});
+}));
 
 /** Query of `GET /ex/:exId/errors` */
-export const GetExecutionErrorsQuerySchema = z.strictObject(searchQueryShape);
+export const GetExecutionErrorsQuerySchema = cursorOrFrom(z.strictObject(searchQueryShape));
 
 export type GetExecutionsQuery = z.input<typeof GetExecutionsQuerySchema>;
 
@@ -1057,10 +1096,10 @@ export const GetTxtExecutionsQuerySchema = GetExecutionsQuerySchema.extend(
 );
 
 /** Query of `GET /txt/workers` */
-export const GetTxtWorkersQuerySchema = z.strictObject({
+export const GetTxtWorkersQuerySchema = cursorOrFrom(z.strictObject({
     ...inMemoryPageQueryShape,
     ...txtQueryShape(ExecutionNodeWorkerSchema, 'ExecutionNodeWorker'),
-});
+}));
 
 /** A row of `GET /txt/nodes`: `active` is the number of processes */
 const TxtNodeRowSchema = NodeStateSchema.extend({
@@ -1068,16 +1107,16 @@ const TxtNodeRowSchema = NodeStateSchema.extend({
 });
 
 /** Query of `GET /txt/nodes` */
-export const GetTxtNodesQuerySchema = z.strictObject({
+export const GetTxtNodesQuerySchema = cursorOrFrom(z.strictObject({
     ...inMemoryPageQueryShape,
     ...txtQueryShape(TxtNodeRowSchema, 'NodeState'),
-});
+}));
 
 /** Query of `GET /txt/controllers` */
-export const GetTxtControllersQuerySchema = z.strictObject({
+export const GetTxtControllersQuerySchema = cursorOrFrom(z.strictObject({
     ...inMemoryPageQueryShape,
     ...txtQueryShape(ControllerStatsSchema, 'ControllerStats'),
-});
+}));
 
 /** Response of every `/txt` route */
 export const TxtTableSchema = z.string().meta({
