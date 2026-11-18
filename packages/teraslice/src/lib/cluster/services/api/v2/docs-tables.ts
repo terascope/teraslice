@@ -135,9 +135,14 @@ function queryAndBody(route: AnyRouteDef): string {
     return items.join(', ');
 }
 
+/**
+ * Types come from the parsed (output) schema, so `z.stringbool()` shows as a
+ * boolean, not the string it is sent as. Whether a param is required comes
+ * from the input schema, where a param with a default is optional.
+ */
 function renderQueryTable(query: ParamsSchema, components: Components): string {
-    const json = resolve(fromZod(query, 'input', components), components);
-    const required = json.required ?? [];
+    const json = resolve(fromZod(query, 'output', components), components);
+    const required = resolve(fromZod(query, 'input', components), components).required ?? [];
 
     return table(
         ['Field', 'Type', 'Default', 'Description'],

@@ -30,6 +30,11 @@ describe('v2 API doc tables', () => {
         expect(tables['V2 SCHEMA GetJobTapQuery']).toContain('| `size` | `"all"` \\| integer | `10` |');
     });
 
+    it('should show query param types as parsed', () => {
+        expect(tables['V2 SCHEMA GetJobsQuery']).toContain('| `deleted` | boolean | `false` |');
+        expect(tables['V2 SCHEMA GetJobsQuery']).toContain('| `size` | integer | `100` |');
+    });
+
     it('should mark required query params', () => {
         expect(tables['V2 SCHEMA UpdateJobSettingsQuery']).toContain('| `log_level` | `"trace"` \\| `"debug"` \\| `"info"` \\| `"warn"` \\| `"error"` \\| `"fatal"` | required |');
     });
