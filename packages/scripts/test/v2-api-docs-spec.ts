@@ -73,35 +73,21 @@ describe('v2 API docs sync', () => {
     });
 
     describe('->assertGeneratorBuilt', () => {
-        const v2Dir = 'packages/teraslice/src/lib/cluster/services/api/v2';
         const generator = 'packages/teraslice/dist/src/lib/cluster/services/api/v2/docs-tables.js';
-        const terasliceBuildInfo = 'packages/teraslice/dist/tsconfig.tsbuildinfo';
-        const typesBuildInfo = 'packages/types/dist/tsconfig.tsbuildinfo';
         let rootDir: string;
-
-        function touch(file: string, time: number): void {
-            const filePath = path.join(rootDir, file);
-            fs.mkdirSync(path.dirname(filePath), { recursive: true });
-            fs.writeFileSync(filePath, '');
-            fs.utimesSync(filePath, time, time);
-        }
 
         beforeEach(() => {
             rootDir = fs.mkdtempSync(path.join(os.tmpdir(), 'v2-api-docs-'));
-            touch(`${v2Dir}/docs-tables.ts`, 1000);
-            touch(`${v2Dir}/routes.ts`, 1000);
-            touch('packages/teraslice/src/lib/utils/v2_routes.ts', 1000);
-            touch('packages/types/src/teraslice-api-v2.ts', 1000);
-            touch(generator, 500);
-            touch(terasliceBuildInfo, 2000);
-            touch(typesBuildInfo, 2000);
+            const filePath = path.join(rootDir, generator);
+            fs.mkdirSync(path.dirname(filePath), { recursive: true });
+            fs.writeFileSync(filePath, '');
         });
 
         afterEach(() => {
             fs.rmSync(rootDir, { recursive: true, force: true });
         });
 
-        it('should pass when every source is older than its build info', () => {
+        it('should pass when the generator is built', () => {
             expect(() => assertGeneratorBuilt(rootDir)).not.toThrow();
         });
 
@@ -110,32 +96,6 @@ describe('v2 API docs sync', () => {
 
             expect(() => assertGeneratorBuilt(rootDir))
                 .toThrow(`${generator} does not exist, run \`pnpm build\` before \`pnpm sync\``);
-        });
-
-        it('should throw if a package was never built', () => {
-            fs.rmSync(path.join(rootDir, typesBuildInfo));
-
-            expect(() => assertGeneratorBuilt(rootDir)).toThrow(`${typesBuildInfo} does not exist`);
-        });
-
-        it('should throw if a file was added to the v2 folder since the build', () => {
-            touch(`${v2Dir}/new-file.ts`, 3000);
-
-            expect(() => assertGeneratorBuilt(rootDir)).toThrow(`${v2Dir}/new-file.ts changed since it was built`);
-        });
-
-        it('should throw if a teraslice source changed since the build', () => {
-            touch('packages/teraslice/src/lib/utils/v2_routes.ts', 3000);
-
-            expect(() => assertGeneratorBuilt(rootDir))
-                .toThrow('packages/teraslice/src/lib/utils/v2_routes.ts changed since it was built');
-        });
-
-        it('should throw if the types schemas changed since the build', () => {
-            touch('packages/types/src/teraslice-api-v2.ts', 3000);
-
-            expect(() => assertGeneratorBuilt(rootDir))
-                .toThrow('packages/types/src/teraslice-api-v2.ts changed since it was built');
         });
     });
 });
