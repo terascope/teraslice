@@ -62,7 +62,7 @@ Query params are received as strings. v2 reads them as follows:
 
 ### Paging
 
-Every list route returns one page of the list, with where it sits in the whole list:
+Every list route returns one page of the list, along with if about where it sits in the whole list:
 
 ```sh
 $ curl 'localhost:5678/v2/jobs?size=100'
@@ -97,11 +97,8 @@ curl 'localhost:5678/v2/jobs?sort=_created:desc&size=100&cursor=eyJ2IjoxLCJhZnRl
 
 - A cursor is only valid with the params of the request that returned it. A different `sort`,
   `filter` or route param (`active`, `deleted`, `status`, `job_id`), or a cursor from another
-  route or execution, is a **400**: `The cursor is for a different query`. `size`, `fields`,
-  `headers` and `ex` can change between pages.
+  route or execution, is a **400**. `size`, `fields`, `headers` and `ex` can change between pages.
 - `cursor` with a `from` other than 0 is a **400**.
-- A cursor is opaque: send it as it was returned. Anything else is a **400**: `Invalid cursor`.
-  It's about 120-170 characters, depending on the `sort`.
 - `size=0` returns only the total, so it has no `next_cursor`.
 
 `from` (with `size`) also picks a page, e.g. to jump to page 5. `from + size` is limited by the
@@ -159,7 +156,7 @@ next page.
 Because unknown query params are rejected, a client that sends a param added in a newer
 Teraslice gets a 400 from an older cluster, which names the param. It doesn't get a response
 that silently ignores the param. Clients that support several cluster versions should only send
-a newer param when the caller asks for it, or check `teraslice_version` from `GET /v2` first.
+a newer param when the caller asks for it, or check `teraslice_version` from `GET /` first.
 
 ## Routes
 
@@ -233,9 +230,10 @@ The default columns are the same as v1's [TXT APIs](./endpoints-txt.md). `jobs` 
 
 The response is the table, a blank line, and a footer with the rows shown and the total. When
 there are more rows, the footer has a `next` line with the next page's `size` and
-[`cursor`](#paging). Add your other params (`sort`, `filter`, `fields`, …) to it yourself; the
-cursor needs the same `sort`, `filter` and route params. A text table and its JSON list share
-cursors, so a `next_cursor` from `GET /v2/jobs` works on `GET /v2/txt/jobs` and back.
+[`cursor`](#paging). Add that snippet to your previous request to get the next page. The
+cursor needs the same `sort`, `filter` and route params, but `headers` and `ex` can change
+between pages. A text table and its JSON list share cursors, so a `next_cursor` from
+`GET /v2/jobs` works on `GET /v2/txt/jobs` and vice versa.
 
 ```sh
 $ curl 'localhost:5678/v2/txt/jobs?fields=job_id,name,ex._status&ex=_status&size=2'

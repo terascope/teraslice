@@ -69,7 +69,7 @@ export interface TerasliceESStorageConfig {
 
 /** One page of records plus the exact total number of matching records */
 export interface RecordsWithTotal<T> {
-    records: T[]; // TODO: review this later
+    records: T[];
     total: number;
     /**
      * The last record's sort values. Pass them as the next search's
