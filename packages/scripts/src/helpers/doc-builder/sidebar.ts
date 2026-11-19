@@ -72,7 +72,8 @@ export async function updateSidebarJSON(pkgInfos: PackageInfo[], log?: boolean) 
 
                     return { ...pkg, items: getSubcategories(filePath) };
                 })
-                .filter(Boolean) as Category[];
+                .filter((pkg): pkg is Category => Boolean(pkg))
+                .sort((a, b) => a.label.localeCompare(b.label));
         };
 
         const extraCategories = Object.keys(sidebarJSON[name])
