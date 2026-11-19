@@ -258,6 +258,18 @@ describe('Teraslice Executions', () => {
         });
     });
 
+    describe('when using apiVersion /v2', () => {
+        it('should reject errors without an exId', async () => {
+            const v2Executions = new Executions({
+                baseUrl: 'http://teraslice.example.dev',
+                apiVersion: '/v2'
+            });
+            await expect(v2Executions.errors({ size: 10 })).rejects.toThrow(
+                '/v2 requires an exId to get execution errors'
+            );
+        });
+    });
+
     // nock >= 15 patches the shared http module, so undo it before the next test file in the worker
     afterAll(() => {
         nock.restore();

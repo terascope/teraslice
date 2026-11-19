@@ -1,5 +1,7 @@
 import { Router, Express, ErrorRequestHandler } from 'express';
 import bodyParser from 'body-parser';
+import { createRequire } from 'node:module';
+import { readFileSync } from 'node:fs';
 import { pipeline as streamPipeline } from 'node:stream/promises';
 import got, { OptionsInit } from 'got';
 import { RecoveryCleanupType, TerasliceConfig, generateJobJSONSchema } from '@terascope/job-components';
@@ -9,20 +11,27 @@ import {
     isKey
 } from '@terascope/core-utils';
 import { ExecutionStatusEnum, ConnectorListResponse, JobSchemaResponse } from '@terascope/types';
-import { ClusterMasterContext, TerasliceRequest, TerasliceResponse } from '../../../interfaces.js';
-import { makeLogger } from '../../workers/helpers/terafoundation.js';
-import { ExecutionService, JobsService, ClusterServiceType } from '../services/index.js';
-import type { JobsStorage, ExecutionStorage, StateStorage } from '../../storage/index.js';
+import { createV2Registry } from './v2/routes.js';
+import { generateV2Spec } from './v2/openapi.js';
+import { v2DocsPage } from './v2/docs-page.js';
+import { ClusterMasterContext, TerasliceRequest, TerasliceResponse } from '../../../../interfaces.js';
+import { makeLogger } from '../../../workers/helpers/terafoundation.js';
+import { ExecutionService, JobsService, ClusterServiceType } from '../index.js';
+import type { JobsStorage, ExecutionStorage, StateStorage } from '../../../storage/index.js';
 import {
     makeTable, sendError, handleTerasliceRequest,
     getSearchOptions, createJobActiveQuery, addDeletedToQuery,
     addFilterToQuery, buildConnectorList, getSliceTapOptions
-} from '../../utils/api_utils.js';
-import { getPackageJSON } from '../../utils/file_utils.js';
+} from '../../../utils/api_utils.js';
+import { getPackageJSON } from '../../../utils/file_utils.js';
 
 const terasliceVersion = getPackageJSON().version;
 
-function validateCleanupType(cleanupType: RecoveryCleanupType) {
+const rapidocScript = readFileSync(
+    createRequire(import.meta.url).resolve('rapidoc/dist/rapidoc-min.js'), 'utf8'
+);
+
+export function validateCleanupType(cleanupType: RecoveryCleanupType) {
     if (cleanupType && !RecoveryCleanupType[cleanupType]) {
         const types = Object.values(RecoveryCleanupType);
         throw new TSError(`cleanup_type must be empty or set to ${types.join(', ')}`, {
@@ -31,7 +40,7 @@ function validateCleanupType(cleanupType: RecoveryCleanupType) {
     }
 }
 
-function validateGetDeletedOption(deletedOption: string) {
+export function validateGetDeletedOption(deletedOption: string) {
     if (!['true', 'false', ''].includes(deletedOption)) {
         throw new TSError('deleted query option must true or false', {
             statusCode: 400
@@ -422,7 +431,11 @@ export class ApiService {
             const requestHandler = handleTerasliceRequest(req, res, 'Could not recover execution');
             requestHandler(async () => {
                 validateCleanupType(cleanupType as RecoveryCleanupType);
-                return executionService.recoverExecution(exId, cleanupType as RecoveryCleanupType);
+                const execution = await executionService.getExecutionContext(exId);
+                await jobsService.assertJobCanRun(execution.job_id);
+                return executionService.recoverExecution(
+                    execution, cleanupType as RecoveryCleanupType
+                );
             });
         });
 
@@ -536,7 +549,26 @@ export class ApiService {
             requestHandler(() => this._controllerStats());
         });
 
+        const v2 = createV2Registry(this);
+
+        this.app.get('/v2/openapi.json', (req, res) => {
+            const requestHandler = handleTerasliceRequest(req, res, 'Could not generate the OpenAPI spec');
+            requestHandler(() => generateV2Spec(v2.routes, this.context));
+        });
+
+        this.app.get('/v2/api-docs', (_req, res) => {
+            res.type('html').send(v2DocsPage());
+        });
+
+        this.app.get('/v2/api-docs/rapidoc-min.js', (_req, res) => {
+            res.type('application/javascript').send(rapidocScript);
+        });
+
+        this.app.use('/v2', v2.router);
+
         // backwards compatibility for /v1 routes
+        // TODO: Teraslice v4 deletes /v1 and the unversioned mount
+        // https://github.com/terascope/teraslice/issues/4584#issuecomment-6636093239
         this.app.use(v1routes);
         this.app.use('/v1', v1routes);
 

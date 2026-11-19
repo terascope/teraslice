@@ -60,8 +60,17 @@ export class ExecutionStorage {
         return results as ExecutionConfig;
     }
 
-    // encompasses all executions in either initialization or running statuses
+    async refresh(): Promise<void> {
+        await this.backend.refresh();
+    }
+
+    /* Encompasses all executions in either initialization or running
+     * statuses. Refresh the execution index before searching, so the
+     * latest information is always received.
+     */
     async getActiveExecution(exId: string): Promise<ExecutionConfig> {
+        await this.refresh();
+
         const str = this.getTerminalStatuses().map((state) => ` _status:${state} `)
             .join('OR');
         const query = `ex_id:"${exId}" NOT (${str.trim()})`;

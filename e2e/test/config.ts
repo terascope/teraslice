@@ -152,6 +152,12 @@ const E2EEnvSchema: Terafoundation.Schema<any> = {
         default: undefined,
         format: String
     },
+    // TODO: Teraslice v4 deletes /v1, remove this and run everything on /v2
+    // https://github.com/terascope/teraslice/issues/4584#issuecomment-6636093239
+    TEST_API_VERSION: {
+        default: 'v1',
+        format: ['v1', 'v2']
+    },
     USE_DEV_ASSETS: {
         default: null,
         format: 'optional_bool'

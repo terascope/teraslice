@@ -40,6 +40,7 @@ describe('job validation', () => {
 
         return terasliceHarness.teraslice
             .jobs.submit(jobSpec)
+            .then(() => Promise.reject(new Error('Submission should not succeed when no reader index is specified.'))) // This should throw a validation error.
             .catch((err) => {
                 expect(err.error).toBe(500);
             });

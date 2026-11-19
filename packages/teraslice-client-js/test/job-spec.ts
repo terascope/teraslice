@@ -551,6 +551,25 @@ describe('Teraslice Job', () => {
             });
         });
 
+        describe('when called with ex', () => {
+            const data = {
+                job_id: 'example-job-id',
+                ex: { _status: 'running' }
+            };
+
+            beforeEach(() => {
+                scope.get('/jobs/example-job-id')
+                    .query({ ex: '_status' })
+                    .reply(200, data);
+            });
+
+            it('should send ex as a query param', async () => {
+                const job = new Job({ baseUrl }, 'example-job-id');
+                const results = await job.config({ ex: '_status' });
+                expect(results).toEqual(data);
+            });
+        });
+
         describe('when called with with options', () => {
             beforeEach(() => {
                 scope.get('/jobs/some-job-id')
@@ -564,7 +583,7 @@ describe('Teraslice Job', () => {
 
             it('should resolve json results from Teraslice', async () => {
                 const job = new Job({ baseUrl }, 'some-job-id');
-                const results = await job.config(requestOptions);
+                const results = await job.config({}, requestOptions);
                 expect(results).toEqual({
                     job_id: 'example-job-id',
                     ex_id: 'example-ex-id',
@@ -978,6 +997,36 @@ describe('Teraslice Job', () => {
                     expect(err.message).toEqual(errMsg);
                 }
             });
+        });
+    });
+
+    describe('when using apiVersion /v2', () => {
+        let v2Scope: nock.Scope;
+        const config = { baseUrl, apiVersion: '/v2' };
+
+        beforeEach(() => {
+            v2Scope = nock('http://teraslice.example.dev/v2');
+        });
+
+        it('should send cleanup as cleanup_type on recover', async () => {
+            v2Scope.post('/jobs/some-job-id/_recover')
+                .query({ cleanup_type: Teraslice.RecoveryCleanupType.all })
+                .reply(200, { job_id: 'some-job-id', ex_id: 'new-ex-id' });
+
+            const job = new Job(config, 'some-job-id');
+            const results = await job.recover({
+                cleanup: Teraslice.RecoveryCleanupType.all
+            });
+            expect(results).toEqual({ job_id: 'some-job-id', ex_id: 'new-ex-id' });
+        });
+
+        it('should use the controller route for slicer', async () => {
+            v2Scope.get('/jobs/some-job-id/controller')
+                .reply(200, [{ ex_id: 'some-ex-id' }]);
+
+            const job = new Job(config, 'some-job-id');
+            const results = await job.slicer();
+            expect(results).toEqual([{ ex_id: 'some-ex-id' }]);
         });
     });
 
