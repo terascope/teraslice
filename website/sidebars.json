@@ -56,12 +56,10 @@
         "Packages": [
             {
                 "type": "category",
-                "label": "data-types",
+                "label": "core-utils",
                 "items": [
-                    "packages/data-types/overview",
-                    "packages/data-types/development",
-                    "packages/data-types/api/overview",
-                    "packages/data-types/field-configs"
+                    "packages/core-utils/overview",
+                    "packages/core-utils/api/overview"
                 ]
             },
             {
@@ -77,10 +75,12 @@
             },
             {
                 "type": "category",
-                "label": "elasticsearch-store",
+                "label": "data-types",
                 "items": [
-                    "packages/elasticsearch-store/overview",
-                    "packages/elasticsearch-store/api/overview"
+                    "packages/data-types/overview",
+                    "packages/data-types/development",
+                    "packages/data-types/api/overview",
+                    "packages/data-types/field-configs"
                 ]
             },
             {
@@ -92,10 +92,64 @@
             },
             {
                 "type": "category",
+                "label": "elasticsearch-store",
+                "items": [
+                    "packages/elasticsearch-store/overview",
+                    "packages/elasticsearch-store/api/overview"
+                ]
+            },
+            {
+                "type": "category",
+                "label": "eslint-config",
+                "items": [
+                    "packages/eslint-config/overview"
+                ]
+            },
+            {
+                "type": "category",
+                "label": "geo-utils",
+                "items": [
+                    "packages/geo-utils/overview",
+                    "packages/geo-utils/api/overview"
+                ]
+            },
+            {
+                "type": "category",
+                "label": "ip-utils",
+                "items": [
+                    "packages/ip-utils/overview",
+                    "packages/ip-utils/api/overview"
+                ]
+            },
+            {
+                "type": "category",
                 "label": "job-components",
                 "items": [
                     "packages/job-components/overview",
                     "packages/job-components/api/overview"
+                ]
+            },
+            {
+                "type": "category",
+                "label": "opensearch-client",
+                "items": [
+                    "packages/opensearch-client/overview",
+                    "packages/opensearch-client/api/overview"
+                ]
+            },
+            {
+                "type": "category",
+                "label": "scripts",
+                "items": [
+                    "packages/scripts/overview"
+                ]
+            },
+            {
+                "type": "category",
+                "label": "sql-builder",
+                "items": [
+                    "packages/sql-builder/overview",
+                    "packages/sql-builder/api/overview"
                 ]
             },
             {
@@ -131,6 +185,14 @@
             },
             {
                 "type": "category",
+                "label": "teraslice-state-storage",
+                "items": [
+                    "packages/teraslice-state-storage/overview",
+                    "packages/teraslice-state-storage/api/overview"
+                ]
+            },
+            {
+                "type": "category",
                 "label": "teraslice-test-harness",
                 "items": [
                     "packages/teraslice-test-harness/overview",
@@ -145,6 +207,22 @@
                     "packages/ts-transforms/overview",
                     "packages/ts-transforms/operations",
                     "packages/ts-transforms/api/overview"
+                ]
+            },
+            {
+                "type": "category",
+                "label": "types",
+                "items": [
+                    "packages/types/overview",
+                    "packages/types/api/overview"
+                ]
+            },
+            {
+                "type": "category",
+                "label": "valkey",
+                "items": [
+                    "packages/valkey/overview",
+                    "packages/valkey/api/overview"
                 ]
             },
             {
@@ -166,80 +244,10 @@
             },
             {
                 "type": "category",
-                "label": "core-utils",
-                "items": [
-                    "packages/core-utils/overview",
-                    "packages/core-utils/api/overview"
-                ]
-            },
-            {
-                "type": "category",
-                "label": "ip-utils",
-                "items": [
-                    "packages/ip-utils/overview",
-                    "packages/ip-utils/api/overview"
-                ]
-            },
-            {
-                "type": "category",
-                "label": "geo-utils",
-                "items": [
-                    "packages/geo-utils/overview",
-                    "packages/geo-utils/api/overview"
-                ]
-            },
-            {
-                "type": "category",
-                "label": "eslint-config",
-                "items": [
-                    "packages/eslint-config/overview"
-                ]
-            },
-            {
-                "type": "category",
-                "label": "types",
-                "items": [
-                    "packages/types/overview",
-                    "packages/types/api/overview"
-                ]
-            },
-            {
-                "type": "category",
-                "label": "scripts",
-                "items": [
-                    "packages/scripts/overview"
-                ]
-            },
-            {
-                "type": "category",
-                "label": "teraslice-state-storage",
-                "items": [
-                    "packages/teraslice-state-storage/overview",
-                    "packages/teraslice-state-storage/api/overview"
-                ]
-            },
-            {
-                "type": "category",
                 "label": "xpressions",
                 "items": [
                     "packages/xpressions/overview",
                     "packages/xpressions/api/overview"
-                ]
-            },
-            {
-                "type": "category",
-                "label": "opensearch-client",
-                "items": [
-                    "packages/opensearch-client/overview",
-                    "packages/opensearch-client/api/overview"
-                ]
-            },
-            {
-                "type": "category",
-                "label": "valkey",
-                "items": [
-                    "packages/valkey/overview",
-                    "packages/valkey/api/overview"
                 ]
             }
         ],

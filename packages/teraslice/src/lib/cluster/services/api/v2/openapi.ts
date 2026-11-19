@@ -23,10 +23,10 @@ const terasliceVersion = getPackageJSON().version;
  */
 
 /** The named schemas, by name. Becomes `components.schemas` */
-type Components = Record<string, SchemaObject>;
+export type Components = Record<string, SchemaObject>;
 
 /** A schema written out in full, or a `$ref` to one in `Components` */
-type Schema = SchemaObject | ReferenceObject;
+export type Schema = SchemaObject | ReferenceObject;
 
 function componentRef(name: string): ReferenceObject {
     return { $ref: `#/components/schemas/${name}` };
@@ -107,7 +107,7 @@ function moveDefinitionsToComponents(
  * they differ on fields with defaults, which are optional in a request but
  * always set in a response.
  */
-function fromZod(
+export function fromZod(
     schema: z.ZodType,
     io: 'input' | 'output',
     components: Components
@@ -183,7 +183,7 @@ function toOperation(route: AnyRouteDef, components: Components): OperationObjec
  * @param path - a registry route path, without the /v2 prefix, e.g. `/jobs/:jobId/_start`
  * @returns the path as the spec shows it, e.g. `/v2/jobs/{jobId}/_start`
  */
-function convertToOpenAPIPath(path: string): string {
+export function convertToOpenAPIPath(path: string): string {
     let converted = '';
     let insideParam = false;
 

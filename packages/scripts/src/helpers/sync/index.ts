@@ -6,6 +6,7 @@ import {
     verifyCommitted, syncVersions, syncPackage,
     verify
 } from './utils.js';
+import { syncV2ApiDocs } from './v2-api-docs.js';
 
 export async function syncAll(options: SyncOptions): Promise<void> {
     await verifyCommitted(options);
@@ -22,6 +23,8 @@ export async function syncAll(options: SyncOptions): Promise<void> {
     await pMap(pkgInfos, (pkgInfo) => syncPackage(files, pkgInfo, options), {
         concurrency: 10
     });
+
+    await syncV2ApiDocs(files);
 
     // reload the packages to get the correct sorting
     pkgInfos = listPackages(true);
