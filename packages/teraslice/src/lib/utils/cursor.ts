@@ -71,7 +71,7 @@ export function decodeCursor(cursor: string, key: string): Cursor {
     if (result.data.key !== key) {
         throw cursorError(
             'The cursor is for a different query. Send the same params as the '
-            + 'request that returned it, other than size and fields'
+            + 'request that returned it, other than size, fields, headers and ex'
         );
     }
 
@@ -84,8 +84,8 @@ export function decodeCursor(cursor: string, key: string): Cursor {
  * used with the query that made it. `list` names the list (e.g. `jobs`), so
  * a JSON route and its /v2/txt copy share cursors. `params` are the ones that
  * change which records match or their order, e.g. `sort` and `filter`, but
- * not `size` or `fields`. Undefined params are left out, and the order of
- * the keys doesn't matter.
+ * not `size`, `fields`, `headers` or `ex`. Undefined params are left out,
+ * and the order of the keys doesn't matter.
  */
 export function queryKey(
     list: string,

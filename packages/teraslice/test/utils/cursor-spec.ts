@@ -79,7 +79,7 @@ describe('cursor', () => {
                 statusCode: 400,
                 message: 'Invalid request query:\n'
                     + '✖ The cursor is for a different query. Send the same params as the '
-                    + 'request that returned it, other than size and fields\n'
+                    + 'request that returned it, other than size, fields, headers and ex\n'
                     + '  → at cursor',
             }));
         });
