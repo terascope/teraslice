@@ -188,10 +188,12 @@ export function createV2Registry(api: ApiService): RouteRegistry {
     /*
      * The list functions return one page of a list, from the query's `from`
      * or `cursor`, for a JSON route to send or a /txt route to print. The
-     * cursor's key is the list's name plus the params that change which
-     * records match or their order, so a cursor only works with the query
-     * that made it. Each search runs through `pagedSearch()`, so every caller
-     * gets the max_result_window message.
+     * cursor's key is the list's name plus the search's query and sort, so a
+     * cursor only works with a request that searches for the same records,
+     * in the same order. Requests that differ only in ways that don't change
+     * the search (`status` order, an empty `filter`) share cursors. Each
+     * search runs through `pagedSearch()`, so every caller gets the
+     * max_result_window message.
      */
 
     async function listJobs(
@@ -201,14 +203,14 @@ export function createV2Registry(api: ApiService): RouteRegistry {
             size, active, deleted, ex, filter
         } = query;
         const sort = sortOrDefault(query.sort);
-        const start = pageStart(query, queryKey('jobs', {
-            sort, filter, active, deleted
-        }));
 
         let partialQuery = createJobActiveQuery(active === undefined ? '' : `${active}`);
         partialQuery = addDeletedToQuery(`${deleted}`, partialQuery);
+        const searchQuery = addFilterToQuery(partialQuery, filter ?? '');
+
+        const start = pageStart(query, queryKey('jobs', { sort, query: searchQuery }));
         const search = {
-            query: addFilterToQuery(partialQuery, filter ?? ''),
+            query: searchQuery,
             ...searchFrom(start),
             size,
             sort,
@@ -235,10 +237,9 @@ export function createV2Registry(api: ApiService): RouteRegistry {
             size, job_id: jobId, deleted, status, filter
         } = query;
         const sort = sortOrDefault(query.sort);
-        const statuses = parseList(status);
-        const start = pageStart(query, queryKey('ex', {
-            sort, filter, job_id: jobId, status, deleted
-        }));
+        // sorted and without repeats, so `running,failed` and `failed,running`
+        // build the same query, and share cursors
+        const statuses = [...new Set(parseList(status))].sort();
 
         let partialQuery = 'ex_id:*';
 
@@ -253,6 +254,7 @@ export function createV2Registry(api: ApiService): RouteRegistry {
 
         partialQuery = addDeletedToQuery(`${deleted}`, partialQuery);
         const searchQuery = addFilterToQuery(partialQuery, filter ?? '');
+        const start = pageStart(query, queryKey('ex', { sort, query: searchQuery }));
 
         const executions = await pagedSearch(
             () => api.executionStorage.searchWithTotal({
@@ -263,9 +265,9 @@ export function createV2Registry(api: ApiService): RouteRegistry {
     }
 
     /**
-     * The errors of one execution. The cursor's key includes the `exId`, so
-     * a /jobs/:jobId/errors cursor stops working when the job's latest
-     * execution changes.
+     * The errors of one execution. The cursor's key includes the `exId` (in
+     * the search query), so a /jobs/:jobId/errors cursor stops working when
+     * the job's latest execution changes.
      */
     async function searchErrors(
         exId: string,
@@ -273,9 +275,9 @@ export function createV2Registry(api: ApiService): RouteRegistry {
     ): Promise<TerasliceApiV2.Page<TerasliceApiV2.SliceStateRecord>> {
         const { size, filter } = query;
         const sort = sortOrDefault(query.sort);
-        const start = pageStart(query, queryKey('errors', { ex_id: exId, sort, filter }));
-
         const errorQuery = addFilterToQuery(`state:error AND ex_id:"${exId}"`, filter ?? '');
+        const start = pageStart(query, queryKey('errors', { sort, query: errorQuery }));
+
         // StateStorage returns the backend's untyped records, unlike
         // JobsStorage/ExecutionStorage, which cast to their record type
         const slices = await pagedSearch(

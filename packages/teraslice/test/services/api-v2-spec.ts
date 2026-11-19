@@ -1443,7 +1443,8 @@ describe('HTTP API v2', () => {
 
             expect(response.statusCode).toEqual(200);
             expect(searchWithTotal).toHaveBeenCalledWith({
-                query: `ex_id:* AND job_id:"job-1" AND (_status:"running" OR _status:"failing") AND ${notDeleted}`,
+                // statuses are sorted, so their order doesn't change the query
+                query: `ex_id:* AND job_id:"job-1" AND (_status:"failing" OR _status:"running") AND ${notDeleted}`,
                 from: 0,
                 size: 100,
                 sort: '_updated:desc',
@@ -1501,6 +1502,25 @@ describe('HTTP API v2', () => {
 
             expect(response.statusCode).toEqual(400);
             expect(response.body.message).toContain(differentQueryMessage);
+        });
+
+        it.each([
+            [{ status: 'running,failed' }, { status: 'failed, running,failed' }],
+            [{}, { filter: '' }],
+            [{}, { job_id: '' }],
+        ])('should accept the cursor of %j with %j, which searches the same', async (firstParams, nextParams) => {
+            searchWithTotal.mockResolvedValueOnce(withSort([execution], 3, [1, 'ex-1']));
+            const first = await request('GET', '/v2/ex', {
+                searchParams: { size: '1', ...firstParams }
+            });
+
+            const response = await request('GET', '/v2/ex', {
+                searchParams: { size: '1', ...nextParams, cursor: first.body.pagination.next_cursor }
+            });
+
+            expect(response.statusCode).toEqual(200);
+            expect(searchWithTotal.mock.calls[1][0].query)
+                .toEqual(searchWithTotal.mock.calls[0][0].query);
         });
 
         it('should explain a page past max_result_window', async () => {
