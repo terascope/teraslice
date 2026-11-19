@@ -56,7 +56,8 @@ function cursorQuery(described: 'records' | 'items') {
         .meta({
             description: `The \`next_cursor\` of the previous page, to get the ${described} `
                 + 'after it. Send the same query params as that request; only `size`, '
-                + '`fields`, `headers` and `ex` can change. Can\'t be sent with `from`',
+                + '`fields`, `headers` and `ex` can change. Can\'t be sent with a `from` '
+                + 'other than 0',
         });
 }
 
@@ -70,7 +71,7 @@ function cursorOrFrom<T extends z.ZodObject>(schema: T): T {
         (query: { from?: number; cursor?: string }) => (
             query.cursor === undefined || !query.from
         ),
-        { message: 'Send cursor or from, not both', path: ['cursor'] }
+        { message: 'Send cursor or a from other than 0, not both', path: ['cursor'] }
     );
 }
 

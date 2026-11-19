@@ -2037,7 +2037,18 @@ describe('HTTP API v2', () => {
             });
 
             expect(response.statusCode).toEqual(400);
-            expect(response.body).toContain('Send cursor or from, not both');
+            expect(response.body).toContain('Send cursor or a from other than 0, not both');
+        });
+
+        it('should accept cursor with from=0', async () => {
+            const response = await request('GET', '/v2/ex', {
+                searchParams: { cursor: 'abc', from: '0' },
+            });
+
+            // gets past the cursor-or-from check to reading the (made up) cursor
+            expect(response.statusCode).toEqual(400);
+            expect(response.body.message).toContain('Invalid cursor');
+            expect(response.body.message).not.toContain('not both');
         });
     });
 
