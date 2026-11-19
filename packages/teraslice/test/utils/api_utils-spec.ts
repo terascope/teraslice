@@ -87,7 +87,7 @@ describe('apiUtils', () => {
         });
 
         it('should replace the message, keeping the limit and the requested window', () => {
-            const err = explainResultWindowError(makeResultWindowError(50000, 50100));
+            const err = explainResultWindowError(makeResultWindowError(50000, 50100), false);
 
             expect(err).toBeInstanceOf(TSError);
             expect((err as TSError).statusCode).toBe(400);
@@ -99,7 +99,7 @@ describe('apiUtils', () => {
 
         it('should still explain the error when the numbers are missing', () => {
             const err = explainResultWindowError(
-                new TSError('Result window is too large', { statusCode: 400 })
+                new TSError('Result window is too large', { statusCode: 400 }), false
             );
 
             expect((err as TSError).statusCode).toBe(400);
@@ -108,12 +108,36 @@ describe('apiUtils', () => {
             );
         });
 
+        describe('with a cursor', () => {
+            // a cursor's search starts at 0, so OpenSearch's from + size is the size
+            it('should name size, and suggest a smaller one', () => {
+                const err = explainResultWindowError(makeResultWindowError(10000, 10050), true);
+
+                expect((err as TSError).statusCode).toBe(400);
+                expect((err as TSError).message).toBe(
+                    'size must be less than or equal to 10000 (the index\'s max_result_window), '
+                    + 'got 10050. Use a smaller size.'
+                );
+            });
+
+            it('should still explain the error when the numbers are missing', () => {
+                const err = explainResultWindowError(
+                    new TSError('Result window is too large', { statusCode: 400 }), true
+                );
+
+                expect((err as TSError).message).toBe(
+                    'size is larger than the index\'s max_result_window. Use a smaller size.'
+                );
+            });
+        });
+
         it.each([
             ['a different 400', new TSError('Failed to parse query', { statusCode: 400 })],
             ['the same message with another status', new TSError('Result window is too large', { statusCode: 500 })],
             ['a plain Error', new Error('boom')],
         ])('should return %s unchanged', (_label, input) => {
-            expect(explainResultWindowError(input)).toBe(input);
+            expect(explainResultWindowError(input, false)).toBe(input);
+            expect(explainResultWindowError(input, true)).toBe(input);
         });
     });
 

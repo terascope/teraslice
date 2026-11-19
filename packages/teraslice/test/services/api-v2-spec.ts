@@ -1532,6 +1532,22 @@ describe('HTTP API v2', () => {
             expect(response.body.message).toBe(resultWindowMessage);
         });
 
+        it('should tell a cursor request past max_result_window to use a smaller size', async () => {
+            searchWithTotal.mockResolvedValueOnce(withSort([execution], 3, [1, 'ex-1']));
+            const first = await request('GET', '/v2/ex', { searchParams: { size: '1' } });
+
+            searchWithTotal.mockRejectedValue(makeResultWindowError(10000, 10050));
+            const response = await request('GET', '/v2/ex', {
+                searchParams: { size: '10050', cursor: first.body.pagination.next_cursor }
+            });
+
+            expect(response.statusCode).toEqual(400);
+            expect(response.body.message).toBe(
+                'size must be less than or equal to 10000 (the index\'s max_result_window), '
+                + 'got 10050. Use a smaller size.'
+            );
+        });
+
         describe('GET /v2/ex/:exId', () => {
             it('should return an execution', async () => {
                 const response = await request('GET', '/v2/ex/ex-1');

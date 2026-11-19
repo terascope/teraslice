@@ -588,7 +588,7 @@ const searchQueryShape = {
                 + 'can\'t be more than the index\'s `max_result_window` (10,000 unless the '
                 + 'cluster changes it), so `from` can\'t reach records past it; a request '
                 + 'past it is rejected with a 400. With `cursor`, `from` is always 0, so '
-                + 'size must be less than `max_result_window`',
+                + '`size` can be at most `max_result_window`',
         }),
     from: z.coerce.number<number>().int()
         .min(0)

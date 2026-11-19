@@ -13,7 +13,7 @@ import {
 import { getPackageJSON } from '../../../../utils/file_utils.js';
 import {
     pageInMemory, pageStart, searchFrom, toPage,
-    paginationHeaders, paginationResponseHeaders
+    paginationHeaders, paginationResponseHeaders, type PageStart
 } from '../../../../utils/pagination.js';
 import { queryKey } from '../../../../utils/cursor.js';
 import {
@@ -135,14 +135,15 @@ function sortOrDefault(sort: string): string {
 }
 
 /**
- * Runs a paged search, replacing OpenSearch's message for paging past
- * `max_result_window` with one that makes sense to API callers.
+ * Runs the search for the page at `start`, replacing OpenSearch's message
+ * for paging past `max_result_window` with one that makes sense to API
+ * callers, and to whether the request sent a cursor.
  */
-async function pagedSearch<T>(search: () => Promise<T>): Promise<T> {
+async function pagedSearch<T>(start: PageStart, search: () => Promise<T>): Promise<T> {
     try {
         return await search();
     } catch (err) {
-        throw explainResultWindowError(err);
+        throw explainResultWindowError(err, start.after !== undefined);
     }
 }
 
@@ -217,13 +218,13 @@ export function createV2Registry(api: ApiService): RouteRegistry {
         };
 
         if (ex === undefined) {
-            const jobs = await pagedSearch(() => api.jobsStorage.searchWithTotal(search));
+            const jobs = await pagedSearch(start, () => api.jobsStorage.searchWithTotal(search));
             return toPage(mapRecords(jobs, fromStorage), start, size);
         }
 
         // `?ex=` (no fields) includes the whole execution
         const fields = parseList(ex);
-        const jobs = await pagedSearch(() => api.jobsService.getJobsWithExInfoAndTotal({
+        const jobs = await pagedSearch(start, () => api.jobsService.getJobsWithExInfoAndTotal({
             ...search,
             exFields: fields.length ? fields : undefined,
         }));
@@ -257,6 +258,7 @@ export function createV2Registry(api: ApiService): RouteRegistry {
         const start = pageStart(query, queryKey('ex', { sort, query: searchQuery }));
 
         const executions = await pagedSearch(
+            start,
             () => api.executionStorage.searchWithTotal({
                 query: searchQuery, ...searchFrom(start), size, sort
             })
@@ -281,6 +283,7 @@ export function createV2Registry(api: ApiService): RouteRegistry {
         // StateStorage returns the backend's untyped records, unlike
         // JobsStorage/ExecutionStorage, which cast to their record type
         const slices = await pagedSearch(
+            start,
             () => api.stateStorage.searchWithTotal({
                 query: errorQuery, ...searchFrom(start), size, sort
             })

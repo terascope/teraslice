@@ -260,21 +260,27 @@ const resultWindowNumbersPattern = /less than or equal to: \[(\d+)\] but was \[(
 /**
  * Searches that page past an index's `max_result_window` fail with a 400
  * whose message points at the scroll API, which API callers can't use.
- * Returns a 400 with a message that keeps the limit and suggests `cursor`
- * or `filter` instead; any other error is returned unchanged.
+ * Returns a 400 with a message that keeps the limit and says what to change
+ * instead; any other error is returned unchanged.
+ *
+ * `withCursor` is whether the request sent a `cursor`. A cursor's search
+ * starts at 0, so only `size` can be too large, and the fix is a smaller
+ * `size`. Otherwise it's `from + size`, and `cursor` or `filter` gets past it.
  */
-export function explainResultWindowError(err: unknown): unknown {
+export function explainResultWindowError(err: unknown, withCursor: boolean): unknown {
     const { statusCode, message } = parseErrorInfo(err);
     if (statusCode !== 400 || !resultWindowPattern.test(message)) return err;
 
     const [, limit, requested] = message.match(resultWindowNumbersPattern) ?? [];
+    const window = withCursor ? 'size' : 'from + size';
     const detail = limit && requested
-        ? `from + size must be less than or equal to ${limit} (the index's max_result_window), got ${requested}`
-        : 'from + size is larger than the index\'s max_result_window';
+        ? `${window} must be less than or equal to ${limit} (the index's max_result_window), got ${requested}`
+        : `${window} is larger than the index's max_result_window`;
+    const advice = withCursor
+        ? 'Use a smaller size.'
+        : 'Use cursor to page further, or filter to narrow the search.';
 
-    return new TSError(`${detail}. Use cursor to page further, or filter to narrow the search.`, {
-        statusCode: 400,
-    });
+    return new TSError(`${detail}. ${advice}`, { statusCode: 400 });
 }
 
 /**
