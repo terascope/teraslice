@@ -46,6 +46,9 @@ export default class Cluster extends Client {
     }
 
     async controllers(): Promise<Teraslice.ExecutionList> {
+        // TODO: on /v2 this returns only the first page (100), where v1 returns
+        // every controller. Fetch every page with `pages(this.controllersPage)`
+        // when teraslice-cli moves to v2; its getActiveJobIds() needs them all.
         return this.getList('/cluster/controllers');
     }
 
