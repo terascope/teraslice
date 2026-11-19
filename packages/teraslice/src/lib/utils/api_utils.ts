@@ -54,6 +54,11 @@ export function printTable({
 export interface PrintPagedTableOptions<T extends Record<string, any>> extends Omit<PrintTableOptions, 'data'> {
     /** One page of a /v2 list */
     page: TerasliceApiV2.Page<T>;
+    /**
+     * The request's query string, without the `?`, for the footer's `next`
+     * line (see `nextPageQuery()`)
+     */
+    requestQuery: string;
 }
 
 /**
@@ -61,34 +66,59 @@ export interface PrintPagedTableOptions<T extends Record<string, any>> extends O
  *
  * ```
  * Showing 101-200 of 1,523
- * next: ?size=100&cursor=eyJ2IjoxLC...
+ * next: ?sort=_created:desc&size=100&cursor=eyJ2IjoxLC...
  * ```
  *
- * The `next` line is left out when there's no `next_cursor`: on the last
- * page, or with `size` 0. It doesn't repeat the request's other params,
- * which the next request must also send. With `headers: false` there's no
- * footer either, so the output is only rows.
+ * The `next` line is the whole query of the next page's request (see
+ * `nextPageQuery()`), so it can replace the request's query as it is. It's
+ * left out when there's no `next_cursor`: on the last page, or with `size`
+ * 0. With `headers: false` there's no footer either, so the output is only
+ * rows.
  */
 export function printPagedTable<T extends Record<string, any>>({
-    page, ...options
+    page, requestQuery, ...options
 }: PrintPagedTableOptions<T>): string {
     const table = printTable({ ...options, data: page.data });
     if (!options.headers) return table;
 
-    return `${table}\n${pageFooter(page)}`;
+    return `${table}\n${pageFooter(page, requestQuery)}`;
 }
 
-function pageFooter({ data, pagination }: TerasliceApiV2.Page<unknown>): string {
-    const {
-        total, from, size, next_cursor: nextCursor
-    } = pagination;
+/**
+ * The query string of the request for the page after `cursor`: the
+ * request's own query (`requestQuery`, without the `?`), as it was sent,
+ * minus `from` and any old `cursor`, then `cursor`. Sending a param twice
+ * is a 400, so the old values are removed rather than added to.
+ */
+export function nextPageQuery(requestQuery: string, cursor: string): string {
+    const kept = requestQuery.split('&').filter((part) => {
+        if (!part) return false;
+        const key = decodeQueryKey(part.split('=')[0]);
+        return key !== 'from' && key !== 'cursor';
+    });
+    return [...kept, `cursor=${encodeURIComponent(cursor)}`].join('&');
+}
+
+function decodeQueryKey(key: string): string {
+    try {
+        return decodeURIComponent(key.replace(/\+/g, ' '));
+    } catch {
+        return key;
+    }
+}
+
+function pageFooter(
+    { data, pagination }: TerasliceApiV2.Page<unknown>,
+    requestQuery: string
+): string {
+    const { total, from, next_cursor: nextCursor } = pagination;
     const shown = data.length === 0
         ? 'Showing 0'
         : `Showing ${from + 1}-${from + data.length}`;
 
     const lines = [`${shown} of ${total.toLocaleString('en-US')}`];
     if (nextCursor) {
-        lines.push(`next: ?size=${size}&cursor=${nextCursor}`);
+        lines.push(`next: ?${nextPageQuery(requestQuery, nextCursor)}`);
     }
     return `${lines.join('\n')}\n`;
 }

@@ -230,10 +230,11 @@ The default columns are the same as v1's [TXT APIs](./endpoints-txt.md). `jobs` 
 `pod_name` and `image` on kubernetesV2.
 
 The response is the table, a blank line, and a footer with the rows shown and the total. When
-there are more rows, the footer has a `next` line with the next page's `size` and
-[`cursor`](#paging). Add that snippet to your previous request to get the next page. The
-cursor needs the same `sort`, `filter` and route params, but `headers` and `ex` can change
-between pages. A text table and its JSON list share cursors, so a `next_cursor` from
+there are more rows, the footer has a `next` line with the whole query of the next page's
+request: your request's params as you sent them, without `from`, and the next page's
+[`cursor`](#paging). Use it in place of your request's query to get the next page. To change
+params between pages, keep the same `sort`, `filter` and route params; `size`, `fields`,
+`headers` and `ex` can change. A text table and its JSON list share cursors, so a `next_cursor` from
 `GET /v2/jobs` works on `GET /v2/txt/jobs` and vice versa.
 
 ```sh
@@ -244,7 +245,13 @@ job_id                                name         ex._status
 d2a1a0b2-0ad3-4d4e-a7e2-8f5d2c3b4a11  another-job  completed
 
 Showing 1-2 of 1,523
-next: ?size=2&cursor=eyJ2IjoxLCJhZnRlciI6WzE3...
+next: ?fields=job_id,name,ex._status&ex=_status&size=2&cursor=eyJ2IjoxLCJhZnRlciI6WzE3...
+```
+
+So the next page is:
+
+```sh
+$ curl 'localhost:5678/v2/txt/jobs?fields=job_id,name,ex._status&ex=_status&size=2&cursor=eyJ2IjoxLCJhZnRlciI6WzE3...'
 ```
 
 An empty page shows `Showing 0 of N`.

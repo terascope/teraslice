@@ -1861,7 +1861,10 @@ describe('HTTP API v2', () => {
 
                 const cursor = response.headers['x-next-cursor'];
                 expect(firstColumn(response.body)).toEqual(['102', '101']);
-                expect(parseTable(response.body).footer).toEqual(['Showing 2-3 of 4', `next: ?size=2&cursor=${cursor}`]);
+                // the request's own query, without `from`, then the cursor
+                expect(parseTable(response.body).footer).toEqual([
+                    'Showing 2-3 of 4', `next: ?size=2&fields=pid&cursor=${cursor}`
+                ]);
                 expect(readCursor(cursor)).toMatchObject({
                     after: ['ex-b', 'execution_controller', 1], from: 3
                 });
@@ -1920,6 +1923,33 @@ describe('HTTP API v2', () => {
                 });
                 expect(last.body).toContain('Showing 0 of 2');
                 expect(last.headers).not.toHaveProperty('x-next-cursor');
+            });
+
+            it('should get the next page with the footer\'s next line as the whole query', async () => {
+                /** The footer's `next` line, without `next: ?` */
+                function nextLine(text: string) {
+                    const line = parseTable(text).footer.find((l) => l.startsWith('next: ?'));
+                    return line?.slice('next: ?'.length);
+                }
+
+                // the query goes in the path, so it's sent as written, like curl does
+                const first = await request(
+                    'GET', '/v2/txt/nodes?from=0&size=1&fields=node_id,state', { responseType: 'text' }
+                );
+                const firstNext = nextLine(first.body);
+                expect(firstNext).toBe(
+                    `size=1&fields=node_id,state&cursor=${first.headers['x-next-cursor']}`
+                );
+
+                // sent as it is, the old cursor is replaced, not repeated
+                const second = await request('GET', `/v2/txt/nodes?${firstNext}`, {
+                    responseType: 'text'
+                });
+                expect(second.statusCode).toBe(200);
+                expect(parseTable(second.body).rows.slice(2)).toEqual([['node-b', 'connected']]);
+                expect(nextLine(second.body)).toBe(
+                    `size=1&fields=node_id,state&cursor=${second.headers['x-next-cursor']}`
+                );
             });
         });
 

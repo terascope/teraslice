@@ -4,7 +4,7 @@ import {
 } from '@terascope/core-utils';
 import { type Logger, type ExecutionStatus, TerasliceApiV2 } from '@terascope/types';
 import type { ApiService } from '../api.js';
-import type { ControllerStats } from '../../../../../interfaces.js';
+import type { ControllerStats, TerasliceRequest } from '../../../../../interfaces.js';
 import type { RecordsWithTotal } from '../../../../storage/index.js';
 import {
     createJobActiveQuery, addDeletedToQuery, addFilterToQuery, buildConnectorList,
@@ -78,16 +78,29 @@ type TxtTableQuery = Pick<Parsed<typeof TerasliceApiV2.GetTxtJobsQuerySchema>, '
 /**
  * The response of a /txt route: the page as a table with its footer, and
  * the paging headers. `fields` picks the columns, or `defaults` when empty.
+ * `req` gives the query string the footer's `next` line builds on.
  */
 function toTextTable<T extends Record<string, any>>(
     page: TerasliceApiV2.Page<T>,
     defaults: readonly string[],
-    { fields, headers }: TxtTableQuery
+    { fields, headers }: TxtTableQuery,
+    req: TerasliceRequest
 ): TextResult {
     return {
-        body: printPagedTable({ page, fields: parseFields(fields, defaults), headers }),
+        body: printPagedTable({
+            page,
+            fields: parseFields(fields, defaults),
+            headers,
+            requestQuery: requestQueryString(req),
+        }),
         headers: paginationHeaders(page.pagination),
     };
+}
+
+/** The request's query string, as it was sent, without the `?` */
+function requestQueryString(req: TerasliceRequest): string {
+    const index = req.originalUrl.indexOf('?');
+    return index === -1 ? '' : req.originalUrl.slice(index + 1);
 }
 
 /** Default columns of `GET /txt/jobs` */
@@ -653,10 +666,11 @@ export function createV2Registry(api: ApiService): RouteRegistry {
         operationId: 'getJobsTxtTable',
         summary: 'List jobs as a text table',
         query: TerasliceApiV2.GetTxtJobsQuerySchema,
-    }, async ({ query }) => toTextTable(
+    }, async ({ query }, req) => toTextTable(
         await listJobs(query),
         withDeletedOn(txtJobsColumns, query.deleted),
-        query
+        query,
+        req
     ), { errorMessage: 'Could not get all jobs' });
 
     registry.get('/txt/ex', {
@@ -664,10 +678,11 @@ export function createV2Registry(api: ApiService): RouteRegistry {
         operationId: 'getExecutionsTxtTable',
         summary: 'List executions as a text table',
         query: TerasliceApiV2.GetTxtExecutionsQuerySchema,
-    }, async ({ query }) => toTextTable(
+    }, async ({ query }, req) => toTextTable(
         await listExecutions(query),
         withDeletedOn(txtExecutionsColumns, query.deleted),
-        query
+        query,
+        req
     ), { errorMessage: 'Could not get all executions' });
 
     registry.get('/txt/workers', {
@@ -676,14 +691,14 @@ export function createV2Registry(api: ApiService): RouteRegistry {
         summary: 'List the processes on every connected node as a text table, '
             + 'sorted by ex_id, assignment, then worker_id',
         query: TerasliceApiV2.GetTxtWorkersQuerySchema,
-    }, ({ query }) => {
+    }, ({ query }, req) => {
         const start = pageStart(query, queryKey('workers'));
         const workers = api.executionService.findAllWorkers();
         const page = pageInMemory(workers, workersKeys, start, query.size);
         const clusterType = api.context.sysconfig.teraslice.cluster_manager_type;
 
         return toTextTable(
-            toPage(page, start, query.size), txtWorkersColumns[clusterType] ?? [], query
+            toPage(page, start, query.size), txtWorkersColumns[clusterType] ?? [], query, req
         );
     }, { errorMessage: 'Could not get all workers' });
 
@@ -693,7 +708,7 @@ export function createV2Registry(api: ApiService): RouteRegistry {
         summary: 'List the cluster\'s nodes as a text table, sorted by node_id. '
             + '`active` is the number of processes',
         query: TerasliceApiV2.GetTxtNodesQuerySchema,
-    }, ({ query }) => {
+    }, ({ query }, req) => {
         const start = pageStart(query, queryKey('nodes'));
         const nodes = Object.values(api.clusterService.getClusterState());
         const page = mapRecords(
@@ -701,7 +716,7 @@ export function createV2Registry(api: ApiService): RouteRegistry {
             (node) => ({ ...node, active: node.active.length })
         );
 
-        return toTextTable(toPage(page, start, query.size), txtNodesColumns, query);
+        return toTextTable(toPage(page, start, query.size), txtNodesColumns, query, req);
     }, { errorMessage: 'Could not get all nodes' });
 
     registry.get('/txt/controllers', {
@@ -709,10 +724,11 @@ export function createV2Registry(api: ApiService): RouteRegistry {
         operationId: 'getControllersTxtTable',
         summary: 'List every running execution controller as a text table, sorted by ex_id',
         query: TerasliceApiV2.GetTxtControllersQuerySchema,
-    }, async ({ query }) => toTextTable(
+    }, async ({ query }, req) => toTextTable(
         await listControllers(query),
         txtControllersColumns,
-        query
+        query,
+        req
     ), { errorMessage: 'Could not get all execution statistics' });
 
     return registry;

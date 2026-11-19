@@ -3,7 +3,7 @@ import { TSError, parseErrorInfo } from '@terascope/core-utils';
 import type { TerasliceApiV2 } from '@terascope/types';
 import {
     createJobActiveQuery, addDeletedToQuery, getSliceTapOptions, makeTable,
-    explainResultWindowError, printTable, printPagedTable
+    explainResultWindowError, printTable, printPagedTable, nextPageQuery
 } from '../../src/lib/utils/api_utils.js';
 import { paginationHeaders, paginationResponseHeaders } from '../../src/lib/utils/pagination.js';
 import { makeResultWindowError } from './search-errors.js';
@@ -212,7 +212,9 @@ describe('apiUtils', () => {
         }
 
         it('should print the table, then which records are shown', () => {
-            const output = printPagedTable({ page: page(data), fields: ['name'], headers: true });
+            const output = printPagedTable({
+                page: page(data), fields: ['name'], headers: true, requestQuery: ''
+            });
 
             expect(output).toStartWith(printTable({ data, fields: ['name'], headers: true }));
             expect(footer(output)).toEqual(['Showing 1-2 of 2']);
@@ -225,6 +227,7 @@ describe('apiUtils', () => {
                 }),
                 fields: ['name'],
                 headers: true,
+                requestQuery: 'size=2',
             });
 
             expect(footer(output)).toEqual(['Showing 101-102 of 1,523', 'next: ?size=2&cursor=abc']);
@@ -235,6 +238,7 @@ describe('apiUtils', () => {
                 page: page([], { total: 5, size: 0, has_more: true }),
                 fields: ['name'],
                 headers: true,
+                requestQuery: 'size=2',
             });
 
             expect(footer(output)).toEqual(['Showing 0 of 5']);
@@ -246,6 +250,7 @@ describe('apiUtils', () => {
                 page: page(empty, { total: 5, from: 10 }),
                 fields: ['name'],
                 headers: true,
+                requestQuery: 'size=2',
             });
 
             expect(output.split('\n')[0].trim()).toBe('name');
@@ -258,9 +263,32 @@ describe('apiUtils', () => {
                 page: page(data, { total: 10, has_more: true }),
                 fields: ['name'],
                 headers: false,
+                requestQuery: '',
             });
 
             expect(output.split('\n').map((line) => line.trim())).toEqual(['a', 'b', '']);
+        });
+    });
+
+    describe('nextPageQuery', () => {
+        it('should keep the request\'s params as they were sent, then add the cursor', () => {
+            expect(nextPageQuery('sort=_created:desc&size=2&fields=job_id,name', 'abc'))
+                .toBe('sort=_created:desc&size=2&fields=job_id,name&cursor=abc');
+        });
+
+        it('should replace an old cursor and leave out from', () => {
+            expect(nextPageQuery('from=0&size=2&cursor=old&filter=a%3Db', 'new'))
+                .toBe('size=2&filter=a%3Db&cursor=new');
+        });
+
+        it('should match encoded keys and skip empty parts', () => {
+            expect(nextPageQuery('%66rom=0&&cursor%20=x&size=1&', 'abc'))
+                .toBe('cursor%20=x&size=1&cursor=abc');
+            expect(nextPageQuery('', 'abc')).toBe('cursor=abc');
+        });
+
+        it('should keep a key that can\'t be decoded', () => {
+            expect(nextPageQuery('%E0%A4%A=1', 'abc')).toBe('%E0%A4%A=1&cursor=abc');
         });
     });
 

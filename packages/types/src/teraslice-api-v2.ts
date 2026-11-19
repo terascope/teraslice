@@ -1125,8 +1125,9 @@ export const GetTxtControllersQuerySchema = cursorOrFrom(z.strictObject({
 export const TxtTableSchema = z.string().meta({
     id: 'TxtTable',
     description: 'A plain-text table, one row per record, then a blank line and a footer: '
-        + '`Showing 101-200 of 1,523`, and `next: ?size=100&cursor=<next_cursor>` when there '
-        + 'are more. With `headers=false`, only the rows.',
+        + '`Showing 101-200 of 1,523`, and when there are more, `next: ?<query>`: the '
+        + 'request\'s query without `from`, with `cursor` set to the next page\'s. With '
+        + '`headers=false`, only the rows.',
 });
 
 export type GetTxtJobsQuery = z.input<typeof GetTxtJobsQuerySchema>;
