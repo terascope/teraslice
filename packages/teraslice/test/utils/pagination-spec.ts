@@ -49,6 +49,35 @@ describe('pagination', () => {
                 expect(toPage({ records: [], total: 0 }, at(0), 0)
                     .pagination.has_more).toBeFalse();
             });
+
+            describe('after a cursor', () => {
+                /** A page start after a cursor that counted `from` records */
+                const after = (from: number) => ({ from, after: ['x'], key: 'k' });
+
+                it('should be true on a full page, even when the count says it\'s the last', () => {
+                    // a record before the cursor was deleted: the total
+                    // dropped but the cursor's count didn't, and 'e' is left
+                    expect(toPage({ records: ['c', 'd'], total: 4 }, after(2), 2)
+                        .pagination.has_more).toBeTrue();
+                });
+
+                it('should be false on a short page, even when the count says there are more', () => {
+                    // a record before the cursor was added: the total grew
+                    // but the cursor's count didn't
+                    expect(toPage({ records: ['e'], total: 6 }, after(4), 2)
+                        .pagination.has_more).toBeFalse();
+                });
+
+                it('should be false on an empty page', () => {
+                    expect(toPage({ records: [], total: 4 }, after(4), 2)
+                        .pagination.has_more).toBeFalse();
+                });
+
+                it('should still count with size 0', () => {
+                    expect(toPage({ records: [], total: 4 }, after(2), 0)
+                        .pagination.has_more).toBeTrue();
+                });
+            });
         });
 
         describe('next_cursor', () => {

@@ -22,7 +22,9 @@ export const PaginationSchema = z.object({
         .min(0)
         .meta({ description: 'The `size` of the request; `data` can be shorter' }),
     has_more: z.boolean().meta({
-        description: 'Whether there are records after this page: `from + data.length < total`',
+        description: 'Whether there are records after this page: `from + data.length < total`. '
+            + 'On a page requested with `cursor`, whether the page is full, since `from` is '
+            + 'a count the cursor carried, which is off if records before it changed',
     }),
     next_cursor: z.string().nullable()
         .meta({

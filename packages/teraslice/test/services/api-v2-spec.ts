@@ -1876,7 +1876,14 @@ describe('HTTP API v2', () => {
 
                 expect(firstColumn(first.body)).toEqual(['node-a']);
                 expect(firstColumn(next.body)).toEqual(['node-b']);
-                expect(next.headers).not.toHaveProperty('x-next-cursor');
+
+                // a full page after a cursor may have more after it, so the
+                // last node gets a cursor to an empty page
+                const last = await requestText('/txt/nodes', {
+                    size: '1', cursor: next.headers['x-next-cursor']
+                });
+                expect(last.body).toContain('Showing 0 of 2');
+                expect(last.headers).not.toHaveProperty('x-next-cursor');
             });
         });
 

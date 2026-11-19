@@ -83,7 +83,8 @@ $ curl 'localhost:5678/v2/jobs?size=100'
 - `from` - how many records come before this page: the request's `from`, or the position its
   `cursor` continues from.
 - `size` - the request's `size`, after defaults.
-- `has_more` - whether there are records after this page: `from + data.length < total`.
+- `has_more` - whether there are records after this page: `from + data.length < total`. On a
+  page requested with `cursor`, it's whether the page is full (see below).
 - `next_cursor` - send it as `cursor` to get the next page. `null` on the last page, and with
   `size=0`.
 
@@ -138,10 +139,10 @@ and a record that doesn't change isn't returned twice. There's no snapshot, thou
 - A record added after that point, or whose `sort` field changes (e.g. `_updated`), shows up
   where it now sorts. Sort by a field that doesn't change, such as `_created`, to avoid that.
 - `total` is counted again on each page, but `from` is a count carried in the cursor. When
-  records before the cursor are added or deleted between requests, the two no longer agree,
-  and `has_more` (and so `next_cursor`) can be wrong near the end: an extra, empty last page
-  when records were added, or the last page ending early, before records that are still
-  there, when records were deleted.
+  records before the cursor are added or deleted between requests, the two no longer agree.
+  So on a page requested with `cursor`, `has_more` (and so `next_cursor`) comes from whether
+  the page is full, not from `total`. When the records left fill the last page exactly, the
+  page after it is empty, with `has_more: false`.
 
 Paging with `from` has none of these guarantees: a record written between two requests can
 shift the pages, so a record can be skipped or returned twice.

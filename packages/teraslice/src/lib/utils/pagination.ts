@@ -45,13 +45,21 @@ export function searchFrom(
  * Builds a v2 list response from one page of records and the total.
  * `has_more` is whether any records come after this page. `next_cursor` is
  * set when there are, and the page has a last record to continue after.
+ *
+ * Without a cursor, `from` is exact, so `has_more` compares it with the
+ * total. After a cursor, `from` is the count the cursor carried, which is
+ * off once records before the cursor are added or deleted, so the page's
+ * length decides instead: a full page may have more after it, a short one
+ * doesn't. That can cost one extra, empty page, but never ends early.
  */
 export function toPage<T>(
     { records, total, lastSort }: RecordsWithTotal<T>,
-    { from, key }: PageStart,
+    { from, after, key }: PageStart,
     size: number
 ): TerasliceApiV2.Page<T> {
-    const hasMore = from + records.length < total;
+    const hasMore = after && size > 0
+        ? records.length === size
+        : from + records.length < total;
     const nextCursor = hasMore && records.length && lastSort?.length
         ? encodeCursor({ after: lastSort, from: from + records.length, key })
         : null;
