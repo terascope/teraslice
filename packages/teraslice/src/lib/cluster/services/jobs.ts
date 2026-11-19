@@ -458,7 +458,7 @@ export class JobsService {
      * Like `getJobsWithExInfo()`, but for one page of jobs, with the exact
      * total number of matching jobs. `exFields` are the execution's fields
      * to include, all of them by default.
-    */
+     */
     async getJobsWithExInfoAndTotal(
         { exFields, ...search }: PageSearch & { exFields?: string[] }
     ): Promise<RecordsWithTotal<JobConfig>> {

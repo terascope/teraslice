@@ -118,7 +118,7 @@ function mapRecords<T, U>(
     { records, ...rest }: RecordsWithTotal<T>,
     fn: (record: T) => U
 ): RecordsWithTotal<U> {
-    return { records: records.map(fn), ...rest };
+    return { ...rest, records: records.map(fn) };
 }
 
 /** The in-memory lists' sort keys; a cursor holds the last item's values */

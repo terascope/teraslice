@@ -62,7 +62,7 @@ Query params are received as strings. v2 reads them as follows:
 
 ### Paging
 
-Every list route returns one page of the list, along with if about where it sits in the whole list:
+Every list route returns one page of the list, along with info about where it sits in the whole list:
 
 ```sh
 $ curl 'localhost:5678/v2/jobs?size=100'

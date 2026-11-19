@@ -6,9 +6,7 @@ import {
 } from '@terascope/core-utils';
 import elasticsearchApi, { Client, BulkRecord, SortValue } from '@terascope/elasticsearch-api';
 import { getClient, Context } from '@terascope/job-components';
-import {
-    ClientParams, DataTypeConfig, ESMapping, FieldType
-} from '@terascope/types';
+import { ClientParams, DataTypeConfig, ESMapping, FieldType } from '@terascope/types';
 import { DataType } from '@terascope/data-types';
 import { makeLogger } from '../../workers/helpers/terafoundation.js';
 import { timeseriesIndex } from '../../utils/date_utils.js';
@@ -28,6 +26,13 @@ const longSortTypes: ReadonlySet<string> = new Set([FieldType.Long, FieldType.Da
 /** The largest and smallest values of an OpenSearch `long` (64-bit) as bigint */
 const LONG_MAX = 2n ** 63n - 1n;
 const LONG_MIN = -(2n ** 63n);
+
+/**
+ * The number of records a search returns when it's not given a size:
+ * OpenSearch's default `max_result_window`, the most one search can return
+ * unless the index changes it.
+ */
+const DEFAULT_SEARCH_SIZE = 10000;
 
 /**
  * A long or date field's sort value, with `LONG_MAX` and `LONG_MIN` exact.
@@ -108,7 +113,7 @@ export interface PageSearch {
     query: string | Record<string, any>;
     /** Number of matching records to skip. Must be 0 with `searchAfter` */
     from?: number;
-    /** Number of records to return */
+    /** Number of records to return. `DEFAULT_SEARCH_SIZE` by default */
     size?: number;
     /**
      * `field:asc` or `field:desc`, comma-separated. The store's id field is
@@ -284,7 +289,7 @@ export class TerasliceElasticsearchStorage {
     async search(
         query: string | Record<string, any>,
         from = 0,
-        size = 10000,
+        size = DEFAULT_SEARCH_SIZE,
         sort?: string,
         fields?: string | string[],
         index = this.defaultIndexName
@@ -302,7 +307,7 @@ export class TerasliceElasticsearchStorage {
     async searchWithTotal<T = Record<string, any>>({
         query,
         from = 0,
-        size = 10000,
+        size = DEFAULT_SEARCH_SIZE,
         sort,
         fields,
         searchAfter,

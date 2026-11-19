@@ -64,10 +64,10 @@ export interface PrintPagedTableOptions<T extends Record<string, any>> extends O
  * next: ?size=100&cursor=eyJ2IjoxLC...
  * ```
  *
- * The `next` line is left out when there's no `next_cursor`: on the last page, or with `size` 0.
- * It doesn't repeat the request's other params, which the next request must also send. With
- * `headers: false` there's
- * no footer either, so the output is only rows.
+ * The `next` line is left out when there's no `next_cursor`: on the last
+ * page, or with `size` 0. It doesn't repeat the request's other params,
+ * which the next request must also send. With `headers: false` there's no
+ * footer either, so the output is only rows.
  */
 export function printPagedTable<T extends Record<string, any>>({
     page, ...options
