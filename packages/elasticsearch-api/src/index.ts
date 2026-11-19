@@ -56,39 +56,30 @@ export interface SearchWithTotalResult<T = Record<string, any>> {
     total: number;
     relation: ESTypes.SearchTotalHitsRelation;
     /**
-     * The last hit's `sort` values, for `search_after` to continue from.
-     * Undefined when there are no hits or the search has no sort.
+     * The last hit's `sort` values, for `search_after` to continue from,
+     * as JSON.parse read them. Undefined when there are no hits or the search
+     * has no sort.
+     *
+     * JSON.parse rounds a number past 2^53, such as the `LONG_MAX` (or
+     * `LONG_MIN`) OpenSearch sorts a record missing a long or date field as.
+     * Only the caller knows the field's type, so replacing those with the
+     * exact `bigint` before sending them back is up to it.
      */
     lastSort?: SortValue[];
 }
 
 /**
- * One `sort` value of a hit. A `bigint` is OpenSearch's exact sort value for
- * a record missing a long, date or boolean field (see `toExactSortValue()`).
+ * One `sort` value, of a hit or in `search_after`. A `bigint` can be sent in
+ * `search_after`, and is written with all its digits; a hit's sort values
+ * never hold one.
  */
 export type SortValue = number | string | null | bigint;
 
-/** The largest and smallest values of an OpenSearch `long` (64-bit) */
-const LONG_MAX = 2n ** 63n - 1n;
-const LONG_MIN = -(2n ** 63n);
-
 /**
- * OpenSearch sorts a record missing a long, date or boolean field as
- * `LONG_MAX` (or `LONG_MIN`, sorting descending). JSON.parse rounds those to
- * ±2^63, which OpenSearch rejects back in `search_after` for a date field, so
- * they're returned as the exact `bigint`. No other value reaches ±2^63, since
- * a long can't hold one.
+ * `JSON.rawJSON` (Node 21+), which TypeScript's lib doesn't declare yet. It
+ * wraps text that JSON.stringify writes as it is, in place of the value.
  */
-function toExactSortValue(value: number | string | null): SortValue {
-    if (typeof value !== 'number') return value;
-    if (value >= 2 ** 63) return LONG_MAX;
-    if (value <= -(2 ** 63)) return LONG_MIN;
-    return value;
-}
-
-/** Stands in for a `bigint` in `stringifyWithBigInts()` */
-const bigIntMarker = '\u0000bigint:';
-const bigIntMarkerPattern = /"\\u0000bigint:(-?\d+)"/g;
+const rawJSON = (JSON as unknown as { rawJSON(text: string): unknown }).rawJSON;
 
 /**
  * JSON.stringify, writing each `bigint` as a JSON number with all its digits
@@ -96,8 +87,8 @@ const bigIntMarkerPattern = /"\\u0000bigint:(-?\d+)"/g;
 function stringifyWithBigInts(value: unknown): string {
     return JSON.stringify(
         value,
-        (_key, v) => (typeof v === 'bigint' ? `${bigIntMarker}${v}` : v)
-    ).replace(bigIntMarkerPattern, '$1');
+        (_key, v) => (typeof v === 'bigint' ? rawJSON(v.toString()) : v)
+    );
 }
 
 /**
@@ -228,7 +219,7 @@ export default function elasticsearchApi(
             records: hits.map(convertDocToDataEntity) as (DataEntity<T> & T)[],
             total: total.value,
             relation: total.relation,
-            lastSort: hits.at(-1)?.sort?.map(toExactSortValue),
+            lastSort: hits.at(-1)?.sort,
         };
     }
 

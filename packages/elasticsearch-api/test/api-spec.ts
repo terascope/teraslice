@@ -1323,29 +1323,23 @@ describe('elasticsearch-api', () => {
             expect(results.lastSort).toEqual([1700000000001, 'b']);
         });
 
-        it('returns the exact Long sentinels for a record missing the sort field', async () => {
-            total = { value: 2, relation: 'eq' } as any;
-            // JSON.parse rounds the largest and smallest long (2^63 - 1 and -2^63) to ±2^63
-            recordsReturned = [
-                { _id: '1', _source: {}, sort: [2 ** 63, -(2 ** 63), 'a'] },
-            ];
-            const api = esApi(client, logger);
-
-            const results = await api.searchWithTotal(query);
-
-            expect(results.lastSort).toEqual([2n ** 63n - 1n, -(2n ** 63n), 'a']);
-        });
-
-        it('keeps other sort values as they are', async () => {
+        it('returns sort values as JSON.parse read them, without knowing the field types', async () => {
             total = { value: 1, relation: 'eq' } as any;
+            // ±2^63 is a rounded long sentinel or a float; only the caller can tell
             recordsReturned = [
-                { _id: '1', _source: {}, sort: [2147483647, 'Infinity', null, 1.5] },
+                {
+                    _id: '1',
+                    _source: {},
+                    sort: [2 ** 63, -(2 ** 63), 1e20, 2147483647, 'Infinity', null, 1.5]
+                },
             ];
             const api = esApi(client, logger);
 
             const results = await api.searchWithTotal(query);
 
-            expect(results.lastSort).toEqual([2147483647, 'Infinity', null, 1.5]);
+            expect(results.lastSort).toEqual(
+                [2 ** 63, -(2 ** 63), 1e20, 2147483647, 'Infinity', null, 1.5]
+            );
         });
 
         it('sends a search_after holding a bigint with all its digits', async () => {
@@ -1353,14 +1347,15 @@ describe('elasticsearch-api', () => {
             const api = esApi(client, logger);
             const body = {
                 query: { match_all: {} },
-                search_after: [2n ** 63n - 1n, -(2n ** 63n), 'id\u0000bigint:1'],
+                // a string that looks like the old serializer's bigint marker stays a string
+                search_after: [2n ** 63n - 1n, -(2n ** 63n), '\u0000bigint:1'],
             };
 
             await api.searchWithTotal({ ...query, body });
 
             expect(searchQuery.body).toEqual(
                 '{"query":{"match_all":{}},"search_after":'
-                + '[9223372036854775807,-9223372036854775808,"id\\u0000bigint:1"]}'
+                + '[9223372036854775807,-9223372036854775808,"\\u0000bigint:1"]}'
             );
         });
 

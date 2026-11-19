@@ -45,6 +45,44 @@ describe('TerasliceElasticsearchStorage', () => {
             });
         });
 
+        describe('lastSort', () => {
+            /** The store's lastSort for a search sorted by `sort`, given the raw values */
+            async function lastSortFor(sort: string, lastSort: (number | string | null)[]) {
+                searchWithTotal.mockResolvedValue({
+                    records: [{}], total: 1, relation: 'eq', lastSort
+                });
+                return (await store.searchWithTotal({ query: '*', sort })).lastSort;
+            }
+
+            it('should make a long or date field\'s rounded LONG_MAX and LONG_MIN exact', async () => {
+                // JSON.parse rounds LONG_MAX (2^63 - 1) and LONG_MIN (-2^63) to ±2^63
+                await expect(lastSortFor('_deleted_on:asc,memory:desc', [2 ** 63, -(2 ** 63), 'a']))
+                    .resolves.toEqual([2n ** 63n - 1n, -(2n ** 63n), 'a']);
+            });
+
+            it('should keep a float field\'s value, even at ±2^63', async () => {
+                await expect(lastSortFor('cpu:asc,resources_limits_cpu:desc', [2 ** 63, -(2 ** 63), 'a']))
+                    .resolves.toEqual([2 ** 63, -(2 ** 63), 'a']);
+            });
+
+            it('should keep other values of long and date fields', async () => {
+                await expect(lastSortFor('_created:asc,memory:asc', [1700000000000, 1024, 'a']))
+                    .resolves.toEqual([1700000000000, 1024, 'a']);
+            });
+
+            it('should check the id field the store adds to the sort', async () => {
+                // job_id is a keyword, so a number there is left alone
+                await expect(lastSortFor('_created:asc', [2 ** 63, 2 ** 63]))
+                    .resolves.toEqual([2n ** 63n - 1n, 2 ** 63]);
+            });
+
+            it('should be undefined when the search returns none', async () => {
+                searchWithTotal.mockResolvedValue({ records: [], total: 0, relation: 'eq' });
+                await expect(store.searchWithTotal({ query: '*', sort: '_created:asc' }))
+                    .resolves.toHaveProperty('lastSort', undefined);
+            });
+        });
+
         it('should build the same query as search(), plus track_total_hits', async () => {
             searchWithTotal.mockResolvedValue({ records: [], total: 0, relation: 'eq' });
             search.mockResolvedValue([]);

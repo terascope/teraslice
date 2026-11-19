@@ -7,7 +7,7 @@ import {
 import elasticsearchApi, { Client, BulkRecord, SortValue } from '@terascope/elasticsearch-api';
 import { getClient, Context } from '@terascope/job-components';
 import {
-    ClientParams, DataTypeConfig, ESMapping
+    ClientParams, DataTypeConfig, ESMapping, FieldType
 } from '@terascope/types';
 import { DataType } from '@terascope/data-types';
 import { makeLogger } from '../../workers/helpers/terafoundation.js';
@@ -17,6 +17,29 @@ import { assetDataTypeConfig } from './mappings/asset.js';
 import { executionDataTypeConfig } from './mappings/ex.js';
 import { jobDataTypeConfig } from './mappings/job.js';
 import { stateDataTypeConfig, stateTemplate } from './mappings/state.js';
+
+/**
+ * The field types OpenSearch sorts a record missing the field as `LONG_MAX`
+ * (or `LONG_MIN`, sorting descending). Other numeric types use their own
+ * range (`integer`, `boolean`) or `"Infinity"` (`float`, `double`).
+ */
+const longSortTypes: ReadonlySet<string> = new Set([FieldType.Long, FieldType.Date]);
+
+/** The largest and smallest values of an OpenSearch `long` (64-bit) as bigint */
+const LONG_MAX = 2n ** 63n - 1n;
+const LONG_MIN = -(2n ** 63n);
+
+/**
+ * A long or date field's sort value, with `LONG_MAX` and `LONG_MIN` exact.
+ * JSON.parse rounds those to ±2^63, which OpenSearch rejects back in
+ * `search_after` for a date field. No real long or date reaches ±2^63, so
+ * on these fields it can only be one of them.
+ */
+function toExactLongSortValue(value: SortValue): SortValue {
+    if (value === 2 ** 63) return LONG_MAX;
+    if (value === -(2 ** 63)) return LONG_MIN;
+    return value;
+}
 
 function validateId(recordId: string, recordType: string) {
     if (!recordId || !isString(recordId)) {
@@ -291,7 +314,8 @@ export class TerasliceElasticsearchStorage {
         const esQuery = this._buildSearchQuery(
             query, from, size, sort, fields, this.defaultIndexName
         );
-        esQuery.sort = this._withIdSort(sort);
+        const fullSort = this._withIdSort(sort);
+        esQuery.sort = fullSort;
         esQuery.track_total_hits = true;
 
         if (searchAfter) {
@@ -299,7 +323,27 @@ export class TerasliceElasticsearchStorage {
         }
 
         const { records, total, lastSort } = await this.api.searchWithTotal<T>(esQuery);
-        return { records, total, lastSort };
+        return {
+            records,
+            total,
+            lastSort: lastSort && this._exactSortValues(lastSort, fullSort),
+        };
+    }
+
+    /**
+     * Makes the long and date fields' `LONG_MAX` and `LONG_MIN` sort values
+     * exact (see `toExactLongSortValue()`). Each field's type comes from the
+     * store's data type config. The indices aren't dynamically mapped, so
+     * every field a search can sort on is in it.
+     */
+    private _exactSortValues(values: SortValue[], sort: string): SortValue[] {
+        const { fields } = this._getDataTypeConfig().config;
+        const sortFields = sort.split(',').map((entry) => entry.split(':')[0].trim());
+
+        return values.map((value, i) => {
+            const type = fields[sortFields[i]]?.type;
+            return type && longSortTypes.has(type) ? toExactLongSortValue(value) : value;
+        });
     }
 
     /**
