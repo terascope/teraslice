@@ -38,7 +38,9 @@ export default {
                 }
             } catch (err) {
                 reply.error(`> Stopping ex_id had an error [${err.message}]`);
-                if (includes(err.message, ' no active execution context was found')) {
+                // /v2 rejects actions on an execution that isn't the job's latest
+                if (includes(err.message, ' no active execution context was found')
+                    || includes(err.message, 'is not the current execution')) {
                     stopTimedOut = true;
                 } else {
                     stopTimedOut = false;
