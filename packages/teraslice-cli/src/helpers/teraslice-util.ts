@@ -9,7 +9,10 @@ export default class TerasliceUtil {
     }
 
     get client(): TerasliceClient {
-        return new TerasliceClient({ host: this.config.clusterUrl });
+        return new TerasliceClient({
+            host: this.config.clusterUrl,
+            apiVersion: this.config.apiVersion
+        });
     }
 
     async info(): Promise<Teraslice.ApiRootResponse> {

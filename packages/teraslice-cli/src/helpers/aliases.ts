@@ -5,6 +5,9 @@ import Display from './display.js';
 
 const display = new Display();
 
+export type ApiVersion = 'v1' | 'v2';
+export const API_VERSIONS: readonly ApiVersion[] = ['v1', 'v2'];
+
 const defaultConfigData = {
     clusters: {
         localhost: { host: 'http://localhost:5678' }
@@ -47,23 +50,24 @@ export default class Aliases {
     // FIXME: we need to ensure newClusterUrl is valid
     //   1: a valid URL
     //   2: an actual cluster that responds
-    add(newClusterAlias: string, newClusterUrl: string): void {
+    add(newClusterAlias: string, newClusterUrl: string, apiVersion: ApiVersion = 'v1'): void {
         if (has(this.config.clusters, newClusterAlias)) {
             throw new Error(`${newClusterAlias} already exists`);
         } else {
             this.config.clusters[newClusterAlias] = {
                 host: newClusterUrl,
+                apiVersion,
             };
             Aliases.writeSync(this.aliasesFile, this.config);
         }
     }
 
     list(output = 'txt'): void {
-        const header = ['cluster', 'host'];
+        const header = ['cluster', 'host', 'apiVersion'];
         const clusters: any[] = [];
         Object.entries(this.config.clusters)
             .forEach(([cluster, val]: [string, any]) => {
-                clusters.push({ cluster, host: val.host });
+                clusters.push({ cluster, host: val.host, apiVersion: val.apiVersion ?? 'v1' });
             });
 
         display.display(header, clusters, output);
@@ -82,9 +86,29 @@ export default class Aliases {
         }
     }
 
+    /**
+     * An alias without an apiVersion predates /v2 support and uses /v1
+     */
+    getApiVersion(clusterAlias: string): ApiVersion {
+        const { apiVersion = 'v1' } = this.config.clusters[clusterAlias] ?? {};
+        if (!API_VERSIONS.includes(apiVersion)) {
+            throw new Error(`${clusterAlias} has an invalid apiVersion "${apiVersion}" in ${this.aliasesFile}, must be one of ${API_VERSIONS.join(', ')}`);
+        }
+        return apiVersion;
+    }
+
+    setApiVersion(clusterAlias: string, apiVersion: ApiVersion): void {
+        if (!has(this.config.clusters, clusterAlias)) {
+            throw new Error(`${clusterAlias} not in aliases list`);
+        }
+        this.config.clusters[clusterAlias].apiVersion = apiVersion;
+        Aliases.writeSync(this.aliasesFile, this.config);
+    }
+
     update(clusterAlias: string, newClusterUrl: string): void {
         if (has(this.config.clusters, clusterAlias)) {
             this.config.clusters[clusterAlias] = {
+                ...this.config.clusters[clusterAlias],
                 host: newClusterUrl,
             };
             Aliases.writeSync(this.aliasesFile, this.config);
