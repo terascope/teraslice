@@ -11,7 +11,7 @@ import { handleTerasliceRequest } from './api_utils.js';
 export type RouteMethod = 'get' | 'post' | 'put' | 'patch' | 'delete';
 
 /** Groups /v2 routes in the OpenAPI spec (`tags` field). */
-export type RouteTag = 'Cluster' | 'Jobs' | 'Executions' | 'Text';
+export type RouteTag = 'Cluster' | 'Jobs' | 'Executions' | 'Assets' | 'Text';
 
 /**
  * Schema for path params or query params. Must be an object schema so the
@@ -53,11 +53,45 @@ export interface TextResult {
     headers?: Record<string, string>;
 }
 
-/** What a handler returns for each `ResponseFormat` */
+/**
+ * How a route takes its request body, set by `bodyFormat` on the route spec:
+ * - `json` (the default): the body, already parsed by `bodyParser`, is
+ *   validated against `body`, or must be empty when there's no `body` schema.
+ * - `binary`: the body isn't parsed or validated. The handler reads `req` as
+ *   a stream, e.g. an uploaded zip. The route can't have a `body` schema; the
+ *   spec documents the body as `application/octet-stream`.
+ */
+export type BodyFormat = 'json' | 'binary';
+
+/**
+ * A `json` handler's response with a success status other than 200, made by
+ * `withStatus`. The status must be listed in the route's `successStatuses`.
+ */
+export class StatusResult<T> {
+    /**
+     * `value`, not `body`: a `{ status, body: string }` would type check as a
+     * `TextResult`, letting a `text` handler return one.
+     */
+    constructor(readonly status: number, readonly value: T) {}
+}
+
+/**
+ * Responds with `status` instead of 200, e.g. `withStatus(201, created)`.
+ * Only for `json` routes, and `status` must be in the route's
+ * `successStatuses`.
+ */
+export function withStatus<T>(status: number, value: T): StatusResult<T> {
+    return new StatusResult(status, value);
+}
+
+/**
+ * What a handler returns for each `ResponseFormat`. A `json` handler can
+ * also wrap its result with `withStatus` to send a status other than 200.
+ */
 export type RouteResult<R extends z.ZodType, F extends ResponseFormat>
     = F extends 'raw' ? Buffer
         : F extends 'text' ? TextResult
-            : z.output<R>;
+            : z.output<R> | StatusResult<z.output<R>>;
 
 /**
  * A v2 route handler. Receives the parsed params/query/body (coercion and
@@ -118,9 +152,19 @@ export interface RouteSpec<
     params?: P;
     query?: Q;
     body?: B;
+    /** How the request body is read; see `BodyFormat`. Defaults to `json` */
+    bodyFormat?: BodyFormat;
     response: R;
     /** How the response is sent; see `ResponseFormat`. Defaults to `json` */
     format?: F;
+    /**
+     * Success statuses of a `json` route, with a description of each for the
+     * OpenAPI spec, e.g. `{ 200: 'Already existed', 201: 'Created' }`. A
+     * handler sends one other than 200 by returning `withStatus(status, body)`.
+     * 200 is always documented, as "Success" unless listed here. Each must be
+     * a 2xx status. Only allowed on `json` routes.
+     */
+    successStatuses?: Record<number, string>;
     /**
      * Headers a `text` route may send, with a description of each for the
      * OpenAPI spec, e.g. `{ 'X-Total-Count': 'Number of matching records' }`.
@@ -188,16 +232,24 @@ export interface RouteRegistry {
      * - the method + path, or the operationId, is already registered
      * - a `text` route's `response` isn't a string schema, or a route that
      *   isn't `text` sets `responseHeaders`
+     * - a route that isn't `json` sets `successStatuses`
+     * - `successStatuses` contains a status outside the 2xx range
+     * - a `binary` body route has a `body` schema, or its method is `get` or
+     *   `delete`
      *
      * On each request, validates against the def's schemas and responds with
      * a 400 in the standard `sendError` shape if:
      * - params, query or body fail their schema
      * - the def has no `query` schema and any query param is sent
-     * - the def has no `body` schema and a non-empty body is sent
+     * - the def has no `body` schema and a non-empty body is sent (unless
+     *   its `bodyFormat` is `binary`)
      *
-     * On a `raw` route, a handler result that isn't a Buffer is a 500. On a
-     * `text` route, so is a result without a string body, or with a header
-     * that isn't in `responseHeaders`.
+     * Responds with a 500 if the handler returns:
+     * - on a `raw` route, anything but a Buffer
+     * - on a `text` route, a result without a string body, or with a header
+     *   that isn't in `responseHeaders`
+     * - on a `json` route, a `withStatus` result whose status isn't in
+     *   `successStatuses`
      */
     register<
         P extends ParamsSchema | undefined,
@@ -313,11 +365,28 @@ function assertStrictParts(def: AnyRouteDef): void {
 }
 
 /**
- * Throws if a `text` route's `response` isn't a string schema (it describes
- * the body in the spec), or if a route that isn't `text` declares
- * `responseHeaders` (only a `text` handler can send headers).
+ * Throws if:
+ * - a route that isn't `json` declares `successStatuses` (only a `json`
+ *   handler can return `withStatus`), or one of them isn't 2xx
+ * - a `text` route's `response` isn't a string schema (it describes the body
+ *   in the spec)
+ * - a route that isn't `text` declares `responseHeaders` (only a `text`
+ *   handler can send headers)
  */
 function assertFormat(def: AnyRouteDef): void {
+    if (def.successStatuses) {
+        if (def.format && def.format !== 'json') {
+            throw new Error(`${routeLabel(def)}: only a json route can have successStatuses`);
+        }
+        const invalid = Object.keys(def.successStatuses)
+            .filter((status) => !/^2\d\d$/.test(status));
+        if (invalid.length) {
+            throw new Error(
+                `${routeLabel(def)}: successStatuses must be 2xx, got ${invalid.join(', ')}`
+            );
+        }
+    }
+
     if (def.format === 'text') {
         if (def.response._zod.def.type !== 'string') {
             throw new Error(`${routeLabel(def)}: a text route's response must be a string schema`);
@@ -328,6 +397,38 @@ function assertFormat(def: AnyRouteDef): void {
     if (def.responseHeaders) {
         throw new Error(`${routeLabel(def)}: only a text route can have responseHeaders`);
     }
+}
+
+/**
+ * Throws if a `binary` body route also has a `body` schema (its body is
+ * never parsed, so the schema would never run), or is a `get` or `delete`,
+ * which don't take a body.
+ */
+function assertBodyFormat(def: AnyRouteDef): void {
+    if (def.bodyFormat !== 'binary') return;
+
+    if (def.body) {
+        throw new Error(`${routeLabel(def)}: a binary body route can't have a body schema`);
+    }
+    if (def.method === 'get' || def.method === 'delete') {
+        throw new Error(`${routeLabel(def)}: a ${def.method} route can't take a binary body`);
+    }
+}
+
+/**
+ * Sets the status of a `withStatus` result and returns its body. Any other
+ * result is returned as-is, and sent with a 200.
+ */
+function unwrapStatus(def: AnyRouteDef, result: unknown, res: TerasliceResponse): unknown {
+    if (!(result instanceof StatusResult)) return result;
+
+    if (!Object.hasOwn(def.successStatuses ?? {}, result.status)) {
+        throw new TSError(
+            `${routeLabel(def)}: status ${result.status} is not in successStatuses`
+        );
+    }
+    res.status(result.status);
+    return result.value;
 }
 
 /**
@@ -414,6 +515,7 @@ export function createRouteRegistry(router: Router = Router()): RouteRegistry {
     const register: RouteRegistry['register'] = (def, handler, { errorMessage } = {}) => {
         assertStrictParts(def);
         assertFormat(def);
+        assertBodyFormat(def);
         assertParamsMatchPath(def);
         assertUnique(def, routes);
 
@@ -426,13 +528,14 @@ export function createRouteRegistry(router: Router = Router()): RouteRegistry {
                 const input = {
                     params: parseParams(def.params, req.params),
                     query: parseQuery(def.query, req.query),
-                    body: parseBody(def.body, req.body),
+                    // a binary body is left on `req` for the handler to stream
+                    body: def.bodyFormat === 'binary' ? undefined : parseBody(def.body, req.body),
                 } as Parameters<typeof handler>[0];
 
                 const result = await handler(input, req, res);
 
                 if (def.format === 'text') return sendText(def, result, res);
-                if (def.format !== 'raw') return result;
+                if (def.format !== 'raw') return unwrapStatus(def, result, res);
 
                 if (!Buffer.isBuffer(result)) {
                     throw new TSError(`${routeLabel(def)}: raw handler must return a Buffer`);

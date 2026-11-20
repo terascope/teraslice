@@ -538,6 +538,17 @@ function isValidSort(sort: string): boolean {
     });
 }
 
+/** The `sort` query param of a list route, defaulting to `defaultSort` */
+function sortQuery(defaultSort: string) {
+    return z.string()
+        .refine(isValidSort, 'Expected field, field:asc or field:desc, comma-separated')
+        .default(defaultSort)
+        .meta({
+            description: 'Sort order as `field`, `field:asc` or `field:desc`, comma-separated '
+                + 'for more than one; any other order is rejected. Empty uses the default',
+        });
+}
+
 /**
  * Paging, sorting and filtering, shared by the list routes.
  */
@@ -972,6 +983,84 @@ export const ExecutionRecordPageSchema = paginated(ExecutionRecordSchema)
 export type ExecutionRecordPage = z.output<typeof ExecutionRecordPageSchema>;
 export type GetExecutionErrorsQuery = z.input<typeof GetExecutionErrorsQuerySchema>;
 
+/** ################ /assets ################# */
+
+/**
+ * An asset's metadata, from its `asset.json`, without the zip itself. The
+ * list routes only return these fields. `node_version`, `platform` and `arch`
+ * are left out when the asset doesn't restrict them.
+ */
+export const AssetRecordSchema = z.object({
+    id: z.string().meta({ description: 'SHA-1 of the asset zip, 40 hex characters' }),
+    _created: Timestamp,
+    name: z.string(),
+    version: z.string().meta({ description: 'Semver, cleaned (e.g. "v1.2.3" is "1.2.3")' }),
+    description: z.string().optional(),
+    node_version: z.number().optional()
+        .meta({ description: 'Major Node.js version the asset was built for' }),
+    platform: z.string().optional()
+        .meta({ description: 'OS platform the asset was built for, e.g. "linux"' }),
+    arch: z.string().optional()
+        .meta({ description: 'CPU architecture the asset was built for, e.g. "x64"' }),
+    external_storage: z.enum(['available', 'missing']).optional()
+        .meta({
+            description: 'Only set when assets are stored in S3: whether the asset\'s zip '
+                + 'is in the bucket',
+        }),
+}).meta({ id: 'AssetRecord' });
+
+// No `AssetRecord` / `AssetIDResponse` type aliases: `teraslice.ts` already
+// exports those names, and `index.ts` star-exports both modules.
+
+/** Response of `GET /assets`, `GET /assets/:name` and `GET /assets/:name/:version` */
+export const AssetRecordPageSchema = paginated(AssetRecordSchema)
+    .meta({ id: 'AssetRecordPage' });
+
+export type AssetRecordPage = z.output<typeof AssetRecordPageSchema>;
+
+/** Path params of `DELETE /assets/:assetId` */
+export const AssetIdParams = z.strictObject({
+    assetId: z.string().length(40)
+        .meta({ description: 'The asset id, 40 characters' }),
+});
+
+/** Path params of `GET /assets/:name` */
+export const AssetNameParams = z.strictObject({ name: z.string() });
+
+/** Path params of `GET /assets/:name/:version` */
+export const AssetNameVersionParams = z.strictObject({
+    name: z.string(),
+    version: z.string(),
+});
+
+/**
+ * Query of `GET /assets`. Sorted by `_created`, since asset records have no
+ * `_updated`
+ */
+export const GetAssetsQuerySchema = cursorOrFrom(z.strictObject({
+    ...searchQueryShape,
+    sort: sortQuery('_created:desc'),
+}));
+
+export type GetAssetsQuery = z.input<typeof GetAssetsQuerySchema>;
+
+/** Query of `POST /assets` */
+export const UploadAssetQuerySchema = z.strictObject({
+    blocking: z.stringbool().default(true)
+        .meta({
+            description: '`true` (the default) responds with an error if storing the asset '
+                + 'fails or takes longer than the cluster\'s `api_response_timeout`; `false` '
+                + 'logs a storage failure and still responds with the asset id',
+        }),
+});
+
+export type UploadAssetQuery = z.input<typeof UploadAssetQuerySchema>;
+
+/** Response of `POST /assets` and `DELETE /assets/:assetId` */
+export const AssetIDResponseSchema = z.object({
+    asset_id: z.string(),
+}).meta({ id: 'AssetIDResponse' });
+
 /** ################## /txt ################## */
 
 /** Strips `optional`, `nullable` and `default` wrappers */
@@ -1061,7 +1150,12 @@ export const GetTxtExecutionsQuerySchema = GetExecutionsQuerySchema.extend(
 export const GetTxtWorkersQuerySchema = z.strictObject({
     ...inMemoryPageQueryShape,
     ...txtQueryShape(ExecutionNodeWorkerSchema, 'ExecutionNodeWorker'),
-});
+}));
+
+/** Query of `GET /txt/assets` */
+export const GetTxtAssetsQuerySchema = GetAssetsQuerySchema.extend(
+    txtQueryShape(AssetRecordSchema, 'AssetRecord')
+);
 
 /** A row of `GET /txt/nodes`: `active` is the number of processes */
 const TxtNodeRowSchema = NodeStateSchema.extend({
@@ -1091,6 +1185,7 @@ export const TxtTableSchema = z.string().meta({
 
 export type GetTxtJobsQuery = z.input<typeof GetTxtJobsQuerySchema>;
 export type GetTxtExecutionsQuery = z.input<typeof GetTxtExecutionsQuerySchema>;
+export type GetTxtAssetsQuery = z.input<typeof GetTxtAssetsQuerySchema>;
 export type GetTxtWorkersQuery = z.input<typeof GetTxtWorkersQuerySchema>;
 export type GetTxtNodesQuery = z.input<typeof GetTxtNodesQuerySchema>;
 export type GetTxtControllersQuery = z.input<typeof GetTxtControllersQuerySchema>;

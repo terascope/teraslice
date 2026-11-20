@@ -139,12 +139,20 @@ function toParameters(
 }
 
 /**
- * The 200 response of a route: JSON (also for `raw` routes, which send JSON
- * they serialized themselves), or `text/plain` with the declared headers.
+ * The success responses of a route: JSON (also for `raw` routes, which send
+ * JSON they serialized themselves), or `text/plain` with the declared
+ * headers. A `json` route gets one entry per `successStatuses` status, all
+ * with the same body, plus 200.
  */
 function routeResponses(route: AnyRouteDef, components: Components): ResponsesObject {
     const schema = fromZod(route.response, 'output', components);
-    if (route.format !== 'text') return successResponses(schema);
+    if (route.format !== 'text') {
+        const responses = successResponses(schema);
+        for (const [status, description] of Object.entries(route.successStatuses ?? {})) {
+            responses[status] = { description, content: jsonContent(schema) };
+        }
+        return responses;
+    }
 
     const headers: HeadersObject = {};
     for (const [name, description] of Object.entries(route.responseHeaders ?? {})) {
@@ -193,6 +201,13 @@ function toOperation(route: AnyRouteDef, components: Components): OperationObjec
         operation.requestBody = {
             required: true,
             content: jsonContent(fromZod(route.body, 'input', components)),
+        };
+    } else if (route.bodyFormat === 'binary') {
+        operation.requestBody = {
+            required: true,
+            content: {
+                'application/octet-stream': { schema: { type: 'string', format: 'binary' } },
+            },
         };
     }
 
@@ -322,6 +337,7 @@ export function generateV2Spec(
             { name: 'Cluster', description: 'Cluster state and configuration' },
             { name: 'Jobs', description: 'Job definitions and lifecycle' },
             { name: 'Executions', description: 'Execution records, read only' },
+            { name: 'Assets', description: 'Asset bundles: upload, list and delete' },
             { name: 'Text', description: 'Lists as plain-text tables, for terminals' },
         ],
         paths,

@@ -131,6 +131,8 @@ function queryAndBody(route: AnyRouteDef): string {
     if (route.body) {
         const words = schemaName(route.body).replace(/(?<=.)([A-Z])/g, ' $1');
         items.push(words.toLowerCase());
+    } else if (route.bodyFormat === 'binary') {
+        items.push('binary body');
     }
     return items.join(', ');
 }
