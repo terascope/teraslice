@@ -1250,4 +1250,150 @@ describe('elasticsearch-api', () => {
         expect(indicesDeleteCalled).toEqual(true);
         expect(indicesPutAliasCalled).toEqual(true);
     });
+
+    describe('searchWithTotal', () => {
+        const query = { body: 'someQuery', track_total_hits: true } as any;
+        let prevTotal: any;
+
+        beforeEach(() => {
+            prevTotal = total;
+            recordsReturned = [{ _id: '1', _source: { some: 'data' } }];
+        });
+
+        afterEach(() => {
+            total = prevTotal;
+        });
+
+        it('returns the records and an exact total', async () => {
+            total = { value: 500, relation: 'eq' } as any;
+            const api = esApi(client, logger);
+
+            const results = await api.searchWithTotal(query);
+
+            expect(results).toEqual({
+                records: [{ some: 'data' }],
+                total: 500,
+                relation: 'eq',
+            });
+            expect(DataEntity.isDataEntity(results.records[0])).toBe(true);
+            expect(results.records[0].getKey()).toEqual('1');
+            expect(searchQuery).toEqual(query);
+        });
+
+        it('returns a lower bound total when the count stopped at the limit', async () => {
+            total = { value: 10000, relation: 'gte' } as any;
+            const api = esApi(client, logger);
+
+            const results = await api.searchWithTotal(query);
+
+            expect(results.total).toEqual(10000);
+            expect(results.relation).toEqual('gte');
+        });
+
+        it('returns DataEntities even when full_response is set', async () => {
+            total = { value: 1, relation: 'eq' } as any;
+            const api = esApi(client, logger, { full_response: true });
+
+            const results = await api.searchWithTotal(query);
+
+            expect(results.records).toEqual([{ some: 'data' }]);
+            expect(DataEntity.isDataEntity(results.records[0])).toBe(true);
+        });
+
+        it('returns no records with the total for size 0', async () => {
+            total = { value: 42, relation: 'eq' } as any;
+            recordsReturned = [];
+            const api = esApi(client, logger);
+
+            const results = await api.searchWithTotal({ ...query, size: 0 });
+
+            expect(results).toEqual({ records: [], total: 42, relation: 'eq' });
+        });
+
+        it('returns the last hit\'s sort values', async () => {
+            total = { value: 2, relation: 'eq' } as any;
+            recordsReturned = [
+                { _id: '1', _source: { some: 'data' }, sort: [1700000000000, 'a'] },
+                { _id: '2', _source: { some: 'more' }, sort: [1700000000001, 'b'] },
+            ];
+            const api = esApi(client, logger);
+
+            const results = await api.searchWithTotal(query);
+
+            expect(results.lastSort).toEqual([1700000000001, 'b']);
+        });
+
+        it('returns sort values as JSON.parse read them, without knowing the field types', async () => {
+            total = { value: 1, relation: 'eq' } as any;
+            // ±2^63 is a rounded long sentinel or a float; only the caller can tell
+            recordsReturned = [
+                {
+                    _id: '1',
+                    _source: {},
+                    sort: [2 ** 63, -(2 ** 63), 1e20, 2147483647, 'Infinity', null, 1.5]
+                },
+            ];
+            const api = esApi(client, logger);
+
+            const results = await api.searchWithTotal(query);
+
+            expect(results.lastSort).toEqual(
+                [2 ** 63, -(2 ** 63), 1e20, 2147483647, 'Infinity', null, 1.5]
+            );
+        });
+
+        it('sends a search_after holding a bigint with all its digits', async () => {
+            total = { value: 1, relation: 'eq' } as any;
+            const api = esApi(client, logger);
+            const body = {
+                query: { match_all: {} },
+                // a string that looks like the old serializer's bigint marker stays a string
+                search_after: [2n ** 63n - 1n, -(2n ** 63n), '\u0000bigint:1'],
+            };
+
+            await api.searchWithTotal({ ...query, body });
+
+            expect(searchQuery.body).toEqual(
+                '{"query":{"match_all":{}},"search_after":'
+                + '[9223372036854775807,-9223372036854775808,"\\u0000bigint:1"]}'
+            );
+        });
+
+        it('sends a search_after with no bigint as an object', async () => {
+            total = { value: 1, relation: 'eq' } as any;
+            const api = esApi(client, logger);
+            const body = { search_after: [1700000000000, 'a', null] };
+
+            await api.searchWithTotal({ ...query, body });
+
+            expect(searchQuery.body).toEqual(body);
+        });
+
+        it('returns no sort values when the search has no sort', async () => {
+            total = { value: 1, relation: 'eq' } as any;
+            const api = esApi(client, logger);
+
+            const results = await api.searchWithTotal(query);
+
+            expect(results).not.toHaveProperty('lastSort', expect.anything());
+        });
+
+        it('returns no sort values when there are no hits', async () => {
+            total = { value: 0, relation: 'eq' } as any;
+            recordsReturned = [];
+            const api = esApi(client, logger);
+
+            const results = await api.searchWithTotal(query);
+
+            expect(results.lastSort).toBeUndefined();
+        });
+
+        it('throws when the response has no total', async () => {
+            total = undefined as any;
+            const api = esApi(client, logger);
+
+            await expect(api.searchWithTotal({ ...query, track_total_hits: false }))
+                .rejects.toThrow('track_total_hits must not be false');
+        });
+    });
 });

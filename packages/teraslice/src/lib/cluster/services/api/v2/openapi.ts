@@ -1,7 +1,7 @@
 import { z } from 'zod';
 import type {
-    OpenAPIObject, OperationObject, ParameterObject, PathsObject,
-    ReferenceObject, ResponsesObject, SchemaObject
+    HeadersObject, OpenAPIObject, OperationObject, ParameterObject,
+    PathsObject, ReferenceObject, ResponsesObject, SchemaObject
 } from 'openapi3-ts/oas31';
 import { isDeepEqual, isPlainObject } from '@terascope/core-utils';
 import { generateJobJSONSchema } from '@terascope/job-components';
@@ -139,6 +139,29 @@ function toParameters(
 }
 
 /**
+ * The 200 response of a route: JSON (also for `raw` routes, which send JSON
+ * they serialized themselves), or `text/plain` with the declared headers.
+ */
+function routeResponses(route: AnyRouteDef, components: Components): ResponsesObject {
+    const schema = fromZod(route.response, 'output', components);
+    if (route.format !== 'text') return successResponses(schema);
+
+    const headers: HeadersObject = {};
+    for (const [name, description] of Object.entries(route.responseHeaders ?? {})) {
+        headers[name] = { description, schema: { type: 'string' } };
+    }
+
+    return {
+        200: {
+            description: 'Success',
+            content: { 'text/plain': { schema } },
+            ...(Object.keys(headers).length && { headers }),
+        },
+        default: { $ref: '#/components/responses/Error' },
+    };
+}
+
+/**
  * Turns one registered route into its entry in the spec. OpenAPI calls one
  * method on one path an "operation", hence the name. `generateV2Spec` calls
  * this once per route and stores the result at `paths[path][method]`.
@@ -155,7 +178,7 @@ function toOperation(route: AnyRouteDef, components: Components): OperationObjec
     const operation: OperationObject = {
         operationId: route.operationId,
         summary: route.summary,
-        responses: successResponses(fromZod(route.response, 'output', components)),
+        responses: routeResponses(route, components),
     };
 
     if (route.tags) operation.tags = [...route.tags];
@@ -299,6 +322,7 @@ export function generateV2Spec(
             { name: 'Cluster', description: 'Cluster state and configuration' },
             { name: 'Jobs', description: 'Job definitions and lifecycle' },
             { name: 'Executions', description: 'Execution records, read only' },
+            { name: 'Text', description: 'Lists as plain-text tables, for terminals' },
         ],
         paths,
         components: {

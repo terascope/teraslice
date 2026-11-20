@@ -211,7 +211,19 @@ export default class Job extends Client {
         query: Teraslice.SearchQuery = {},
         searchOptions: RequestOptions = {}
     ): Promise<Teraslice.ErrorRecord[]> {
-        return this.get(`/jobs/${this._jobId}/errors`, this.makeOptions(query, searchOptions));
+        return this.getList(`/jobs/${this._jobId}/errors`, this.makeOptions(query, searchOptions));
+    }
+
+    /**
+     * One page of the current execution's slice errors, with its
+     * `pagination`. Send `pagination.next_cursor` as `cursor`, with the same
+     * query, for the next page; or use `pages()`. /v2 only.
+     */
+    async errorsPage(
+        query: TerasliceApiV2.GetJobErrorsQuery = {},
+        searchOptions: RequestOptions = {}
+    ): Promise<TerasliceApiV2.SliceErrorPage> {
+        return this.getPage(`/jobs/${this._jobId}/errors`, this.makeOptions(query, searchOptions));
     }
 
     async tap(

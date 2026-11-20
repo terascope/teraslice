@@ -76,7 +76,7 @@ export function jobSchema(context: Context): Terafoundation.Schema<any> {
             doc:
                 'An array of actions to execute, typically the first is a reader '
                 + 'and the last is a sender with '
-                + 'any number of processing function in-between',
+                + 'any number of processing functions in-between',
             format(arr: any) {
                 if (!(Array.isArray(arr) && arr.length >= 2)) {
                     throw new Error('Operations need to be of type array with at least two operations in it');
@@ -183,7 +183,7 @@ export function jobSchema(context: Context): Terafoundation.Schema<any> {
         },
         env_vars: {
             default: {},
-            doc: 'environment variables to set on each the teraslice worker, in the format, { "EXAMPLE": "test" }',
+            doc: 'environment variables to set on each teraslice worker, in the format, { "EXAMPLE": "test" }',
             format(obj: unknown) {
                 if (!isPlainObject(obj)) {
                     throw new Error('must be object');

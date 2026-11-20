@@ -4,9 +4,9 @@ import {
     pRetry, logError, pWhile, isString, getTypeOf,
     get, random, isInteger, Logger, noop
 } from '@terascope/core-utils';
-import elasticsearchApi, { Client, BulkRecord } from '@terascope/elasticsearch-api';
+import elasticsearchApi, { Client, BulkRecord, SortValue } from '@terascope/elasticsearch-api';
 import { getClient, Context } from '@terascope/job-components';
-import { ClientParams, DataTypeConfig, ESMapping } from '@terascope/types';
+import { ClientParams, DataTypeConfig, ESMapping, FieldType } from '@terascope/types';
 import { DataType } from '@terascope/data-types';
 import { makeLogger } from '../../workers/helpers/terafoundation.js';
 import { timeseriesIndex } from '../../utils/date_utils.js';
@@ -15,6 +15,36 @@ import { assetDataTypeConfig } from './mappings/asset.js';
 import { executionDataTypeConfig } from './mappings/ex.js';
 import { jobDataTypeConfig } from './mappings/job.js';
 import { stateDataTypeConfig, stateTemplate } from './mappings/state.js';
+
+/**
+ * The field types OpenSearch sorts a record missing the field as `LONG_MAX`
+ * (or `LONG_MIN`, sorting descending). Other numeric types use their own
+ * range (`integer`, `boolean`) or `"Infinity"` (`float`, `double`).
+ */
+const longSortTypes: ReadonlySet<string> = new Set([FieldType.Long, FieldType.Date]);
+
+/** The largest and smallest values of an OpenSearch `long` (64-bit) as bigint */
+const LONG_MAX = 2n ** 63n - 1n;
+const LONG_MIN = -(2n ** 63n);
+
+/**
+ * The number of records a search returns when it's not given a size:
+ * OpenSearch's default `max_result_window`, the most one search can return
+ * unless the index changes it.
+ */
+const DEFAULT_SEARCH_SIZE = 10000;
+
+/**
+ * A long or date field's sort value, with `LONG_MAX` and `LONG_MIN` exact.
+ * JSON.parse rounds those to ±2^63, which OpenSearch rejects back in
+ * `search_after` for a date field. No real long or date reaches ±2^63, so
+ * on these fields it can only be one of them.
+ */
+function toExactLongSortValue(value: SortValue): SortValue {
+    if (value === 2 ** 63) return LONG_MAX;
+    if (value === -(2 ** 63)) return LONG_MIN;
+    return value;
+}
 
 function validateId(recordId: string, recordType: string) {
     if (!recordId || !isString(recordId)) {
@@ -63,6 +93,42 @@ export interface TerasliceESStorageConfig {
     logRecord?: boolean;
     forceRefresh?: boolean;
     logger?: Logger;
+}
+
+/** One page of records plus the exact total number of matching records */
+export interface RecordsWithTotal<T> {
+    records: T[];
+    total: number;
+    /**
+     * The last record's sort values. Pass them as the next search's
+     * `searchAfter` to get the page after this one. Undefined when the
+     * page is empty.
+     */
+    lastSort?: SortValue[];
+}
+
+/** One page to search for, for `searchWithTotal()` */
+export interface PageSearch {
+    /** A Lucene query string (sent as `q`) or a request body */
+    query: string | Record<string, any>;
+    /** Number of matching records to skip. Must be 0 with `searchAfter` */
+    from?: number;
+    /** Number of records to return. `DEFAULT_SEARCH_SIZE` by default */
+    size?: number;
+    /**
+     * `field:asc` or `field:desc`, comma-separated. The store's id field is
+     * added at the end, if it isn't in it, so the order is the same on every
+     * search.
+     */
+    sort?: string;
+    /** The fields of each record to return. All of them by default */
+    fields?: string | string[];
+    /**
+     * The previous page's `lastSort`. Returns the records after it, in place
+     * of `from`, so paging isn't limited by `max_result_window`. Use the same
+     * query and sort as the previous page.
+     */
+    searchAfter?: SortValue[];
 }
 
 export interface TerasliceStorageOptions {
@@ -223,11 +289,90 @@ export class TerasliceElasticsearchStorage {
     async search(
         query: string | Record<string, any>,
         from = 0,
-        size = 10000,
+        size = DEFAULT_SEARCH_SIZE,
         sort?: string,
         fields?: string | string[],
         index = this.defaultIndexName
     ) {
+        const esQuery = this._buildSearchQuery(query, from, size, sort, fields, index);
+        return this.api.search(esQuery);
+    }
+
+    /**
+     * Searches for one page of records, returning them with the exact total
+     * number of matching records from the same request
+     * (`track_total_hits: true`) and the last record's sort values, for
+     * the next page's `searchAfter`.
+     */
+    async searchWithTotal<T = Record<string, any>>({
+        query,
+        from = 0,
+        size = DEFAULT_SEARCH_SIZE,
+        sort,
+        fields,
+        searchAfter,
+    }: PageSearch): Promise<RecordsWithTotal<T>> {
+        if (searchAfter && from !== 0) {
+            throw new Error(`from parameter must be 0 with searchAfter, got ${from}`);
+        }
+
+        const esQuery = this._buildSearchQuery(
+            query, from, size, sort, fields, this.defaultIndexName
+        );
+        const fullSort = this._withIdSort(sort);
+        esQuery.sort = fullSort;
+        esQuery.track_total_hits = true;
+
+        if (searchAfter) {
+            esQuery.body = { ...esQuery.body, search_after: searchAfter };
+        }
+
+        const { records, total, lastSort } = await this.api.searchWithTotal<T>(esQuery);
+        return {
+            records,
+            total,
+            lastSort: lastSort && this._exactSortValues(lastSort, fullSort),
+        };
+    }
+
+    /**
+     * Makes the long and date fields' `LONG_MAX` and `LONG_MIN` sort values
+     * exact (see `toExactLongSortValue()`). Each field's type comes from the
+     * store's data type config. The indices aren't dynamically mapped, so
+     * every field a search can sort on is in it.
+     */
+    private _exactSortValues(values: SortValue[], sort: string): SortValue[] {
+        const { fields } = this._getDataTypeConfig().config;
+        const sortFields = sort.split(',').map((entry) => entry.split(':')[0].trim());
+
+        return values.map((value, i) => {
+            const type = fields[sortFields[i]]?.type;
+            return type && longSortTypes.has(type) ? toExactLongSortValue(value) : value;
+        });
+    }
+
+    /**
+     * Adds `<idField>:asc` to the end of the sort, unless it already sorts by
+     * the id field. The id is unique, so no two records tie, and every search
+     * returns them in the same order, which `searchAfter` needs.
+     */
+    private _withIdSort(sort: string | undefined): string {
+        if (!sort) return `${this.idField}:asc`;
+
+        const sortsById = sort.split(',')
+            .some((entry) => entry.split(':')[0].trim() === this.idField);
+
+        return sortsById ? sort : `${sort},${this.idField}:asc`;
+    }
+
+    private _buildSearchQuery(
+        query: string | Record<string, any>,
+        from: number,
+        size: number,
+        sort: string | undefined,
+        fields: string | string[] | undefined,
+        index: string
+    ): ClientParams.SearchParams {
         if (from != null && !isInteger(from)) {
             throw new Error(`from parameter must be a integer, got ${from}`);
         }
@@ -255,7 +400,7 @@ export class TerasliceElasticsearchStorage {
             esQuery._source_includes = fields;
         }
 
-        return this.api.search(esQuery);
+        return esQuery;
     }
 
     /*

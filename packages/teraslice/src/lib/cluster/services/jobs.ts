@@ -11,7 +11,9 @@ import { Teraslice, JobConfig, ExecutionConfig } from '@terascope/types';
 import { ClusterMasterContext } from '../../../interfaces.js';
 import { makeLogger } from '../../workers/helpers/terafoundation.js';
 import { spawnAssetLoader } from '../../workers/assets/spawn.js';
-import { JobsStorage, ExecutionStorage } from '../../storage/index.js';
+import {
+    JobsStorage, ExecutionStorage, RecordsWithTotal, PageSearch
+} from '../../storage/index.js';
 import type { ExecutionService } from './execution.js';
 
 /**
@@ -449,6 +451,30 @@ export class JobsService {
         ex_fields?: string[]
     ): Promise<JobConfig[]> {
         const jobList = await this.jobsStorage.search(query, from, size, sort);
+        return this._addExInfo(jobList, ex_fields);
+    }
+
+    /**
+     * Like `getJobsWithExInfo()`, but for one page of jobs, with the exact
+     * total number of matching jobs. `exFields` are the execution's fields
+     * to include, all of them by default.
+     */
+    async getJobsWithExInfoAndTotal(
+        { exFields, ...search }: PageSearch & { exFields?: string[] }
+    ): Promise<RecordsWithTotal<JobConfig>> {
+        const { records, total, lastSort } = await this.jobsStorage.searchWithTotal(search);
+        return {
+            records: await this._addExInfo(records, exFields),
+            total,
+            lastSort,
+        };
+    }
+
+    private async _addExInfo(jobList: JobConfig[], ex_fields?: string[]) {
+        // TODO: this fetches each job's latest execution one at a time, so
+        // `GET /v2/jobs?ex` with a large `size` (up to 10,000) makes that many
+        // sequential requests. Run them with a concurrency limit, or use one
+        // terms search on the page's job_ids.
         const finalList: JobConfig[] = [];
         for (const job of jobList) {
             finalList.push(await this.getJobWithExInfo(job.job_id, ex_fields));

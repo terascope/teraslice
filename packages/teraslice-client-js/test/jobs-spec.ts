@@ -3,6 +3,7 @@ import nock from 'nock';
 import { Teraslice } from '@terascope/types';
 import Job from '../src/job.js';
 import Jobs from '../src/jobs.js';
+import { v2Page } from './fixtures/v2-page.js';
 
 describe('Teraslice Jobs', () => {
     let jobs: Jobs;
@@ -267,6 +268,38 @@ describe('Teraslice Jobs', () => {
                 const results = await jobs.list(queryOptions, searchOptions);
                 expect(results).toEqual(list);
             });
+        });
+    });
+
+    describe('when using apiVersion /v2', () => {
+        it('should return the jobs from the page for list', async () => {
+            nock('http://teraslice.example.dev/v2')
+                .get('/jobs')
+                .query({ size: 10 })
+                .reply(200, v2Page(list));
+
+            const v2Jobs = new Jobs({ baseUrl: 'http://teraslice.example.dev', apiVersion: '/v2' });
+            await expect(v2Jobs.list({ size: 10 })).resolves.toEqual(list);
+        });
+
+        it('should return the whole page for listPage, and send the cursor', async () => {
+            const page = v2Page(list, {
+                total: 5, from: 2, size: 1, has_more: true, next_cursor: 'next'
+            });
+            nock('http://teraslice.example.dev/v2')
+                .get('/jobs')
+                .query({ size: 1, cursor: 'abc', active: true })
+                .reply(200, page);
+
+            const v2Jobs = new Jobs({ baseUrl: 'http://teraslice.example.dev', apiVersion: '/v2' });
+            await expect(v2Jobs.listPage({ size: 1, cursor: 'abc', active: 'true' }))
+                .resolves.toEqual(page);
+        });
+    });
+
+    describe('->listPage on /v1', () => {
+        it('should reject, since v1 has no pagination', async () => {
+            await expect(jobs.listPage()).rejects.toThrow('Pages need apiVersion /v2');
         });
     });
 

@@ -4,6 +4,177 @@ import { debugLogger } from '@terascope/core-utils';
 import { TerasliceElasticsearchStorage } from '../../src/lib/storage/backends/elasticsearch_store.js';
 
 describe('TerasliceElasticsearchStorage', () => {
+    describe('->searchWithTotal', () => {
+        let store: TerasliceElasticsearchStorage;
+        let searchWithTotal: jest.Mock<(...args: any[]) => Promise<any>>;
+        let search: jest.Mock<(...args: any[]) => Promise<any>>;
+
+        beforeEach(() => {
+            const context = { sysconfig: { teraslice: {} } } as any;
+            store = new TerasliceElasticsearchStorage({
+                context,
+                indexName: 'test__jobs',
+                recordType: 'job',
+                idField: 'job_id',
+                storageName: 'jobs',
+                logger: debugLogger('elasticsearch-store-spec'),
+            });
+            searchWithTotal = jest.fn<(...args: any[]) => Promise<any>>();
+            search = jest.fn<(...args: any[]) => Promise<any>>();
+            store.api = { searchWithTotal, search } as any;
+        });
+
+        it('should ask for an exact total and return the records, total and sort values', async () => {
+            const records = [{ job_id: 'a' }, { job_id: 'b' }];
+            searchWithTotal.mockResolvedValue({
+                records, total: 57, relation: 'eq', lastSort: [1700000000000, 'b']
+            });
+
+            await expect(store.searchWithTotal({
+                query: 'job_id:*', from: 10, size: 2, sort: '_created:desc', fields: ['job_id']
+            })).resolves.toEqual({ records, total: 57, lastSort: [1700000000000, 'b'] });
+
+            expect(searchWithTotal).toHaveBeenCalledWith({
+                index: 'test__jobs',
+                from: 10,
+                size: 2,
+                sort: '_created:desc,job_id:asc',
+                q: 'job_id:*',
+                _source_includes: ['job_id'],
+                track_total_hits: true,
+            });
+        });
+
+        describe('lastSort', () => {
+            /** The store's lastSort for a search sorted by `sort`, given the raw values */
+            async function lastSortFor(sort: string, lastSort: (number | string | null)[]) {
+                searchWithTotal.mockResolvedValue({
+                    records: [{}], total: 1, relation: 'eq', lastSort
+                });
+                return (await store.searchWithTotal({ query: '*', sort })).lastSort;
+            }
+
+            it('should make a long or date field\'s rounded LONG_MAX and LONG_MIN exact', async () => {
+                // JSON.parse rounds LONG_MAX (2^63 - 1) and LONG_MIN (-2^63) to ±2^63
+                await expect(lastSortFor('_deleted_on:asc,memory:desc', [2 ** 63, -(2 ** 63), 'a']))
+                    .resolves.toEqual([2n ** 63n - 1n, -(2n ** 63n), 'a']);
+            });
+
+            it('should keep a float field\'s value, even at ±2^63', async () => {
+                await expect(lastSortFor('cpu:asc,resources_limits_cpu:desc', [2 ** 63, -(2 ** 63), 'a']))
+                    .resolves.toEqual([2 ** 63, -(2 ** 63), 'a']);
+            });
+
+            it('should keep other values of long and date fields', async () => {
+                await expect(lastSortFor('_created:asc,memory:asc', [1700000000000, 1024, 'a']))
+                    .resolves.toEqual([1700000000000, 1024, 'a']);
+            });
+
+            it('should check the id field the store adds to the sort', async () => {
+                // job_id is a keyword, so a number there is left alone
+                await expect(lastSortFor('_created:asc', [2 ** 63, 2 ** 63]))
+                    .resolves.toEqual([2n ** 63n - 1n, 2 ** 63]);
+            });
+
+            it('should be undefined when the search returns none', async () => {
+                searchWithTotal.mockResolvedValue({ records: [], total: 0, relation: 'eq' });
+                await expect(store.searchWithTotal({ query: '*', sort: '_created:asc' }))
+                    .resolves.toHaveProperty('lastSort', undefined);
+            });
+        });
+
+        it('should build the same query as search(), plus track_total_hits', async () => {
+            searchWithTotal.mockResolvedValue({ records: [], total: 0, relation: 'eq' });
+            search.mockResolvedValue([]);
+            const body = { query: { match_all: {} } };
+
+            await store.searchWithTotal({ query: body, from: 0, size: 100, sort: 'job_id:asc' });
+            await store.search(body, 0, 100, 'job_id:asc');
+
+            expect(searchWithTotal.mock.calls[0][0]).toEqual({
+                ...search.mock.calls[0][0],
+                track_total_hits: true,
+            });
+        });
+
+        describe('sort', () => {
+            async function sortFor(sort: string | undefined) {
+                searchWithTotal.mockResolvedValue({ records: [], total: 0, relation: 'eq' });
+                await store.searchWithTotal({ query: '*', sort });
+                return searchWithTotal.mock.calls[0][0].sort;
+            }
+
+            it('should sort by the id field with no sort', async () => {
+                await expect(sortFor(undefined)).resolves.toBe('job_id:asc');
+                searchWithTotal.mockClear();
+                await expect(sortFor('')).resolves.toBe('job_id:asc');
+            });
+
+            it('should add the id field to the end of the sort', async () => {
+                await expect(sortFor('_updated:desc,name:asc'))
+                    .resolves.toBe('_updated:desc,name:asc,job_id:asc');
+            });
+
+            it('should keep a sort that already sorts by the id field', async () => {
+                await expect(sortFor('job_id:desc')).resolves.toBe('job_id:desc');
+                searchWithTotal.mockClear();
+                await expect(sortFor('_updated:desc, job_id')).resolves.toBe('_updated:desc, job_id');
+            });
+
+            it('should not match a field that only starts with the id field', async () => {
+                await expect(sortFor('job_id_old:asc')).resolves.toBe('job_id_old:asc,job_id:asc');
+            });
+        });
+
+        describe('searchAfter', () => {
+            const searchAfter = [1700000000000, null, 2n ** 63n - 1n, 'b'];
+
+            beforeEach(() => {
+                searchWithTotal.mockResolvedValue({ records: [], total: 0, relation: 'eq' });
+            });
+
+            it('should send a query string as q, with search_after in the body', async () => {
+                await store.searchWithTotal({ query: 'job_id:*', size: 2, sort: '_updated:desc', searchAfter });
+
+                expect(searchWithTotal).toHaveBeenCalledWith({
+                    index: 'test__jobs',
+                    from: 0,
+                    size: 2,
+                    sort: '_updated:desc,job_id:asc',
+                    q: 'job_id:*',
+                    body: { search_after: searchAfter },
+                    track_total_hits: true,
+                });
+            });
+
+            it('should add search_after to a query body', async () => {
+                const body = { query: { match_all: {} } };
+
+                await store.searchWithTotal({ query: body, size: 2, searchAfter });
+
+                expect(searchWithTotal.mock.calls[0][0].body)
+                    .toEqual({ query: { match_all: {} }, search_after: searchAfter });
+                expect(body).toEqual({ query: { match_all: {} } });
+            });
+
+            it('should reject from with searchAfter', async () => {
+                await expect(store.searchWithTotal({ query: '*', from: 10, searchAfter }))
+                    .rejects.toThrow('from parameter must be 0 with searchAfter, got 10');
+                expect(searchWithTotal).not.toHaveBeenCalled();
+            });
+        });
+
+        it('should check from, size and sort like search()', async () => {
+            await expect(store.searchWithTotal({ query: '*', from: 1.5 }))
+                .rejects.toThrow('from parameter must be a integer, got 1.5');
+            await expect(store.searchWithTotal({ query: '*', size: 'ten' as any }))
+                .rejects.toThrow('size parameter must be a integer, got ten');
+            await expect(store.searchWithTotal({ query: '*', sort: 5 as any }))
+                .rejects.toThrow('sort parameter must be a string, got 5');
+            expect(searchWithTotal).not.toHaveBeenCalled();
+        });
+    });
+
     describe('when shutdown is forced', () => {
         const timeout = 500;
         let store: TerasliceElasticsearchStorage;

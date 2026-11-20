@@ -6,6 +6,7 @@ import {
 import { STATUS_CODES } from 'node:http';
 import { URL } from 'node:url';
 import got, { type Got, HTTPError } from 'got';
+import type { TerasliceApiV2 } from '@terascope/types';
 import { ClientConfig, RequestOptions } from './interfaces.js';
 
 export default class Client {
@@ -47,6 +48,34 @@ export default class Client {
 
     async get<T = any>(endpoint: string, options?: RequestOptions): Promise<T> {
         return this._makeRequest<T>('get', endpoint, options);
+    }
+
+    /**
+     * GET a list route. On /v2, list routes return a page,
+     * `{ data, pagination }`; this returns just `data`, so callers get an
+     * array on either version.
+     */
+    protected async getList<T = any>(endpoint: string, options?: RequestOptions): Promise<T[]> {
+        if (!this.isV2) return this.get<T[]>(endpoint, options);
+
+        const page = await this.get<TerasliceApiV2.Page<T>>(endpoint, options);
+        return page.data;
+    }
+
+    /**
+     * GET one page of a /v2 list route, `{ data, pagination }`. v1 list
+     * routes return only an array, so this is a 400 on v1.
+     */
+    protected async getPage<P extends TerasliceApiV2.Page<unknown>>(
+        endpoint: string,
+        options?: RequestOptions
+    ): Promise<P> {
+        if (!this.isV2) {
+            throw new TSError('Pages need apiVersion /v2, v1 list routes don\'t return pagination', {
+                statusCode: 400
+            });
+        }
+        return this.get<P>(endpoint, options);
     }
 
     async post<T = any>(endpoint: string, data?: unknown, options?: RequestOptions): Promise<T> {
@@ -129,9 +158,14 @@ function getAPIEndpoint(uri: string, apiVersion: string) {
     const endpoint = uri ? uri.trim().replace(/(^\/)|(\/$)/, '') : '';
     if (!apiVersion) return endpoint;
 
+    // v1's text routes are only served unversioned, at /txt. /v2 has its own,
+    // except for assets, which only v1 serves
+    // TODO: Teraslice v4 deletes /v1, move assets to /v2 before then
+    // https://github.com/terascope/teraslice/issues/4584#issuecomment-6636093239
     const txtIndex = endpoint.indexOf('txt');
     const isTxt = txtIndex < 2 && txtIndex > -1;
-    if (isTxt) return endpoint;
+    const isTxtAssets = isTxt && endpoint.slice(txtIndex).startsWith('txt/assets');
+    if (isTxt && (!isV2(apiVersion) || isTxtAssets)) return endpoint;
 
     const versionPrefix = trimStart(apiVersion, '/');
     if (endpoint.startsWith(versionPrefix)) return endpoint;

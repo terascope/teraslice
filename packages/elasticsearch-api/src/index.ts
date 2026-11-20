@@ -44,6 +44,68 @@ export interface AnyBulkAction {
 }
 
 /**
+ * The records from one search plus the total number of matching documents.
+ * `relation` is `gte` when OpenSearch stopped counting at the `track_total_hits`
+ * limit (10,000 by default), so `total` is a minimum in that case.
+ *
+ * Each record is a DataEntity holding the document's fields as its own
+ * properties. DataEntity's type doesn't include those fields, so `& T` adds them.
+ */
+export interface SearchWithTotalResult<T = Record<string, any>> {
+    records: (DataEntity<T> & T)[];
+    total: number;
+    relation: ESTypes.SearchTotalHitsRelation;
+    /**
+     * The last hit's `sort` values, for `search_after` to continue from,
+     * as JSON.parse read them. Undefined when there are no hits or the search
+     * has no sort.
+     *
+     * JSON.parse rounds a number past 2^53, such as the `LONG_MAX` (or
+     * `LONG_MIN`) OpenSearch sorts a record missing a long or date field as.
+     * Only the caller knows the field's type, so replacing those with the
+     * exact `bigint` before sending them back is up to it.
+     */
+    lastSort?: SortValue[];
+}
+
+/**
+ * One `sort` value, of a hit or in `search_after`. A `bigint` can be sent in
+ * `search_after`, and is written with all its digits; a hit's sort values
+ * never hold one.
+ */
+export type SortValue = number | string | null | bigint;
+
+/**
+ * `JSON.rawJSON` (Node 21+), which TypeScript's lib doesn't declare yet. It
+ * wraps text that JSON.stringify writes as it is, in place of the value.
+ */
+const rawJSON = (JSON as unknown as { rawJSON(text: string): unknown }).rawJSON;
+
+/**
+ * JSON.stringify, writing each `bigint` as a JSON number with all its digits
+ */
+function stringifyWithBigInts(value: unknown): string {
+    return JSON.stringify(
+        value,
+        (_key, v) => (typeof v === 'bigint' ? rawJSON(v.toString()) : v)
+    );
+}
+
+/**
+ * The search with its body already serialized when `search_after` holds a
+ * `bigint`, which the client's JSON.stringify can't write. The client sends a
+ * string body as it is.
+ */
+function withExactSearchAfter(query: ClientParams.SearchParams): ClientParams.SearchParams {
+    const searchAfter: unknown = query.body?.search_after;
+
+    if (!Array.isArray(searchAfter) || !searchAfter.some((v) => typeof v === 'bigint')) {
+        return query;
+    }
+    return { ...query, body: stringifyWithBigInts(query.body) as any };
+}
+
+/**
      * This is used for improved bulk sending function
     */
 export interface BulkActionMetadata {
@@ -126,6 +188,39 @@ export default function elasticsearchApi(
         return data.hits.hits.map(
             convertDocToDataEntity
         ) as unknown as ClientResponse.SearchResponse;
+    }
+
+    /**
+     * Search and return the records along with the total number of matches,
+     * from the same request. Ignores `full_response`: the records are always
+     * converted to DataEntities, as `search()` does without it.
+     *
+     * Pass `track_total_hits` in the query to change how far OpenSearch counts
+     * exactly; it can't be `false`, since the total is required.
+     *
+     * To get the next page, pass the result's `lastSort` as `body.search_after`,
+     * with the same query and sort.
+     */
+    async function searchWithTotal<T = Record<string, any>>(
+        query: ClientParams.SearchParams
+    ): Promise<SearchWithTotalResult<T>> {
+        const data = await _searchES(withExactSearchAfter(query));
+        const total = data.hits?.total;
+
+        if (total == null || typeof total !== 'object') {
+            throw new TSError('Search response is missing hits.total, track_total_hits must not be false', {
+                context: { connection },
+            });
+        }
+
+        const hits = data.hits.hits ?? [];
+
+        return {
+            records: hits.map(convertDocToDataEntity) as (DataEntity<T> & T)[],
+            total: total.value,
+            relation: total.relation,
+            lastSort: hits.at(-1)?.sort,
+        };
     }
 
     function _makeRequest(
@@ -1368,6 +1463,7 @@ export default function elasticsearchApi(
 
     return {
         search,
+        searchWithTotal,
         count,
         get: getFn,
         mget,

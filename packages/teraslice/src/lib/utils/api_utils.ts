@@ -5,7 +5,7 @@ import {
     TSError, isNumber
 } from '@terascope/core-utils';
 import {
-    ConnectorInfo, GroupedConnectors, ConnectorQueryOptions, Teraslice
+    ConnectorInfo, GroupedConnectors, ConnectorQueryOptions, Teraslice, TerasliceApiV2
 } from '@terascope/types';
 import { TerasliceRequest, TerasliceResponse } from '../../interfaces.js';
 import type { SliceTapOptions } from '../cluster/services/interfaces.js';
@@ -14,46 +14,150 @@ import type { SliceTapOptions } from '../cluster/services/interfaces.js';
 // before api_response_timeout closes Teraslice API server socket
 export const HTTP_RESPONSE_MARGIN = 1000;
 
+/**
+ * Returns a function that gives a record's value for each column. A missing
+ * value prints as `emptyChar`.
+ */
+export type TableMappingFn = (item: any) => (field: string) => unknown;
+
+export interface PrintTableOptions {
+    /** The records, one per row */
+    data: readonly Record<string, any>[];
+    /** The columns, in order. A dotted path reads a nested value */
+    fields: readonly string[];
+    /** Whether to print the column names and the line under them */
+    headers: boolean;
+    /** Replaces the default lookup, `get(item, field, 'N/A')` */
+    mappingFn?: TableMappingFn;
+}
+
+/**
+ * Prints records as a plain-text table. An empty list prints just the
+ * column names. `data` is left unchanged.
+ */
+export function printTable({
+    data, fields, headers, mappingFn
+}: PrintTableOptions): string {
+    // An empty list prints one blank row, so the table still has its columns
+    const isEmpty = data.length === 0;
+    const rows = isEmpty ? [{}] : data;
+    const emptyChar = isEmpty ? '' : 'N/A';
+
+    return Table.print(rows, (item, cell) => {
+        const fn = mappingFn ? mappingFn(item) : (field: string) => get(item, field, emptyChar);
+        fields.forEach((field) => {
+            cell(field, fn(field));
+        });
+    }, (table) => (headers ? table.toString() : table.print()));
+}
+
+export interface PrintPagedTableOptions<T extends Record<string, any>> extends Omit<PrintTableOptions, 'data'> {
+    /** One page of a /v2 list */
+    page: TerasliceApiV2.Page<T>;
+    /**
+     * The request's query string, without the `?`, for the footer's `next`
+     * line (see `nextPageQuery()`)
+     */
+    requestQuery: string;
+}
+
+/**
+ * Prints one page of a /v2 list as a plain-text table, then a footer such as:
+ *
+ * ```
+ * Showing 101-200 of 1,523
+ * next: ?sort=_created:desc&size=100&cursor=eyJ2IjoxLC...
+ * ```
+ *
+ * The `next` line is the whole query of the next page's request (see
+ * `nextPageQuery()`), so it can replace the request's query as it is. It's
+ * left out when there's no `next_cursor`: on the last page, or with `size`
+ * 0. With `headers: false` there's no footer either, so the output is only
+ * rows.
+ */
+export function printPagedTable<T extends Record<string, any>>({
+    page, requestQuery, ...options
+}: PrintPagedTableOptions<T>): string {
+    const table = printTable({ ...options, data: page.data });
+    if (!options.headers) return table;
+
+    return `${table}\n${pageFooter(page, requestQuery)}`;
+}
+
+/**
+ * The query string of the request for the page after `cursor`: the
+ * request's own query (`requestQuery`, without the `?`), as it was sent,
+ * minus `from` and any old `cursor`, then `cursor`. Sending a param twice
+ * is a 400, so the old values are removed rather than added to.
+ */
+export function nextPageQuery(requestQuery: string, cursor: string): string {
+    const kept = requestQuery.split('&').filter((part) => {
+        if (!part) return false;
+        const key = decodeQueryKey(part.split('=')[0]);
+        return key !== 'from' && key !== 'cursor';
+    });
+    return [...kept, `cursor=${encodeURIComponent(cursor)}`].join('&');
+}
+
+function decodeQueryKey(key: string): string {
+    try {
+        return decodeURIComponent(key.replace(/\+/g, ' '));
+    } catch {
+        return key;
+    }
+}
+
+function pageFooter(
+    { data, pagination }: TerasliceApiV2.Page<unknown>,
+    requestQuery: string
+): string {
+    const { total, from, next_cursor: nextCursor } = pagination;
+    const shown = data.length === 0
+        ? 'Showing 0'
+        : `Showing ${from + 1}-${from + data.length}`;
+
+    const lines = [`${shown} of ${total.toLocaleString('en-US')}`];
+    if (nextCursor) {
+        lines.push(`next: ?${nextPageQuery(requestQuery, nextCursor)}`);
+    }
+    return `${lines.join('\n')}\n`;
+}
+
+/**
+ * The v1 table: reads `fields` and `headers` from the request's query.
+ * Remove with v1. /v2 uses `printTable` or `printPagedTable`.
+ */
 export function makeTable(
     req: TerasliceRequest,
     defaults: string[],
     data: Record<string, any>[],
-    mappingFn?: (item: any) => any
+    mappingFn?: TableMappingFn
 ) {
-    const query = fieldsQuery(req.query, defaults);
-    let emptyChar = 'N/A';
-
-    // used to create an empty table if there are no jobs
-    if (data.length === 0) {
-        emptyChar = '';
-        data.push({});
-    }
-
-    return Table.print(data, (item, cell) => {
-        const fn = mappingFn ? mappingFn(item) : (field: string) => get(item, field, emptyChar);
-        query.forEach((field) => {
-            cell(field, fn(field));
-        });
-    }, (table) => {
-        if (('headers' in req.query) && req.query.headers === 'false') {
-            return table.print();
-        }
-        return table.toString();
+    return printTable({
+        data,
+        fields: fieldsQuery(req.query, defaults),
+        headers: req.query.headers !== 'false',
+        mappingFn,
     });
 }
 
-function fieldsQuery(query: any, defaults: string[]): string[] {
-    if (!query.fields) {
-        return defaults || [];
-    }
+function fieldsQuery(query: any, defaults: string[]): readonly string[] {
+    // v1 /txt/workers passes no defaults on an unknown cluster type
+    return parseFields(query.fields, defaults ?? []);
+}
 
-    const results = parseList(query.fields);
+/**
+ * The table columns from a comma-separated `fields` query value. Empty or
+ * missing gives `defaults`.
+ */
+export function parseFields(
+    fields: string | undefined,
+    defaults: readonly string[]
+): readonly string[] {
+    if (!fields) return defaults;
 
-    if (results.length === 0) {
-        return defaults;
-    }
-
-    return results;
+    const results = parseList(fields);
+    return results.length ? results : defaults;
 }
 
 export function handleTerasliceRequest(
@@ -178,6 +282,35 @@ export function addDeletedToQuery(deleted: string, query: string) {
         return `${query} AND (_deleted:false OR (* AND -_deleted:*))`;
     }
     return `${query} AND _deleted:true`;
+}
+
+const resultWindowPattern = /result window is too large/i;
+const resultWindowNumbersPattern = /less than or equal to: \[(\d+)\] but was \[(\d+)\]/i;
+
+/**
+ * Searches that page past an index's `max_result_window` fail with a 400
+ * whose message points at the scroll API, which API callers can't use.
+ * Returns a 400 with a message that keeps the limit and says what to change
+ * instead; any other error is returned unchanged.
+ *
+ * `withCursor` is whether the request sent a `cursor`. A cursor's search
+ * starts at 0, so only `size` can be too large, and the fix is a smaller
+ * `size`. Otherwise it's `from + size`, and `cursor` or `filter` gets past it.
+ */
+export function explainResultWindowError(err: unknown, withCursor: boolean): unknown {
+    const { statusCode, message } = parseErrorInfo(err);
+    if (statusCode !== 400 || !resultWindowPattern.test(message)) return err;
+
+    const [, limit, requested] = message.match(resultWindowNumbersPattern) ?? [];
+    const window = withCursor ? 'size' : 'from + size';
+    const detail = limit && requested
+        ? `${window} must be less than or equal to ${limit} (the index's max_result_window), got ${requested}`
+        : `${window} is larger than the index's max_result_window`;
+    const advice = withCursor
+        ? 'Use a smaller size.'
+        : 'Use cursor to page further, or filter to narrow the search.';
+
+    return new TSError(`${detail}. ${advice}`, { statusCode: 400 });
 }
 
 /**

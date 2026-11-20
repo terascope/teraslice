@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
 import { Logger } from '@terascope/core-utils';
 import { Context } from '@terascope/job-components';
-import { ExecutionAnalytics, NodeState } from '@terascope/types';
+import { ExecutionAnalytics } from '@terascope/types';
 import type { ExecutionStorage, StateStorage, JobsStorage } from './lib/storage/index.js';
 import type {
     ExecutionService, JobsService, ApiService,
@@ -57,11 +57,6 @@ export enum ProcessAssignment {
 
 export function isProcessAssignment(value: string): value is ProcessAssignment {
     return value in ProcessAssignment;
-}
-
-export interface ExecutionNodeWorker extends NodeState {
-    node_id: string;
-    hostname: string;
 }
 
 export interface ControllerStats extends ExecutionAnalytics {
