@@ -158,25 +158,6 @@ export class AssetsService {
         }
     }
 
-    private getS3AssetStatus(
-        s3List: Record<string, any>[],
-        esList: Record<string, any>[]
-    ) {
-        const result: Record<string, any>[] = [...esList];
-        for (const esRecord of result) {
-            esRecord.external_storage = 'missing';
-            for (const s3Record of s3List) {
-                /// s3AssetId is just the file name without the .zip
-                const s3AssetId = s3Record.File.slice(0, -4);
-                if (s3AssetId === esRecord.id) {
-                    esRecord.external_storage = 'available';
-                    break;
-                }
-            }
-        }
-        return result as Record<string, any>[];
-    }
-
     private createAssetTable(query: string, req: TerasliceRequest, res: TerasliceResponse) {
         const { size, from, sort } = getSearchOptions(req, '_created:desc');
 
@@ -215,14 +196,11 @@ export class AssetsService {
             });
 
             const { assetConnectionType } = getBackendConfig(this.context, this.logger);
+            const columns = assetConnectionType === 's3' ? s3Defaults : defaults;
 
-            if (assetConnectionType === 's3') {
-                const s3Assets = await this.assetsStorage.grabS3Info();
-                const updatedAssets = this.getS3AssetStatus(s3Assets, assets);
-                return makeTable(req, s3Defaults, updatedAssets, mapping);
-            }
-
-            return makeTable(req, defaults, assets, mapping);
+            return makeTable(
+                req, columns, await this.assetsStorage.withExternalStorage(assets), mapping
+            );
         });
     }
 
@@ -243,14 +221,7 @@ export class AssetsService {
                 return record;
             });
 
-            const { assetConnectionType } = getBackendConfig(this.context, this.logger);
-            if (assetConnectionType === 's3') {
-                const s3Assets = await this.assetsStorage.grabS3Info();
-                const updatedAssets = this.getS3AssetStatus(s3Assets, mappedRecords);
-                return updatedAssets;
-            }
-
-            return mappedRecords;
+            return this.assetsStorage.withExternalStorage(mappedRecords);
         });
     }
 
