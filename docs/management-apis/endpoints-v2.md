@@ -114,9 +114,10 @@ window on search routes (see below); `cursor` isn't.
 | `GET /v2/txt/workers` | in memory, sorted by `ex_id`, `assignment`, then `worker_id` |
 | `GET /v2/txt/nodes` | in memory, sorted by `node_id` |
 
-**Search routes** take the [list query](#list-query) (`from`, `size`, `cursor`, `sort`,
-`filter`). Each search also sorts by the record's id (`job_id`, `ex_id` or `slice_id`) after
-the `sort`, so records that tie on the `sort` are always in the same order.
+**Search routes** take `from`, `size`, `cursor`, `sort` and `filter`, described in each
+route's [query table](#query-parameters-and-bodies). Each search also sorts by the record's id
+(`job_id`, `ex_id` or `slice_id`) after the `sort`, so records that tie on the `sort` are always
+in the same order.
 
 `from + size` can't go past the index's `max_result_window` (10,000 unless the cluster changes
 it). A request past it is a **400**:
@@ -170,7 +171,7 @@ params between pages, keep the same `sort`, `filter` and route params; `size`, `
 `GET /v2/jobs` works on `GET /v2/txt/jobs` and vice versa.
 
 ```sh
-$ curl 'localhost:5678/v2/txt/jobs?fields=job_id,name,ex._status&ex=_status&size=2'
+curl 'localhost:5678/v2/txt/jobs?fields=job_id,name,ex._status&ex=_status&size=2'
 job_id                                name         ex._status
 ------------------------------------  -----------  ----------
 5a50580c-4a50-48d9-80f8-ac70a00f3dbd  my-job       running
@@ -183,7 +184,7 @@ next: ?fields=job_id,name,ex._status&ex=_status&size=2&cursor=eyJ2IjoxLCJhZnRlci
 So the next page is:
 
 ```sh
-$ curl 'localhost:5678/v2/txt/jobs?fields=job_id,name,ex._status&ex=_status&size=2&cursor=eyJ2IjoxLCJhZnRlciI6WzE3...'
+curl 'localhost:5678/v2/txt/jobs?fields=job_id,name,ex._status&ex=_status&size=2&cursor=eyJ2IjoxLCJhZnRlciI6WzE3...'
 ```
 
 An empty page shows `Showing 0 of N`.
