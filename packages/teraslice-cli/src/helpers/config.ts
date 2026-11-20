@@ -1,6 +1,6 @@
 import fs from 'node:fs';
 import { has } from '@terascope/core-utils';
-import Aliases from './aliases.js';
+import Aliases, { ApiVersion } from './aliases.js';
 import { camelCase } from './utils.js';
 import reply from './reply.js';
 
@@ -63,6 +63,21 @@ export default class Config {
             return this.aliases.config.clusters[this.args.clusterAlias].host;
         } catch (err) {
             return reply.fatal(`Unable to retrieve clusterAlias: ${this.args.clusterAlias} config:\n\n${err.stack}`);
+        }
+    }
+
+    /**
+     * The API version from the clusterAlias entry, a --cluster-url
+     * without an alias uses /v1
+     */
+    // TODO: Teraslice v4 deletes /v1, default to /v2
+    // https://github.com/terascope/teraslice/issues/4584#issuecomment-6636093239
+    get apiVersion(): ApiVersion {
+        if (!this.args.clusterAlias) return 'v1';
+        try {
+            return this.aliases.getApiVersion(this.args.clusterAlias);
+        } catch (err) {
+            return reply.fatal(err.message);
         }
     }
 
