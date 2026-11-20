@@ -10,7 +10,7 @@ describe('v2 API doc tables', () => {
     it('should have a route table per tag, in registration order', () => {
         const routes = tables['V2 ROUTES'];
 
-        expect(routes.match(/^### .+$/gm)).toEqual(['### Cluster', '### Jobs', '### Executions']);
+        expect(routes.match(/^### .+$/gm)).toEqual(['### Cluster', '### Jobs', '### Executions', '### Text']);
         expect(routes).toContain('| GET | `/v2` | | Get cluster and version information |');
         expect(routes).toContain('| POST | `/v2/jobs` | `start`, job config body | Submit a job, and start it unless `start` is `false` |');
         expect(routes).toContain('| POST | `/v2/jobs/{jobId}/_stop` | `timeout`, `blocking`, `force` | Stop a job |');
@@ -22,7 +22,7 @@ describe('v2 API doc tables', () => {
             'V2 SCHEMA GetJobsQuery',
             'V2 SCHEMA StopJobResult',
             'V2 SCHEMA ClusterState',
-            'V2 SCHEMA SliceErrorList',
+            'V2 SCHEMA SliceErrorPage',
         ]);
     });
 
@@ -40,16 +40,16 @@ describe('v2 API doc tables', () => {
     });
 
     it('should list every route that uses a schema', () => {
-        expect(tables['V2 SCHEMA SliceErrorList']).toStartWith(
+        expect(tables['V2 SCHEMA SliceErrorPage']).toStartWith(
             'Used by `GET /v2/jobs/{jobId}/errors` and `GET /v2/ex/{exId}/errors`.'
         );
     });
 
     it('should list the item fields of an array response', () => {
-        const table = tables['V2 SCHEMA SliceErrorList'];
+        const table = tables['V2 SCHEMA JobControllerStats'];
 
-        expect(table).toContain('An array of `SliceStateRecord`.');
-        expect(table).toContain('| `slicer_id` | number | The slicer that created the slice |');
+        expect(table).toContain('An array of `ControllerStats`.');
+        expect(table).toContain('| `failed` | number | Slices that failed |');
     });
 
     it('should list the value fields of a record response', () => {
