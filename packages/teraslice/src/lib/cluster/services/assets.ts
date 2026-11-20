@@ -13,6 +13,7 @@ import {
     makeTable, handleTerasliceRequest, getSearchOptions,
     sendError,
 } from '../../utils/api_utils.js';
+import { createV2AssetRegistry } from './api/v2/asset-routes.js';
 import { TerasliceRequest, TerasliceResponse } from '../../../interfaces.js';
 
 export class AssetsService {
@@ -48,6 +49,11 @@ export class AssetsService {
                 const requestHandler = handleTerasliceRequest(req, res);
                 requestHandler(async () => ({ available: this.running }));
             });
+
+            // The master proxies /v2/assets* and /v2/txt/assets* here, full path intact.
+            // There's no body parser on this app, so `req.body` stays undefined: the
+            // registry's empty-body check passes for GET/DELETE, and POST streams `req`.
+            this.app.use('/v2', createV2AssetRegistry(() => this.assetsStorage).router);
 
             this.app.post('/assets', (req, res) => {
                 const blocking = toBoolean(req.query.blocking);

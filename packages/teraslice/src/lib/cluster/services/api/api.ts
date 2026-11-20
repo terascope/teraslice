@@ -12,6 +12,7 @@ import {
 } from '@terascope/core-utils';
 import { ExecutionStatusEnum, ConnectorListResponse, JobSchemaResponse } from '@terascope/types';
 import { createV2Registry } from './v2/routes.js';
+import { createV2AssetRegistry } from './v2/asset-routes.js';
 import { generateV2Spec } from './v2/openapi.js';
 import { v2DocsPage } from './v2/docs-page.js';
 import { ClusterMasterContext, TerasliceRequest, TerasliceResponse } from '../../../../interfaces.js';
@@ -550,10 +551,16 @@ export class ApiService {
         });
 
         const v2 = createV2Registry(this);
+        // The assets service serves the /v2 asset routes; the master proxies them
+        // (below) and only needs their defs for the spec, so its handlers never run.
+        const assetRoutes = createV2AssetRegistry(() => {
+            throw new Error('The /v2 asset routes are served by the assets service');
+        }).routes;
+        const v2Routes = [...v2.routes, ...assetRoutes];
 
         this.app.get('/v2/openapi.json', (req, res) => {
             const requestHandler = handleTerasliceRequest(req, res, 'Could not generate the OpenAPI spec');
-            requestHandler(() => generateV2Spec(v2.routes, this.context));
+            requestHandler(() => generateV2Spec(v2Routes, this.context));
         });
 
         this.app.get('/v2/api-docs', (_req, res) => {
@@ -563,6 +570,24 @@ export class ApiService {
         this.app.get('/v2/api-docs/rapidoc-min.js', (_req, res) => {
             res.type('application/javascript').send(rapidocScript);
         });
+
+        // Forward the /v2 asset routes to the assets service with their full path.
+        // Mounted before the v2 router, so none of its routes can catch them.
+        this.app.route('/v2/assets{/*splat}')
+            .get(assetRedirect)
+            .delete(assetRedirect)
+            .post((req, res) => {
+                // An upload is a raw zip, sent with any content type or none (the
+                // client sends none). Reject JSON and form data with a 400 here; the
+                // assets service 422s any other body that isn't a zip. `req.is`
+                // also catches `; charset=...` variants, which bodyParser doesn't read.
+                if (req.is(['json', 'urlencoded'])) {
+                    sendError(res, 400, 'Asset uploads take a zip file body, not JSON or form data');
+                    return;
+                }
+                assetRedirect(req, res);
+            });
+        this.app.get('/v2/txt/assets{/*splat}', assetRedirect);
 
         this.app.use('/v2', v2.router);
 

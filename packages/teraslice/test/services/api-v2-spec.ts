@@ -1,6 +1,7 @@
 import 'jest-extended';
 import { jest } from '@jest/globals';
 import got from 'got';
+import nock from 'nock';
 import express from 'express';
 import http from 'node:http';
 import fs from 'node:fs';
@@ -13,6 +14,7 @@ import { TerasliceApiV2 } from '@terascope/types';
 import { findPort } from '../../src/lib/utils/port_utils.js';
 import { ApiService } from '../../src/lib/cluster/services/api/api.js';
 import { createV2Registry } from '../../src/lib/cluster/services/api/v2/routes.js';
+import { createV2AssetRegistry } from '../../src/lib/cluster/services/api/v2/asset-routes.js';
 import { getPackageJSON } from '../../src/lib/utils/file_utils.js';
 import { makeResultWindowError } from '../utils/search-errors.js';
 
@@ -1720,6 +1722,90 @@ describe('HTTP API v2', () => {
             expect(pause.statusCode).toEqual(200);
             expect(slicers.statusCode).toEqual(200);
             expect(pauseExecution).toHaveBeenCalledWith('ex-1');
+        });
+    });
+
+    // The assets service serves these; the master only forwards them
+    describe('/v2 asset proxy', () => {
+        afterEach(() => {
+            nock.cleanAll();
+        });
+
+        it.each([
+            ['GET', '/v2/assets?size=5&sort=name:asc'],
+            ['GET', '/v2/assets/my-asset'],
+            ['GET', '/v2/assets/my-asset/1.0.0'],
+            ['DELETE', `/v2/assets/${'a'.repeat(40)}`],
+            ['GET', '/v2/txt/assets?fields=name,version'],
+            ['GET', '/v2/txt/assets/my-asset/1.0.0'],
+        ])('should forward %s %s with its full path', async (method, path) => {
+            const scope = nock(assetsUrl)
+                .intercept(path, method)
+                .reply(200, { forwarded: true });
+
+            const response = await request(method, path);
+
+            expect(response.statusCode).toEqual(200);
+            expect(response.body).toEqual({ forwarded: true });
+            expect(scope.isDone()).toBeTrue();
+        });
+
+        it('should forward an upload body as-is and keep the status', async () => {
+            // not valid utf8, so nock hands the matcher the body hex-encoded
+            const zip = Buffer.from([0x50, 0x4b, 0x03, 0x04, 0xff, 0xfe, 0x00, 0x80]);
+            let received: Buffer | undefined;
+            const scope = nock(assetsUrl)
+                .post('/v2/assets?blocking=false', (body) => {
+                    received = Buffer.from(body, 'hex');
+                    return true;
+                })
+                .reply(201, { asset_id: 'a'.repeat(40) });
+
+            const response = await request('POST', '/v2/assets?blocking=false', { body: zip });
+
+            expect(response.statusCode).toEqual(201);
+            expect(response.body).toEqual({ asset_id: 'a'.repeat(40) });
+            expect(received).toEqual(zip);
+            expect(scope.isDone()).toBeTrue();
+        });
+
+        it.each([
+            ['application/json'],
+            ['application/json; charset=utf-8'],
+            ['application/x-www-form-urlencoded'],
+        ])('should reject an upload sent as %s with a 400', async (contentType) => {
+            const scope = nock(assetsUrl)
+                .post(/.*/)
+                .reply(201, {});
+
+            const response = await request('POST', '/v2/assets', {
+                body: '{"some":"json"}',
+                headers: { 'content-type': contentType },
+            });
+
+            expect(response.statusCode).toEqual(400);
+            expect(scope.isDone()).toBeFalse();
+        });
+
+        // The proxy is mounted first, so a master route under an asset path
+        // would never be reached
+        it('should have no master v2 route under an asset path', () => {
+            const { routes } = createV2Registry(api);
+            const assetRoutes = createV2AssetRegistry(() => {
+                throw new Error('not used');
+            }).routes;
+            const toRegExp = (path: string) => new RegExp(`^${path.replace(/:\w+/g, '[^/]+')}/?$`);
+            const sample = (path: string) => path.replace(/:\w+/g, 'x');
+            const proxied = /^\/(txt\/)?assets(\/|$)/;
+
+            expect(routes.filter((route) => proxied.test(sample(route.path))))
+                .toEqual([]);
+            for (const assetRoute of assetRoutes) {
+                expect(assetRoute.path).toMatch(proxied);
+                const assetPath = sample(assetRoute.path);
+                const catches = routes.filter((route) => toRegExp(route.path).test(assetPath));
+                expect(catches).toEqual([]);
+            }
         });
     });
 
