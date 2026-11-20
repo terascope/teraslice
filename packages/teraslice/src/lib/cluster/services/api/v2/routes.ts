@@ -4,19 +4,21 @@ import {
 } from '@terascope/core-utils';
 import { type Logger, type ExecutionStatus, TerasliceApiV2 } from '@terascope/types';
 import type { ApiService } from '../api.js';
-import type { ControllerStats, TerasliceRequest } from '../../../../../interfaces.js';
+import type { ControllerStats } from '../../../../../interfaces.js';
 import type { RecordsWithTotal } from '../../../../storage/index.js';
 import {
-    createJobActiveQuery, addDeletedToQuery, addFilterToQuery, buildConnectorList,
-    explainResultWindowError, parseFields, printPagedTable
+    createJobActiveQuery, addDeletedToQuery, addFilterToQuery, buildConnectorList
 } from '../../../../utils/api_utils.js';
 import { getPackageJSON } from '../../../../utils/file_utils.js';
 import {
     byKeys, pageInMemory, toPage, paginationHeaders, paginationResponseHeaders
 } from '../../../../utils/pagination.js';
 import {
-    createRouteRegistry, type RouteRegistry, type Parsed, type TextResult
+    createRouteRegistry, type RouteRegistry, type Parsed
 } from '../../../../utils/v2_routes.js';
+import {
+    txtRouteSpec, toTextTable, mapRecords, sortOrDefault, pagedSearch
+} from './route-utils.js';
 
 const terasliceVersion = getPackageJSON().version;
 
@@ -60,45 +62,6 @@ function toControllerStatsResponse(
         started: stat.started as string | undefined,
         queuing_complete: stat.queuing_complete as string | undefined,
     }));
-}
-
-/** The spec fields every /txt route shares */
-const txtRouteSpec = {
-    tags: ['Text'],
-    response: TerasliceApiV2.TxtTableSchema,
-    format: 'text',
-    responseHeaders: paginationResponseHeaders,
-} as const;
-
-/** The table options every /txt route's query has, once parsed */
-type TxtTableQuery = Pick<Parsed<typeof TerasliceApiV2.GetTxtJobsQuerySchema>, 'fields' | 'headers'>;
-
-/**
- * The response of a /txt route: the page as a table with its footer, and
- * the paging headers. `fields` picks the columns, or `defaults` when empty.
- * `req` gives the query string the footer's `next` line builds on.
- */
-function toTextTable<T extends Record<string, any>>(
-    page: TerasliceApiV2.Page<T>,
-    defaults: readonly string[],
-    { fields, headers }: TxtTableQuery,
-    req: TerasliceRequest
-): TextResult {
-    return {
-        body: printPagedTable({
-            page,
-            fields: parseFields(fields, defaults),
-            headers,
-            requestQuery: requestQueryString(req),
-        }),
-        headers: paginationHeaders(page.pagination),
-    };
-}
-
-/** The request's query string, as it was sent, without the `?` */
-function requestQueryString(req: TerasliceRequest): string {
-    const index = req.originalUrl.indexOf('?');
-    return index === -1 ? '' : req.originalUrl.slice(index + 1);
 }
 
 /** Default columns of `GET /txt/jobs` */

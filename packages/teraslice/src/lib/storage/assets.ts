@@ -29,6 +29,14 @@ import { HTTP_RESPONSE_MARGIN } from '../utils/api_utils.js';
 export const ASSET_RECORD_FIELDS = Object.keys(assetDataTypeConfig.fields)
     .filter((field) => field !== 'blob');
 
+/**
+ * An asset record as `searchWithTotal()` returns it with the default
+ * fields: no `blob`, and `_created` as the ISO string stored in the index.
+ */
+export type StoredAssetRecord = Omit<AssetRecord, 'blob' | '_created' | 'external_storage'> & {
+    _created: string;
+};
+
 function _metaIsUnique(backend: TerasliceElasticsearchStorage) {
     return async function checkMeta(meta: AssetMetadata): Promise<AssetMetadata> {
         const includes = ['name', 'version', 'node_version', 'platform', 'arch'];
@@ -292,7 +300,9 @@ export class AssetsStorage {
     */
     async save(data: Buffer, blocking = true) {
         if (!isZipFile(data)) {
-            throw new Error('Failed to save asset. File type not recognized as zip.');
+            throw new TSError('Failed to save asset. File type not recognized as zip.', {
+                statusCode: 422
+            });
         }
         const esData = data.toString('base64');
         const id = crypto.createHash('sha1').update(esData)
@@ -350,11 +360,19 @@ export class AssetsStorage {
      * `ASSET_RECORD_FIELDS` unless `fields` is given, so the `blob` isn't
      * sent back by default.
      */
-    async searchWithTotal(search: PageSearch): Promise<RecordsWithTotal<AssetRecord>> {
-        return this.esBackend.searchWithTotal<AssetRecord>({
+    async searchWithTotal(search: PageSearch): Promise<RecordsWithTotal<StoredAssetRecord>> {
+        return this.esBackend.searchWithTotal<StoredAssetRecord>({
             ...search,
             fields: search.fields ?? ASSET_RECORD_FIELDS,
         });
+    }
+
+    /**
+     * Whether asset zips are stored in S3, so `withExternalStorage()` sets
+     * `external_storage` on records.
+     */
+    get hasExternalStorage(): boolean {
+        return this.s3Backend != null;
     }
 
     /**
@@ -364,7 +382,7 @@ export class AssetsStorage {
     async withExternalStorage<T extends { id: string }>(
         records: T[]
     ): Promise<(T & { external_storage?: ExternalStorageStatus })[]> {
-        if (!this.s3Backend) return records;
+        if (!this.hasExternalStorage) return records;
         return addExternalStorageStatus(await this.grabS3Info(), records);
     }
 

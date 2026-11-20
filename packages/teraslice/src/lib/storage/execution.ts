@@ -160,7 +160,7 @@ export class ExecutionStorage {
      */
 
     /**
-     * Format the execution error stats, primarly used for updating the
+     * Format the execution error stats, primarily used for updating the
      * status.
      *
      * If no error message is passed, it will reset the _has_errors and _failureReason.
