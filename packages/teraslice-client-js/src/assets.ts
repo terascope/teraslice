@@ -1,16 +1,13 @@
 import { TSError, isEmpty, isString } from '@terascope/core-utils';
-import { Teraslice } from '@terascope/types';
+import { Teraslice, TerasliceApiV2 } from '@terascope/types';
 import path from 'node:path';
 import autoBind from 'auto-bind';
-import Client, { isV2 } from './client.js';
+import Client from './client.js';
 import { PostData, RequestOptions, ClientConfig } from './interfaces.js';
 
 export default class Assets extends Client {
     constructor(config: ClientConfig) {
-        // the asset endpoints are not part of /v2
-        // TODO: Teraslice v4 deletes /v1, move assets to /v2 before then
-        // https://github.com/terascope/teraslice/issues/4584#issuecomment-6636093239
-        super(isV2(config.apiVersion) ? { ...config, apiVersion: '/v1' } : config);
+        super(config);
         autoBind(this);
     }
 
@@ -24,8 +21,10 @@ export default class Assets extends Client {
             });
         }
 
+        // the body is the raw zip; the API rejects JSON and form data
         const results = await this.post('/assets', data, {
-            searchParams: query as Record<string, any>
+            searchParams: query as Record<string, any>,
+            headers: { 'Content-Type': 'application/octet-stream' },
         });
 
         return this.parse(results);
@@ -46,12 +45,27 @@ export default class Assets extends Client {
         return this.parse(results);
     }
 
+    /**
+     * Up to `size` asset records (100 by default), on either version. On /v2,
+     * `listPage()` returns the pagination to fetch the rest.
+     */
     async list(
         query: Teraslice.SearchQuery = {},
         searchOptions: RequestOptions = {}
     ): Promise<Teraslice.AssetRecord[]> {
-        const options = { ...searchOptions, searchParams: query };
-        return this.get('/assets', options);
+        return this.getList('/assets', this.makeOptions(query, searchOptions));
+    }
+
+    /**
+     * One page of asset records, with its `pagination`. Send
+     * `pagination.next_cursor` as `cursor`, with the same query, for the next
+     * page; or use `pages()`. /v2 only.
+     */
+    async listPage(
+        query: TerasliceApiV2.GetAssetsQuery = {},
+        searchOptions: RequestOptions = {}
+    ): Promise<TerasliceApiV2.AssetRecordPage> {
+        return this.getPage('/assets', this.makeOptions(query, searchOptions));
     }
 
     async getAsset(
@@ -72,13 +86,14 @@ export default class Assets extends Client {
 
         const assetUrl = path.join('/assets', name, version);
 
-        return this.get(assetUrl, searchOptions);
+        // up to `size` records (100 by default), on either API version
+        return this.getList(assetUrl, searchOptions);
     }
 
     async txt(
         name = '',
         version = '',
-        query: Teraslice.TxtSearchParams = {},
+        query: Teraslice.TxtSearchParams | TerasliceApiV2.GetTxtAssetsQuery = {},
         searchOptions: RequestOptions = {}
     ): Promise<string> {
         if (name && !isString(name)) {

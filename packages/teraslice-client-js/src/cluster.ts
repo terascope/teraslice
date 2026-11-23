@@ -13,10 +13,7 @@ function _deprecateSlicerName(fn: () => Promise<Teraslice.ExecutionList>) {
 /** The /v1 text tables; `assets` also matches `assets/<name>[/<version>]` */
 const v1TxtTypes = ['assets', 'slicers', 'controllers', 'ex', 'jobs', 'nodes', 'workers'];
 
-/**
- * The text tables on /v2. `assets` (and `assets/<name>[/<version>]`) has no
- * /v2 route yet, so it's sent to v1's `/txt/assets`.
- */
+/** The text tables on /v2. `assets/<name>[/<version>]` is accepted too */
 const v2TxtTypes = ['assets', 'controllers', 'ex', 'jobs', 'nodes', 'workers'];
 
 export default class Cluster extends Client {
@@ -80,10 +77,10 @@ export default class Cluster extends Client {
      * A list as a plain-text table. `type` is the list: `jobs`, `ex`,
      * `workers`, `nodes`, `controllers`, `slicers` or `assets` (or
      * `assets/<name>[/<version>]`). On /v2, `slicers` gets `controllers`, the
-     * same table, and `assets` gets v1's table, which isn't paged.
+     * same table, and every table is paged.
      */
     async txt(type: string, query: TxtQuery = {}): Promise<string> {
-        // TODO: Teraslice v4 deletes /v1, remove slicers, and move assets to /v2
+        // TODO: Teraslice v4 deletes /v1, remove slicers
         // https://github.com/terascope/teraslice/issues/4584#issuecomment-6636093239
         const name = this.isV2 && type === 'slicers' ? 'controllers' : type;
         const validTypes = this.isV2 ? v2TxtTypes : v1TxtTypes;

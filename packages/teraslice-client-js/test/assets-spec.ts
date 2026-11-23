@@ -374,17 +374,85 @@ describe('Teraslice Assets', () => {
         });
     });
 
-    describe('when using apiVersion /v2', () => {
-        it('should still use the /v1 asset endpoints', async () => {
-            scope.get('/assets')
-                .reply(200, [assetVersion1]);
+    describe('->listPage on /v1', () => {
+        it('should reject, since v1 lists have no pagination', async () => {
+            await expect(assets.listPage()).rejects.toThrow('Pages need apiVersion /v2');
+        });
+    });
 
-            const v2Assets = new Assets({
+    describe('when using apiVersion /v2', () => {
+        let v2Assets: Assets;
+        let v2Scope: nock.Scope;
+
+        const pagination = {
+            total: 2, from: 0, size: 100, has_more: false, next_cursor: null
+        };
+        const page = { data: [assetVersion2, assetVersion1], pagination };
+
+        beforeEach(() => {
+            v2Assets = new Assets({
                 baseUrl: 'http://teraslice.example.dev',
                 apiVersion: '/v2'
             });
-            const results = await v2Assets.list();
-            expect(results).toEqual([assetVersion1]);
+            v2Scope = nock('http://teraslice.example.dev/v2');
+        });
+
+        it('should upload to /v2/assets as octet-stream', async () => {
+            const idResponse: AssetIDResponse = { asset_id: 'a'.repeat(40) };
+            v2Scope
+                .matchHeader('content-type', 'application/octet-stream')
+                .post('/assets', 'zip-contents')
+                .query({ blocking: 'false' })
+                .reply(201, idResponse);
+
+            await expect(v2Assets.upload('zip-contents', { blocking: false }))
+                .resolves.toEqual(idResponse);
+            expect(v2Scope.isDone()).toBeTrue();
+        });
+
+        it('should delete from /v2/assets/:assetId', async () => {
+            const idResponse: AssetIDResponse = { asset_id: 'a'.repeat(40) };
+            v2Scope.delete(`/assets/${'a'.repeat(40)}`)
+                .reply(200, idResponse);
+
+            await expect(v2Assets.remove('a'.repeat(40))).resolves.toEqual(idResponse);
+        });
+
+        it('should return the data of a page from list()', async () => {
+            v2Scope.get('/assets')
+                .query({ size: '10' })
+                .reply(200, page);
+
+            await expect(v2Assets.list({ size: 10 }))
+                .resolves.toEqual([assetVersion2, assetVersion1]);
+        });
+
+        it.each([
+            ['/assets/iAmAnAsset', undefined],
+            ['/assets/iAmAnAsset/1.0', '1.0'],
+        ])('should return the data of a page from getAsset() at %s', async (urlPath, version) => {
+            v2Scope.get(urlPath)
+                .reply(200, page);
+
+            await expect(v2Assets.getAsset('iAmAnAsset', version))
+                .resolves.toEqual([assetVersion2, assetVersion1]);
+        });
+
+        it('should return the whole page from listPage()', async () => {
+            v2Scope.get('/assets')
+                .query({ size: '1', cursor: 'abc' })
+                .reply(200, page);
+
+            await expect(v2Assets.listPage({ size: 1, cursor: 'abc' })).resolves.toEqual(page);
+        });
+
+        it('should get the text table from /v2/txt/assets', async () => {
+            v2Scope.get('/txt/assets/iAmAnAsset')
+                .query({ size: '10' })
+                .reply(200, 'assets-txt-response');
+
+            await expect(v2Assets.txt('iAmAnAsset', '', { size: 10 }))
+                .resolves.toEqual('assets-txt-response');
         });
     });
 

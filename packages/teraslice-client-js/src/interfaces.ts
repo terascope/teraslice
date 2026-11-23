@@ -19,6 +19,7 @@ export type TxtQuery = TerasliceApiV2.GetTxtJobsQuery
     | TerasliceApiV2.GetTxtExecutionsQuery
     | TerasliceApiV2.GetTxtWorkersQuery
     | TerasliceApiV2.GetTxtNodesQuery
-    | TerasliceApiV2.GetTxtControllersQuery;
+    | TerasliceApiV2.GetTxtControllersQuery
+    | TerasliceApiV2.GetTxtAssetsQuery;
 
 export type PostData = string | NodeJS.ReadableStream | Buffer;
