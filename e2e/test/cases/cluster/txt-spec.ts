@@ -53,7 +53,7 @@ describe('txt api', () => {
         });
 
         describe('should print the same rows as v1', () => {
-        // Sorted by a unique keyword, so both versions get the same order
+            // Sorted by a unique keyword, so both versions get the same order
             it.each([
                 ['jobs', { sort: 'job_id:asc' }],
                 ['jobs', { sort: 'job_id:asc', from: 2, size: 2 }],
