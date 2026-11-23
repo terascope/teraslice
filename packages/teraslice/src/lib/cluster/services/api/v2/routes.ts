@@ -141,10 +141,10 @@ function withDeletedOn(columns: readonly string[], deleted: boolean): readonly s
 
 /** Applies `fn` to each record, keeping the total */
 function mapRecords<T, U>(
-    { records, total }: RecordsWithTotal<T>,
+    { records, ...rest }: RecordsWithTotal<T>,
     fn: (record: T) => U
 ): RecordsWithTotal<U> {
-    return { records: records.map(fn), total };
+    return { ...rest, records: records.map(fn) };
 }
 
 /**
@@ -225,16 +225,20 @@ export function createV2Registry(api: ApiService): RouteRegistry {
 
         if (ex === undefined) {
             const jobs = await pagedSearch(
-                () => api.jobsStorage.searchWithTotal(searchQuery, from, size, sort)
+                () => api.jobsStorage.searchWithTotal({ query: searchQuery, from, size, sort })
             );
             return mapRecords(jobs, fromStorage);
         }
 
         // `?ex=` (no fields) includes the whole execution
         const fields = parseList(ex);
-        const jobs = await pagedSearch(() => api.jobsService.getJobsWithExInfoAndTotal(
-            searchQuery, from, size, sort, fields.length ? fields : undefined
-        ));
+        const jobs = await pagedSearch(() => api.jobsService.getJobsWithExInfoAndTotal({
+            query: searchQuery,
+            from,
+            size,
+            sort,
+            exFields: fields.length ? fields : undefined,
+        }));
         return mapRecords(jobs, fromStorage);
     }
 
@@ -261,7 +265,7 @@ export function createV2Registry(api: ApiService): RouteRegistry {
         const searchQuery = addFilterToQuery(partialQuery, query.filter ?? '');
 
         const executions = await pagedSearch(
-            () => api.executionStorage.searchWithTotal(searchQuery, from, size, sort)
+            () => api.executionStorage.searchWithTotal({ query: searchQuery, from, size, sort })
         );
         return mapRecords(executions, fromStorage);
     }
@@ -274,7 +278,9 @@ export function createV2Registry(api: ApiService): RouteRegistry {
         // StateStorage returns the backend's untyped records, unlike
         // JobsStorage/ExecutionStorage, which cast to their record type
         const slices = await pagedSearch(
-            () => api.stateStorage.searchWithTotal(errorQuery, from, size, sortOrDefault(sort))
+            () => api.stateStorage.searchWithTotal({
+                query: errorQuery, from, size, sort: sortOrDefault(sort)
+            })
         );
         return slices as RecordsWithTotal<TerasliceApiV2.SliceStateRecord>;
     }

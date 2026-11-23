@@ -434,9 +434,9 @@ describe('HTTP API v2', () => {
 
                 expect(response.statusCode).toEqual(200);
                 expect(response.body).toEqual({ data: [job], pagination: pagination() });
-                expect(searchWithTotal).toHaveBeenCalledWith(
-                    `job_id:* AND ${notDeleted}`, 0, 100, '_updated:desc'
-                );
+                expect(searchWithTotal).toHaveBeenCalledWith({
+                    query: `job_id:* AND ${notDeleted}`, from: 0, size: 100, sort: '_updated:desc'
+                });
             });
 
             it('should filter active jobs for active=true', async () => {
@@ -445,9 +445,12 @@ describe('HTTP API v2', () => {
                 });
 
                 expect(response.statusCode).toEqual(200);
-                expect(searchWithTotal).toHaveBeenCalledWith(
-                    `job_id:* AND !active:false AND ${notDeleted}`, 0, 100, '_updated:desc'
-                );
+                expect(searchWithTotal).toHaveBeenCalledWith({
+                    query: `job_id:* AND !active:false AND ${notDeleted}`,
+                    from: 0,
+                    size: 100,
+                    sort: '_updated:desc',
+                });
             });
 
             it('should pass paging, sort, active, deleted and filter through', async () => {
@@ -459,9 +462,12 @@ describe('HTTP API v2', () => {
                 });
 
                 expect(response.statusCode).toEqual(200);
-                expect(searchWithTotal).toHaveBeenCalledWith(
-                    '(job_id:* AND active:false AND _deleted:true) AND (name:foo)', 10, 5, 'name:asc'
-                );
+                expect(searchWithTotal).toHaveBeenCalledWith({
+                    query: '(job_id:* AND active:false AND _deleted:true) AND (name:foo)',
+                    from: 10,
+                    size: 5,
+                    sort: 'name:asc',
+                });
             });
 
             it('should add the latest execution with only the fields in ?ex', async () => {
@@ -473,9 +479,13 @@ describe('HTTP API v2', () => {
 
                 expect(response.statusCode).toEqual(200);
                 expect(response.body.data[0].ex).toEqual({ _status: 'running' });
-                expect(getJobsWithExInfoAndTotal).toHaveBeenCalledWith(
-                    expect.any(String), 0, 100, '_updated:desc', ['_status']
-                );
+                expect(getJobsWithExInfoAndTotal).toHaveBeenCalledWith({
+                    query: expect.any(String),
+                    from: 0,
+                    size: 100,
+                    sort: '_updated:desc',
+                    exFields: ['_status'],
+                });
             });
 
             it('should add every execution field for an empty ?ex', async () => {
@@ -483,16 +493,20 @@ describe('HTTP API v2', () => {
 
                 await request('GET', '/v2/jobs', { searchParams: { ex: '' } });
 
-                expect(getJobsWithExInfoAndTotal).toHaveBeenCalledWith(
-                    expect.any(String), 0, 100, '_updated:desc', undefined
-                );
+                expect(getJobsWithExInfoAndTotal).toHaveBeenCalledWith({
+                    query: expect.any(String),
+                    from: 0,
+                    size: 100,
+                    sort: '_updated:desc',
+                    exFields: undefined,
+                });
             });
 
             it('should leave large pages to the search cluster\'s max_result_window', async () => {
                 const response = await request('GET', '/v2/jobs', { searchParams: { size: '50000' } });
 
                 expect(response.statusCode).toEqual(200);
-                expect(searchWithTotal.mock.calls[0][2]).toBe(50000);
+                expect(searchWithTotal.mock.calls[0][0].size).toBe(50000);
             });
 
             it('should explain a page past max_result_window', async () => {
@@ -553,13 +567,13 @@ describe('HTTP API v2', () => {
                     data: [],
                     pagination: pagination({ total: 12, size: 0, has_more: true }),
                 });
-                expect(searchWithTotal.mock.calls[0][2]).toBe(0);
+                expect(searchWithTotal.mock.calls[0][0].size).toBe(0);
             });
 
             it('should use the default sort for an empty ?sort, like v1', async () => {
                 await request('GET', '/v2/jobs', { searchParams: { sort: '' } });
 
-                expect(searchWithTotal.mock.calls[0][3]).toBe('_updated:desc');
+                expect(searchWithTotal.mock.calls[0][0].sort).toBe('_updated:desc');
             });
 
             it.each([
@@ -570,7 +584,7 @@ describe('HTTP API v2', () => {
                 const response = await request('GET', '/v2/jobs', { searchParams: { sort } });
 
                 expect(response.statusCode).toEqual(200);
-                expect(searchWithTotal.mock.calls[0][3]).toBe(sort);
+                expect(searchWithTotal.mock.calls[0][0].sort).toBe(sort);
             });
 
             it.each([
@@ -1041,9 +1055,9 @@ describe('HTTP API v2', () => {
 
             expect(response.statusCode).toEqual(200);
             expect(response.body).toEqual({ data: sliceErrors, pagination: pagination() });
-            expect(searchWithTotal).toHaveBeenCalledWith(
-                `state:error AND ex_id:"${exId}"`, 0, 100, '_updated:desc'
-            );
+            expect(searchWithTotal).toHaveBeenCalledWith({
+                query: `state:error AND ex_id:"${exId}"`, from: 0, size: 100, sort: '_updated:desc'
+            });
         });
 
         it('should return the controller stats for the latest execution', async () => {
@@ -1216,9 +1230,9 @@ describe('HTTP API v2', () => {
 
             expect(response.statusCode).toEqual(200);
             expect(response.body).toEqual({ data: [execution], pagination: pagination() });
-            expect(searchWithTotal).toHaveBeenCalledWith(
-                `ex_id:* AND ${notDeleted}`, 0, 100, '_updated:desc'
-            );
+            expect(searchWithTotal).toHaveBeenCalledWith({
+                query: `ex_id:* AND ${notDeleted}`, from: 0, size: 100, sort: '_updated:desc'
+            });
         });
 
         it('should filter by job_id and status', async () => {
@@ -1227,19 +1241,19 @@ describe('HTTP API v2', () => {
             });
 
             expect(response.statusCode).toEqual(200);
-            expect(searchWithTotal).toHaveBeenCalledWith(
-                `ex_id:* AND job_id:"job-1" AND (_status:"running" OR _status:"failing") AND ${notDeleted}`,
-                0,
-                100,
-                '_updated:desc'
-            );
+            expect(searchWithTotal).toHaveBeenCalledWith({
+                query: `ex_id:* AND job_id:"job-1" AND (_status:"running" OR _status:"failing") AND ${notDeleted}`,
+                from: 0,
+                size: 100,
+                sort: '_updated:desc',
+            });
         });
 
         it('should pass an unknown status through, like v1, so it matches nothing', async () => {
             const response = await request('GET', '/v2/ex', { searchParams: { status: 'borked' } });
 
             expect(response.statusCode).toEqual(200);
-            expect(searchWithTotal.mock.calls[0][0]).toContain('_status:"borked"');
+            expect(searchWithTotal.mock.calls[0][0].query).toContain('_status:"borked"');
         });
 
         it('should report the total and whether there are more pages', async () => {
@@ -1291,9 +1305,12 @@ describe('HTTP API v2', () => {
                     data: sliceErrors,
                     pagination: pagination({ size: 10 }),
                 });
-                expect(stateSearchWithTotal).toHaveBeenCalledWith(
-                    '(state:error AND ex_id:"ex-2") AND (slicer_id:1)', 0, 10, '_updated:desc'
-                );
+                expect(stateSearchWithTotal).toHaveBeenCalledWith({
+                    query: '(state:error AND ex_id:"ex-2") AND (slicer_id:1)',
+                    from: 0,
+                    size: 10,
+                    sort: '_updated:desc',
+                });
                 expect(getLatestExecutionId).not.toHaveBeenCalled();
             });
 
@@ -1445,9 +1462,12 @@ describe('HTTP API v2', () => {
                     active: 'true', from: '5', size: '5', sort: 'name:asc', filter: 'name:"a"'
                 });
 
-                expect(jobsSearchWithTotal).toHaveBeenCalledWith(
-                    `(job_id:* AND !active:false AND ${notDeleted}) AND (name:"a")`, 5, 5, 'name:asc'
-                );
+                expect(jobsSearchWithTotal).toHaveBeenCalledWith({
+                    query: `(job_id:* AND !active:false AND ${notDeleted}) AND (name:"a")`,
+                    from: 5,
+                    size: 5,
+                    sort: 'name:asc',
+                });
             });
 
             it('should add _deleted_on with deleted=true', async () => {
@@ -1469,7 +1489,7 @@ describe('HTTP API v2', () => {
                 const response = await requestText('/txt/jobs', { ex: '_status', fields: 'job_id,ex._status' });
 
                 expect(parseTable(response.body).rows[2]).toEqual(['job-1', 'running']);
-                expect(getJobsWithExInfoAndTotal.mock.calls[0][4]).toEqual(['_status']);
+                expect(getJobsWithExInfoAndTotal.mock.calls[0][0].exFields).toEqual(['_status']);
             });
 
             it('should reject an unknown param', async () => {
@@ -1493,7 +1513,7 @@ describe('HTTP API v2', () => {
                 const response = await requestText('/txt/ex', { job_id: 'job-1', deleted: 'true' });
 
                 expect(parseTable(response.body).rows[0].at(-1)).toBe('_deleted_on');
-                expect(exSearchWithTotal.mock.calls[0][0]).toBe('ex_id:* AND job_id:"job-1" AND _deleted:true');
+                expect(exSearchWithTotal.mock.calls[0][0].query).toBe('ex_id:* AND job_id:"job-1" AND _deleted:true');
             });
         });
 

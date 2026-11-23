@@ -7,7 +7,8 @@ import { v4 as uuid } from 'uuid';
 import { JobConfig, ExecutionConfig } from '@terascope/types';
 import { makeLogger } from '../workers/helpers/terafoundation.js';
 import {
-    TerasliceElasticsearchStorage, TerasliceESStorageConfig, RecordsWithTotal
+    TerasliceElasticsearchStorage, TerasliceESStorageConfig,
+    RecordsWithTotal, PageSearch
 } from './backends/elasticsearch_store.js';
 import { getPackageJSON } from '../utils/file_utils.js';
 
@@ -99,16 +100,10 @@ export class ExecutionStorage {
     }
 
     /**
-     * Like `search()`, but also returns the exact total number of matching executions
+     * Returns one page of executions and how many executions match in total.
      */
-    async searchWithTotal(
-        query: string | Record<string, any>,
-        from?: number,
-        size?: number,
-        sort?: string,
-        fields?: string | string[]
-    ): Promise<RecordsWithTotal<ExecutionConfig>> {
-        return this.backend.searchWithTotal<ExecutionConfig>(query, from, size, sort, fields);
+    async searchWithTotal(search: PageSearch): Promise<RecordsWithTotal<ExecutionConfig>> {
+        return this.backend.searchWithTotal<ExecutionConfig>(search);
     }
 
     async create(record: JobConfig | ExecutionConfig, status = 'pending'): Promise<ExecutionConfig> {

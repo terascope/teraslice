@@ -4,7 +4,8 @@ import { Context, ValidatedJobConfig, JobConfigParams } from '@terascope/job-com
 import { JobConfig } from '@terascope/types';
 import { makeLogger } from '../workers/helpers/terafoundation.js';
 import {
-    TerasliceElasticsearchStorage, TerasliceESStorageConfig, RecordsWithTotal
+    TerasliceElasticsearchStorage, TerasliceESStorageConfig,
+    RecordsWithTotal, PageSearch
 } from './backends/elasticsearch_store.js';
 
 export class JobsStorage {
@@ -57,16 +58,10 @@ export class JobsStorage {
     }
 
     /**
-     * Like `search()`, but also returns the exact total number of matching jobs
+     * Returns one page of jobs and how many jobs match in total.
      */
-    async searchWithTotal(
-        query: string | Record<string, any>,
-        from?: number,
-        size?: number,
-        sort?: string,
-        fields?: string | string[]
-    ): Promise<RecordsWithTotal<JobConfig>> {
-        return this.backend.searchWithTotal<JobConfig>(query, from, size, sort, fields);
+    async searchWithTotal(search: PageSearch): Promise<RecordsWithTotal<JobConfig>> {
+        return this.backend.searchWithTotal<JobConfig>(search);
     }
 
     async create(record: ValidatedJobConfig): Promise<JobConfig> {

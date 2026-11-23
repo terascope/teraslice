@@ -7,7 +7,8 @@ import {
 import { timeseriesIndex, TimeseriesFormat } from '../utils/date_utils.js';
 import { makeLogger } from '../workers/helpers/terafoundation.js';
 import {
-    TerasliceElasticsearchStorage, TerasliceESStorageConfig, RecordsWithTotal
+    TerasliceElasticsearchStorage, TerasliceESStorageConfig,
+    RecordsWithTotal, PageSearch
 } from './backends/elasticsearch_store.js';
 
 export const SliceState = Object.freeze({
@@ -280,17 +281,16 @@ export class StateStorage {
     }
 
     /**
-     * Like `search()`, but also returns the exact total number of matching
-     * records
+     * Returns one page of slice states and how many slice states match in
+     * total. Sorted by `_updated:desc` unless `sort` is given.
      */
     async searchWithTotal(
-        query: string | Record<string, any>,
-        from?: number,
-        size?: number,
-        sort?: string,
-        fields?: string | string[]
+        search: PageSearch
     ): Promise<RecordsWithTotal<Record<string, any>>> {
-        return this.backend.searchWithTotal(query, from, size, sort || '_updated:desc', fields);
+        return this.backend.searchWithTotal({
+            ...search,
+            sort: search.sort || '_updated:desc',
+        });
     }
 
     async count(
