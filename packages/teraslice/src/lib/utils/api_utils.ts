@@ -54,6 +54,11 @@ export function printTable({
 export interface PrintPagedTableOptions<T extends Record<string, any>> extends Omit<PrintTableOptions, 'data'> {
     /** One page of a /v2 list */
     page: TerasliceApiV2.Page<T>;
+    /**
+     * The request's query string, without the `?`, for the footer's `next`
+     * line (see `nextPageQuery()`)
+     */
+    requestQuery: string;
 }
 
 /**
@@ -61,22 +66,49 @@ export interface PrintPagedTableOptions<T extends Record<string, any>> extends O
  *
  * ```
  * Showing 101-200 of 1,523
- * next: ?from=200&size=100
+ * next: ?sort=_created:desc&size=100&from=200
  * ```
  *
- * The `next` line is left out when there's no more, or `size` is 0. With `headers: false` there's
- * no footer either, so the output is only rows.
+ * The `next` line is the whole query of the next page's request (see
+ * `nextPageQuery()`), so it can replace the request's query as it is. It's
+ * left out when there's no more, or `size` is 0. With `headers: false`
+ * there's no footer either, so the output is only rows.
  */
 export function printPagedTable<T extends Record<string, any>>({
-    page, ...options
+    page, requestQuery, ...options
 }: PrintPagedTableOptions<T>): string {
     const table = printTable({ ...options, data: page.data });
     if (!options.headers) return table;
 
-    return `${table}\n${pageFooter(page)}`;
+    return `${table}\n${pageFooter(page, requestQuery)}`;
 }
 
-function pageFooter({ data, pagination }: TerasliceApiV2.Page<unknown>): string {
+/**
+ * The query string of the request for the page starting at `from`: the
+ * request's own query (`requestQuery`, without the `?`), as it was sent,
+ * minus any old `from`, then `from`. Sending a param twice is a 400, so the
+ * old value is removed rather than added to.
+ */
+export function nextPageQuery(requestQuery: string, from: number): string {
+    const kept = requestQuery.split('&').filter((part) => {
+        if (!part) return false;
+        return decodeQueryKey(part.split('=')[0]) !== 'from';
+    });
+    return [...kept, `from=${from}`].join('&');
+}
+
+function decodeQueryKey(key: string): string {
+    try {
+        return decodeURIComponent(key.replace(/\+/g, ' '));
+    } catch {
+        return key;
+    }
+}
+
+function pageFooter(
+    { data, pagination }: TerasliceApiV2.Page<unknown>,
+    requestQuery: string
+): string {
     const {
         total, from, size, has_more: hasMore
     } = pagination;
@@ -86,7 +118,7 @@ function pageFooter({ data, pagination }: TerasliceApiV2.Page<unknown>): string 
 
     const lines = [`${shown} of ${total.toLocaleString('en-US')}`];
     if (hasMore && size > 0) {
-        lines.push(`next: ?from=${from + size}&size=${size}`);
+        lines.push(`next: ?${nextPageQuery(requestQuery, from + size)}`);
     }
     return `${lines.join('\n')}\n`;
 }

@@ -192,8 +192,9 @@ The default columns are the same as v1's [TXT APIs](./endpoints-txt.md). `jobs` 
 `pod_name` and `image` on kubernetesV2.
 
 The response is the table, a blank line, and a footer with the rows shown and the total. When
-there are more rows, the footer has a `next` line with the next page's `from` and `size`. Add
-your other params (`sort`, `filter`, `fields`, …) to it yourself:
+there are more rows, the footer has a `next` line with the whole query of the next page's
+request: your request's params as you sent them, with `from` set to the next page's. Use it in
+place of your request's query to get the next page:
 
 ```sh
 $ curl 'localhost:5678/v2/txt/jobs?fields=job_id,name,ex._status&ex=_status&size=2'
@@ -203,7 +204,13 @@ job_id                                name         ex._status
 d2a1a0b2-0ad3-4d4e-a7e2-8f5d2c3b4a11  another-job  completed
 
 Showing 1-2 of 1,523
-next: ?from=2&size=2
+next: ?fields=job_id,name,ex._status&ex=_status&size=2&from=2
+```
+
+So the next page is:
+
+```sh
+$ curl 'localhost:5678/v2/txt/jobs?fields=job_id,name,ex._status&ex=_status&size=2&from=2'
 ```
 
 An empty page shows `Showing 0 of N`.

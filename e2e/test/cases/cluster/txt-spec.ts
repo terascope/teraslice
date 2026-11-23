@@ -149,8 +149,15 @@ describe('txt api', () => {
 
                     const [, count] = footer.match(/^Showing .* of ([\d,]+)$/m) ?? [];
                     total = count;
-                    const next = footer.match(/^next: \?from=(\d+)&size=\d+$/m);
-                    from = next ? Number(next[1]) : undefined;
+                    // the next line is the whole next query: these params
+                    // as they were sent, each once, with the new from
+                    const [, next] = footer.match(/^next: \?(\S+)$/m) ?? [];
+                    const nextQuery = new URLSearchParams(next ?? '');
+                    if (next) {
+                        expect([...nextQuery.keys()].sort())
+                            .toEqual(['fields', 'from', 'size', 'sort']);
+                    }
+                    from = next ? Number(nextQuery.get('from')) : undefined;
                 }
 
                 expect(ids).toBeArrayOfSize(Number(total.replaceAll(',', '')));

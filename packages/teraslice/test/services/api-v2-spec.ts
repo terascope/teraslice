@@ -1448,7 +1448,7 @@ describe('HTTP API v2', () => {
                 expect(response.headers['content-type']).toStartWith('text/plain');
                 expect(rows[0]).toEqual(['job_id', 'name', 'active', 'lifecycle', 'slicers', 'workers', '_created', '_updated']);
                 expect(rows[2]).toEqual(['job-1', 'test-job', 'true', 'persistent', '1', '2', job._created, job._updated]);
-                expect(footer).toEqual(['Showing 1-1 of 3', 'next: ?from=1&size=1']);
+                expect(footer).toEqual(['Showing 1-1 of 3', 'next: ?size=1&from=1']);
                 expect(response.headers).toMatchObject({
                     'x-total-count': '3',
                     'x-from': '0',
@@ -1537,7 +1537,9 @@ describe('HTTP API v2', () => {
                 const response = await requestText('/txt/workers', { from: '1', size: '2', fields: 'pid' });
 
                 expect(firstColumn(response.body)).toEqual(['102', '101']);
-                expect(parseTable(response.body).footer).toEqual(['Showing 2-3 of 4', 'next: ?from=3&size=2']);
+                // the request's own query, with the next page's from
+                expect(parseTable(response.body).footer)
+                    .toEqual(['Showing 2-3 of 4', 'next: ?size=2&fields=pid&from=3']);
             });
 
             it.each([
@@ -1570,6 +1572,29 @@ describe('HTTP API v2', () => {
                 expect(firstColumn(response.body)).toEqual(['node-b']);
                 expect(response.headers['x-total-count']).toBe('2');
             });
+
+            it('should get the next page with the footer\'s next line as the whole query', async () => {
+                /** The footer's `next` line, without `next: ?` */
+                function nextLine(text: string) {
+                    const line = parseTable(text).footer.find((l) => l.startsWith('next: ?'));
+                    return line?.slice('next: ?'.length);
+                }
+
+                // the query goes in the path, so it's sent as written, like curl does
+                const first = await request(
+                    'GET', '/v2/txt/nodes?from=0&size=1&fields=node_id,state', { responseType: 'text' }
+                );
+                const firstNext = nextLine(first.body);
+                expect(firstNext).toBe('size=1&fields=node_id,state&from=1');
+
+                // sent as it is, the old from is replaced, not repeated
+                const second = await request('GET', `/v2/txt/nodes?${firstNext}`, {
+                    responseType: 'text'
+                });
+                expect(second.statusCode).toBe(200);
+                expect(parseTable(second.body).rows.slice(2)).toEqual([['node-b', 'connected']]);
+                expect(nextLine(second.body)).toBeUndefined();
+            });
         });
 
         describe('GET /v2/txt/controllers', () => {
@@ -1588,7 +1613,7 @@ describe('HTTP API v2', () => {
                 const response = await requestText('/txt/controllers', { size: '1' });
 
                 expect(firstColumn(response.body)).toEqual(['job-a']);
-                expect(parseTable(response.body).footer).toEqual(['Showing 1-1 of 2', 'next: ?from=1&size=1']);
+                expect(parseTable(response.body).footer).toEqual(['Showing 1-1 of 2', 'next: ?size=1&from=1']);
             });
         });
 

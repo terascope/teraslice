@@ -3,7 +3,7 @@ import { TSError, parseErrorInfo } from '@terascope/core-utils';
 import type { TerasliceApiV2 } from '@terascope/types';
 import {
     createJobActiveQuery, addDeletedToQuery, getSliceTapOptions, makeTable,
-    explainResultWindowError, printTable, printPagedTable
+    explainResultWindowError, printTable, printPagedTable, nextPageQuery
 } from '../../src/lib/utils/api_utils.js';
 import { paginationHeaders, paginationResponseHeaders } from '../../src/lib/utils/pagination.js';
 import { makeResultWindowError } from './search-errors.js';
@@ -187,7 +187,9 @@ describe('apiUtils', () => {
         }
 
         it('should print the table, then which records are shown', () => {
-            const output = printPagedTable({ page: page(data), fields: ['name'], headers: true });
+            const output = printPagedTable({
+                page: page(data), fields: ['name'], headers: true, requestQuery: ''
+            });
 
             expect(output).toStartWith(printTable({ data, fields: ['name'], headers: true }));
             expect(footer(output)).toEqual(['Showing 1-2 of 2']);
@@ -200,9 +202,12 @@ describe('apiUtils', () => {
                 }),
                 fields: ['name'],
                 headers: true,
+                requestQuery: 'sort=name:asc&from=100&size=2',
             });
 
-            expect(footer(output)).toEqual(['Showing 101-102 of 1,523', 'next: ?from=102&size=2']);
+            expect(footer(output)).toEqual([
+                'Showing 101-102 of 1,523', 'next: ?sort=name:asc&size=2&from=102'
+            ]);
         });
 
         it('should leave out next with size 0', () => {
@@ -210,6 +215,7 @@ describe('apiUtils', () => {
                 page: page([], { total: 5, size: 0, has_more: true }),
                 fields: ['name'],
                 headers: true,
+                requestQuery: 'size=0',
             });
 
             expect(footer(output)).toEqual(['Showing 0 of 5']);
@@ -221,6 +227,7 @@ describe('apiUtils', () => {
                 page: page(empty, { total: 5, from: 10 }),
                 fields: ['name'],
                 headers: true,
+                requestQuery: 'from=10',
             });
 
             expect(output.split('\n')[0].trim()).toBe('name');
@@ -233,9 +240,32 @@ describe('apiUtils', () => {
                 page: page(data, { total: 10, has_more: true }),
                 fields: ['name'],
                 headers: false,
+                requestQuery: 'headers=false',
             });
 
             expect(output.split('\n').map((line) => line.trim())).toEqual(['a', 'b', '']);
+        });
+    });
+
+    describe('nextPageQuery', () => {
+        it('should keep the request\'s params as they were sent, then add from', () => {
+            expect(nextPageQuery('sort=_created:desc&size=2&fields=job_id,name', 2))
+                .toBe('sort=_created:desc&size=2&fields=job_id,name&from=2');
+        });
+
+        it('should replace an old from', () => {
+            expect(nextPageQuery('from=4&size=2&filter=a%3Db', 6))
+                .toBe('size=2&filter=a%3Db&from=6');
+        });
+
+        it('should match encoded keys and skip empty parts', () => {
+            expect(nextPageQuery('%66rom=0&&from%20=x&size=1&', 1))
+                .toBe('from%20=x&size=1&from=1');
+            expect(nextPageQuery('', 100)).toBe('from=100');
+        });
+
+        it('should keep a key that can\'t be decoded', () => {
+            expect(nextPageQuery('%E0%A4%A=1', 1)).toBe('%E0%A4%A=1&from=1');
         });
     });
 
