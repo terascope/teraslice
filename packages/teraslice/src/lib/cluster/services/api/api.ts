@@ -1,7 +1,5 @@
 import { Router, Express, ErrorRequestHandler } from 'express';
 import bodyParser from 'body-parser';
-import { createRequire } from 'node:module';
-import { readFileSync } from 'node:fs';
 import { pipeline as streamPipeline } from 'node:stream/promises';
 import got, { OptionsInit } from 'got';
 import { RecoveryCleanupType, TerasliceConfig, generateJobJSONSchema } from '@terascope/job-components';
@@ -11,10 +9,7 @@ import {
     isKey
 } from '@terascope/core-utils';
 import { ExecutionStatusEnum, ConnectorListResponse, JobSchemaResponse } from '@terascope/types';
-import { createV2Registry } from './v2/routes.js';
-import { createV2AssetRegistry } from './v2/asset-routes.js';
-import { generateV2Spec } from './v2/openapi.js';
-import { v2DocsPage } from './v2/docs-page.js';
+import { createV2Router } from './v2/router.js';
 import { ClusterMasterContext, TerasliceRequest, TerasliceResponse } from '../../../../interfaces.js';
 import { makeLogger } from '../../../workers/helpers/terafoundation.js';
 import { ExecutionService, JobsService, ClusterServiceType } from '../index.js';
@@ -27,10 +22,6 @@ import {
 import { getPackageJSON } from '../../../utils/file_utils.js';
 
 const terasliceVersion = getPackageJSON().version;
-
-const rapidocScript = readFileSync(
-    createRequire(import.meta.url).resolve('rapidoc/dist/rapidoc-min.js'), 'utf8'
-);
 
 export function validateCleanupType(cleanupType: RecoveryCleanupType) {
     if (cleanupType && !RecoveryCleanupType[cleanupType]) {
@@ -146,7 +137,10 @@ export class ApiService {
         throw error;
     }
 
-    private async _assetRedirect(req: TerasliceRequest, res: TerasliceResponse) {
+    /** Streams a request to the assets service at `path` and pipes back its response */
+    private async _assetRedirect(
+        req: TerasliceRequest, res: TerasliceResponse, path: string
+    ): Promise<void> {
         const options: OptionsInit & { isStream: true } = {
             prefixUrl: this.assetsUrl,
             headers: req.headers,
@@ -158,7 +152,7 @@ export class ApiService {
             isStream: true
         };
 
-        const uri = req.url.replace(/^\//, '');
+        const uri = path.replace(/^\//, '');
         const method = req.method.toLowerCase();
 
         try {
@@ -212,7 +206,11 @@ export class ApiService {
         this.jobsStorage = jobsStorage;
 
         const v1routes = Router();
-        const assetRedirect = this._assetRedirect.bind(this);
+        // v1 forwards `req.url`, which has the /v1 mount stripped, so it reaches
+        // the assets service's unversioned routes
+        const assetRedirect = (req: TerasliceRequest, res: TerasliceResponse) => (
+            this._assetRedirect(req, res, req.url)
+        );
 
         this.app.use(bodyParser.json({
             type(req) {
@@ -550,46 +548,7 @@ export class ApiService {
             requestHandler(() => this._controllerStats());
         });
 
-        const v2 = createV2Registry(this);
-        // The assets service serves the /v2 asset routes; the master proxies them
-        // (below) and only needs their defs for the spec, so its handlers never run.
-        const assetRoutes = createV2AssetRegistry(() => {
-            throw new Error('The /v2 asset routes are served by the assets service');
-        }).routes;
-        const v2Routes = [...v2.routes, ...assetRoutes];
-
-        this.app.get('/v2/openapi.json', (req, res) => {
-            const requestHandler = handleTerasliceRequest(req, res, 'Could not generate the OpenAPI spec');
-            requestHandler(() => generateV2Spec(v2Routes, this.context));
-        });
-
-        this.app.get('/v2/api-docs', (_req, res) => {
-            res.type('html').send(v2DocsPage());
-        });
-
-        this.app.get('/v2/api-docs/rapidoc-min.js', (_req, res) => {
-            res.type('application/javascript').send(rapidocScript);
-        });
-
-        // Forward the /v2 asset routes to the assets service with their full path.
-        // Mounted before the v2 router, so none of its routes can catch them.
-        this.app.route('/v2/assets{/*splat}')
-            .get(assetRedirect)
-            .delete(assetRedirect)
-            .post((req, res) => {
-                // An upload is a raw zip, sent with any content type or none (the
-                // client sends none). Reject JSON and form data with a 400 here; the
-                // assets service 422s any other body that isn't a zip. `req.is`
-                // also catches `; charset=...` variants, which bodyParser doesn't read.
-                if (req.is(['json', 'urlencoded'])) {
-                    sendError(res, 400, 'Asset uploads take a zip file body, not JSON or form data');
-                    return;
-                }
-                assetRedirect(req, res);
-            });
-        this.app.get('/v2/txt/assets{/*splat}', assetRedirect);
-
-        this.app.use('/v2', v2.router);
+        this.app.use('/v2', createV2Router(this, this._assetRedirect.bind(this)));
 
         // backwards compatibility for /v1 routes
         // TODO: Teraslice v4 deletes /v1 and the unversioned mount

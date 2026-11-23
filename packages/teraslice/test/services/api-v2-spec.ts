@@ -2031,13 +2031,13 @@ describe('HTTP API v2', () => {
         });
     });
 
-    // api/api.ts imports createV2Registry from v2/routes.ts, so a runtime
-    // import back from api/api.ts would be a cycle that breaks as soon as
-    // either module uses the other at load time
-    describe('v2 routes module', () => {
-        it('should only import types from api/api.ts', () => {
-            const routesPath = nodePath.join(dirname, '../../src/lib/cluster/services/api/v2/routes.ts');
-            const source = fs.readFileSync(routesPath, 'utf8');
+    // api/api.ts imports createV2Router from v2/router.ts, which imports
+    // v2/routes.ts, so a runtime import back from api/api.ts in either would be
+    // a cycle that breaks as soon as either module uses the other at load time
+    describe('v2 router modules', () => {
+        it.each(['routes.ts', 'router.ts'])('%s should only import types from api/api.ts', (file) => {
+            const modulePath = nodePath.join(dirname, '../../src/lib/cluster/services/api/v2', file);
+            const source = fs.readFileSync(modulePath, 'utf8');
             const apiImports = source.match(/^import\b[^;]*?from '\.\.\/api\.js';/gms) ?? [];
 
             expect(apiImports).not.toBeEmpty();
