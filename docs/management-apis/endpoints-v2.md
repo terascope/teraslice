@@ -94,8 +94,8 @@ To read every record, request `from=0`, then add `size` to `from` until `has_mor
 | `GET /v2/txt/workers` | in memory, sorted by `ex_id`, `assignment`, then `worker_id` |
 | `GET /v2/txt/nodes` | in memory, sorted by `node_id` |
 
-**Search routes** take the [list query](#list-query) (`from`, `size`, `sort`, `filter`).
-`from + size` can't go past the index's `max_result_window` (10,000 unless the cluster changes
+**Search routes** take `from`, `size`, `sort` and `filter`, described in each route's
+[query table](#query-parameters-and-bodies). `from + size` can't go past the index's `max_result_window` (10,000 unless the cluster changes
 it). A request past it is a **400**:
 
 ```sh
@@ -111,7 +111,7 @@ To reach records past the window, narrow the search with `filter` or change the 
 Search routes page with `from` and no snapshot, so a record written between two requests can
 shift the pages: a record can be skipped or returned twice.
 
-**In-memory routes** take only [`from` and `size`](#in-memory-list-query). They page a list the
+**In-memory routes** take only `from` and `size`. They page a list the
 master holds, so there's no window and no `sort` or `filter`.
 
 ### Using v2 against different cluster versions
@@ -177,15 +177,15 @@ The **Query and body** column lists the query params each route takes, described
 ### Text tables
 
 Plain-text versions of the lists, for people and scripts. Each has the same paging and
-filters as its JSON list, plus [`fields` and `headers`](#text-table-query).
+filters as its JSON list, plus `fields` and `headers`.
 
 | Method | Path | Query | Rows |
 | ------ | ---- | ----- | ---- |
-| GET | `/v2/txt/jobs` | [job list query](#job-list-query), [text table query](#text-table-query) | Jobs (`JobWithExecution`) |
-| GET | `/v2/txt/ex` | [execution list query](#execution-list-query), [text table query](#text-table-query) | Executions (`ExecutionRecord`) |
-| GET | `/v2/txt/workers` | [`from`, `size`](#in-memory-list-query), [text table query](#text-table-query) | Every process on every node (`ExecutionNodeWorker`) |
-| GET | `/v2/txt/nodes` | [`from`, `size`](#in-memory-list-query), [text table query](#text-table-query) | Nodes (`NodeState`); `active` is the number of processes |
-| GET | `/v2/txt/controllers` | [`from`, `size`](#in-memory-list-query), [text table query](#text-table-query) | Running execution controllers (`ControllerStats`) |
+| GET | `/v2/txt/jobs` | [job list query](#job-list-query), `fields`, `headers` | Jobs (`JobWithExecution`) |
+| GET | `/v2/txt/ex` | [execution list query](#execution-list-query), `fields`, `headers` | Executions (`ExecutionRecord`) |
+| GET | `/v2/txt/workers` | `from`, `size`, `fields`, `headers` | Every process on every node (`ExecutionNodeWorker`) |
+| GET | `/v2/txt/nodes` | `from`, `size`, `fields`, `headers` | Nodes (`NodeState`); `active` is the number of processes |
+| GET | `/v2/txt/controllers` | `from`, `size`, `fields`, `headers` | Running execution controllers (`ControllerStats`) |
 
 The default columns are the same as v1's [TXT APIs](./endpoints-txt.md). `jobs` and `ex` add
 `_deleted_on` when `deleted=true`. `workers` depends on the cluster type: `pid` on native,
@@ -210,7 +210,7 @@ next: ?fields=job_id,name,ex._status&ex=_status&size=2&from=2
 So the next page is:
 
 ```sh
-$ curl 'localhost:5678/v2/txt/jobs?fields=job_id,name,ex._status&ex=_status&size=2&from=2'
+curl 'localhost:5678/v2/txt/jobs?fields=job_id,name,ex._status&ex=_status&size=2&from=2'
 ```
 
 An empty page shows `Showing 0 of N`.
