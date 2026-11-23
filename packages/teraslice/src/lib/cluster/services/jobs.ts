@@ -473,6 +473,10 @@ export class JobsService {
     }
 
     private async _addExInfo(jobList: JobConfig[], ex_fields?: string[]) {
+        // TODO: this fetches each job's latest execution one at a time, so
+        // `GET /v2/jobs?ex` with a large `size` (up to 10,000) makes that many
+        // sequential requests. Run them with a concurrency limit, or use one
+        // terms search on the page's job_ids.
         const finalList: JobConfig[] = [];
         for (const job of jobList) {
             finalList.push(await this.getJobWithExInfo(job.job_id, ex_fields));
