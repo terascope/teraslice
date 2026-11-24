@@ -135,9 +135,9 @@ export default class Ex extends Client {
     }
 
     /**
-     * One page of the slice errors, with its `pagination`. For the next
-     * page, send the same query with `from` + `size` as `from` while
-     * `pagination.has_more`. /v2 only.
+     * Returns one page of slice errors plus `pagination` metadata. To fetch
+     * the next page, repeat the same query with `from` advanced by `size`;
+     * continue while `pagination.has_more` is true. /v2 only.
      */
     async errorsPage(
         query: TerasliceApiV2.GetExecutionErrorsQuery = {},

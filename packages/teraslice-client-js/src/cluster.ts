@@ -53,8 +53,9 @@ export default class Cluster extends Client {
     }
 
     /**
-     * One page of controllers, with its `pagination`. For the next page,
-     * send `from` + `size` as `from` while `pagination.has_more`. /v2 only.
+     * Returns one page of controllers plus `pagination` metadata. To fetch
+     * the next page, repeat the same query with `from` advanced by `size`;
+     * continue while `pagination.has_more` is true. /v2 only.
      */
     async controllersPage(
         query: TerasliceApiV2.GetClusterControllersQuery = {},

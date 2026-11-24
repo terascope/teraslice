@@ -1012,8 +1012,9 @@ function hasFieldPath(schema: z.ZodType, path: readonly string[]): boolean {
 }
 
 /**
- * The table options every `/txt` route takes, on top of its list query.
- * `fields` must name fields of `record`, the route's row.
+ * Text-table query options shared by all `/txt` routes, added to each
+ * route's list query. Each name in `fields` is checked against `record`,
+ * the schema for one row of that route's table.
  */
 function txtQueryShape(record: z.ZodObject, recordName: string) {
     return {

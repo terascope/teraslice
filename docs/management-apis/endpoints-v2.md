@@ -185,7 +185,7 @@ node-2  1
 Because unknown query params are rejected, a client that sends a param added in a newer
 Teraslice gets a 400 from an older cluster, which names the param. It doesn't get a response
 that silently ignores the param. Clients that support several cluster versions should only send
-a newer param when the caller asks for it, or check `teraslice_version` using `GET /v2` first.
+a newer param when the caller asks for it, or check `teraslice_version` using `GET /` first.
 
 ## Routes
 
@@ -991,7 +991,6 @@ On `/v2`, these paths respond with a **405**, except `GET /v2/ex/errors`. That o
 | `GET /v1/ex/{exId}/controller`, `GET /v1/ex/{exId}/tap` | `GET /v2/jobs/{jobId}/controller`, `GET /v2/jobs/{jobId}/tap` |
 | `GET /v1/cluster/slicers`, `GET /v1/jobs/{jobId}/slicer`, `GET /v1/ex/{exId}/slicer` | `GET /v2/cluster/controllers`, `GET /v2/jobs/{jobId}/controller` |
 | `GET /v1/ex/errors` | `GET /v2/ex/{exId}/errors` |
-| `GET /txt/jobs`, `/txt/ex`, `/txt/workers`, `/txt/nodes`, `/txt/controllers` | `GET /v2/txt/…`, the same name |
 | `GET /txt/slicers` | `GET /v2/txt/controllers` |
 | `/v1/assets`, `/txt/assets*` | Not in v2 yet |
 
@@ -1023,10 +1022,10 @@ Requests that worked on v1 but behave differently on v2:
 | Request | v1 | v2 |
 | ------- | -- | -- |
 | Unknown query param, e.g. `?sizee=10` | ignored | 400 |
-| `?size=ten`, `?size=1.5` | 500, or truncated to `1` | 400 |
+| `?size=ten`, `?size=1.5` | `ten`: 500 on searches, an empty table on `/txt/workers`, `/txt/nodes` and `/txt/controllers`; `1.5`: truncated to `1` | 400 |
 | List `?size=` (empty) | default (100) | `0`: an empty list |
 | List `from + size` past `max_result_window` | 400, OpenSearch's message pointing to the scroll API | 400, with the limit and `from + size` |
-| `/txt/workers`, `/txt/nodes`, `/txt/controllers` row order | cluster state order | sorted (see [Paging](#paging)) |
+| `GET /cluster/controllers`, `/txt/workers`, `/txt/nodes`, `/txt/controllers` order | workers and nodes in cluster state order, controllers in the order they connected | sorted (see [Paging](#paging)) |
 | `/txt/*?fields=` an unknown field | a column of `N/A` | 400, listing the valid fields |
 | `/txt/ex?status=` / `?job_id=` | ignored | filters, as on `GET /v2/ex` |
 | `?deleted=` (empty) | deleted only | 400 |
@@ -1043,5 +1042,5 @@ Requests that worked on v1 but behave differently on v2:
 | `_workers` with more than one of `add` / `remove` / `total` | uses the last one | 400 |
 | `_recover?cleanup_type=` (empty) | no cleanup type | 400 |
 | `_recover?cleanup=errors` (v1 alias) | same as `cleanup_type` | 400 (unknown param) |
-| `PUT /jobs/{jobId}` with a body without `operations`, e.g. `{"active": false}` | stored as the whole job, dropping its operations | 400 |
-| `POST /jobs` or `PUT` with no body | 400 (`No job was posted` / `no data was provided…`) | 400, with the validation message |
+| `PUT /jobs/{jobId}` of an active job with `{"active": false}` | stored as the whole job, dropping its operations | 400 |
+| `POST /jobs` or `PUT` with no body | 400 (`No job was posted` / `no data was provided…`) with a JSON `Content-Type`, otherwise 500 | 400, with the validation message |
