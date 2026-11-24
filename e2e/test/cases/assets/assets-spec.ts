@@ -4,15 +4,17 @@ import os from 'node:os';
 import path from 'node:path';
 import { ZipArchive } from 'archiver';
 import { createS3Client, getS3Object, S3Client } from '@terascope/file-asset-apis';
-import { Teraslice } from '@terascope/types';
+import { Teraslice, TerasliceApiV2 } from '@terascope/types';
 import { pWhile, unzip } from '@terascope/core-utils';
+import { TerasliceClient } from 'teraslice-client-js';
 import crypto from 'crypto';
 import { TerasliceHarness } from '../../teraslice-harness.js';
 import { config } from '../../config.js';
 
 const {
     ASSET_STORAGE_CONNECTION_TYPE, CEPH_ACCESS_KEY, CEPH_HOST,
-    CEPH_SECRET_KEY, TEST_PLATFORM, ENCRYPT_CEPH, ROOT_CERT_PATH
+    CEPH_SECRET_KEY, TEST_PLATFORM, ENCRYPT_CEPH, ROOT_CERT_PATH,
+    TEST_API_VERSION, HOST_IP, TERASLICE_PORT
 } = config;
 
 describe('assets', () => {
@@ -50,12 +52,12 @@ describe('assets', () => {
     it('uploading a bad asset returns an error', async () => {
         const testStream = fs.createReadStream('test/fixtures/assets/example_bad_asset_1.zip');
 
-        try {
-            await terasliceHarness.teraslice.assets.upload(testStream, { blocking: true });
-        } catch (err) {
-            expect(err.message).toInclude('asset.json was not found');
-            expect(err.code).toEqual(422);
-        }
+        await expect(
+            terasliceHarness.teraslice.assets.upload(testStream, { blocking: true })
+        ).rejects.toMatchObject({
+            message: expect.stringContaining('asset.json was not found'),
+            code: 422,
+        });
     });
 
     it('can update an asset bundle and use the new asset', async () => {
@@ -190,6 +192,124 @@ describe('assets', () => {
         expect(execution.assets[0]).toEqual(assetId);
 
         await ex.stop({ blocking: true });
+    });
+});
+
+/**
+ * A /txt table's column names and cells, each trimmed. The columns are where
+ * the dashes under the column names are, so a blank cell reads as ''.
+ */
+function tableCells(table: string): { headers: string[]; rows: string[][] } {
+    const [headerLine, dashLine, ...rowLines] = table.split('\n').filter(Boolean);
+    const starts = Array.from(dashLine.matchAll(/-+/g), (match) => match.index);
+    const cells = (line: string) => starts.map(
+        (start, i) => line.slice(start, starts[i + 1]).trim()
+    );
+    return { headers: cells(headerLine), rows: rowLines.map(cells) };
+}
+
+// The harness client uses TEST_API_VERSION, so in the v2 suite the tests above
+// already upload and delete through /v2. These compare the /v2 lists and
+// tables with v1's, so they only run in the v2 suite.
+// TODO: Teraslice v4 deletes /v1, remove the v1 comparisons
+// https://github.com/terascope/teraslice/issues/4584#issuecomment-6636093239
+describe('assets api', () => {
+    (TEST_API_VERSION === 'v2' ? describe : describe.skip)('/v2/assets', () => {
+        const host = `http://${HOST_IP}:${TERASLICE_PORT}`;
+        const v1 = new TerasliceClient({ host, apiVersion: '/v1' });
+        const v2 = new TerasliceClient({ host, apiVersion: '/v2' });
+
+        beforeAll(async () => {
+            // both ex1 versions, so there's more than one page; an asset that
+            // already exists is a 200, not an error
+            for (const fixture of ['example_asset_1.zip', 'example_asset_1updated.zip']) {
+                await v2.assets.upload(
+                    fs.createReadStream(`test/fixtures/assets/${fixture}`), { blocking: true }
+                );
+            }
+        });
+
+        it('should list the same assets as v1', async () => {
+            const query = { sort: 'id:asc' };
+            const [v1Assets, v2Assets] = await Promise.all([
+                v1.assets.list(query),
+                v2.assets.list(query),
+            ]);
+
+            expect(v2Assets).toEqual(v1Assets);
+            expect(v2Assets.length).toBeGreaterThan(1);
+        });
+
+        it('should page through every asset with from, each once', async () => {
+            const sort = 'id:asc';
+            const { pagination: { total } } = await v2.assets.listPage({ sort, size: 0 });
+            expect(total).toBeGreaterThan(1);
+            const size = Math.max(1, Math.floor(total / 2));
+
+            const ids: string[] = [];
+            let requests = 0;
+            let hasMore = true;
+            while (hasMore) {
+                const page = await v2.assets.listPage({ sort, size, from: ids.length });
+                expect(page.pagination).toMatchObject({ total, from: ids.length, size });
+                // the routes don't parse responses, so check real records match the schema
+                expect(TerasliceApiV2.AssetRecordPageSchema.safeParse(page).error).toBeUndefined();
+                ids.push(...page.data.map((asset) => asset.id));
+                hasMore = page.pagination.has_more;
+                requests++;
+            }
+            expect(requests).toBeGreaterThan(1);
+            expect(new Set(ids).size).toBe(total);
+
+            const all = await v2.assets.list({ sort, size: total });
+            expect(ids).toEqual(all.map((asset) => asset.id));
+        });
+
+        it.each([
+            ['ex1', undefined],
+            ['ex1', '0.0.1'],
+        ])('should get asset %s %s like v1', async (name, version) => {
+            const [v1Assets, v2Assets] = await Promise.all([
+                v1.assets.getAsset(name, version),
+                v2.assets.getAsset(name, version),
+            ]);
+
+            expect(v2Assets).toEqual(v1Assets);
+            expect(v2Assets).not.toBeEmpty();
+        });
+
+        // v1 prints a missing value (no description, platform, arch, ...) blank, and
+        // v2 prints N/A, as its other tables do; otherwise the cells are the same
+        it.each([
+            ['assets'],
+            ['assets/ex1'],
+            ['assets/ex1/0.0.1'],
+        ])('/txt/%s should print v1\'s rows, with N/A for missing values, then the footer', async (type) => {
+            const query = { sort: 'id:asc' };
+            const [v1Table, v2Table] = await Promise.all([
+                v1.cluster.txt(type, query),
+                v2.cluster.txt(type, query),
+            ]);
+            const [v2Rows, v2Footer] = v2Table.split('\n\n');
+
+            const v1Cells = tableCells(v1Table);
+            expect(v1Cells.rows).not.toBeEmpty();
+            expect(tableCells(v2Rows)).toEqual({
+                headers: v1Cells.headers,
+                rows: v1Cells.rows.map((row) => row.map((cell) => cell || 'N/A')),
+            });
+            expect(v2Footer).toStartWith('Showing ');
+        });
+
+        it('should reject an asset id that isn\'t 40 characters', async () => {
+            await expect(v2.assets.remove('too-short')).rejects.toMatchObject({ statusCode: 400 });
+        });
+
+        it('should reject an upload sent as JSON', async () => {
+            await expect(v2.assets.post('/assets', { not: 'a zip' })).rejects.toMatchObject({
+                statusCode: 400,
+            });
+        });
     });
 });
 

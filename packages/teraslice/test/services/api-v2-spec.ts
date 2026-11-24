@@ -136,6 +136,14 @@ describe('HTTP API v2', () => {
     let baseUrl: string;
     let server: http.Server;
 
+    /** The master's v2 routes plus the asset routes, which the assets service serves */
+    function allV2Routes() {
+        const assetRoutes = createV2AssetRegistry(() => {
+            throw new Error('not used');
+        }).routes;
+        return [...createV2Registry(api).routes, ...assetRoutes];
+    }
+
     function request(method: string, path: string, options: Record<string, any> = {}) {
         return got(`${baseUrl}${path}`, {
             method: method as any,
@@ -1787,6 +1795,27 @@ describe('HTTP API v2', () => {
             expect(scope.isDone()).toBeFalse();
         });
 
+        // v1 forwards without the /v1 prefix, to the assets service's unversioned routes
+        // TODO: Teraslice v4 deletes /v1, remove this test
+        // https://github.com/terascope/teraslice/issues/4584#issuecomment-6636093239
+        it.each([
+            ['GET', '/v1/assets/my-asset?size=5', '/assets/my-asset?size=5'],
+            ['GET', '/assets/my-asset', '/assets/my-asset'],
+            ['DELETE', `/v1/assets/${'a'.repeat(40)}`, `/assets/${'a'.repeat(40)}`],
+            ['POST', '/v1/assets', '/assets'],
+            ['GET', '/txt/assets/my-asset', '/txt/assets/my-asset'],
+        ])('should forward v1\'s %s %s to %s', async (method, path, forwardedPath) => {
+            const scope = nock(assetsUrl)
+                .intercept(forwardedPath, method)
+                .reply(200, { forwarded: true });
+
+            const response = await request(method, path);
+
+            expect(response.statusCode).toEqual(200);
+            expect(response.body).toEqual({ forwarded: true });
+            expect(scope.isDone()).toBeTrue();
+        });
+
         // The proxy is mounted first, so a master route under an asset path
         // would never be reached
         it('should have no master v2 route under an asset path', () => {
@@ -1879,13 +1908,53 @@ describe('HTTP API v2', () => {
             expect(spec.info.version).toEqual(version);
         });
 
-        it('should include every registered route', () => {
-            const { routes } = createV2Registry(api);
+        it('should include every registered route, and the asset routes', () => {
             const operationIds = operations().map(([, , op]) => op.operationId);
 
-            for (const route of routes) {
+            for (const route of allV2Routes()) {
                 expect(operationIds).toContain(route.operationId);
             }
+        });
+
+        it('should include the asset paths, tagged Assets', () => {
+            const assetOperations = operations()
+                .filter(([path]) => /^\/v2\/(txt\/)?assets/.test(path))
+                .map(([path, method, op]) => `${method} ${path} ${op.tags}`);
+
+            expect(assetOperations.toSorted()).toEqual([
+                'delete /v2/assets/{assetId} Assets',
+                'get /v2/assets Assets',
+                'get /v2/assets/{name} Assets',
+                'get /v2/assets/{name}/{version} Assets',
+                'get /v2/txt/assets Text',
+                'get /v2/txt/assets/{name} Text',
+                'get /v2/txt/assets/{name}/{version} Text',
+                'post /v2/assets Assets',
+            ]);
+            expect(spec.tags.map((tag: any) => tag.name)).toContain('Assets');
+        });
+
+        it('should describe the asset upload as an octet-stream body with 200 and 201', () => {
+            const upload = spec.paths['/v2/assets'].post;
+            const idRef = { $ref: '#/components/schemas/AssetIDResponse' };
+
+            expect(upload.requestBody).toEqual({
+                required: true,
+                content: {
+                    'application/octet-stream': { schema: { type: 'string', format: 'binary' } },
+                },
+            });
+            expect(upload.responses[200].content['application/json'].schema).toEqual(idRef);
+            expect(upload.responses[201].content['application/json'].schema).toEqual(idRef);
+            expect(upload.parameters.map((param: any) => param.name)).toEqual(['blocking']);
+        });
+
+        it('should describe the asset lists as pages of AssetRecord', () => {
+            const ok = spec.paths['/v2/assets'].get.responses[200];
+
+            expect(ok.content['application/json'].schema)
+                .toEqual({ $ref: '#/components/schemas/AssetRecordPage' });
+            expect(spec.components.schemas.AssetRecord).toBeDefined();
         });
 
         it('should include the job submit and update routes', () => {
@@ -1986,7 +2055,7 @@ describe('HTTP API v2', () => {
     // Checking every registered route here names the offending route and part.
     describe('route schemas', () => {
         it('should all convert to JSON Schema', () => {
-            const { routes } = createV2Registry(api);
+            const routes = allV2Routes();
             expect(routes).not.toBeEmpty();
 
             const failures: string[] = [];
@@ -2014,7 +2083,7 @@ describe('HTTP API v2', () => {
         // A schema written inline in routes.ts gives clients no type, so they'd
         // write their own copy that can drift.
         it('should all be named exports of @terascope/types', () => {
-            const { routes } = createV2Registry(api);
+            const routes = allV2Routes();
             const exported = new Set<unknown>(Object.values(TerasliceApiV2));
 
             const inline: string[] = [];

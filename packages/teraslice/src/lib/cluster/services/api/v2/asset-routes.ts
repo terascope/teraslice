@@ -79,7 +79,9 @@ export function createV2AssetRegistry(getStorage: () => AssetsStorage): RouteReg
 
     /**
      * A /txt/assets table: v1's columns, plus `external_storage` when
-     * assets are stored in S3, with descriptions cut short.
+     * assets are stored in S3, with descriptions cut short. A missing value
+     * (no `description`, `platform`, `arch`, ...) prints `N/A`, as in the
+     * other tables; v1 printed it blank.
      */
     async function assetsTable(
         query: Parsed<typeof TerasliceApiV2.GetTxtAssetsQuerySchema>,

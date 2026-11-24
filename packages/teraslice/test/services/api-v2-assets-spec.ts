@@ -4,6 +4,7 @@ import got from 'got';
 import express from 'express';
 import http from 'node:http';
 import { TSError, debugLogger } from '@terascope/core-utils';
+import { TerasliceApiV2 } from '@terascope/types';
 import { findPort } from '../../src/lib/utils/port_utils.js';
 import {
     createV2AssetRegistry, quotedTerm
@@ -94,6 +95,83 @@ describe('HTTP API v2 assets', () => {
         storage.hasExternalStorage = false;
         storage.searchWithTotal.mockResolvedValue({ records: [asset], total: 1 });
         storage.withExternalStorage.mockImplementation(async (records: any[]) => records);
+    });
+
+    // The routes don't parse responses at runtime, so check the fixtures they
+    // return are realistic, and the query/params schemas on their own
+    describe('schemas', () => {
+        const {
+            AssetRecordSchema, AssetRecordPageSchema, AssetIDResponseSchema, AssetIdParams,
+            GetAssetsQuerySchema, GetTxtAssetsQuerySchema, UploadAssetQuerySchema,
+        } = TerasliceApiV2;
+
+        it('should accept the asset fixtures and a page of them', () => {
+            expect(AssetRecordSchema.safeParse(asset).error).toBeUndefined();
+            expect(AssetRecordSchema.safeParse(otherAsset).error).toBeUndefined();
+            expect(AssetRecordPageSchema.safeParse({
+                data: [asset, otherAsset], pagination: pagination({ total: 2 }),
+            }).error).toBeUndefined();
+            expect(AssetIDResponseSchema.safeParse({ asset_id: assetId }).error).toBeUndefined();
+        });
+
+        it.each(['available', 'missing'])('should accept external_storage %s', (value) => {
+            expect(AssetRecordSchema.safeParse({ ...asset, external_storage: value }).success)
+                .toBeTrue();
+        });
+
+        it('should reject an unknown external_storage', () => {
+            expect(AssetRecordSchema.safeParse({ ...asset, external_storage: 'maybe' }).success)
+                .toBeFalse();
+        });
+
+        it('should take only a 40 character assetId', () => {
+            expect(AssetIdParams.safeParse({ assetId }).success).toBeTrue();
+            expect(AssetIdParams.safeParse({ assetId: assetId.slice(1) }).success).toBeFalse();
+            expect(AssetIdParams.safeParse({ assetId: `${assetId}0` }).success).toBeFalse();
+        });
+
+        it('should default the list query to the newest 100 assets', () => {
+            expect(GetAssetsQuerySchema.parse({}))
+                .toEqual({ size: 100, from: 0, sort: '_created:desc' });
+        });
+
+        it('should coerce the list query from strings', () => {
+            expect(GetAssetsQuerySchema.parse({ size: '5', from: '10', sort: 'name:asc' }))
+                .toEqual({ size: 5, from: 10, sort: 'name:asc' });
+        });
+
+        it.each([
+            ['an unknown param', { nope: 'x' }],
+            ['an invalid sort', { sort: 'name:sideways' }],
+            ['a negative size', { size: '-1' }],
+        ])('should reject %s in the list query', (_label, query) => {
+            expect(GetAssetsQuerySchema.safeParse(query).success).toBeFalse();
+        });
+
+        it('should take asset record fields in the txt query', () => {
+            expect(GetTxtAssetsQuerySchema.safeParse({ fields: 'name,version,external_storage' }).success)
+                .toBeTrue();
+            expect(GetTxtAssetsQuerySchema.safeParse({ fields: 'name,blob' }).success)
+                .toBeFalse();
+        });
+
+        it('should take the list query\'s paging in the txt query', () => {
+            expect(GetTxtAssetsQuerySchema.parse({ size: '5', from: '10' }))
+                .toMatchObject({ size: 5, from: 10, sort: '_created:desc' });
+        });
+
+        it.each([
+            [{}, true],
+            [{ blocking: 'true' }, true],
+            [{ blocking: 'false' }, false],
+        ])('should parse the upload query %j as blocking=%s', (query, blocking) => {
+            expect(UploadAssetQuerySchema.parse(query)).toEqual({ blocking });
+        });
+
+        it('should reject an invalid upload query', () => {
+            expect(UploadAssetQuerySchema.safeParse({ blocking: 'maybe' }).success).toBeFalse();
+            expect(UploadAssetQuerySchema.safeParse({ wait: 'true' }).success).toBeFalse();
+        });
     });
 
     describe('quotedTerm', () => {
@@ -211,6 +289,20 @@ describe('HTTP API v2 assets', () => {
             expect(first).toBe(header);
             expect(row).toContain('An asset with a description lo ');
             expect(row).not.toContain('longer');
+        });
+
+        // v1 printed these blank
+        it('prints N/A for missing values, like the other tables', async () => {
+            // otherAsset has no description, node_version, platform or arch
+            storage.searchWithTotal.mockResolvedValue({ records: [otherAsset], total: 1 });
+
+            const response = await request('GET', '/v2/txt/assets', {
+                responseType: 'text',
+                searchParams: { fields: '_created,description,node_version,platform,arch', headers: 'false' },
+            });
+
+            expect(response.body.trim().split(/\s+/))
+                .toEqual([otherAsset._created, 'N/A', 'N/A', 'N/A', 'N/A']);
         });
 
         it('adds external_storage when assets are stored in S3', async () => {
