@@ -296,6 +296,38 @@ describe('Teraslice Executions', () => {
             await expect(v2Executions.errors('some-ex-id', { size: 10 }))
                 .resolves.toEqual([{ slice_id: 'some-slice-id' }]);
         });
+
+        it('should return the whole page for listPage', async () => {
+            const page = v2Page([{ ex_id: 'some-ex-id' }], {
+                total: 5, from: 2, size: 1, has_more: true
+            });
+            nock('http://teraslice.example.dev/v2')
+                .get('/ex')
+                .query({ status: 'running', size: 1, from: 2 })
+                .reply(200, page);
+
+            const v2Executions = new Executions({
+                baseUrl: 'http://teraslice.example.dev',
+                apiVersion: '/v2'
+            });
+            await expect(v2Executions.listPage({ status: 'running', size: 1, from: 2 }))
+                .resolves.toEqual(page);
+        });
+
+        it('should return the whole page for errorsPage', async () => {
+            const page = v2Page([{ slice_id: 'some-slice-id' }], { total: 11, from: 10, size: 10 });
+            nock('http://teraslice.example.dev/v2')
+                .get('/ex/some-ex-id/errors')
+                .query({ size: 10, from: 10 })
+                .reply(200, page);
+
+            const v2Executions = new Executions({
+                baseUrl: 'http://teraslice.example.dev',
+                apiVersion: '/v2'
+            });
+            await expect(v2Executions.errorsPage('some-ex-id', { size: 10, from: 10 }))
+                .resolves.toEqual(page);
+        });
     });
 
     // nock >= 15 patches the shared http module, so undo it before the next test file in the worker

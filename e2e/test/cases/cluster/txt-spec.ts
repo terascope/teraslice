@@ -96,24 +96,29 @@ describe('txt api', () => {
         });
 
         describe('paging through every record', () => {
-        /**
-         * Requests `path` a page at a time until `has_more` is false. Returns
-         * every record's `key` and the total from the first page.
-         */
+            type ListPage = (
+                query: Record<string, any>
+            ) => Promise<TerasliceApiV2.Page<Record<string, any>>>;
+
+            const listPages: Record<string, ListPage> = {
+                '/jobs': (query) => v2.jobs.listPage(query),
+                '/ex': (query) => v2.executions.listPage(query),
+            };
+
+            /**
+             * Requests `path` a page at a time until `has_more` is false. Returns
+             * every record's `key` and the total, from a `size=0` request.
+             */
             async function pageThrough(path: string, key: string, sort: string) {
-                const first = await v2.cluster.get<TerasliceApiV2.Page<Record<string, any>>>(
-                    path, { searchParams: { sort, size: 1 } }
-                );
-                const { total } = first.pagination;
+                const listPage = listPages[path];
+                const { pagination: { total } } = await listPage({ sort, size: 0 });
                 const size = Math.max(1, Math.ceil(total / 3));
 
                 const ids: string[] = [];
                 let from = 0;
                 let hasMore = true;
                 while (hasMore) {
-                    const page = await v2.cluster.get<TerasliceApiV2.Page<Record<string, any>>>(
-                        path, { searchParams: { sort, from, size } }
-                    );
+                    const page = await listPage({ sort, from, size });
                     ids.push(...page.data.map((record) => record[key]));
                     hasMore = page.pagination.has_more;
                     from += size;

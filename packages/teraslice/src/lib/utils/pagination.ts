@@ -59,3 +59,31 @@ export function pageInMemory<T>(
         total: list.length,
     };
 }
+
+/**
+ * Compares by each key in turn, for `pageInMemory()`, so pages are stable
+ * while the list is. Numbers compare as numbers, anything else as a string,
+ * by code unit. A missing value sorts first.
+ */
+export function byKeys(...keys: string[]): (a: object, b: object) => number {
+    return (a, b) => {
+        for (const key of keys) {
+            const order = compareValues(
+                (a as Record<string, unknown>)[key],
+                (b as Record<string, unknown>)[key]
+            );
+            if (order !== 0) return order;
+        }
+        return 0;
+    };
+}
+
+function compareValues(a: unknown, b: unknown): number {
+    if (typeof a === 'number' && typeof b === 'number') return a - b;
+
+    const x = String(a ?? '');
+    const y = String(b ?? '');
+    if (x < y) return -1;
+    if (x > y) return 1;
+    return 0;
+}

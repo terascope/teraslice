@@ -273,6 +273,23 @@ describe('Teraslice Cluster', () => {
             await expect(v2Cluster.controllers()).resolves.toEqual([{ ex_id: 'some-ex-id' }]);
         });
 
+        it('should return the whole page for controllersPage', async () => {
+            const page = v2Page([{ ex_id: 'some-ex-id' }], {
+                total: 5, from: 2, size: 1, has_more: true
+            });
+            nock('http://teraslice.example.dev/v2')
+                .get('/cluster/controllers')
+                .query({ size: 1, from: 2 })
+                .reply(200, page);
+
+            const v2Cluster = new Cluster({
+                baseUrl: 'http://teraslice.example.dev',
+                apiVersion: '/v2'
+            });
+            await expect(v2Cluster.controllersPage({ size: 1, from: 2 }))
+                .resolves.toEqual(page);
+        });
+
         describe('->txt', () => {
             const v2Cluster = new Cluster({
                 baseUrl: 'http://teraslice.example.dev',

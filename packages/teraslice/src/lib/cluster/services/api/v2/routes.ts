@@ -12,7 +12,7 @@ import {
 } from '../../../../utils/api_utils.js';
 import { getPackageJSON } from '../../../../utils/file_utils.js';
 import {
-    pageInMemory, toPage, paginationHeaders, paginationResponseHeaders
+    byKeys, pageInMemory, toPage, paginationHeaders, paginationResponseHeaders
 } from '../../../../utils/pagination.js';
 import {
     createRouteRegistry, type RouteRegistry, type Parsed, type TextResult
@@ -60,34 +60,6 @@ function toControllerStatsResponse(
         started: stat.started as string | undefined,
         queuing_complete: stat.queuing_complete as string | undefined,
     }));
-}
-
-/**
- * Compares by each key in turn, so pages are stable while the list is.
- * Numbers compare as numbers, anything else as a string, by code unit.
- * A missing value sorts first.
- */
-function byKeys(...keys: string[]): (a: object, b: object) => number {
-    return (a, b) => {
-        for (const key of keys) {
-            const order = compareValues(
-                (a as Record<string, unknown>)[key],
-                (b as Record<string, unknown>)[key]
-            );
-            if (order !== 0) return order;
-        }
-        return 0;
-    };
-}
-
-function compareValues(a: unknown, b: unknown): number {
-    if (typeof a === 'number' && typeof b === 'number') return a - b;
-
-    const x = String(a ?? '');
-    const y = String(b ?? '');
-    if (x < y) return -1;
-    if (x > y) return 1;
-    return 0;
 }
 
 /** The spec fields every /txt route shares */
@@ -220,9 +192,10 @@ export function createV2Registry(api: ApiService): RouteRegistry {
     }
 
     /*
-     * The list functions return one page of records with the total, for the
-     * JSON routes to wrap with `toPage()`. Each runs its search through
-     * `pagedSearch()`, so every caller gets the max_result_window message.
+     * The list functions return one page of records with the total, for a
+     * JSON route or its /txt copy to wrap with `toPage()`. Each search runs
+     * through `pagedSearch()`, so every caller gets the max_result_window
+     * message.
      */
 
     async function listJobs(

@@ -214,6 +214,18 @@ export default class Job extends Client {
         return this.getList(`/jobs/${this._jobId}/errors`, this.makeOptions(query, searchOptions));
     }
 
+    /**
+     * One page of the current execution's slice errors, with its
+     * `pagination`. For the next page, send the same query with
+     * `from` + `size` as `from` while `pagination.has_more`. /v2 only.
+     */
+    async errorsPage(
+        query: TerasliceApiV2.GetJobErrorsQuery = {},
+        searchOptions: RequestOptions = {}
+    ): Promise<TerasliceApiV2.SliceErrorPage> {
+        return this.getPage(`/jobs/${this._jobId}/errors`, this.makeOptions(query, searchOptions));
+    }
+
     async tap(
         query: { size?: string | 'all' } = {},
         searchOptions: RequestOptions = {}

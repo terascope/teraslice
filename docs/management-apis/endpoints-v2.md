@@ -58,7 +58,7 @@ Query params are received as strings. v2 reads them as follows:
 - **Jobs are returned as they were submitted.** A field left out when the job was submitted is
   absent, not filled with its default. The latest execution (`GET /v2/jobs/{jobId}/ex`) has the
   resolved config with every default applied.
-- Job and execution records keep any fields the job was submitted with that are not listed in the their response schemas.
+- Job and execution records keep any fields the job was submitted with that are not listed in their response schemas.
 
 ### Paging
 
@@ -83,7 +83,8 @@ $ curl 'localhost:5678/v2/jobs?from=100&size=100'
 - `has_more` - whether there are records after this page: `from + data.length < total`.
 
 To read every record, request `from=0`, then add `size` to `from` until `has_more` is `false`.
-`size=0` returns only the total.
+On search routes this only reaches the index's `max_result_window` (see below). `size=0`
+returns only the total.
 
 | Route | Paged by |
 | ----- | -------- |
@@ -95,7 +96,11 @@ To read every record, request `from=0`, then add `size` to `from` until `has_mor
 | `GET /v2/txt/nodes` | in memory, sorted by `node_id` |
 
 **Search routes** take `from`, `size`, `sort` and `filter`, described in each route's
-[query table](#query-parameters-and-bodies). `from + size` can't go past the index's `max_result_window` (10,000 unless the cluster changes
+[query table](#query-parameters-and-bodies). Each search also sorts by the record's id
+(`job_id`, `ex_id` or `slice_id`) after the `sort`, so records that tie on the `sort` are always
+in the same order.
+
+`from + size` can't go past the index's `max_result_window` (10,000 unless the cluster changes
 it). A request past it is a **400**:
 
 ```sh
@@ -111,8 +116,10 @@ To reach records past the window, narrow the search with `filter` or change the 
 Search routes page with `from` without a snapshot, so a record written between two requests can
 shift the pages: a record can be skipped or returned twice.
 
-**In-memory routes** take only `from` and `size`. They page a list the
-master holds, so there's no window and no `sort` or `filter`.
+**In-memory routes** take only `from` and `size` (see [Controllers query](#controllers-query)).
+They page a list the master holds, so there's no window and no `sort` or `filter`. The list is
+read again on each request, so a row that's added or goes away between requests can shift the
+pages, as with search routes.
 
 ### Text tables
 
@@ -158,7 +165,8 @@ The paging is also sent in these HTTP response headers, on every response:
 
 The `headers=false` query param leaves out the column names and the footer, so the body is
 only rows. The `X-Total-Count`, `X-From` and `X-Size` HTTP headers are still sent, so use
-them to page:
+them to page: the next page's `from` is `X-From` + `X-Size`, while that's less than
+`X-Total-Count`.
 
 ```sh
 $ curl -i 'localhost:5678/v2/txt/nodes?fields=node_id,active&headers=false'
@@ -1001,6 +1009,10 @@ The list routes return a page instead of a bare array:
 To migrate, read the records from `data`. The records themselves are unchanged. In
 teraslice-client-js, the list methods (`jobs.list()`, `executions.list()`, `errors()`,
 `cluster.controllers()`) return the array on either version, so callers don't change.
+
+To page on v2, the client has methods that return the whole page, with its `pagination`:
+`jobs.listPage()`, `executions.listPage()`, `executions.errorsPage(exId)`, `job.errorsPage()`,
+`ex.errorsPage()` and `cluster.controllersPage()`. They reject on v1.
 
 `GET /v2/jobs/{jobId}/controller` is not a list, and still returns a one-entry array.
 

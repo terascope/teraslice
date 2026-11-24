@@ -798,6 +798,16 @@ describe('Teraslice Ex', () => {
             const ex = new Ex(config, 'some-ex-id');
             await expect(ex.errors({ size: 10 })).resolves.toEqual([{ slice_id: 'some-slice-id' }]);
         });
+
+        it('should return the whole page for errorsPage', async () => {
+            const page = v2Page([{ slice_id: 'some-slice-id' }], { total: 11, from: 10, size: 10 });
+            v2Scope.get('/ex/some-ex-id/errors')
+                .query({ size: 10, from: 10 })
+                .reply(200, page);
+
+            const ex = new Ex(config, 'some-ex-id');
+            await expect(ex.errorsPage({ size: 10, from: 10 })).resolves.toEqual(page);
+        });
     });
 
     // nock >= 15 patches the shared http module, so undo it before the next test file in the worker

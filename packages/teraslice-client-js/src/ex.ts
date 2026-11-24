@@ -2,7 +2,7 @@ import {
     isString, TSError, toString,
     pDelay, toHumanTime
 } from '@terascope/core-utils';
-import { Teraslice } from '@terascope/types';
+import { Teraslice, TerasliceApiV2 } from '@terascope/types';
 import autoBind from 'auto-bind';
 import Client from './client.js';
 import { ClientConfig, RequestOptions } from './interfaces.js';
@@ -132,6 +132,18 @@ export default class Ex extends Client {
         return this.getList(`/ex/${this._exId}/errors`, {
             searchParams: options,
         });
+    }
+
+    /**
+     * One page of the slice errors, with its `pagination`. For the next
+     * page, send the same query with `from` + `size` as `from` while
+     * `pagination.has_more`. /v2 only.
+     */
+    async errorsPage(
+        query: TerasliceApiV2.GetExecutionErrorsQuery = {},
+        searchOptions: RequestOptions = {}
+    ): Promise<TerasliceApiV2.SliceErrorPage> {
+        return this.getPage(`/ex/${this._exId}/errors`, this.makeOptions(query, searchOptions));
     }
 
     async changeWorkers(

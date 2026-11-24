@@ -1,6 +1,6 @@
 import 'jest-extended';
 import { TerasliceApiV2 } from '@terascope/types';
-import { toPage, pageInMemory } from '../../src/lib/utils/pagination.js';
+import { toPage, pageInMemory, byKeys } from '../../src/lib/utils/pagination.js';
 
 describe('pagination', () => {
     describe('toPage', () => {
@@ -90,6 +90,21 @@ describe('pagination', () => {
             }
 
             expect(seen).toEqual(['a', 'b', 'c', 'd', 'e']);
+        });
+    });
+
+    describe('byKeys', () => {
+        it('should compare by each key, numbers as numbers, missing values first', () => {
+            const rows = [
+                { a: 'x', n: 10 }, { a: 'x', n: 9 }, { a: 'w', n: 1 }, { n: 5 }
+            ];
+            expect(rows.toSorted(byKeys('a', 'n'))).toEqual([
+                { n: 5 }, { a: 'w', n: 1 }, { a: 'x', n: 9 }, { a: 'x', n: 10 }
+            ]);
+        });
+
+        it('should be 0 when every key ties', () => {
+            expect(byKeys('a')({ a: 'x', b: 1 }, { a: 'x', b: 2 })).toBe(0);
         });
     });
 

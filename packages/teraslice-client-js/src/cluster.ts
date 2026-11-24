@@ -1,5 +1,5 @@
 import { startsWith } from '@terascope/core-utils';
-import { Teraslice } from '@terascope/types';
+import { Teraslice, TerasliceApiV2 } from '@terascope/types';
 import util from 'node:util';
 import autoBind from 'auto-bind';
 import Client from './client.js';
@@ -47,9 +47,20 @@ export default class Cluster extends Client {
 
     async controllers(): Promise<Teraslice.ExecutionList> {
         // TODO: on /v2 this returns only the first page (100), where v1 returns
-        // every controller. Fetch every page when teraslice-cli moves to v2;
-        // its getActiveJobIds() needs them all.
+        // every controller. Fetch every page with `controllersPage()` when
+        // teraslice-cli moves to v2; its getActiveJobIds() needs them all.
         return this.getList('/cluster/controllers');
+    }
+
+    /**
+     * One page of controllers, with its `pagination`. For the next page,
+     * send `from` + `size` as `from` while `pagination.has_more`. /v2 only.
+     */
+    async controllersPage(
+        query: TerasliceApiV2.GetClusterControllersQuery = {},
+        searchOptions: RequestOptions = {}
+    ): Promise<TerasliceApiV2.ControllerStatsPage> {
+        return this.getPage('/cluster/controllers', this.makeOptions(query, searchOptions));
     }
 
     async connectors(
