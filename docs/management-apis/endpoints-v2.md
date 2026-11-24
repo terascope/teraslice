@@ -58,11 +58,11 @@ Query params are received as strings. v2 reads them as follows:
 - **Jobs are returned as they were submitted.** A field left out when the job was submitted is
   absent, not filled with its default. The latest execution (`GET /v2/jobs/{jobId}/ex`) has the
   resolved config with every default applied.
-- Job and execution records keep any fields the job was submitted with that are not listed in the their zod schemas.
+- Job and execution records keep any fields the job was submitted with that are not listed in the their response schemas.
 
 ### Paging
 
-Every list route returns one page of the list, with where it sits in the whole list:
+Every list route returns one page of the list, along with info about where it sits in the whole list:
 
 ```sh
 $ curl 'localhost:5678/v2/jobs?from=100&size=100'
@@ -108,7 +108,7 @@ $ curl 'localhost:5678/v2/jobs?from=9950&size=100'
 
 To reach records past the window, narrow the search with `filter` or change the `sort`.
 
-Search routes page with `from` and no snapshot, so a record written between two requests can
+Search routes page with `from` without a snapshot, so a record written between two requests can
 shift the pages: a record can be skipped or returned twice.
 
 **In-memory routes** take only `from` and `size`. They page a list the
@@ -177,7 +177,7 @@ node-2  1
 Because unknown query params are rejected, a client that sends a param added in a newer
 Teraslice gets a 400 from an older cluster, which names the param. It doesn't get a response
 that silently ignores the param. Clients that support several cluster versions should only send
-a newer param when the caller asks for it, or check `teraslice_version` from `GET /v2` first.
+a newer param when the caller asks for it, or check `teraslice_version` using `GET /v2` first.
 
 ## Routes
 
