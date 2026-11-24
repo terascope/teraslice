@@ -10,9 +10,7 @@ import {
     createJobActiveQuery, addDeletedToQuery, addFilterToQuery, buildConnectorList
 } from '../../../../utils/api_utils.js';
 import { getPackageJSON } from '../../../../utils/file_utils.js';
-import {
-    byKeys, pageInMemory, toPage, paginationHeaders, paginationResponseHeaders
-} from '../../../../utils/pagination.js';
+import { byKeys, pageInMemory, toPage } from '../../../../utils/pagination.js';
 import {
     createRouteRegistry, type RouteRegistry, type Parsed
 } from '../../../../utils/v2_routes.js';
@@ -85,34 +83,6 @@ const txtControllersColumns = ['name', 'job_id', 'workers_available', 'workers_a
 /** With `deleted=true`, the jobs and executions tables add when each was deleted */
 function withDeletedOn(columns: readonly string[], deleted: boolean): readonly string[] {
     return deleted ? [...columns, '_deleted_on'] : columns;
-}
-
-/** Applies `fn` to each record, keeping the total */
-function mapRecords<T, U>(
-    { records, ...rest }: RecordsWithTotal<T>,
-    fn: (record: T) => U
-): RecordsWithTotal<U> {
-    return { ...rest, records: records.map(fn) };
-}
-
-/**
- * The sort to search with. v1 falls back to the default for `?sort=` (empty)
- * as well as for no `sort`; the schema default only covers the latter.
- */
-function sortOrDefault(sort: string): string {
-    return sort || '_updated:desc';
-}
-
-/**
- * Runs a paged search, replacing OpenSearch's message for paging past
- * `max_result_window` with one that makes sense to API callers.
- */
-async function pagedSearch<T>(search: () => Promise<T>): Promise<T> {
-    try {
-        return await search();
-    } catch (err) {
-        throw explainResultWindowError(err);
-    }
 }
 
 /**

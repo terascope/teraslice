@@ -565,13 +565,7 @@ const searchQueryShape = {
         .min(0)
         .default(0)
         .meta({ description: 'Number of matching records to skip, for paging' }),
-    sort: z.string()
-        .refine(isValidSort, 'Expected field, field:asc or field:desc, comma-separated')
-        .default('_updated:desc')
-        .meta({
-            description: 'Sort order as `field`, `field:asc` or `field:desc`, comma-separated '
-                + 'for more than one; any other order is rejected. Empty uses the default',
-        }),
+    sort: sortQuery('_updated:desc'),
     filter: z.string().optional()
         .meta({
             description: 'Lucene query string, ANDed with the route\'s own query, '
@@ -1037,10 +1031,10 @@ export const AssetNameVersionParams = z.strictObject({
  * Query of `GET /assets`. Sorted by `_created`, since asset records have no
  * `_updated`
  */
-export const GetAssetsQuerySchema = cursorOrFrom(z.strictObject({
+export const GetAssetsQuerySchema = z.strictObject({
     ...searchQueryShape,
     sort: sortQuery('_created:desc'),
-}));
+});
 
 export type GetAssetsQuery = z.input<typeof GetAssetsQuerySchema>;
 
@@ -1150,7 +1144,7 @@ export const GetTxtExecutionsQuerySchema = GetExecutionsQuerySchema.extend(
 export const GetTxtWorkersQuerySchema = z.strictObject({
     ...inMemoryPageQueryShape,
     ...txtQueryShape(ExecutionNodeWorkerSchema, 'ExecutionNodeWorker'),
-}));
+});
 
 /** Query of `GET /txt/assets` */
 export const GetTxtAssetsQuerySchema = GetAssetsQuerySchema.extend(

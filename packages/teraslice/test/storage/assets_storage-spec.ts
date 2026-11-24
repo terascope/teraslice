@@ -87,7 +87,7 @@ describe('AssetsStorage using S3 backend', () => {
     });
 
     it('can search for a page of assets with the total, without the blob', async () => {
-        const { records, total, lastSort } = await storage.searchWithTotal({
+        const { records, total } = await storage.searchWithTotal({
             query: 'name:"ex1"',
             sort: '_created:desc',
         });
@@ -98,7 +98,6 @@ describe('AssetsStorage using S3 backend', () => {
             name: 'ex1',
         })]);
         expect(records[0]).not.toHaveProperty('blob');
-        expect(lastSort).toBeArrayOfSize(2);
     });
 
     it('sets external_storage from the S3 bucket', async () => {
@@ -342,7 +341,7 @@ describe('AssetsStorage using ES backend', () => {
             expect(page.records[0].id).toBe(assetIds[0]);
 
             const next = await storage.searchWithTotal({
-                query: 'name:"ex1"', size: 1, sort: 'version:asc', searchAfter: page.lastSort,
+                query: 'name:"ex1"', from: 1, size: 1, sort: 'version:asc',
             });
 
             expect(next.total).toBe(2);

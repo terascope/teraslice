@@ -3,8 +3,7 @@ import { TerasliceApiV2 } from '@terascope/types';
 import type { TerasliceRequest } from '../../../../../interfaces.js';
 import type { AssetsStorage } from '../../../../storage/index.js';
 import { addFilterToQuery } from '../../../../utils/api_utils.js';
-import { pageStart, searchFrom, toPage } from '../../../../utils/pagination.js';
-import { queryKey } from '../../../../utils/cursor.js';
+import { toPage } from '../../../../utils/pagination.js';
 import {
     createRouteRegistry, withStatus, type RouteRegistry, type Parsed, type TextResult
 } from '../../../../utils/v2_routes.js';
@@ -52,15 +51,13 @@ export function createV2AssetRegistry(getStorage: () => AssetsStorage): RouteReg
 
     /**
      * One page of the asset records `match` selects, with `external_storage`
-     * when assets are stored in S3. The cursor's key is the search query and
-     * sort, as for the other lists, so a JSON route and its /txt copy share
-     * cursors.
+     * when assets are stored in S3.
      */
     async function listAssets(
         query: Parsed<typeof TerasliceApiV2.GetAssetsQuerySchema>,
         { name, version }: AssetMatch = {}
     ): Promise<TerasliceApiV2.AssetRecordPage> {
-        const { size, filter } = query;
+        const { size, from, filter } = query;
         const sort = sortOrDefault(query.sort, '_created:desc');
 
         let partialQuery = 'id:*';
@@ -68,15 +65,14 @@ export function createV2AssetRegistry(getStorage: () => AssetsStorage): RouteReg
         if (version !== undefined) partialQuery += ` AND version:${quotedTerm(version)}`;
         const searchQuery = addFilterToQuery(partialQuery, filter ?? '');
 
-        const start = pageStart(query, queryKey('assets', { sort, query: searchQuery }));
         const storage = getStorage();
-        const assets = await pagedSearch(start, () => storage.searchWithTotal({
-            query: searchQuery, ...searchFrom(start), size, sort
+        const assets = await pagedSearch(() => storage.searchWithTotal({
+            query: searchQuery, from, size, sort
         }));
 
         return toPage(
             { ...assets, records: await storage.withExternalStorage(assets.records) },
-            start,
+            from,
             size
         );
     }

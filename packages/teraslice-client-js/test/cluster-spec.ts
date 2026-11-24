@@ -339,10 +339,10 @@ describe('Teraslice Cluster', () => {
             it('should page the assets table', async () => {
                 nock('http://teraslice.example.dev/v2')
                     .get('/txt/assets')
-                    .query({ size: '10', cursor: 'abc' })
+                    .query({ size: '10', from: '10' })
                     .reply(200, 'assets-txt-response');
 
-                await expect(v2Cluster.txt('assets', { size: 10, cursor: 'abc' }))
+                await expect(v2Cluster.txt('assets', { size: 10, from: 10 }))
                     .resolves.toEqual('assets-txt-response');
             });
 

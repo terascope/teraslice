@@ -385,7 +385,7 @@ describe('Teraslice Assets', () => {
         let v2Scope: nock.Scope;
 
         const pagination = {
-            total: 2, from: 0, size: 100, has_more: false, next_cursor: null
+            total: 2, from: 0, size: 100, has_more: false
         };
         const page = { data: [assetVersion2, assetVersion1], pagination };
 
@@ -440,10 +440,10 @@ describe('Teraslice Assets', () => {
 
         it('should return the whole page from listPage()', async () => {
             v2Scope.get('/assets')
-                .query({ size: '1', cursor: 'abc' })
+                .query({ size: '1', from: '1' })
                 .reply(200, page);
 
-            await expect(v2Assets.listPage({ size: 1, cursor: 'abc' })).resolves.toEqual(page);
+            await expect(v2Assets.listPage({ size: 1, from: 1 })).resolves.toEqual(page);
         });
 
         it('should get the text table from /v2/txt/assets', async () => {

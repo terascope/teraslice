@@ -57,9 +57,9 @@ export default class Assets extends Client {
     }
 
     /**
-     * One page of asset records, with its `pagination`. Send
-     * `pagination.next_cursor` as `cursor`, with the same query, for the next
-     * page; or use `pages()`. /v2 only.
+     * Returns one page of asset records plus `pagination` metadata. To fetch
+     * the next page, repeat the same query with `from` advanced by `size`;
+     * continue while `pagination.has_more` is true. /v2 only.
      */
     async listPage(
         query: TerasliceApiV2.GetAssetsQuery = {},

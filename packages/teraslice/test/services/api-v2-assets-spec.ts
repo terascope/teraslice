@@ -33,7 +33,7 @@ const otherAsset = {
 /** The `pagination` of a page, with the defaults of a request with no paging params */
 function pagination(fields: Record<string, any> = {}) {
     return {
-        total: 1, from: 0, size: 100, has_more: false, next_cursor: null, ...fields
+        total: 1, from: 0, size: 100, has_more: false, ...fields
     };
 }
 
@@ -138,38 +138,26 @@ describe('HTTP API v2 assets', () => {
             expect(response.body.data).toEqual([{ ...asset, external_storage: 'available' }]);
         });
 
-        it('pages with a cursor', async () => {
-            storage.searchWithTotal.mockResolvedValueOnce({
-                records: [asset], total: 2, lastSort: [1, assetId]
-            });
+        it('pages with from and size', async () => {
+            storage.searchWithTotal.mockResolvedValueOnce({ records: [asset], total: 2 });
             const first = await request('GET', '/v2/assets', { searchParams: { size: '1' } });
 
-            expect(first.body.pagination).toMatchObject({ total: 2, has_more: true });
-            expect(first.body.pagination.next_cursor).toBeString();
+            expect(first.body.pagination)
+                .toEqual(pagination({ total: 2, size: 1, has_more: true }));
 
-            storage.searchWithTotal.mockResolvedValueOnce({
-                records: [otherAsset], total: 2, lastSort: [0, otherId]
-            });
+            storage.searchWithTotal.mockResolvedValueOnce({ records: [otherAsset], total: 2 });
             const second = await request('GET', '/v2/assets', {
-                searchParams: { size: '1', cursor: first.body.pagination.next_cursor }
+                searchParams: { size: '1', from: '1' }
             });
 
             expect(second.statusCode).toBe(200);
-            expect(second.body.data).toEqual([otherAsset]);
-            expect(lastSearch()).toMatchObject({ from: 0, searchAfter: [1, assetId] });
-        });
-
-        it('rejects another list\'s cursor', async () => {
-            storage.searchWithTotal.mockResolvedValueOnce({
-                records: [asset], total: 2, lastSort: [1, assetId]
+            expect(second.body).toEqual({
+                data: [otherAsset],
+                pagination: pagination({ total: 2, from: 1, size: 1, has_more: false }),
             });
-            const first = await request('GET', '/v2/assets/ex1', { searchParams: { size: '1' } });
-
-            const response = await request('GET', '/v2/assets', {
-                searchParams: { size: '1', cursor: first.body.pagination.next_cursor }
+            expect(lastSearch()).toEqual({
+                query: 'id:*', from: 1, size: 1, sort: '_created:desc'
             });
-
-            expect(response.statusCode).toBe(400);
         });
 
         it('explains a search past max_result_window', async () => {
@@ -178,7 +166,7 @@ describe('HTTP API v2 assets', () => {
             const response = await request('GET', '/v2/assets', { searchParams: { from: '10000' } });
 
             expect(response.statusCode).toBe(400);
-            expect(response.body.message).toContain('Use cursor to page further');
+            expect(response.body.message).toContain('Use filter to narrow the search');
         });
 
         it('rejects an unknown query param', async () => {

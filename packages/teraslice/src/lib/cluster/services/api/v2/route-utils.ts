@@ -4,9 +4,7 @@ import type { RecordsWithTotal } from '../../../../storage/index.js';
 import {
     explainResultWindowError, parseFields, printPagedTable
 } from '../../../../utils/api_utils.js';
-import {
-    paginationHeaders, paginationResponseHeaders, type PageStart
-} from '../../../../utils/pagination.js';
+import { paginationHeaders, paginationResponseHeaders } from '../../../../utils/pagination.js';
 import type { Parsed, TextResult } from '../../../../utils/v2_routes.js';
 
 /*
@@ -53,7 +51,7 @@ function requestQueryString(req: TerasliceRequest): string {
     return index === -1 ? '' : req.originalUrl.slice(index + 1);
 }
 
-/** Applies `fn` to each record, keeping the total and the last sort values */
+/** Applies `fn` to each record, keeping the total */
 export function mapRecords<T, U>(
     { records, ...rest }: RecordsWithTotal<T>,
     fn: (record: T) => U
@@ -70,14 +68,13 @@ export function sortOrDefault(sort: string, fallback = '_updated:desc'): string 
 }
 
 /**
- * Runs the search for the page at `start`, replacing OpenSearch's message
- * for paging past `max_result_window` with one that makes sense to API
- * callers, and to whether the request sent a cursor.
+ * Runs a paged search, replacing OpenSearch's message for paging past
+ * `max_result_window` with one that makes sense to API callers.
  */
-export async function pagedSearch<T>(start: PageStart, search: () => Promise<T>): Promise<T> {
+export async function pagedSearch<T>(search: () => Promise<T>): Promise<T> {
     try {
         return await search();
     } catch (err) {
-        throw explainResultWindowError(err, start.after !== undefined);
+        throw explainResultWindowError(err);
     }
 }
