@@ -1958,7 +1958,7 @@ describe('HTTP API v2', () => {
         });
 
         it('should include the job submit and update routes', () => {
-            const jobConfigRef = { $ref: '#/components/schemas/JobConfig' };
+            const jobConfigRef = { $ref: '#/components/schemas/JobConfigBody' };
 
             expect(spec.paths['/v2/jobs'].post.requestBody.content['application/json'].schema)
                 .toEqual(jobConfigRef);
