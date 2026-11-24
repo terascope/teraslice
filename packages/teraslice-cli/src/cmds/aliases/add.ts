@@ -2,6 +2,7 @@ import { CMD } from '../../interfaces.js';
 import reply from '../../helpers/reply.js';
 import Config from '../../helpers/config.js';
 import YargsOptions from '../../helpers/yargs-options.js';
+import { detectApiVersion } from '../../helpers/utils.js';
 
 const yargsOptions = new YargsOptions();
 
@@ -18,17 +19,24 @@ export default {
         yargs.example('$0 aliases add cluster1 http://cluster1.net:80', 'Add an alias to the cluster');
         return yargs;
     },
-    handler(argv) {
+    async handler(argv) {
         const cliConfig = new Config(argv);
+        const { newClusterAlias, newClusterUrl } = cliConfig.args;
         try {
-            cliConfig.aliases.add(
-                cliConfig.args.newClusterAlias,
-                cliConfig.args.newClusterUrl
-            );
+            if (cliConfig.aliases.present(newClusterAlias)) {
+                throw new Error(`${newClusterAlias} already exists`);
+            }
+
+            const { apiVersion, reason } = await detectApiVersion(newClusterUrl);
+            if (reason) {
+                reply.warning(`Setting apiVersion to v1 because ${reason}. Once the cluster supports /v2, run "teraslice-cli aliases migratev2 ${newClusterAlias}" to switch.`);
+            }
+
+            cliConfig.aliases.add(newClusterAlias, newClusterUrl, apiVersion);
             if (cliConfig.args.list) {
                 cliConfig.aliases.list(cliConfig.args.output);
             }
-            reply.green(`> Added alias ${cliConfig.args.newClusterAlias} host: ${cliConfig.args.newClusterUrl}`);
+            reply.green(`> Added alias ${newClusterAlias} host: ${newClusterUrl} apiVersion: ${apiVersion}`);
         } catch (e) {
             reply.error(`error adding alias ${e}`);
         }

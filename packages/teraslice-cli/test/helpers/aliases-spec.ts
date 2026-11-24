@@ -32,6 +32,13 @@ describe('Aliases', () => {
                 const aliasesOutput = Aliases.readSync(aliases.aliasesFile);
                 expect(fs.existsSync(aliases.aliasesFile)).toBeTruthy();
                 expect(aliasesOutput.clusters.test1.host).toBe('test1.net');
+                expect(aliasesOutput.clusters.test1.apiVersion).toBe('v1');
+            });
+
+            test('should save the given apiVersion', () => {
+                aliases.add('test1', 'test1.net', 'v2');
+                const aliasesOutput = Aliases.readSync(aliases.aliasesFile);
+                expect(aliasesOutput.clusters.test1.apiVersion).toBe('v2');
             });
 
             test('should throw an error when existing alias added', () => {
@@ -87,6 +94,40 @@ describe('Aliases', () => {
             });
         });
 
+        describe('-> getApiVersion', () => {
+            test('should default to v1 when apiVersion is missing', () => {
+                const tmpDir = createTempDirSync();
+                const aliasesFile = path.join(tmpDir, 'aliases-test1.yaml');
+                fs.copyFileSync(path.join(dirname, '../fixtures', 'aliases-test1.yaml'), aliasesFile);
+                aliases = new Aliases(aliasesFile);
+                expect(aliases.getApiVersion('test1')).toBe('v1');
+            });
+
+            test('should return the saved apiVersion', () => {
+                aliases.add('test1', 'test1.net', 'v2');
+                expect(aliases.getApiVersion('test1')).toBe('v2');
+            });
+
+            test('should throw on an invalid apiVersion', () => {
+                aliases.add('test1', 'test1.net');
+                aliases.config.clusters.test1.apiVersion = 'v3';
+                expect(() => aliases.getApiVersion('test1')).toThrow('invalid apiVersion "v3"');
+            });
+        });
+
+        describe('-> setApiVersion', () => {
+            test('should write the apiVersion to the file', () => {
+                aliases.add('test1', 'test1.net');
+                aliases.setApiVersion('test1', 'v2');
+                const aliasesOutput = Aliases.readSync(aliases.aliasesFile);
+                expect(aliasesOutput.clusters.test1.apiVersion).toBe('v2');
+            });
+
+            test('should throw when the alias is missing', () => {
+                expect(() => aliases.setApiVersion('test2', 'v2')).toThrow('test2 not in aliases list');
+            });
+        });
+
         describe('-> update', () => {
             test('should update an alias from the file', () => {
                 const tmpDir = createTempDirSync();
@@ -96,6 +137,13 @@ describe('Aliases', () => {
                 aliases.update('test1', 'http://test1.net:9999');
                 const aliasesOutput = Aliases.readSync(aliases.aliasesFile);
                 expect(aliasesOutput.clusters.test1.host).toBe('http://test1.net:9999');
+            });
+
+            test('should keep the apiVersion', () => {
+                aliases.add('test1', 'test1.net', 'v2');
+                aliases.update('test1', 'http://test1.net:9999');
+                const aliasesOutput = Aliases.readSync(aliases.aliasesFile);
+                expect(aliasesOutput.clusters.test1.apiVersion).toBe('v2');
             });
 
             test('should throw an error when updating a missing alias', () => {
