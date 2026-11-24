@@ -60,7 +60,7 @@ export function createV2Router(api: ApiService, forwardToAssets: ForwardToAssets
 
     router.get('/openapi.json', (req, res) => {
         const requestHandler = handleTerasliceRequest(req, res, 'Could not generate the OpenAPI spec');
-        requestHandler(() => generateV2Spec(routes, api.context));
+        requestHandler(() => generateV2Spec(routes));
     });
 
     router.get('/api-docs', (_req, res) => {

@@ -4,9 +4,6 @@ import type {
     PathsObject, ReferenceObject, ResponsesObject, SchemaObject
 } from 'openapi3-ts/oas31';
 import { isDeepEqual, isPlainObject } from '@terascope/core-utils';
-import { generateJobJSONSchema } from '@terascope/job-components';
-import { TerasliceApiV2 } from '@terascope/types';
-import type { ClusterMasterContext } from '../../../../../interfaces.js';
 import { getPackageJSON } from '../../../../utils/file_utils.js';
 import type { AnyRouteDef, ParamsSchema, RouteTag } from '../../../../utils/v2_routes.js';
 
@@ -252,68 +249,12 @@ export function convertToOpenAPIPath(path: string): string {
 }
 
 /**
- * Adds `POST /v2/jobs` (submit) and `PUT /v2/jobs/{jobId}` (update) to the
- * spec by hand. They're still plain express routes, not registry routes, so
- * they aren't in `routes` and the loop in `generateV2Spec` never sees them.
- *
- * Runs after that loop, so `paths` already has `GET /v2/jobs` and
- * `GET`/`DELETE /v2/jobs/{jobId}`; this adds `.post` and `.put` next to them.
- * The request body is the cluster's job schema, added to `components` as
- * `JobConfig`. The responses come from existing zod schemas.
- *
- * TODO: drop this once both routes are registered with `registry.post`/`.put`
- */
-function addJobConfigRoutes(
-    paths: PathsObject,
-    context: ClusterMasterContext,
-    components: Components
-): void {
-    const renames = { operation: 'JobOperation', api: 'JobAPI' };
-    components.JobConfig = moveDefinitionsToComponents(
-        generateJobJSONSchema(context), 'definitions', components, renames
-    );
-    const requestBody = { required: true, content: jsonContent(componentRef('JobConfig')) };
-
-    paths['/v2/jobs'] ??= {};
-    paths['/v2/jobs'].post = {
-        operationId: 'submitJob',
-        summary: 'Submit a job, and start it unless `start` is false',
-        tags: ['Jobs'],
-        parameters: [{
-            name: 'start',
-            in: 'query',
-            required: false,
-            description: 'Set to false to save the job without starting it',
-            schema: { type: 'boolean', default: true },
-        }],
-        requestBody,
-        responses: successResponses(
-            fromZod(TerasliceApiV2.NewExecutionSchema.partial({ ex_id: true }), 'output', components),
-            'Success. `ex_id` is only set when the job was started'
-        ),
-    };
-
-    paths['/v2/jobs/{jobId}'] ??= {};
-    paths['/v2/jobs/{jobId}'].put = {
-        operationId: 'updateJob',
-        summary: 'Replace a job\'s config',
-        tags: ['Jobs'],
-        parameters: [{ name: 'jobId', in: 'path', required: true, schema: { type: 'string' } }],
-        requestBody,
-        responses: successResponses(
-            fromZod(TerasliceApiV2.UpdatedJobSchema, 'output', components)
-        ),
-    };
-}
-
-/**
  * Builds the OpenAPI 3.1 document for the /v2 API from the registered route
  * defs, plus the job submit and update routes, whose body is the job schema
  * for this cluster's `cluster_manager_type`.
  */
 export function generateV2Spec(
-    routes: readonly AnyRouteDef[],
-    context: ClusterMasterContext
+    routes: readonly AnyRouteDef[]
 ): OpenAPIObject {
     const components: Components = {
         ErrorResponse: {
@@ -332,8 +273,6 @@ export function generateV2Spec(
         paths[path] ??= {};
         paths[path][route.method] = toOperation(route, components);
     }
-
-    addJobConfigRoutes(paths, context, components);
 
     return {
         openapi: '3.1.0',

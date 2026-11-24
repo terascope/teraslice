@@ -5,7 +5,6 @@ import bodyParser from 'body-parser';
 import got from 'got';
 import { z } from 'zod';
 import { debugLogger, TSError } from '@terascope/core-utils';
-import { TestContext } from '@terascope/job-components';
 import { findPort } from '../../src/lib/utils/port_utils.js';
 import {
     createRouteRegistry, withStatus, type ParamsSchema, type ResponseFormat,
@@ -645,7 +644,7 @@ describe('v2 route registry', () => {
         });
 
         it('should be documented as text/plain with its headers', () => {
-            const spec = generateV2Spec(textRegistry.routes, new TestContext('v2-routes-spec') as any);
+            const spec = generateV2Spec(textRegistry.routes);
 
             expect(spec.paths?.['/v2/text'].get?.responses?.[200]).toEqual({
                 description: 'Success',
@@ -660,7 +659,7 @@ describe('v2 route registry', () => {
         });
 
         it('should keep raw routes documented as JSON', () => {
-            const spec = generateV2Spec(rawRegistry.routes, new TestContext('v2-routes-spec') as any);
+            const spec = generateV2Spec(rawRegistry.routes);
 
             expect(spec.paths?.['/v2/raw'].get?.responses?.[200]?.content)
                 .toContainKey('application/json');
@@ -692,7 +691,7 @@ describe('v2 route registry', () => {
         });
 
         it('should document every status with the response body', () => {
-            const spec = generateV2Spec(statusRegistry.routes, new TestContext('v2-routes-spec') as any);
+            const spec = generateV2Spec(statusRegistry.routes);
             const { responses } = spec.paths?.['/v2/status/{result}'].post ?? {};
             const content = {
                 'application/json': { schema: expect.objectContaining({ type: 'object' }) },
@@ -707,7 +706,7 @@ describe('v2 route registry', () => {
 
         it('should document 200 as Success when it is not listed', () => {
             const routes = [{ ...statusRegistry.routes[0], successStatuses: { 201: 'Created' } }];
-            const spec = generateV2Spec(routes, new TestContext('v2-routes-spec') as any);
+            const spec = generateV2Spec(routes);
             const { responses } = spec.paths?.['/v2/status/{result}'].post ?? {};
 
             expect(responses?.[200]?.description).toBe('Success');
@@ -742,7 +741,7 @@ describe('v2 route registry', () => {
         });
 
         it('should be documented as an octet-stream request body', () => {
-            const spec = generateV2Spec(binaryRegistry.routes, new TestContext('v2-routes-spec') as any);
+            const spec = generateV2Spec(binaryRegistry.routes);
 
             expect(spec.paths?.['/v2/upload'].post?.requestBody).toEqual({
                 required: true,
