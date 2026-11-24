@@ -7,13 +7,21 @@ import { createRouteRegistry } from '../../src/lib/utils/v2_routes.js';
 describe('v2 API doc tables', () => {
     const tables = generateV2DocTables();
 
-    it('should have a route table per tag, in registration order', () => {
+    it('should have a route table per tag, in the spec\'s tag order', () => {
         const routes = tables['V2 ROUTES'];
 
-        expect(routes.match(/^### .+$/gm)).toEqual(['### Cluster', '### Jobs', '### Executions', '### Text']);
+        expect(routes.match(/^### .+$/gm)).toEqual(['### Cluster', '### Jobs', '### Executions', '### Assets', '### Text']);
         expect(routes).toContain('| GET | `/v2` | | Get cluster and version information |');
         expect(routes).toContain('| POST | `/v2/jobs` | `start`, job config body | Submit a job, and start it unless `start` is `false` |');
         expect(routes).toContain('| POST | `/v2/jobs/{jobId}/_stop` | `timeout`, `blocking`, `force` | Stop a job |');
+    });
+
+    it('should include the asset routes, which the assets service serves', () => {
+        const routes = tables['V2 ROUTES'];
+
+        expect(routes).toContain('| POST | `/v2/assets` | `blocking`, binary body | Upload an asset bundle (a zip) |');
+        expect(routes).toContain('| GET | `/v2/txt/assets/{name}` | `size`, `from`, `sort`, `filter`, `fields`, `headers` | List the versions of an asset as a text table |');
+        expect(tables['V2 SCHEMA GetAssetsQuery']).toContain('| `sort` | string | `"_created:desc"` |');
     });
 
     it('should have a table for every query and response schema', () => {

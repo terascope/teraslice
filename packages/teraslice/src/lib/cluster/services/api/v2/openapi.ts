@@ -8,9 +8,18 @@ import { generateJobJSONSchema } from '@terascope/job-components';
 import { TerasliceApiV2 } from '@terascope/types';
 import type { ClusterMasterContext } from '../../../../../interfaces.js';
 import { getPackageJSON } from '../../../../utils/file_utils.js';
-import type { AnyRouteDef, ParamsSchema } from '../../../../utils/v2_routes.js';
+import type { AnyRouteDef, ParamsSchema, RouteTag } from '../../../../utils/v2_routes.js';
 
 const terasliceVersion = getPackageJSON().version;
+
+/** The spec's tags, in the order the docs list them */
+export const v2Tags: readonly { name: RouteTag; description: string }[] = [
+    { name: 'Cluster', description: 'Cluster state and configuration' },
+    { name: 'Jobs', description: 'Job definitions and lifecycle' },
+    { name: 'Executions', description: 'Execution records, read only' },
+    { name: 'Assets', description: 'Asset bundles: upload, list and delete' },
+    { name: 'Text', description: 'Lists as plain-text tables, for terminals' },
+];
 
 /*
  * An OpenAPI spec has `paths` (the endpoints) and `components.schemas`
@@ -333,13 +342,7 @@ export function generateV2Spec(
             version: terasliceVersion,
             description: 'Management API for the Teraslice distributed computing platform.',
         },
-        tags: [
-            { name: 'Cluster', description: 'Cluster state and configuration' },
-            { name: 'Jobs', description: 'Job definitions and lifecycle' },
-            { name: 'Executions', description: 'Execution records, read only' },
-            { name: 'Assets', description: 'Asset bundles: upload, list and delete' },
-            { name: 'Text', description: 'Lists as plain-text tables, for terminals' },
-        ],
+        tags: [...v2Tags],
         paths,
         components: {
             schemas: components,

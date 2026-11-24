@@ -4,8 +4,9 @@ import { TerasliceApiV2 } from '@terascope/types';
 import type { ApiService } from '../api.js';
 import type { AnyRouteDef, ParamsSchema } from '../../../../utils/v2_routes.js';
 import { createV2Registry } from './routes.js';
+import { createV2AssetRegistry } from './asset-routes.js';
 import {
-    convertToOpenAPIPath, fromZod, type Components, type Schema
+    convertToOpenAPIPath, fromZod, v2Tags, type Components, type Schema
 } from './openapi.js';
 
 /*
@@ -28,11 +29,12 @@ interface SchemaUse {
  * The tables, keyed by marker name: `V2 ROUTES`, plus `V2 SCHEMA <name>` for
  * each query and response schema, e.g. `V2 SCHEMA StopJobQuery`.
  *
- * @param routes - defaults to the real registry. Handlers aren't called, so it
- * is built with a stub api.
+ * @param routes - defaults to the real routes: the master's and the asset
+ * routes, in the order the OpenAPI spec lists them. Handlers aren't called,
+ * so the registries are built with stubs.
  */
 export function generateV2DocTables(
-    routes: readonly AnyRouteDef[] = createV2Registry({} as ApiService).routes
+    routes: readonly AnyRouteDef[] = defaultRoutes()
 ): Record<string, string> {
     const components: Components = {};
     const queries = new Map<string, SchemaUse>();
@@ -66,6 +68,13 @@ export function generateV2DocTables(
     }
 
     return tables;
+}
+
+function defaultRoutes(): AnyRouteDef[] {
+    const assetRoutes = createV2AssetRegistry(() => {
+        throw new Error('The doc tables never call the asset route handlers');
+    }).routes;
+    return [...createV2Registry({} as ApiService).routes, ...assetRoutes];
 }
 
 function routeLabel(route: AnyRouteDef): string {
@@ -102,15 +111,17 @@ function usedByLine(usedBy: string[]): string {
     return `Used by ${list}.`;
 }
 
+/** One table per tag, in the spec's tag order, each in registration order */
 function renderRouteTables(routes: readonly AnyRouteDef[]): string {
-    const byTag = new Map<string, AnyRouteDef[]>();
+    const byTag = new Map<string, AnyRouteDef[]>(v2Tags.map(({ name }) => [name, []]));
     for (const route of routes) {
         const tag = route.tags?.[0];
         if (!tag) throw new Error(`v2 route ${routeLabel(route)} has no tag`);
-        byTag.set(tag, [...byTag.get(tag) ?? [], route]);
+        byTag.get(tag)!.push(route);
     }
 
-    return [...byTag].map(([tag, tagRoutes]) => [
+    const tables = [...byTag].filter(([, tagRoutes]) => tagRoutes.length);
+    return tables.map(([tag, tagRoutes]) => [
         `### ${tag}`,
         '',
         table(
