@@ -250,8 +250,7 @@ export function convertToOpenAPIPath(path: string): string {
 
 /**
  * Builds the OpenAPI 3.1 document for the /v2 API from the registered route
- * defs, plus the job submit and update routes, whose body is the job schema
- * for this cluster's `cluster_manager_type`.
+ * defs.
  */
 export function generateV2Spec(
     routes: readonly AnyRouteDef[]

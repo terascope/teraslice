@@ -1964,8 +1964,9 @@ describe('HTTP API v2', () => {
                 .toEqual(jobConfigRef);
             expect(spec.paths['/v2/jobs/{jobId}'].put.requestBody.content['application/json'].schema)
                 .toEqual(jobConfigRef);
-            expect(spec.components.schemas.JobConfig.properties.operations.items)
-                .toEqual({ $ref: '#/components/schemas/JobOperation' });
+            expect(spec.components.schemas.JobConfigBody.required).toEqual(['operations']);
+            expect(spec.components.schemas.JobConfigBody.properties.operations.items)
+                .toMatchObject({ required: ['_op'], properties: { _op: { type: 'string' } } });
         });
 
         it('should describe the txt routes as text/plain with the paging headers', () => {
