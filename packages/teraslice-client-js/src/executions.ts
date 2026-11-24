@@ -1,7 +1,7 @@
 import {
     isString, isPlainObject, TSError, unset
 } from '@terascope/core-utils';
-import { Teraslice } from '@terascope/types';
+import { Teraslice, TerasliceApiV2 } from '@terascope/types';
 import autoBind from 'auto-bind';
 import Client from './client.js';
 import Ex from './ex.js';
@@ -38,7 +38,7 @@ export default class Executions extends Client {
 
     async list(options?: ListOptions): Promise<Teraslice.ExecutionConfig[]> {
         const query = _parseListOptions(options);
-        return this.get('/ex', { searchParams: query } as RequestOptions);
+        return this.getList('/ex', { searchParams: query } as RequestOptions);
     }
 
     async errors(
@@ -51,7 +51,7 @@ export default class Executions extends Client {
                 options.searchParams = opts;
             }
 
-            return this.get(`/ex/${exId}/errors`, options as RequestOptions);
+            return this.getList(`/ex/${exId}/errors`, options as RequestOptions);
         }
 
         // TODO: Teraslice v4 deletes /v1, make exId required
@@ -67,6 +67,27 @@ export default class Executions extends Client {
         }
 
         return this.get('/ex/errors', options as RequestOptions);
+    }
+
+    /**
+     * Returns one page of executions plus `pagination` metadata. To fetch
+     * the next page, repeat the same query with `from` advanced by `size`;
+     * continue while `pagination.has_more` is true. /v2 only.
+     */
+    async listPage(
+        query: TerasliceApiV2.GetExecutionsQuery = {},
+        searchOptions: RequestOptions = {}
+    ): Promise<TerasliceApiV2.ExecutionRecordPage> {
+        return this.getPage('/ex', this.makeOptions(query, searchOptions));
+    }
+
+    /** One page of an execution's slice errors, like `listPage()`. /v2 only. */
+    async errorsPage(
+        exId: string,
+        query: TerasliceApiV2.GetExecutionErrorsQuery = {},
+        searchOptions: RequestOptions = {}
+    ): Promise<TerasliceApiV2.SliceErrorPage> {
+        return this.getPage(`/ex/${exId}/errors`, this.makeOptions(query, searchOptions));
     }
 
     /**

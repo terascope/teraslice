@@ -1,6 +1,7 @@
 import nock from 'nock';
 import { Teraslice } from '@terascope/types';
 import Ex from '../src/ex.js';
+import { v2Page } from './fixtures/v2-page.js';
 
 describe('Teraslice Ex', () => {
     let scope: nock.Scope;
@@ -787,6 +788,25 @@ describe('Teraslice Ex', () => {
 
                 expect(instance.id()).toEqual('new-ex-id');
             });
+        });
+
+        it('should return the errors from the page, without looking up the job', async () => {
+            v2Scope.get('/ex/some-ex-id/errors')
+                .query({ size: 10 })
+                .reply(200, v2Page([{ slice_id: 'some-slice-id' }]));
+
+            const ex = new Ex(config, 'some-ex-id');
+            await expect(ex.errors({ size: 10 })).resolves.toEqual([{ slice_id: 'some-slice-id' }]);
+        });
+
+        it('should return the whole page for errorsPage', async () => {
+            const page = v2Page([{ slice_id: 'some-slice-id' }], { total: 11, from: 10, size: 10 });
+            v2Scope.get('/ex/some-ex-id/errors')
+                .query({ size: 10, from: 10 })
+                .reply(200, page);
+
+            const ex = new Ex(config, 'some-ex-id');
+            await expect(ex.errorsPage({ size: 10, from: 10 })).resolves.toEqual(page);
         });
     });
 

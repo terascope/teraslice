@@ -8,12 +8,12 @@ import {
 import type { RecoveryCleanupType } from '@terascope/job-components';
 import { ClusterMaster } from '@terascope/teraslice-messaging';
 import {
-    ExecutionConfig, JobConfig, NodeState, SliceTapRequest
+    ExecutionConfig, ExecutionNodeWorker, JobConfig,
+    NodeState, SliceTapRequest
 } from '@terascope/types';
 import type { ExecutionStorage, StateStorage } from '../../storage/index.js';
 import type {
-    ClusterMasterContext, ExecutionNodeWorker, ControllerStats,
-    SerializedSliceTapResults
+    ClusterMasterContext, ControllerStats, SerializedSliceTapResults
 } from '../../../interfaces.js';
 import { makeLogger } from '../../workers/helpers/terafoundation.js';
 import type { ClusterServiceType } from './cluster/index.js';

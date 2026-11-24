@@ -6,6 +6,54 @@ import {
 
 /** ############ V2 ROUTE SCHEMAS ############ */
 
+/** ############### Pagination ############### */
+
+export const PaginationSchema = z.object({
+    total: z.number().int()
+        .min(0)
+        .meta({ description: 'Exact number of matching records, across all pages' }),
+    from: z.number().int()
+        .min(0)
+        .meta({ description: 'The `from` of the request' }),
+    size: z.number().int()
+        .min(0)
+        .meta({ description: 'The `size` of the request; `data` can be shorter' }),
+    has_more: z.boolean().meta({
+        description: 'Whether there are records after this page: `from + data.length < total`',
+    }),
+}).meta({ id: 'Pagination' });
+
+export type Pagination = z.output<typeof PaginationSchema>;
+
+/** A page of a list response: the page's items, and where it sits in the list */
+export function paginated<T extends z.ZodType>(itemSchema: T) {
+    return z.object({
+        data: z.array(itemSchema),
+        pagination: PaginationSchema,
+    });
+}
+
+/** A page of `T`, as returned by the routes that use `paginated()` */
+export interface Page<T> {
+    data: T[];
+    pagination: Pagination;
+}
+
+/**
+ * Paging for routes that page a list held in memory rather than a search.
+ * There's no `sort` or `filter`, and no `max_result_window`.
+ */
+const inMemoryPageQueryShape = {
+    size: z.coerce.number<number>().int()
+        .min(0)
+        .default(100)
+        .meta({ description: 'Maximum number of items to return' }),
+    from: z.coerce.number<number>().int()
+        .min(0)
+        .default(0)
+        .meta({ description: 'Number of items to skip, for paging' }),
+};
+
 /** ################### / #################### */
 
 /** Response of `GET /` */
@@ -44,6 +92,17 @@ export const ProcessNodeSchema = z.object({
     id: 'ProcessNode',
     description: 'A teraslice process running on a node',
 });
+
+export const ExecutionNodeWorkerSchema = ProcessNodeSchema.extend({
+    node_id: z.string().meta({ description: 'The node the process runs on' }),
+    hostname: z.string().meta({ description: 'The hostname of the node' }),
+}).meta({
+    id: 'ExecutionNodeWorker',
+    description: 'A teraslice process, with the id and hostname of the node it runs on',
+});
+
+/** A process from every connected node, as `findAllWorkers()` returns it */
+export type ExecutionNodeWorker = z.output<typeof ExecutionNodeWorkerSchema>;
 
 const NotAvailable = z.literal('N/A');
 
@@ -141,10 +200,20 @@ export const ControllerStatsSchema = AggregatedExecutionAnalyticsSchema.extend({
     description: 'Live statistics from a running execution controller',
 });
 
-/** Response of `GET /cluster/controllers` */
 export const ControllerStatsListSchema = z.array(ControllerStatsSchema);
 
+export type ControllerStats = z.output<typeof ControllerStatsSchema>;
 export type ControllerStatsList = z.output<typeof ControllerStatsListSchema>;
+
+/** Query of `GET /cluster/controllers`. Sorted by `ex_id` before paging */
+export const GetClusterControllersQuerySchema = z.strictObject(inMemoryPageQueryShape);
+
+/** Response of `GET /cluster/controllers` */
+export const ControllerStatsPageSchema = paginated(ControllerStatsSchema)
+    .meta({ id: 'ControllerStatsPage' });
+
+export type GetClusterControllersQuery = z.input<typeof GetClusterControllersQuerySchema>;
+export type ControllerStatsPage = z.output<typeof ControllerStatsPageSchema>;
 
 /** ############## /job-schema ############### */
 
@@ -421,6 +490,8 @@ export const ExecutionRecordSchema = z.looseObject({
     description: `An execution: one run of a job, with the job config it ran with. ${jobConfigDocs}`,
 });
 
+export type ExecutionRecord = z.output<typeof ExecutionRecordSchema>;
+
 /**
  * Loose for the same reason as `ExecutionRecordSchema`.
  *
@@ -476,7 +547,8 @@ const searchQueryShape = {
         .default(100)
         .meta({
             description: 'Maximum number of records to return. `from + size` is limited by '
-                + 'the index\'s `max_result_window` (10,000 unless the cluster changes it)',
+                + 'the index\'s `max_result_window` (10,000 unless the cluster changes it); '
+                + 'a request past it is rejected with a 400',
         }),
     from: z.coerce.number<number>().int()
         .min(0)
@@ -550,12 +622,13 @@ export const GetJobsQuerySchema = z.strictObject({
         }),
 });
 
-/** Response of `GET /jobs` */
-export const JobWithExecutionListSchema = z.array(JobWithExecutionSchema)
-    .meta({ description: 'Each job has `ex` only when `?ex` is sent' });
-
 export type GetJobsQuery = z.input<typeof GetJobsQuerySchema>;
-export type JobWithExecutionList = z.output<typeof JobWithExecutionListSchema>;
+
+/** Response of `GET /jobs` */
+export const JobWithExecutionPageSchema = paginated(JobWithExecutionSchema)
+    .meta({ id: 'JobWithExecutionPage' });
+
+export type JobWithExecutionPage = z.output<typeof JobWithExecutionPageSchema>;
 
 /** Response of `GET /jobs/:jobId/controller` */
 export const JobControllerStatsSchema = ControllerStatsListSchema
@@ -583,14 +656,18 @@ export const SliceStateRecordSchema = z.object({
         .meta({ description: 'Times the slice was retried; unset if it never was' }),
 }).meta({ id: 'SliceStateRecord' });
 
-/** Response of `GET /jobs/:jobId/errors` and `GET /ex/:exId/errors` */
-export const SliceErrorListSchema = z.array(SliceStateRecordSchema);
+export type SliceStateRecord = z.output<typeof SliceStateRecordSchema>;
 
 /** Query of `GET /jobs/:jobId/errors` */
 export const GetJobErrorsQuerySchema = z.strictObject(searchQueryShape);
 
 export type GetJobErrorsQuery = z.input<typeof GetJobErrorsQuerySchema>;
-export type SliceErrorList = z.output<typeof SliceErrorListSchema>;
+
+/** Response of `GET /jobs/:jobId/errors` and `GET /ex/:exId/errors` */
+export const SliceErrorPageSchema = paginated(SliceStateRecordSchema)
+    .meta({ id: 'SliceErrorPage' });
+
+export type SliceErrorPage = z.output<typeof SliceErrorPageSchema>;
 
 /** ############### Slice tap ################ */
 
@@ -883,12 +960,137 @@ export const GetExecutionsQuerySchema = z.strictObject({
     deleted: deletedQuery,
 });
 
-/** Response of `GET /ex` */
-export const ExecutionRecordListSchema = z.array(ExecutionRecordSchema);
-
 /** Query of `GET /ex/:exId/errors` */
 export const GetExecutionErrorsQuerySchema = z.strictObject(searchQueryShape);
 
 export type GetExecutionsQuery = z.input<typeof GetExecutionsQuerySchema>;
-export type ExecutionRecordList = z.output<typeof ExecutionRecordListSchema>;
+
+/** Response of `GET /ex` */
+export const ExecutionRecordPageSchema = paginated(ExecutionRecordSchema)
+    .meta({ id: 'ExecutionRecordPage' });
+
+export type ExecutionRecordPage = z.output<typeof ExecutionRecordPageSchema>;
 export type GetExecutionErrorsQuery = z.input<typeof GetExecutionErrorsQuerySchema>;
+
+/** ################## /txt ################## */
+
+/** Strips `optional`, `nullable` and `default` wrappers */
+function unwrapSchema(schema: z.ZodType): z.ZodType {
+    let inner = schema;
+    while (
+        inner instanceof z.ZodOptional
+        || inner instanceof z.ZodNullable
+        || inner instanceof z.ZodDefault
+    ) {
+        inner = inner.unwrap() as z.ZodType;
+    }
+    return inner;
+}
+
+/**
+ * Whether `path` names a field of `schema`. Object fields are checked by
+ * name, including on loose objects, so a key the schema doesn't list is
+ * unknown. Below an array, a record or an unknown value any path is
+ * accepted, because the schema doesn't name those keys (e.g.
+ * `operations.0._op`, `env_vars.FOO`).
+ */
+function hasFieldPath(schema: z.ZodType, path: readonly string[]): boolean {
+    if (path.length === 0) return true;
+
+    const inner = unwrapSchema(schema);
+    const [key, ...rest] = path;
+
+    if (inner instanceof z.ZodObject) {
+        return Object.hasOwn(inner.shape, key) && hasFieldPath(inner.shape[key], rest);
+    }
+    if (inner instanceof z.ZodUnion) {
+        return inner.options.some((option) => hasFieldPath(option as z.ZodType, path));
+    }
+    return inner instanceof z.ZodArray
+        || inner instanceof z.ZodRecord
+        || inner instanceof z.ZodUnknown;
+}
+
+/**
+ * Text-table query options shared by all `/txt` routes, added to each
+ * route's list query. Each name in `fields` is checked against `record`,
+ * the schema for one row of that route's table.
+ */
+function txtQueryShape(record: z.ZodObject, recordName: string) {
+    return {
+        fields: z.string()
+            .superRefine((fields, ctx) => {
+                const unknown = fields.split(',')
+                    .map((field) => field.trim())
+                    .filter((field) => field && !hasFieldPath(record, field.split('.')));
+                if (!unknown.length) return;
+
+                ctx.addIssue({
+                    code: 'custom',
+                    message: `Unknown ${unknown.length === 1 ? 'field' : 'fields'} `
+                        + `${unknown.map((field) => JSON.stringify(field)).join(', ')}. `
+                        + `Expected fields of ${recordName}: ${Object.keys(record.shape).join(', ')}`,
+                });
+            })
+            .optional()
+            .meta({
+                description: `Comma-separated columns, in order: fields of ${recordName}. A `
+                    + 'dotted path reads a nested field, e.g. `ex._status` with `?ex`. An '
+                    + 'unknown field is rejected. Empty or left out uses the route\'s '
+                    + 'default columns',
+            }),
+        headers: z.stringbool().default(true)
+            .meta({
+                description: '`false` leaves out the column names and the paging footer, '
+                    + 'so the response is only rows',
+            }),
+    };
+}
+
+/** Query of `GET /txt/jobs` */
+export const GetTxtJobsQuerySchema = GetJobsQuerySchema.extend(
+    txtQueryShape(JobWithExecutionSchema, 'JobWithExecution')
+);
+
+/** Query of `GET /txt/ex` */
+export const GetTxtExecutionsQuerySchema = GetExecutionsQuerySchema.extend(
+    txtQueryShape(ExecutionRecordSchema, 'ExecutionRecord')
+);
+
+/** Query of `GET /txt/workers` */
+export const GetTxtWorkersQuerySchema = z.strictObject({
+    ...inMemoryPageQueryShape,
+    ...txtQueryShape(ExecutionNodeWorkerSchema, 'ExecutionNodeWorker'),
+});
+
+/** A row of `GET /txt/nodes`: `active` is the number of processes */
+const TxtNodeRowSchema = NodeStateSchema.extend({
+    active: z.number(),
+});
+
+/** Query of `GET /txt/nodes` */
+export const GetTxtNodesQuerySchema = z.strictObject({
+    ...inMemoryPageQueryShape,
+    ...txtQueryShape(TxtNodeRowSchema, 'NodeState'),
+});
+
+/** Query of `GET /txt/controllers` */
+export const GetTxtControllersQuerySchema = z.strictObject({
+    ...inMemoryPageQueryShape,
+    ...txtQueryShape(ControllerStatsSchema, 'ControllerStats'),
+});
+
+/** Response of every `/txt` route */
+export const TxtTableSchema = z.string().meta({
+    id: 'TxtTable',
+    description: 'A plain-text table, one row per record, then a blank line and a footer: '
+        + '`Showing 101-200 of 1,523`, and when there are more, `next: ?<query>`: the '
+        + 'request\'s query with `from` set to the next page\'s. With `headers=false`, only '
+        + 'the rows.',
+});
+
+export type GetTxtJobsQuery = z.input<typeof GetTxtJobsQuerySchema>;
+export type GetTxtExecutionsQuery = z.input<typeof GetTxtExecutionsQuerySchema>;
+export type GetTxtWorkersQuery = z.input<typeof GetTxtWorkersQuerySchema>;
+export type GetTxtNodesQuery = z.input<typeof GetTxtNodesQuerySchema>;
+export type GetTxtControllersQuery = z.input<typeof GetTxtControllersQuerySchema>;

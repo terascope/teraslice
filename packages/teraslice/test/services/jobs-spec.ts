@@ -152,4 +152,68 @@ describe('JobsService', () => {
             expect(executionService.recoverExecution).not.toHaveBeenCalled();
         });
     });
+
+    describe('->getJobsWithExInfoAndTotal', () => {
+        let jobsService: JobsService;
+        let searchWithTotal: jest.Mock<(...args: any[]) => Promise<any>>;
+        let get: jest.Mock<(...args: any[]) => Promise<any>>;
+        let exSearch: jest.Mock<(...args: any[]) => Promise<any>>;
+
+        beforeEach(async () => {
+            const context = new TestContext('jobs-service') as any;
+            searchWithTotal = jest.fn<(...args: any[]) => Promise<any>>();
+            get = jest.fn<(...args: any[]) => Promise<any>>();
+            exSearch = jest.fn<(...args: any[]) => Promise<any>>();
+
+            context.stores = {
+                jobsStorage: { searchWithTotal, get },
+                executionStorage: { search: exSearch },
+            };
+            context.services = { executionService: {} };
+
+            jobsService = new JobsService(context);
+            await jobsService.initialize();
+        });
+
+        it('should add each job\'s latest ex and keep the total', async () => {
+            searchWithTotal.mockResolvedValue({
+                records: [{ job_id: 'job-1' }, { job_id: 'job-2' }],
+                total: 42,
+            });
+            get.mockImplementation(async (jobId2: string) => ({ job_id: jobId2 }));
+            exSearch.mockImplementation(async (query: string) => (
+                query.includes('job-1') ? [{ ex_id: 'ex-1', _status: 'running' }] : []
+            ));
+
+            const result = await jobsService.getJobsWithExInfoAndTotal({
+                query: 'job_id:*',
+                from: 10,
+                size: 2,
+                sort: '_created:desc',
+                exFields: ['ex_id', '_status'],
+            });
+
+            expect(result).toEqual({
+                records: [
+                    { job_id: 'job-1', ex: { ex_id: 'ex-1', _status: 'running' } },
+                    { job_id: 'job-2', ex: {} },
+                ],
+                total: 42,
+            });
+            expect(searchWithTotal).toHaveBeenCalledWith({
+                query: 'job_id:*', from: 10, size: 2, sort: '_created:desc'
+            });
+            expect(exSearch).toHaveBeenCalledWith(
+                'job_id: "job-1"', undefined, 1, '_created:desc', ['ex_id', '_status']
+            );
+        });
+
+        it('should return the total for an empty page', async () => {
+            searchWithTotal.mockResolvedValue({ records: [], total: 5 });
+
+            await expect(jobsService.getJobsWithExInfoAndTotal({ query: '*', from: 100, size: 10 }))
+                .resolves.toEqual({ records: [], total: 5 });
+            expect(get).not.toHaveBeenCalled();
+        });
+    });
 });

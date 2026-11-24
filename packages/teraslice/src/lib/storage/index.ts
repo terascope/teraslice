@@ -4,6 +4,8 @@ import { ExecutionStorage } from './execution.js';
 import { JobsStorage } from './jobs.js';
 import { StateStorage, SliceState } from './state.js';
 
+export type { RecordsWithTotal, PageSearch } from './backends/elasticsearch_store.js';
+
 export {
     SliceState,
     AnalyticsStorage,
