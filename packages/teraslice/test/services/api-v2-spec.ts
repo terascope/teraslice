@@ -319,6 +319,8 @@ describe('HTTP API v2', () => {
         it.each([
             ['size', '-1'],
             ['from', '1.5'],
+            ['size', ''],
+            ['from', ''],
             ['sort', 'ex_id'],
         ])('should respond with a 400 for controllers %s=%j', async (key, value) => {
             const response = await request('GET', '/v2/cluster/controllers', {
@@ -402,6 +404,15 @@ describe('HTTP API v2', () => {
             expect(response.body.error).toEqual(400);
             expect(response.body.message).toContain('Invalid request query');
             expect(response.body.message).toContain('groupBy');
+        });
+
+        it.each(['type', 'name'])('should respond with a 400 rather than list every connector for an empty %s', async (key) => {
+            const response = await request('GET', '/v2/cluster/connectors', {
+                searchParams: { [key]: '' }
+            });
+
+            expect(response.statusCode).toEqual(400);
+            expect(response.body.message).toContain(key);
         });
 
         it('should respond with a 400 for an unknown query param', async () => {
@@ -653,8 +664,12 @@ describe('HTTP API v2', () => {
                 ['size', 'ten'],
                 ['size', '-1'],
                 ['size', '1.5'],
+                // empty must not coerce to 0 (an empty page)
+                ['size', ''],
+                ['size', ' '],
                 ['from', '-1'],
                 ['from', '2.5'],
+                ['from', ''],
                 ['active', ''],
                 ['deleted', 'nope'],
             ])('should respond with a 400 for %s=%j', async (key, value) => {
@@ -1015,6 +1030,7 @@ describe('HTTP API v2', () => {
             it.each([
                 ['timeout', '-1'],
                 ['timeout', 'soon'],
+                ['timeout', ''],
                 ['force', 'maybe'],
                 ['blocking', ''],
             ])('should respond with a 400 for %s=%j', async (key, value) => {
@@ -1060,13 +1076,6 @@ describe('HTTP API v2', () => {
                 expect(setWorkers).toHaveBeenCalledExactlyOnceWith(exId, 0);
             });
 
-            // like v1 (Number('') is 0)
-            it('should treat an empty total as 0', async () => {
-                await request('POST', '/v2/jobs/job-1/_workers', { searchParams: { total: '' } });
-
-                expect(setWorkers).toHaveBeenCalledExactlyOnceWith(exId, 0);
-            });
-
             it.each([
                 [{}, 'exactly one'],
                 [{ add: '1', total: '3' }, 'exactly one'],
@@ -1075,6 +1084,9 @@ describe('HTTP API v2', () => {
                 [{ add: '' }, 'add'],
                 [{ remove: 'two' }, 'remove'],
                 [{ total: '1.5' }, 'total'],
+                // unlike v1, where Number('') is 0, so an empty total scales to no workers
+                [{ total: '' }, 'total'],
+                [{ total: ' ' }, 'total'],
                 [{ count: '2' }, 'Unrecognized key: "count"'],
             ])('should respond with a 400 for %j', async (searchParams, message) => {
                 const response = await request('POST', '/v2/jobs/job-1/_workers', { searchParams });
@@ -1199,6 +1211,17 @@ describe('HTTP API v2', () => {
             expect(recoverJob).not.toHaveBeenCalled();
         });
 
+        it('should respond with a 400 and not recover for an empty ex_id', async () => {
+            const response = await request('POST', '/v2/jobs/job-1/_recover', {
+                searchParams: { ex_id: '' }
+            });
+
+            expect(response.statusCode).toEqual(400);
+            expect(response.body.message).toContain('ex_id');
+            expect(recoverExecution).not.toHaveBeenCalled();
+            expect(recoverJob).not.toHaveBeenCalled();
+        });
+
         it('should respond with a 409 and not recover when ex_id is given and the job can\'t run', async () => {
             assertJobCanRun.mockRejectedValue(new TSError(
                 'Job job-1 is currently running, cannot have the same job concurrently running',
@@ -1303,6 +1326,14 @@ describe('HTTP API v2', () => {
                 size: 100,
                 sort: '_updated:desc',
             });
+        });
+
+        it.each(['job_id', 'status'])('should respond with a 400 rather than list every execution for an empty %s', async (param) => {
+            const response = await request('GET', '/v2/ex', { searchParams: { [param]: '' } });
+
+            expect(response.statusCode).toEqual(400);
+            expect(response.body.message).toContain(param);
+            expect(searchWithTotal).not.toHaveBeenCalled();
         });
 
         it('should pass an unknown status through, like v1, so it matches nothing', async () => {
@@ -1966,6 +1997,17 @@ describe('HTTP API v2', () => {
             for (const route of allV2Routes()) {
                 expect(operationIds).toContain(route.operationId);
             }
+        });
+
+        it.each([
+            ['/v2/ex', 'get', 'job_id'],
+            ['/v2/ex', 'get', 'status'],
+            ['/v2/jobs/{jobId}/_recover', 'post', 'ex_id'],
+        ])('should document that %s %s ?%s cannot be empty', (path, method, name) => {
+            const param = spec.paths[path][method].parameters
+                .find((p: any) => p.in === 'query' && p.name === name);
+
+            expect(param.schema.minLength).toEqual(1);
         });
 
         it('should include the asset paths, tagged Assets', () => {

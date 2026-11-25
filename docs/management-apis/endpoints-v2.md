@@ -46,8 +46,10 @@ Query params are received as strings. v2 reads them as follows:
 
 - **Booleans** accept `true`, `1`, `yes`, `on`, `y`, `enabled` and `false`, `0`, `no`, `off`, `n`,
   `disabled`, in any case. Anything else, including an empty value (`?deleted=`), is a 400.
-- **Numbers** must be integers. An empty value (`?size=`) means `0`, except for the tap's `size`,
-  where it's a 400.
+- **Numbers** must be integers. An empty value (`?size=`) is a 400, it doesn't mean `0`.
+- **Ids and filters** (`job_id`, `ex_id`, `status`, and the connectors' `type` and `name`) can't
+  be empty: an empty value is a 400 rather than matching everything. A few params treat empty
+  as a default instead, as their descriptions say: `sort`, `filter`, `ex` and `fields`.
 - **Lists** (`ex`, `status`) are comma-separated: `?status=running,failed`.
 
 ### Responses
@@ -282,8 +284,8 @@ Used by `GET /v2/cluster/connectors`.
 
 | Field | Type | Default | Description |
 | ----- | ---- | ------- | ----------- |
-| `type` | string | | Only return connectors of this type |
-| `name` | string | | Only return connections with this name |
+| `type` | string | | Only return connectors of this type. Cannot be empty. |
+| `name` | string | | Only return connections with this name. Cannot be empty. |
 | `groupBy` | `"type"` | | Return connection names grouped by connector type |
 <!-- END GENERATED V2 SCHEMA GetClusterConnectorsQuery -->
 
@@ -395,7 +397,7 @@ Used by `POST /v2/jobs/{jobId}/_recover`.
 | Field | Type | Default | Description |
 | ----- | ---- | ------- | ----------- |
 | `cleanup_type` | `"all"` \| `"errors"` \| `"pending"` | | Reprocess only these slices, then finish instead of resuming: `all`: slices left in error or started; `errors`: slices in error; `pending`: slices not completed or failed. If left out, failed slices are retried and the execution resumes where it left off. |
-| `ex_id` | string | | Execution to recover, with the config it ran with; must belong to the job. If left out, recovers the latest execution with the job's current config. |
+| `ex_id` | string | | Execution to recover, with the config it ran with; must belong to the job. If left out, recovers the latest execution with the job's current config. Cannot be empty. |
 <!-- END GENERATED V2 SCHEMA RecoverJobQuery -->
 
 ### Job errors query
@@ -436,8 +438,8 @@ Used by `GET /v2/ex`.
 | `from` | integer | `0` | Number of matching records to skip, for paging |
 | `sort` | string | `"_updated:desc"` | Sort order as `field`, `field:asc` or `field:desc`, comma-separated for more than one; any other order is rejected. Empty uses the default |
 | `filter` | string | | Lucene query string, ANDed with the route's own query, e.g. `name:"my-job"` |
-| `status` | string | | Comma-separated execution statuses, e.g. `running,failed`; returns executions in any status listed. Not validated: an unknown status matches nothing. |
-| `job_id` | string | | Only return executions of this job |
+| `status` | string | | Comma-separated execution statuses, e.g. `running,failed`; returns executions in any status listed. Not validated: an unknown status matches nothing. Cannot be empty. |
+| `job_id` | string | | Only return executions of this job. Cannot be empty. |
 | `deleted` | boolean | `false` | `true` returns only soft-deleted records; `false` (the default) only records that aren't |
 <!-- END GENERATED V2 SCHEMA GetExecutionsQuery -->
 
@@ -530,8 +532,8 @@ Used by `GET /v2/txt/ex`.
 | `from` | integer | `0` | Number of matching records to skip, for paging |
 | `sort` | string | `"_updated:desc"` | Sort order as `field`, `field:asc` or `field:desc`, comma-separated for more than one; any other order is rejected. Empty uses the default |
 | `filter` | string | | Lucene query string, ANDed with the route's own query, e.g. `name:"my-job"` |
-| `status` | string | | Comma-separated execution statuses, e.g. `running,failed`; returns executions in any status listed. Not validated: an unknown status matches nothing. |
-| `job_id` | string | | Only return executions of this job |
+| `status` | string | | Comma-separated execution statuses, e.g. `running,failed`; returns executions in any status listed. Not validated: an unknown status matches nothing. Cannot be empty. |
+| `job_id` | string | | Only return executions of this job. Cannot be empty. |
 | `deleted` | boolean | `false` | `true` returns only soft-deleted records; `false` (the default) only records that aren't |
 | `fields` | string | | Comma-separated columns, in order: fields of ExecutionRecord. A dotted path reads a nested field, e.g. `ex._status` with `?ex`. An unknown field is rejected. Empty or left out uses the route's default columns |
 | `headers` | boolean | `true` | `false` leaves out the column names and the paging footer, so the response is only rows |
