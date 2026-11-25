@@ -1,7 +1,6 @@
 import 'jest-extended';
 import { jest } from '@jest/globals';
 import got from 'got';
-import nock from 'nock';
 import express from 'express';
 import http from 'node:http';
 import fs from 'node:fs';
@@ -107,7 +106,6 @@ describe('HTTP API v2', () => {
     const { version } = getPackageJSON();
 
     const app = express();
-    const assetsUrl = 'http://example.asset:1234';
     const context = new TestContext('http-api-v2') as any;
 
     context.stores = {
@@ -136,6 +134,43 @@ describe('HTTP API v2', () => {
     let baseUrl: string;
     let server: http.Server;
 
+    /**
+     * A fake assets service on a real port, for the asset proxy. nock can't
+     * stand in for it: nock 15 also opens a real connection to the mocked
+     * host, and a POST whose body is still streaming in loses the race to
+     * that connection's error about half the time.
+     */
+    interface AssetsRequest {
+        method: string;
+        path: string;
+        query: Record<string, string>;
+        body: Buffer;
+    }
+    type AssetsReply = (req: http.IncomingMessage, res: http.ServerResponse) => void;
+
+    /** The path and decoded query: got may encode the query differently than it was sent */
+    function splitUrl(url: string) {
+        const { pathname, searchParams } = new URL(url, 'http://localhost');
+        return { path: pathname, query: Object.fromEntries(searchParams) };
+    }
+
+    const replyForwarded: AssetsReply = (_req, res) => {
+        res.writeHead(200, { 'content-type': 'application/json' });
+        res.end(JSON.stringify({ forwarded: true }));
+    };
+
+    let assetsRequests: AssetsRequest[] = [];
+    let assetsReply: AssetsReply = replyForwarded;
+
+    const assetsServer = http.createServer(async (req, res) => {
+        const chunks: Buffer[] = [];
+        for await (const chunk of req) chunks.push(chunk);
+        assetsRequests.push({
+            method: req.method!, ...splitUrl(req.url!), body: Buffer.concat(chunks)
+        });
+        assetsReply(req, res);
+    });
+
     /** The master's v2 routes plus the asset routes, which the assets service serves */
     function allV2Routes() {
         const assetRoutes = createV2AssetRegistry(() => {
@@ -157,6 +192,12 @@ describe('HTTP API v2', () => {
         port = await findPort();
 
         baseUrl = `http://localhost:${port}`;
+
+        await new Promise<void>((resolve) => {
+            assetsServer.listen(0, '127.0.0.1', resolve);
+        });
+        const { port: assetsPort } = assetsServer.address() as { port: number };
+        const assetsUrl = `http://127.0.0.1:${assetsPort}`;
 
         api = new ApiService(context, { assetsUrl, app });
         await api.initialize();
@@ -181,6 +222,11 @@ describe('HTTP API v2', () => {
                 });
             });
         }
+        // the master's keep-alive connections would hold close() open
+        assetsServer.closeAllConnections();
+        await new Promise((resolve) => {
+            assetsServer.close(resolve);
+        });
     });
 
     describe('GET /v2', () => {
@@ -1735,8 +1781,9 @@ describe('HTTP API v2', () => {
 
     // The assets service serves these; the master only forwards them
     describe('/v2 asset proxy', () => {
-        afterEach(() => {
-            nock.cleanAll();
+        beforeEach(() => {
+            assetsRequests = [];
+            assetsReply = replyForwarded;
         });
 
         it.each([
@@ -1747,34 +1794,45 @@ describe('HTTP API v2', () => {
             ['GET', '/v2/txt/assets?fields=name,version'],
             ['GET', '/v2/txt/assets/my-asset/1.0.0'],
         ])('should forward %s %s with its full path', async (method, path) => {
-            const scope = nock(assetsUrl)
-                .intercept(path, method)
-                .reply(200, { forwarded: true });
-
             const response = await request(method, path);
 
             expect(response.statusCode).toEqual(200);
             expect(response.body).toEqual({ forwarded: true });
-            expect(scope.isDone()).toBeTrue();
+            expect(assetsRequests).toEqual([{ method, ...splitUrl(path), body: Buffer.alloc(0) }]);
         });
 
         it('should forward an upload body as-is and keep the status', async () => {
-            // not valid utf8, so nock hands the matcher the body hex-encoded
+            // not valid utf8, to check it isn't decoded on the way
             const zip = Buffer.from([0x50, 0x4b, 0x03, 0x04, 0xff, 0xfe, 0x00, 0x80]);
-            let received: Buffer | undefined;
-            const scope = nock(assetsUrl)
-                .post('/v2/assets?blocking=false', (body) => {
-                    received = Buffer.from(body, 'hex');
-                    return true;
-                })
-                .reply(201, { asset_id: 'a'.repeat(40) });
+            assetsReply = (_req, res) => {
+                res.writeHead(201, { 'content-type': 'application/json' });
+                res.end(JSON.stringify({ asset_id: 'a'.repeat(40) }));
+            };
 
             const response = await request('POST', '/v2/assets?blocking=false', { body: zip });
 
-            expect(response.statusCode).toEqual(201);
-            expect(response.body).toEqual({ asset_id: 'a'.repeat(40) });
-            expect(received).toEqual(zip);
-            expect(scope.isDone()).toBeTrue();
+            // together, so a failure shows the error message with the status
+            expect({ status: response.statusCode, body: response.body })
+                .toEqual({ status: 201, body: { asset_id: 'a'.repeat(40) } });
+            expect(assetsRequests).toEqual([
+                { method: 'POST', ...splitUrl('/v2/assets?blocking=false'), body: zip },
+            ]);
+        });
+
+        it.each([
+            ['GET', '/v2/assets'],
+            ['POST', '/v2/assets'],
+        ])('should respond with an error, not close the socket, when %s %s fails upstream', async (method, path) => {
+            // the assets service drops the connection without responding
+            assetsReply = (req) => req.socket.destroy();
+
+            const response = await request(method, path, {
+                ...(method === 'POST' && { body: Buffer.from([0x50, 0x4b]) }),
+                retry: { limit: 0 },
+            });
+
+            expect(response.statusCode).toEqual(500);
+            expect(response.body).toEqual({ error: 500, message: expect.any(String) });
         });
 
         it.each([
@@ -1782,17 +1840,13 @@ describe('HTTP API v2', () => {
             ['application/json; charset=utf-8'],
             ['application/x-www-form-urlencoded'],
         ])('should reject an upload sent as %s with a 400', async (contentType) => {
-            const scope = nock(assetsUrl)
-                .post(/.*/)
-                .reply(201, {});
-
             const response = await request('POST', '/v2/assets', {
                 body: '{"some":"json"}',
                 headers: { 'content-type': contentType },
             });
 
             expect(response.statusCode).toEqual(400);
-            expect(scope.isDone()).toBeFalse();
+            expect(assetsRequests).toEqual([]);
         });
 
         // v1 forwards without the /v1 prefix, to the assets service's unversioned routes
@@ -1805,15 +1859,13 @@ describe('HTTP API v2', () => {
             ['POST', '/v1/assets', '/assets'],
             ['GET', '/txt/assets/my-asset', '/txt/assets/my-asset'],
         ])('should forward v1\'s %s %s to %s', async (method, path, forwardedPath) => {
-            const scope = nock(assetsUrl)
-                .intercept(forwardedPath, method)
-                .reply(200, { forwarded: true });
-
             const response = await request(method, path);
 
             expect(response.statusCode).toEqual(200);
             expect(response.body).toEqual({ forwarded: true });
-            expect(scope.isDone()).toBeTrue();
+            expect(assetsRequests).toEqual([
+                { method, ...splitUrl(forwardedPath), body: Buffer.alloc(0) },
+            ]);
         });
 
         // The proxy is mounted first, so a master route under an asset path

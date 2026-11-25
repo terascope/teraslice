@@ -1,6 +1,5 @@
 import { Router, Express, ErrorRequestHandler } from 'express';
 import bodyParser from 'body-parser';
-import { pipeline as streamPipeline } from 'node:stream/promises';
 import got, { OptionsInit } from 'got';
 import { RecoveryCleanupType, TerasliceConfig, generateJobJSONSchema } from '@terascope/job-components';
 import {
@@ -159,17 +158,36 @@ export class ApiService {
             if (!isKey(got.stream, method)) {
                 throw new Error(`${method} is not a supported HTTP method`);
             }
-            const stream = got.stream[method](uri, options);
+            const upstream = got.stream[method](uri, options);
 
-            await streamPipeline(
-                req,
-                stream,
-                res,
-            );
+            // A got stream that fails destroys every response piped into it,
+            // and `stream.pipeline` destroys `req` and `res` on an error. Either
+            // closes the client's socket before `sendError` in the catch below
+            // can respond, so the client only sees a hang up. So `res` is piped
+            // only once the assets service responds: got copies the status and
+            // headers into it right after this `response` listener runs.
+            await new Promise<void>((resolve, reject) => {
+                upstream.on('error', reject);
+                req.on('error', reject);
+                upstream.once('response', () => upstream.pipe(res));
+                res.once('close', () => {
+                    // the client went away before the response was sent
+                    if (!res.writableFinished) upstream.destroy();
+                    resolve();
+                });
+                req.pipe(upstream);
+            });
         } catch (err) {
             const { statusCode, message } = parseErrorInfo(err, {
                 defaultErrorMsg: 'Asset Service error while processing request'
             });
+            if (res.headersSent) {
+                // Part of the response was sent; end the connection, so the
+                // client can tell it is cut short
+                req.logger.error(err, 'Asset Service error after the response started');
+                res.destroy();
+                return;
+            }
             sendError(res, statusCode, message, req.logger);
         }
     }
