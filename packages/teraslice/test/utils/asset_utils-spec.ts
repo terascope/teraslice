@@ -4,9 +4,63 @@ import {
     toSemverRange, findMatchingAsset,
     getMajorVersion, toVersionQuery,
     findSimilarAssets, getInCompatibilityReason,
+    addExternalStorageStatus,
 } from '../../src/lib/utils/asset_utils.js';
 
 describe('Asset Utils', () => {
+    describe('->addExternalStorageStatus', () => {
+        const s3List = [
+            { File: '123.zip', Size: 12345 },
+            { File: 'abc.zip', Size: 56873 },
+            { File: 'foo.zip', Size: 1 },
+        ];
+
+        it('sets "available" on the records whose zip is in the bucket', () => {
+            const records = [
+                { id: '123', name: 'asset-123' },
+                { id: 'abc', name: 'asset-abc' },
+                { id: 'foo', name: 'foo-asset' },
+            ];
+
+            expect(addExternalStorageStatus(s3List, records)).toEqual([
+                { id: '123', name: 'asset-123', external_storage: 'available' },
+                { id: 'abc', name: 'asset-abc', external_storage: 'available' },
+                { id: 'foo', name: 'foo-asset', external_storage: 'available' },
+            ]);
+        });
+
+        it('sets "missing" on the records whose zip is not in the bucket', () => {
+            const records = [{ id: '50000' }, { id: 'abc' }];
+
+            expect(addExternalStorageStatus(s3List, records)).toEqual([
+                { id: '50000', external_storage: 'missing' },
+                { id: 'abc', external_storage: 'available' },
+            ]);
+        });
+
+        it('only matches the ".zip" objects, by their name without the extension', () => {
+            const records = [{ id: 'bar' }, { id: 'bar.zip' }];
+
+            expect(addExternalStorageStatus([{ File: 'bar.txt' }, { File: 'bar.zip.zip' }], records))
+                .toEqual([
+                    { id: 'bar', external_storage: 'missing' },
+                    { id: 'bar.zip', external_storage: 'available' },
+                ]);
+        });
+
+        it('sets "missing" on every record when the bucket is empty', () => {
+            expect(addExternalStorageStatus([], [{ id: '123' }])).toEqual([
+                { id: '123', external_storage: 'missing' },
+            ]);
+        });
+
+        it('does not change the input records', () => {
+            const records = [{ id: '123' }];
+            addExternalStorageStatus(s3List, records);
+            expect(records).toEqual([{ id: '123' }]);
+        });
+    });
+
     describe('->toSemverRange', () => {
         test.each([
             ['latest', '*'],

@@ -4,13 +4,19 @@ import type {
     PathsObject, ReferenceObject, ResponsesObject, SchemaObject
 } from 'openapi3-ts/oas31';
 import { isDeepEqual, isPlainObject } from '@terascope/core-utils';
-import { generateJobJSONSchema } from '@terascope/job-components';
-import { TerasliceApiV2 } from '@terascope/types';
-import type { ClusterMasterContext } from '../../../../../interfaces.js';
 import { getPackageJSON } from '../../../../utils/file_utils.js';
-import type { AnyRouteDef, ParamsSchema } from '../../../../utils/v2_routes.js';
+import type { AnyRouteDef, ParamsSchema, RouteTag } from '../../../../utils/v2_routes.js';
 
 const terasliceVersion = getPackageJSON().version;
+
+/** The spec's tags, in the order the docs list them */
+export const v2Tags: readonly { name: RouteTag; description: string }[] = [
+    { name: 'Cluster', description: 'Cluster state and configuration' },
+    { name: 'Jobs', description: 'Job definitions and lifecycle' },
+    { name: 'Executions', description: 'Execution records, read only' },
+    { name: 'Assets', description: 'Asset bundles: upload, list and delete' },
+    { name: 'Text', description: 'Lists as plain-text tables, for terminals' },
+];
 
 /*
  * An OpenAPI spec has `paths` (the endpoints) and `components.schemas`
@@ -139,12 +145,20 @@ function toParameters(
 }
 
 /**
- * The 200 response of a route: JSON (also for `raw` routes, which send JSON
- * they serialized themselves), or `text/plain` with the declared headers.
+ * The success responses of a route: JSON (also for `raw` routes, which send
+ * JSON they serialized themselves), or `text/plain` with the declared
+ * headers. A `json` route gets one entry per `successStatuses` status, all
+ * with the same body, plus 200.
  */
 function routeResponses(route: AnyRouteDef, components: Components): ResponsesObject {
     const schema = fromZod(route.response, 'output', components);
-    if (route.format !== 'text') return successResponses(schema);
+    if (route.format !== 'text') {
+        const responses = successResponses(schema);
+        for (const [status, description] of Object.entries(route.successStatuses ?? {})) {
+            responses[status] = { description, content: jsonContent(schema) };
+        }
+        return responses;
+    }
 
     const headers: HeadersObject = {};
     for (const [name, description] of Object.entries(route.responseHeaders ?? {})) {
@@ -194,6 +208,13 @@ function toOperation(route: AnyRouteDef, components: Components): OperationObjec
             required: true,
             content: jsonContent(fromZod(route.body, 'input', components)),
         };
+    } else if (route.bodyFormat === 'binary') {
+        operation.requestBody = {
+            required: true,
+            content: {
+                'application/octet-stream': { schema: { type: 'string', format: 'binary' } },
+            },
+        };
     }
 
     return operation;
@@ -228,68 +249,11 @@ export function convertToOpenAPIPath(path: string): string {
 }
 
 /**
- * Adds `POST /v2/jobs` (submit) and `PUT /v2/jobs/{jobId}` (update) to the
- * spec by hand. They're still plain express routes, not registry routes, so
- * they aren't in `routes` and the loop in `generateV2Spec` never sees them.
- *
- * Runs after that loop, so `paths` already has `GET /v2/jobs` and
- * `GET`/`DELETE /v2/jobs/{jobId}`; this adds `.post` and `.put` next to them.
- * The request body is the cluster's job schema, added to `components` as
- * `JobConfig`. The responses come from existing zod schemas.
- *
- * TODO: drop this once both routes are registered with `registry.post`/`.put`
- */
-function addJobConfigRoutes(
-    paths: PathsObject,
-    context: ClusterMasterContext,
-    components: Components
-): void {
-    const renames = { operation: 'JobOperation', api: 'JobAPI' };
-    components.JobConfig = moveDefinitionsToComponents(
-        generateJobJSONSchema(context), 'definitions', components, renames
-    );
-    const requestBody = { required: true, content: jsonContent(componentRef('JobConfig')) };
-
-    paths['/v2/jobs'] ??= {};
-    paths['/v2/jobs'].post = {
-        operationId: 'submitJob',
-        summary: 'Submit a job, and start it unless `start` is false',
-        tags: ['Jobs'],
-        parameters: [{
-            name: 'start',
-            in: 'query',
-            required: false,
-            description: 'Set to false to save the job without starting it',
-            schema: { type: 'boolean', default: true },
-        }],
-        requestBody,
-        responses: successResponses(
-            fromZod(TerasliceApiV2.NewExecutionSchema.partial({ ex_id: true }), 'output', components),
-            'Success. `ex_id` is only set when the job was started'
-        ),
-    };
-
-    paths['/v2/jobs/{jobId}'] ??= {};
-    paths['/v2/jobs/{jobId}'].put = {
-        operationId: 'updateJob',
-        summary: 'Replace a job\'s config',
-        tags: ['Jobs'],
-        parameters: [{ name: 'jobId', in: 'path', required: true, schema: { type: 'string' } }],
-        requestBody,
-        responses: successResponses(
-            fromZod(TerasliceApiV2.UpdatedJobSchema, 'output', components)
-        ),
-    };
-}
-
-/**
  * Builds the OpenAPI 3.1 document for the /v2 API from the registered route
- * defs, plus the job submit and update routes, whose body is the job schema
- * for this cluster's `cluster_manager_type`.
+ * defs.
  */
 export function generateV2Spec(
-    routes: readonly AnyRouteDef[],
-    context: ClusterMasterContext
+    routes: readonly AnyRouteDef[]
 ): OpenAPIObject {
     const components: Components = {
         ErrorResponse: {
@@ -309,8 +273,6 @@ export function generateV2Spec(
         paths[path][route.method] = toOperation(route, components);
     }
 
-    addJobConfigRoutes(paths, context, components);
-
     return {
         openapi: '3.1.0',
         info: {
@@ -318,12 +280,7 @@ export function generateV2Spec(
             version: terasliceVersion,
             description: 'Management API for the Teraslice distributed computing platform.',
         },
-        tags: [
-            { name: 'Cluster', description: 'Cluster state and configuration' },
-            { name: 'Jobs', description: 'Job definitions and lifecycle' },
-            { name: 'Executions', description: 'Execution records, read only' },
-            { name: 'Text', description: 'Lists as plain-text tables, for terminals' },
-        ],
+        tags: [...v2Tags],
         paths,
         components: {
             schemas: components,

@@ -5,10 +5,9 @@ import bodyParser from 'body-parser';
 import got from 'got';
 import { z } from 'zod';
 import { debugLogger, TSError } from '@terascope/core-utils';
-import { TestContext } from '@terascope/job-components';
 import { findPort } from '../../src/lib/utils/port_utils.js';
 import {
-    createRouteRegistry, type ParamsSchema, type ResponseFormat,
+    createRouteRegistry, withStatus, type ParamsSchema, type ResponseFormat,
     type RouteDef, type TextResult
 } from '../../src/lib/utils/v2_routes.js';
 import { generateV2Spec } from '../../src/lib/cluster/services/api/v2/openapi.js';
@@ -165,6 +164,42 @@ describe('v2 route registry', () => {
         response: z.object({}),
     }, throwEmpty, { errorMessage: ({ id }) => `Could not do it: ${id}` });
 
+    // `successStatuses` and `withStatus`, on their own registry for the same reason
+    const statusRegistry = createRouteRegistry();
+    const statusSpec = {
+        response: z.object({ id: z.string() }),
+        successStatuses: { 200: 'Already existed', 201: 'Created' },
+    } as const;
+
+    statusRegistry.post('/status/:result', {
+        ...statusSpec,
+        operationId: 'saveStatus',
+        summary: 'Sends 201 for "new", 200 otherwise',
+        params: z.strictObject({ result: z.string() }),
+    }, ({ params }) => (
+        params.result === 'new' ? withStatus(201, { id: 'a' }) : { id: 'a' }
+    ));
+
+    statusRegistry.post('/status-undeclared', {
+        ...statusSpec,
+        operationId: 'saveUndeclared',
+        summary: 'Sends a status it does not declare',
+    }, () => withStatus(202, { id: 'a' }));
+
+    // `binary` body routes, on their own registry for the same reason
+    const binaryRegistry = createRouteRegistry();
+
+    binaryRegistry.post('/upload', {
+        operationId: 'upload',
+        summary: 'Reads the body as a stream',
+        bodyFormat: 'binary',
+        response: z.object({ bytes: z.number(), body: z.unknown() }),
+    }, async ({ body }, req) => {
+        let bytes = 0;
+        for await (const chunk of req) bytes += (chunk as Buffer).length;
+        return { bytes, body };
+    });
+
     let server: http.Server;
     let baseUrl: string;
 
@@ -182,6 +217,8 @@ describe('v2 route registry', () => {
         app.use(rawRegistry.router);
         app.use(textRegistry.router);
         app.use(messageRegistry.router);
+        app.use(statusRegistry.router);
+        app.use(binaryRegistry.router);
 
         await new Promise((resolve, reject) => {
             server = app.listen(port, (err) => {
@@ -296,6 +333,87 @@ describe('v2 route registry', () => {
                     );
                 }
             );
+
+            it.each(['raw', 'text'] as const)(
+                'should throw for successStatuses on a %s route',
+                (format) => {
+                    const def = defineRoute({
+                        operationId: 'x',
+                        method: 'get',
+                        path: '/other',
+                        summary: 'Other',
+                        response: z.string(),
+                        format,
+                        successStatuses: { 201: 'Created' },
+                    });
+
+                    expect(() => createRouteRegistry().register(def, () => ({}) as any)).toThrow(
+                        'v2 route GET /other: only a json route can have successStatuses'
+                    );
+                }
+            );
+
+            it('should throw for successStatuses that are not 2xx', () => {
+                const def = defineRoute({
+                    operationId: 'x',
+                    method: 'post',
+                    path: '/json',
+                    summary: 'JSON',
+                    response,
+                    successStatuses: { 201: 'Created', 302: 'Moved', 404: 'Missing' },
+                });
+
+                expect(() => createRouteRegistry().register(def, () => ({}))).toThrow(
+                    'v2 route POST /json: successStatuses must be 2xx, got 302, 404'
+                );
+            });
+
+            it('should accept 2xx successStatuses on a json route', () => {
+                const def = defineRoute({
+                    operationId: 'x',
+                    method: 'post',
+                    path: '/json',
+                    summary: 'JSON',
+                    response,
+                    format: 'json',
+                    successStatuses: { 200: 'Existed', 201: 'Created' },
+                });
+
+                expect(() => createRouteRegistry().register(def, () => ({}))).not.toThrow();
+            });
+        });
+
+        describe('with a binary body', () => {
+            it('should throw when the route also has a body schema', () => {
+                const def = defineRoute({
+                    operationId: 'x',
+                    method: 'post',
+                    path: '/upload',
+                    summary: 'Upload',
+                    body: z.object({}),
+                    bodyFormat: 'binary',
+                    response,
+                });
+
+                expect(() => createRouteRegistry().register(def, () => ({}))).toThrow(
+                    'v2 route POST /upload: a binary body route can\'t have a body schema'
+                );
+            });
+
+            it.each(['get', 'delete'] as const)('should throw on a %s route', (method) => {
+                const def = defineRoute({
+                    operationId: 'x',
+                    method,
+                    path: '/upload',
+                    summary: 'Upload',
+                    bodyFormat: 'binary',
+                    response,
+                });
+
+                expect(() => createRouteRegistry().register(def, () => ({}))).toThrow(
+                    `v2 route ${method.toUpperCase()} /upload: a ${method} route can't take a binary body`
+                );
+            });
         });
 
         describe('that is already registered', () => {
@@ -526,7 +644,7 @@ describe('v2 route registry', () => {
         });
 
         it('should be documented as text/plain with its headers', () => {
-            const spec = generateV2Spec(textRegistry.routes, new TestContext('v2-routes-spec') as any);
+            const spec = generateV2Spec(textRegistry.routes);
 
             expect(spec.paths?.['/v2/text'].get?.responses?.[200]).toEqual({
                 description: 'Success',
@@ -541,10 +659,96 @@ describe('v2 route registry', () => {
         });
 
         it('should keep raw routes documented as JSON', () => {
-            const spec = generateV2Spec(rawRegistry.routes, new TestContext('v2-routes-spec') as any);
+            const spec = generateV2Spec(rawRegistry.routes);
 
             expect(spec.paths?.['/v2/raw'].get?.responses?.[200]?.content)
                 .toContainKey('application/json');
+        });
+    });
+
+    describe('a route with successStatuses', () => {
+        it('should send the status of a withStatus result', async () => {
+            const { status, body } = await request('/status/new', { method: 'POST' });
+
+            expect(status).toBe(201);
+            expect(body).toEqual({ id: 'a' });
+        });
+
+        it('should send a 200 for a plain result', async () => {
+            const { status, body } = await request('/status/old', { method: 'POST' });
+
+            expect(status).toBe(200);
+            expect(body).toEqual({ id: 'a' });
+        });
+
+        it('should respond with a 500 for a status not in successStatuses', async () => {
+            const { status, body } = await request('/status-undeclared', { method: 'POST' });
+
+            expect(status).toBe(500);
+            expect(body.message).toContain(
+                'v2 route POST /status-undeclared: status 202 is not in successStatuses'
+            );
+        });
+
+        it('should document every status with the response body', () => {
+            const spec = generateV2Spec(statusRegistry.routes);
+            const { responses } = spec.paths?.['/v2/status/{result}'].post ?? {};
+            const content = {
+                'application/json': { schema: expect.objectContaining({ type: 'object' }) },
+            };
+
+            expect(responses).toEqual({
+                200: { description: 'Already existed', content },
+                201: { description: 'Created', content },
+                default: { $ref: '#/components/responses/Error' },
+            });
+        });
+
+        it('should document 200 as Success when it is not listed', () => {
+            const routes = [{ ...statusRegistry.routes[0], successStatuses: { 201: 'Created' } }];
+            const spec = generateV2Spec(routes);
+            const { responses } = spec.paths?.['/v2/status/{result}'].post ?? {};
+
+            expect(responses?.[200]?.description).toBe('Success');
+            expect(responses?.[201]?.description).toBe('Created');
+        });
+    });
+
+    describe('a binary body route', () => {
+        it('should leave the body on req for the handler to stream', async () => {
+            const { status, body } = await request('/upload', {
+                method: 'POST',
+                body: Buffer.alloc(1024, 1),
+                headers: { 'content-type': 'application/octet-stream' },
+            });
+
+            expect(status).toBe(200);
+            expect(body).toEqual({ bytes: 1024 });
+        });
+
+        it('should accept a body sent without a content type', async () => {
+            const { status, body } = await request('/upload', {
+                method: 'POST',
+                body: Buffer.alloc(10, 1),
+            });
+
+            expect(status).toBe(200);
+            expect(body).toEqual({ bytes: 10 });
+        });
+
+        it('should record the body format on the def', () => {
+            expect(binaryRegistry.routes[0].bodyFormat).toBe('binary');
+        });
+
+        it('should be documented as an octet-stream request body', () => {
+            const spec = generateV2Spec(binaryRegistry.routes);
+
+            expect(spec.paths?.['/v2/upload'].post?.requestBody).toEqual({
+                required: true,
+                content: {
+                    'application/octet-stream': { schema: { type: 'string', format: 'binary' } },
+                },
+            });
         });
     });
 
@@ -830,6 +1034,21 @@ describe('v2 route registry', () => {
                 }));
                 // @ts-expect-error not a ResponseFormat
                 text.get('/text5', { ...spec, operationId: 'v', format: 'csv' }, () => 'a');
+            }).not.toThrow();
+        });
+
+        it('should type withStatus results from the response schema', () => {
+            expect(() => {
+                const json = createRouteRegistry();
+                const spec = {
+                    operationId: 'x', summary: 'X', response: z.object({ a: z.number() }),
+                };
+
+                json.post('/ok', spec, () => withStatus(201, { a: 1 }));
+                // @ts-expect-error the body must match the response schema
+                json.post('/bad', { ...spec, operationId: 'y' }, () => withStatus(201, { a: 'b' }));
+                // @ts-expect-error a text route can't return withStatus
+                json.get('/text', { ...spec, operationId: 'z', response: z.string(), format: 'text' }, () => withStatus(201, { body: 'a' }));
             }).not.toThrow();
         });
 

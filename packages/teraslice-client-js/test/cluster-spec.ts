@@ -328,12 +328,22 @@ describe('Teraslice Cluster', () => {
 
             it.each([
                 'assets', 'assets/ex1', 'assets/ex1/0.0.1',
-            ])('should get v1\'s /txt/%s, which has no /v2 table', async (type) => {
-                nock('http://teraslice.example.dev')
+            ])('should get /v2/txt/%s', async (type) => {
+                nock('http://teraslice.example.dev/v2')
                     .get(`/txt/${type}`)
                     .reply(200, 'assets-txt-response');
 
                 await expect(v2Cluster.txt(type)).resolves.toEqual('assets-txt-response');
+            });
+
+            it('should page the assets table', async () => {
+                nock('http://teraslice.example.dev/v2')
+                    .get('/txt/assets')
+                    .query({ size: '10', from: '10' })
+                    .reply(200, 'assets-txt-response');
+
+                await expect(v2Cluster.txt('assets', { size: 10, from: 10 }))
+                    .resolves.toEqual('assets-txt-response');
             });
 
             it('should reject an invalid type', async () => {

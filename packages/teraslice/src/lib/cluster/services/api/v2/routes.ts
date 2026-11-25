@@ -4,19 +4,19 @@ import {
 } from '@terascope/core-utils';
 import { type Logger, type ExecutionStatus, TerasliceApiV2 } from '@terascope/types';
 import type { ApiService } from '../api.js';
-import type { ControllerStats, TerasliceRequest } from '../../../../../interfaces.js';
+import type { ControllerStats } from '../../../../../interfaces.js';
 import type { RecordsWithTotal } from '../../../../storage/index.js';
 import {
-    createJobActiveQuery, addDeletedToQuery, addFilterToQuery, buildConnectorList,
-    explainResultWindowError, parseFields, printPagedTable
+    createJobActiveQuery, addDeletedToQuery, addFilterToQuery, buildConnectorList
 } from '../../../../utils/api_utils.js';
 import { getPackageJSON } from '../../../../utils/file_utils.js';
+import { byKeys, pageInMemory, toPage } from '../../../../utils/pagination.js';
 import {
-    byKeys, pageInMemory, toPage, paginationHeaders, paginationResponseHeaders
-} from '../../../../utils/pagination.js';
-import {
-    createRouteRegistry, type RouteRegistry, type Parsed, type TextResult
+    createRouteRegistry, type RouteRegistry, type Parsed
 } from '../../../../utils/v2_routes.js';
+import {
+    txtRouteSpec, toTextTable, mapRecords, sortOrDefault, pagedSearch
+} from './route-utils.js';
 
 const terasliceVersion = getPackageJSON().version;
 
@@ -62,45 +62,6 @@ function toControllerStatsResponse(
     }));
 }
 
-/** The spec fields every /txt route shares */
-const txtRouteSpec = {
-    tags: ['Text'],
-    response: TerasliceApiV2.TxtTableSchema,
-    format: 'text',
-    responseHeaders: paginationResponseHeaders,
-} as const;
-
-/** The table options every /txt route's query has, once parsed */
-type TxtTableQuery = Pick<Parsed<typeof TerasliceApiV2.GetTxtJobsQuerySchema>, 'fields' | 'headers'>;
-
-/**
- * The response of a /txt route: the page as a table with its footer, and
- * the paging headers. `fields` picks the columns, or `defaults` when empty.
- * `req` gives the query string the footer's `next` line builds on.
- */
-function toTextTable<T extends Record<string, any>>(
-    page: TerasliceApiV2.Page<T>,
-    defaults: readonly string[],
-    { fields, headers }: TxtTableQuery,
-    req: TerasliceRequest
-): TextResult {
-    return {
-        body: printPagedTable({
-            page,
-            fields: parseFields(fields, defaults),
-            headers,
-            requestQuery: requestQueryString(req),
-        }),
-        headers: paginationHeaders(page.pagination),
-    };
-}
-
-/** The request's query string, as it was sent, without the `?` */
-function requestQueryString(req: TerasliceRequest): string {
-    const index = req.originalUrl.indexOf('?');
-    return index === -1 ? '' : req.originalUrl.slice(index + 1);
-}
-
 /** Default columns of `GET /txt/jobs` */
 const txtJobsColumns = ['job_id', 'name', 'active', 'lifecycle', 'slicers', 'workers', '_created', '_updated'];
 
@@ -122,34 +83,6 @@ const txtControllersColumns = ['name', 'job_id', 'workers_available', 'workers_a
 /** With `deleted=true`, the jobs and executions tables add when each was deleted */
 function withDeletedOn(columns: readonly string[], deleted: boolean): readonly string[] {
     return deleted ? [...columns, '_deleted_on'] : columns;
-}
-
-/** Applies `fn` to each record, keeping the total */
-function mapRecords<T, U>(
-    { records, ...rest }: RecordsWithTotal<T>,
-    fn: (record: T) => U
-): RecordsWithTotal<U> {
-    return { ...rest, records: records.map(fn) };
-}
-
-/**
- * The sort to search with. v1 falls back to the default for `?sort=` (empty)
- * as well as for no `sort`; the schema default only covers the latter.
- */
-function sortOrDefault(sort: string): string {
-    return sort || '_updated:desc';
-}
-
-/**
- * Runs a paged search, replacing OpenSearch's message for paging past
- * `max_result_window` with one that makes sense to API callers.
- */
-async function pagedSearch<T>(search: () => Promise<T>): Promise<T> {
-    try {
-        return await search();
-    } catch (err) {
-        throw explainResultWindowError(err);
-    }
 }
 
 /**

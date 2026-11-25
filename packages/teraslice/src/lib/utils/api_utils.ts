@@ -164,7 +164,7 @@ export function handleTerasliceRequest(
     req: TerasliceRequest,
     res: TerasliceResponse,
     defaultErrorMsg = 'Failure to process TerasliceRequest',
-    { errorCode = 500, successCode = 200 } = {}
+    { errorCode = 500, successCode }: { errorCode?: number; successCode?: number } = {}
 ) {
     logTerasliceRequest(req);
     // `fn` returns whatever should be serialized as the response body: a string or
@@ -175,10 +175,14 @@ export function handleTerasliceRequest(
         try {
             const result = await fn();
 
+            // Without a `successCode`, keep the status `fn` set, which is
+            // 200 unless it called `res.status` (e.g. a v2 `withStatus` result)
+            if (successCode !== undefined) res.status(successCode);
+
             if (isString(result) || Buffer.isBuffer(result)) {
-                res.status(successCode).send(result);
+                res.send(result);
             } else {
-                res.status(successCode).json(result);
+                res.json(result);
             }
         } catch (err) {
             const { statusCode, message } = parseErrorInfo(err, {

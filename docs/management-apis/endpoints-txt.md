@@ -5,7 +5,7 @@ title: TXT APIs
 The `txt` APIs provide more human readable and script friendly API endpoints for common information requests.
 
 The [v2 API (beta)](./endpoints-v2.md#text-tables) has paged versions of these tables under
-`/v2/txt`, with the total in a footer and in response headers. Assets are only served here.
+`/v2/txt`, with the total in a footer and in response headers, including the asset tables.
 
 ## GET /txt/workers
 

@@ -1,8 +1,5 @@
 import { Router, Express, ErrorRequestHandler } from 'express';
 import bodyParser from 'body-parser';
-import { createRequire } from 'node:module';
-import { readFileSync } from 'node:fs';
-import { pipeline as streamPipeline } from 'node:stream/promises';
 import got, { OptionsInit } from 'got';
 import { RecoveryCleanupType, TerasliceConfig, generateJobJSONSchema } from '@terascope/job-components';
 import {
@@ -11,9 +8,7 @@ import {
     isKey
 } from '@terascope/core-utils';
 import { ExecutionStatusEnum, ConnectorListResponse, JobSchemaResponse } from '@terascope/types';
-import { createV2Registry } from './v2/routes.js';
-import { generateV2Spec } from './v2/openapi.js';
-import { v2DocsPage } from './v2/docs-page.js';
+import { createV2Router } from './v2/router.js';
 import { ClusterMasterContext, TerasliceRequest, TerasliceResponse } from '../../../../interfaces.js';
 import { makeLogger } from '../../../workers/helpers/terafoundation.js';
 import { ExecutionService, JobsService, ClusterServiceType } from '../index.js';
@@ -26,10 +21,6 @@ import {
 import { getPackageJSON } from '../../../utils/file_utils.js';
 
 const terasliceVersion = getPackageJSON().version;
-
-const rapidocScript = readFileSync(
-    createRequire(import.meta.url).resolve('rapidoc/dist/rapidoc-min.js'), 'utf8'
-);
 
 export function validateCleanupType(cleanupType: RecoveryCleanupType) {
     if (cleanupType && !RecoveryCleanupType[cleanupType]) {
@@ -145,7 +136,10 @@ export class ApiService {
         throw error;
     }
 
-    private async _assetRedirect(req: TerasliceRequest, res: TerasliceResponse) {
+    /** Streams a request to the assets service at `path` and pipes back its response */
+    private async _assetRedirect(
+        req: TerasliceRequest, res: TerasliceResponse, path: string
+    ): Promise<void> {
         const options: OptionsInit & { isStream: true } = {
             prefixUrl: this.assetsUrl,
             headers: req.headers,
@@ -157,24 +151,43 @@ export class ApiService {
             isStream: true
         };
 
-        const uri = req.url.replace(/^\//, '');
+        const uri = path.replace(/^\//, '');
         const method = req.method.toLowerCase();
 
         try {
             if (!isKey(got.stream, method)) {
                 throw new Error(`${method} is not a supported HTTP method`);
             }
-            const stream = got.stream[method](uri, options);
+            const upstream = got.stream[method](uri, options);
 
-            await streamPipeline(
-                req,
-                stream,
-                res,
-            );
+            // A got stream that fails destroys every response piped into it,
+            // and `stream.pipeline` destroys `req` and `res` on an error. Either
+            // closes the client's socket before `sendError` in the catch below
+            // can respond, so the client only sees a hang up. So `res` is piped
+            // only once the assets service responds: got copies the status and
+            // headers into it right after this `response` listener runs.
+            await new Promise<void>((resolve, reject) => {
+                upstream.on('error', reject);
+                req.on('error', reject);
+                upstream.once('response', () => upstream.pipe(res));
+                res.once('close', () => {
+                    // the client went away before the response was sent
+                    if (!res.writableFinished) upstream.destroy();
+                    resolve();
+                });
+                req.pipe(upstream);
+            });
         } catch (err) {
             const { statusCode, message } = parseErrorInfo(err, {
                 defaultErrorMsg: 'Asset Service error while processing request'
             });
+            if (res.headersSent) {
+                // Part of the response was sent; end the connection, so the
+                // client can tell it is cut short
+                req.logger.error(err, 'Asset Service error after the response started');
+                res.destroy();
+                return;
+            }
             sendError(res, statusCode, message, req.logger);
         }
     }
@@ -211,7 +224,11 @@ export class ApiService {
         this.jobsStorage = jobsStorage;
 
         const v1routes = Router();
-        const assetRedirect = this._assetRedirect.bind(this);
+        // v1 forwards `req.url`, which has the /v1 mount stripped, so it reaches
+        // the assets service's unversioned routes
+        const assetRedirect = (req: TerasliceRequest, res: TerasliceResponse) => (
+            this._assetRedirect(req, res, req.url)
+        );
 
         this.app.use(bodyParser.json({
             type(req) {
@@ -549,22 +566,7 @@ export class ApiService {
             requestHandler(() => this._controllerStats());
         });
 
-        const v2 = createV2Registry(this);
-
-        this.app.get('/v2/openapi.json', (req, res) => {
-            const requestHandler = handleTerasliceRequest(req, res, 'Could not generate the OpenAPI spec');
-            requestHandler(() => generateV2Spec(v2.routes, this.context));
-        });
-
-        this.app.get('/v2/api-docs', (_req, res) => {
-            res.type('html').send(v2DocsPage());
-        });
-
-        this.app.get('/v2/api-docs/rapidoc-min.js', (_req, res) => {
-            res.type('application/javascript').send(rapidocScript);
-        });
-
-        this.app.use('/v2', v2.router);
+        this.app.use('/v2', createV2Router(this, this._assetRedirect.bind(this)));
 
         // backwards compatibility for /v1 routes
         // TODO: Teraslice v4 deletes /v1 and the unversioned mount

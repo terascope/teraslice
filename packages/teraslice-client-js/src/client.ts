@@ -158,14 +158,10 @@ function getAPIEndpoint(uri: string, apiVersion: string) {
     const endpoint = uri ? uri.trim().replace(/(^\/)|(\/$)/, '') : '';
     if (!apiVersion) return endpoint;
 
-    // v1's text routes are only served unversioned, at /txt. /v2 has its own,
-    // except for assets, which only v1 serves
-    // TODO: Teraslice v4 deletes /v1, move assets to /v2 before then
-    // https://github.com/terascope/teraslice/issues/4584#issuecomment-6636093239
+    // v1's text routes are only served unversioned, at /txt. /v2 has its own.
     const txtIndex = endpoint.indexOf('txt');
     const isTxt = txtIndex < 2 && txtIndex > -1;
-    const isTxtAssets = isTxt && endpoint.slice(txtIndex).startsWith('txt/assets');
-    if (isTxt && (!isV2(apiVersion) || isTxtAssets)) return endpoint;
+    if (isTxt && !isV2(apiVersion)) return endpoint;
 
     const versionPrefix = trimStart(apiVersion, '/');
     if (endpoint.startsWith(versionPrefix)) return endpoint;

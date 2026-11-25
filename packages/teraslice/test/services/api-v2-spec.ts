@@ -13,6 +13,7 @@ import { TerasliceApiV2 } from '@terascope/types';
 import { findPort } from '../../src/lib/utils/port_utils.js';
 import { ApiService } from '../../src/lib/cluster/services/api/api.js';
 import { createV2Registry } from '../../src/lib/cluster/services/api/v2/routes.js';
+import { createV2AssetRegistry } from '../../src/lib/cluster/services/api/v2/asset-routes.js';
 import { getPackageJSON } from '../../src/lib/utils/file_utils.js';
 import { makeResultWindowError } from '../utils/search-errors.js';
 
@@ -105,7 +106,6 @@ describe('HTTP API v2', () => {
     const { version } = getPackageJSON();
 
     const app = express();
-    const assetsUrl = 'http://example.asset:1234';
     const context = new TestContext('http-api-v2') as any;
 
     context.stores = {
@@ -134,6 +134,51 @@ describe('HTTP API v2', () => {
     let baseUrl: string;
     let server: http.Server;
 
+    /**
+     * A fake assets service on a real port, for the asset proxy. nock can't
+     * stand in for it: nock 15 also opens a real connection to the mocked
+     * host, and a POST whose body is still streaming in loses the race to
+     * that connection's error about half the time.
+     */
+    interface AssetsRequest {
+        method: string;
+        path: string;
+        query: Record<string, string>;
+        body: Buffer;
+    }
+    type AssetsReply = (req: http.IncomingMessage, res: http.ServerResponse) => void;
+
+    /** The path and decoded query: got may encode the query differently than it was sent */
+    function splitUrl(url: string) {
+        const { pathname, searchParams } = new URL(url, 'http://localhost');
+        return { path: pathname, query: Object.fromEntries(searchParams) };
+    }
+
+    const replyForwarded: AssetsReply = (_req, res) => {
+        res.writeHead(200, { 'content-type': 'application/json' });
+        res.end(JSON.stringify({ forwarded: true }));
+    };
+
+    let assetsRequests: AssetsRequest[] = [];
+    let assetsReply: AssetsReply = replyForwarded;
+
+    const assetsServer = http.createServer(async (req, res) => {
+        const chunks: Buffer[] = [];
+        for await (const chunk of req) chunks.push(chunk);
+        assetsRequests.push({
+            method: req.method!, ...splitUrl(req.url!), body: Buffer.concat(chunks)
+        });
+        assetsReply(req, res);
+    });
+
+    /** The master's v2 routes plus the asset routes, which the assets service serves */
+    function allV2Routes() {
+        const assetRoutes = createV2AssetRegistry(() => {
+            throw new Error('not used');
+        }).routes;
+        return [...createV2Registry(api).routes, ...assetRoutes];
+    }
+
     function request(method: string, path: string, options: Record<string, any> = {}) {
         return got(`${baseUrl}${path}`, {
             method: method as any,
@@ -147,6 +192,12 @@ describe('HTTP API v2', () => {
         port = await findPort();
 
         baseUrl = `http://localhost:${port}`;
+
+        await new Promise<void>((resolve) => {
+            assetsServer.listen(0, '127.0.0.1', resolve);
+        });
+        const { port: assetsPort } = assetsServer.address() as { port: number };
+        const assetsUrl = `http://127.0.0.1:${assetsPort}`;
 
         api = new ApiService(context, { assetsUrl, app });
         await api.initialize();
@@ -171,6 +222,11 @@ describe('HTTP API v2', () => {
                 });
             });
         }
+        // the master's keep-alive connections would hold close() open
+        assetsServer.closeAllConnections();
+        await new Promise((resolve) => {
+            assetsServer.close(resolve);
+        });
     });
 
     describe('GET /v2', () => {
@@ -1723,6 +1779,117 @@ describe('HTTP API v2', () => {
         });
     });
 
+    // The assets service serves these; the master only forwards them
+    describe('/v2 asset proxy', () => {
+        beforeEach(() => {
+            assetsRequests = [];
+            assetsReply = replyForwarded;
+        });
+
+        it.each([
+            ['GET', '/v2/assets?size=5&sort=name:asc'],
+            ['GET', '/v2/assets/my-asset'],
+            ['GET', '/v2/assets/my-asset/1.0.0'],
+            ['DELETE', `/v2/assets/${'a'.repeat(40)}`],
+            ['GET', '/v2/txt/assets?fields=name,version'],
+            ['GET', '/v2/txt/assets/my-asset/1.0.0'],
+        ])('should forward %s %s with its full path', async (method, path) => {
+            const response = await request(method, path);
+
+            expect(response.statusCode).toEqual(200);
+            expect(response.body).toEqual({ forwarded: true });
+            expect(assetsRequests).toEqual([{ method, ...splitUrl(path), body: Buffer.alloc(0) }]);
+        });
+
+        it('should forward an upload body as-is and keep the status', async () => {
+            // not valid utf8, to check it isn't decoded on the way
+            const zip = Buffer.from([0x50, 0x4b, 0x03, 0x04, 0xff, 0xfe, 0x00, 0x80]);
+            assetsReply = (_req, res) => {
+                res.writeHead(201, { 'content-type': 'application/json' });
+                res.end(JSON.stringify({ asset_id: 'a'.repeat(40) }));
+            };
+
+            const response = await request('POST', '/v2/assets?blocking=false', { body: zip });
+
+            // together, so a failure shows the error message with the status
+            expect({ status: response.statusCode, body: response.body })
+                .toEqual({ status: 201, body: { asset_id: 'a'.repeat(40) } });
+            expect(assetsRequests).toEqual([
+                { method: 'POST', ...splitUrl('/v2/assets?blocking=false'), body: zip },
+            ]);
+        });
+
+        it.each([
+            ['GET', '/v2/assets'],
+            ['POST', '/v2/assets'],
+        ])('should respond with an error, not close the socket, when %s %s fails upstream', async (method, path) => {
+            // the assets service drops the connection without responding
+            assetsReply = (req) => req.socket.destroy();
+
+            const response = await request(method, path, {
+                ...(method === 'POST' && { body: Buffer.from([0x50, 0x4b]) }),
+                retry: { limit: 0 },
+            });
+
+            expect(response.statusCode).toEqual(500);
+            expect(response.body).toEqual({ error: 500, message: expect.any(String) });
+        });
+
+        it.each([
+            ['application/json'],
+            ['application/json; charset=utf-8'],
+            ['application/x-www-form-urlencoded'],
+        ])('should reject an upload sent as %s with a 400', async (contentType) => {
+            const response = await request('POST', '/v2/assets', {
+                body: '{"some":"json"}',
+                headers: { 'content-type': contentType },
+            });
+
+            expect(response.statusCode).toEqual(400);
+            expect(assetsRequests).toEqual([]);
+        });
+
+        // v1 forwards without the /v1 prefix, to the assets service's unversioned routes
+        // TODO: Teraslice v4 deletes /v1, remove this test
+        // https://github.com/terascope/teraslice/issues/4584#issuecomment-6636093239
+        it.each([
+            ['GET', '/v1/assets/my-asset?size=5', '/assets/my-asset?size=5'],
+            ['GET', '/assets/my-asset', '/assets/my-asset'],
+            ['DELETE', `/v1/assets/${'a'.repeat(40)}`, `/assets/${'a'.repeat(40)}`],
+            ['POST', '/v1/assets', '/assets'],
+            ['GET', '/txt/assets/my-asset', '/txt/assets/my-asset'],
+        ])('should forward v1\'s %s %s to %s', async (method, path, forwardedPath) => {
+            const response = await request(method, path);
+
+            expect(response.statusCode).toEqual(200);
+            expect(response.body).toEqual({ forwarded: true });
+            expect(assetsRequests).toEqual([
+                { method, ...splitUrl(forwardedPath), body: Buffer.alloc(0) },
+            ]);
+        });
+
+        // The proxy is mounted first, so a master route under an asset path
+        // would never be reached
+        it('should have no master v2 route under an asset path', () => {
+            const { routes } = createV2Registry(api);
+            const assetRoutes = createV2AssetRegistry(() => {
+                throw new Error('not used');
+            }).routes;
+            const toRegExp = (path: string) => new RegExp(`^${path.replace(/:\w+/g, '[^/]+')}/?$`);
+            const sample = (path: string) => path.replace(/:\w+/g, 'x');
+            const proxied = /^\/(txt\/)?assets(\/|$)/;
+
+            expect(routes.filter((route) => proxied.test(sample(route.path))))
+                .toEqual([]);
+            for (const assetRoute of assetRoutes) {
+                expect(assetRoute.path).toMatch(proxied);
+                const assetPath = sample(assetRoute.path);
+                const catches = routes.filter((route) => toRegExp(route.path).test(assetPath));
+                expect(catches).toEqual([]);
+            }
+        });
+    });
+
     // responses aren't parsed at runtime, so check the fixtures the mocked
     // routes above return are realistic
     describe('response fixtures', () => {
@@ -1793,24 +1960,65 @@ describe('HTTP API v2', () => {
             expect(spec.info.version).toEqual(version);
         });
 
-        it('should include every registered route', () => {
-            const { routes } = createV2Registry(api);
+        it('should include every registered route, and the asset routes', () => {
             const operationIds = operations().map(([, , op]) => op.operationId);
 
-            for (const route of routes) {
+            for (const route of allV2Routes()) {
                 expect(operationIds).toContain(route.operationId);
             }
         });
 
+        it('should include the asset paths, tagged Assets', () => {
+            const assetOperations = operations()
+                .filter(([path]) => /^\/v2\/(txt\/)?assets/.test(path))
+                .map(([path, method, op]) => `${method} ${path} ${op.tags}`);
+
+            expect(assetOperations.toSorted()).toEqual([
+                'delete /v2/assets/{assetId} Assets',
+                'get /v2/assets Assets',
+                'get /v2/assets/{name} Assets',
+                'get /v2/assets/{name}/{version} Assets',
+                'get /v2/txt/assets Text',
+                'get /v2/txt/assets/{name} Text',
+                'get /v2/txt/assets/{name}/{version} Text',
+                'post /v2/assets Assets',
+            ]);
+            expect(spec.tags.map((tag: any) => tag.name)).toContain('Assets');
+        });
+
+        it('should describe the asset upload as an octet-stream body with 200 and 201', () => {
+            const upload = spec.paths['/v2/assets'].post;
+            const idRef = { $ref: '#/components/schemas/AssetIDResponse' };
+
+            expect(upload.requestBody).toEqual({
+                required: true,
+                content: {
+                    'application/octet-stream': { schema: { type: 'string', format: 'binary' } },
+                },
+            });
+            expect(upload.responses[200].content['application/json'].schema).toEqual(idRef);
+            expect(upload.responses[201].content['application/json'].schema).toEqual(idRef);
+            expect(upload.parameters.map((param: any) => param.name)).toEqual(['blocking']);
+        });
+
+        it('should describe the asset lists as pages of AssetRecord', () => {
+            const ok = spec.paths['/v2/assets'].get.responses[200];
+
+            expect(ok.content['application/json'].schema)
+                .toEqual({ $ref: '#/components/schemas/AssetRecordPage' });
+            expect(spec.components.schemas.AssetRecord).toBeDefined();
+        });
+
         it('should include the job submit and update routes', () => {
-            const jobConfigRef = { $ref: '#/components/schemas/JobConfig' };
+            const jobConfigRef = { $ref: '#/components/schemas/JobConfigBody' };
 
             expect(spec.paths['/v2/jobs'].post.requestBody.content['application/json'].schema)
                 .toEqual(jobConfigRef);
             expect(spec.paths['/v2/jobs/{jobId}'].put.requestBody.content['application/json'].schema)
                 .toEqual(jobConfigRef);
-            expect(spec.components.schemas.JobConfig.properties.operations.items)
-                .toEqual({ $ref: '#/components/schemas/JobOperation' });
+            expect(spec.components.schemas.JobConfigBody.required).toEqual(['operations']);
+            expect(spec.components.schemas.JobConfigBody.properties.operations.items)
+                .toMatchObject({ required: ['_op'], properties: { _op: { type: 'string' } } });
         });
 
         it('should describe the txt routes as text/plain with the paging headers', () => {
@@ -1900,7 +2108,7 @@ describe('HTTP API v2', () => {
     // Checking every registered route here names the offending route and part.
     describe('route schemas', () => {
         it('should all convert to JSON Schema', () => {
-            const { routes } = createV2Registry(api);
+            const routes = allV2Routes();
             expect(routes).not.toBeEmpty();
 
             const failures: string[] = [];
@@ -1928,7 +2136,7 @@ describe('HTTP API v2', () => {
         // A schema written inline in routes.ts gives clients no type, so they'd
         // write their own copy that can drift.
         it('should all be named exports of @terascope/types', () => {
-            const { routes } = createV2Registry(api);
+            const routes = allV2Routes();
             const exported = new Set<unknown>(Object.values(TerasliceApiV2));
 
             const inline: string[] = [];
@@ -1945,13 +2153,13 @@ describe('HTTP API v2', () => {
         });
     });
 
-    // api/api.ts imports createV2Registry from v2/routes.ts, so a runtime
-    // import back from api/api.ts would be a cycle that breaks as soon as
-    // either module uses the other at load time
-    describe('v2 routes module', () => {
-        it('should only import types from api/api.ts', () => {
-            const routesPath = nodePath.join(dirname, '../../src/lib/cluster/services/api/v2/routes.ts');
-            const source = fs.readFileSync(routesPath, 'utf8');
+    // api/api.ts imports createV2Router from v2/router.ts, which imports
+    // v2/routes.ts, so a runtime import back from api/api.ts in either would be
+    // a cycle that breaks as soon as either module uses the other at load time
+    describe('v2 router modules', () => {
+        it.each(['routes.ts', 'router.ts'])('%s should only import types from api/api.ts', (file) => {
+            const modulePath = nodePath.join(dirname, '../../src/lib/cluster/services/api/v2', file);
+            const source = fs.readFileSync(modulePath, 'utf8');
             const apiImports = source.match(/^import\b[^;]*?from '\.\.\/api\.js';/gms) ?? [];
 
             expect(apiImports).not.toBeEmpty();
