@@ -1136,11 +1136,13 @@ Requests that worked on v1 but behave differently on v2:
 | ------- | -- | -- |
 | Unknown query param, e.g. `?sizee=10` | ignored | 400 |
 | `?size=ten`, `?size=1.5` | `ten`: 500 on searches, an empty table on `/txt/workers`, `/txt/nodes` and `/txt/controllers`; `1.5`: truncated to `1` | 400 |
-| List `?size=` (empty) | default (100) | `0`: an empty list |
+| List `?size=` (empty) | default (100) | 400 |
 | List `from + size` past `max_result_window` | 400, OpenSearch's message pointing to the scroll API | 400, with the limit and `from + size` |
 | `GET /cluster/controllers`, `/txt/workers`, `/txt/nodes`, `/txt/controllers` order | workers and nodes in cluster state order, controllers in the order they connected | sorted (see [Paging](#paging)) |
 | `/txt/*?fields=` an unknown field | a column of `N/A` | 400, listing the valid fields |
+| `GET /ex?job_id=` | ignored: returns executions of every job | only that job's executions |
 | `/txt/ex?status=` / `?job_id=` | ignored | filters, as on `GET /v2/ex` |
+| `GET /cluster/stats` | `controllers`, plus `slicer`, a copy of it | `controllers` only |
 | `?deleted=` (empty) | deleted only | 400 |
 | `?deleted=yes` / `1` / `on` | 400 | `true` |
 | `?active=` or `?active=foo` | both active and inactive | 400 |
@@ -1160,6 +1162,7 @@ Requests that worked on v1 but behave differently on v2:
 | `POST /assets` without `?blocking` | `blocking=false`: a storage failure is logged, and the response is still a 201 | `blocking=true`: a storage failure is returned |
 | `POST /assets?blocking=` (empty) | `blocking=false` | 400 |
 | `POST /assets?blocking=foo` / `on` | `blocking=true` | `foo`: 400; `on`: `blocking=true` |
+| `POST /assets?blocking=off` / `n` / `disabled` | `blocking=true` | `blocking=false` |
 | `POST /assets` with `Content-Type: application/json; charset=utf-8` | forwarded, then 422 (not a zip) | 400 |
 | `DELETE /assets/{assetId}` with an id that isn't 40 characters | 400, as `{ "error": "<message>" }` | 400, in the usual error shape |
 | `GET /assets/{name}` or `/{version}` with a `"` in it | an invalid or different query | matched exactly |

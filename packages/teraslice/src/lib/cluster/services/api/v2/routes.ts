@@ -93,17 +93,6 @@ function withDeletedOn(columns: readonly string[], deleted: boolean): readonly s
 export function createV2Registry(api: ApiService): RouteRegistry {
     const registry = createRouteRegistry();
 
-    async function getLatestExId(jobId: string): Promise<string> {
-        const exId = await api.jobsService.getLatestExecutionId(jobId);
-
-        if (!exId) {
-            throw new TSError(`No execution was found for job ${jobId}`, {
-                statusCode: 404
-            });
-        }
-        return exId;
-    }
-
     /*
      * The storage backend passes OpenSearch's 404 through, with a message like
      * "Response Error" that doesn't say what was missing. These helpers swap it
@@ -151,6 +140,21 @@ export function createV2Registry(api: ApiService): RouteRegistry {
             if (isNotFound(err)) await getJob(jobId);
             throw err;
         }
+    }
+
+    /**
+     * The id of the job's latest execution. A 404 says whether the job is
+     * missing or only has no executions.
+     */
+    async function getLatestExId(jobId: string): Promise<string> {
+        const exId = await withJob(jobId, () => api.jobsService.getLatestExecutionId(jobId));
+
+        if (!exId) {
+            throw new TSError(`No execution was found for job ${jobId}`, {
+                statusCode: 404
+            });
+        }
+        return exId;
     }
 
     /**
@@ -534,7 +538,9 @@ export function createV2Registry(api: ApiService): RouteRegistry {
         tags: ['Jobs'],
         params: TerasliceApiV2.JobIdParams,
         response: TerasliceApiV2.ExecutionRecordSchema,
-    }, async ({ params }) => fromStorage(await api.jobsService.getLatestExecution(params.jobId)), {
+    }, async ({ params }) => fromStorage(
+        await withJob(params.jobId, () => api.jobsService.getLatestExecution(params.jobId))
+    ), {
         errorMessage: 'Could not retrieve the latest execution'
     });
 

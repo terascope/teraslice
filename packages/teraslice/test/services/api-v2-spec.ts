@@ -975,6 +975,18 @@ describe('HTTP API v2', () => {
             expect(response.statusCode).toEqual(404);
             expect(response.body.message).toContain('No execution was found');
         });
+
+        it('should respond with a 404 naming the job when it does not exist on /ex', async () => {
+            getLatestExecution.mockRejectedValue(
+                new TSError('No execution was found for job nope', { statusCode: 404 })
+            );
+            get.mockRejectedValue(backendNotFound());
+
+            const response = await request('GET', '/v2/jobs/nope/ex');
+
+            expect(response.statusCode).toEqual(404);
+            expect(response.body.message).toContain('Job "nope" was not found');
+        });
     });
 
     describe('/v2/jobs/:jobId execution actions', () => {
@@ -993,6 +1005,7 @@ describe('HTTP API v2', () => {
         const getControllerStats = jest.fn<(...args: any[]) => Promise<any>>();
         const getSliceTap = jest.fn<(...args: any[]) => Promise<any>>();
         const searchWithTotal = jest.fn<(...args: any[]) => Promise<any>>();
+        const jobsGet = jest.fn<(...args: any[]) => Promise<any>>();
 
         const workerMocks = { add: addWorkers, remove: removeWorkers, total: setWorkers };
         const workerCalls = () => Object.values(workerMocks).flatMap((mock) => mock.mock.calls);
@@ -1011,9 +1024,11 @@ describe('HTTP API v2', () => {
             context.services.executionService.getControllerStats = getControllerStats;
             context.services.executionService.getSliceTap = getSliceTap;
             context.stores.stateStorage.searchWithTotal = searchWithTotal;
+            context.stores.jobsStorage.get = jobsGet;
         });
 
         beforeEach(() => {
+            jobsGet.mockReset().mockResolvedValue({ job_id: 'job-1' });
             getLatestExecutionId.mockReset().mockResolvedValue(exId);
             getExecutionContext.mockReset().mockResolvedValue({ _status: 'stopped' });
             getTerminalStatuses.mockReset().mockReturnValue(['completed', 'stopped']);
@@ -1031,20 +1046,59 @@ describe('HTTP API v2', () => {
             searchWithTotal.mockReset().mockResolvedValue(withTotal(sliceErrors));
         });
 
-        it.each([
+        const latestExRoutes = [
             ['POST', '/_pause'],
             ['POST', '/_stop'],
             ['GET', '/controller'],
-        ])('%s /v2/jobs/job-1%s should respond with a 404 when the job has no executions', async (method, path) => {
-            getLatestExecutionId.mockResolvedValue(undefined);
+            ['GET', '/errors'],
+            ['GET', '/tap'],
+        ] as const;
+
+        it.each(latestExRoutes)('%s /v2/jobs/job-1%s should respond with a 404 when the job has no executions', async (method, path) => {
+            // JobsService.getLatestExecution rejects when there's none
+            getLatestExecutionId.mockRejectedValue(
+                new TSError('No execution was found for job job-1', { statusCode: 404 })
+            );
 
             const response = await request(method, `/v2/jobs/job-1${path}`);
 
             expect(response.statusCode).toEqual(404);
             expect(response.body.message).toContain('No execution was found for job job-1');
+            expect(jobsGet).toHaveBeenCalledWith('job-1');
             expect(pauseExecution).not.toHaveBeenCalled();
             expect(stopExecution).not.toHaveBeenCalled();
             expect(getControllerStats).not.toHaveBeenCalled();
+            expect(searchWithTotal).not.toHaveBeenCalled();
+            expect(getSliceTap).not.toHaveBeenCalled();
+        });
+
+        it.each(latestExRoutes)('%s /v2/jobs/nope%s should respond with a 404 naming the job when it does not exist', async (method, path) => {
+            getLatestExecutionId.mockRejectedValue(
+                new TSError('No execution was found for job nope', { statusCode: 404 })
+            );
+            jobsGet.mockRejectedValue(backendNotFound());
+
+            const response = await request(method, `/v2/jobs/nope${path}`);
+
+            expect(response.statusCode).toEqual(404);
+            expect(response.body.message).toContain('Job "nope" was not found');
+            expect(pauseExecution).not.toHaveBeenCalled();
+            expect(stopExecution).not.toHaveBeenCalled();
+        });
+
+        it('should still respond with a 404 when the execution has no id', async () => {
+            getLatestExecutionId.mockResolvedValue(undefined);
+
+            const response = await request('POST', '/v2/jobs/job-1/_pause');
+
+            expect(response.statusCode).toEqual(404);
+            expect(response.body.message).toContain('No execution was found for job job-1');
+        });
+
+        it('should not look the job up when the job has an execution', async () => {
+            await request('POST', '/v2/jobs/job-1/_pause');
+
+            expect(jobsGet).not.toHaveBeenCalled();
         });
 
         describe('POST /v2/jobs/:jobId/_stop', () => {
