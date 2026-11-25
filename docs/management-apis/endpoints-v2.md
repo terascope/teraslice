@@ -62,6 +62,9 @@ Query params are received as strings. v2 reads them as follows:
   absent, not filled with its default. The latest execution (`GET /v2/jobs/{jobId}/ex`) has the
   resolved config with every default applied.
 - Job and execution records keep any fields the job was submitted with that are not listed in their response schemas.
+- A job or execution that doesn't exist is a **404** that names it: `Job "<jobId>" was not found`
+  or `Execution "<exId>" was not found`. A job action that needs an execution, on a job that
+  has none, is a 404 with `No execution was found for job <jobId>`.
 
 ### Paging
 
@@ -1091,7 +1094,8 @@ A plain-text table, one row per record, then a blank line and a footer: `Showing
 ### Routes not in v2
 
 On `/v2`, these paths respond with a **405**, except `GET /v2/ex/errors`. That one matches
-`GET /v2/ex/{exId}` and looks up an execution with the id `errors`.
+`GET /v2/ex/{exId}` and looks up an execution with the id `errors`, so it's a 404 with
+`Execution "errors" was not found`.
 
 | v1 route | In v2 |
 | -------- | ----- |
@@ -1160,3 +1164,6 @@ Requests that worked on v1 but behave differently on v2:
 | `DELETE /assets/{assetId}` with an id that isn't 40 characters | 400, as `{ "error": "<message>" }` | 400, in the usual error shape |
 | `GET /assets/{name}` or `/{version}` with a `"` in it | an invalid or different query | matched exactly |
 | `/txt/assets*`, a field the asset doesn't have (`description`, `platform`, …) | blank | `N/A` |
+| A job or execution id that doesn't exist, e.g. `GET /jobs/{jobId}`, `GET /ex/{exId}`, `PUT`, `DELETE`, `_start`, `_recover` | 404, with OpenSearch's message (`OpenSearch Error: Response Error`) | 404, `Job "<jobId>" was not found` or `Execution "<exId>" was not found` |
+| `GET /ex/{exId}/errors` with an execution id that doesn't exist | 200, an empty list | 404, `Execution "<exId>" was not found` |
+| A job action that needs an execution, on a job with none (`_stop`, `_pause`, `/errors`, `/tap`, …) | 404, `No executions were found for job: <jobId>` | 404, `No execution was found for job <jobId>` |

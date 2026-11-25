@@ -75,6 +75,11 @@ function withTotal<T>(records: T[], total = records.length) {
     return { records, total };
 }
 
+/** The 404 the storage backend passes through from OpenSearch for a missing id */
+function backendNotFound() {
+    return new TSError('Response Error', { statusCode: 404 });
+}
+
 /** The `pagination` of a page, with the defaults of a request with no paging params */
 function pagination(fields: Record<string, any> = {}) {
     return {
@@ -768,6 +773,26 @@ describe('HTTP API v2', () => {
                 expect(get).toHaveBeenCalledWith('job-1');
             });
 
+            it('should respond with a 404 naming the job when it does not exist', async () => {
+                get.mockRejectedValue(backendNotFound());
+
+                const response = await request('GET', '/v2/jobs/nope');
+
+                expect(response.statusCode).toEqual(404);
+                expect(response.body.message).toContain('Job "nope" was not found');
+            });
+
+            it('should respond with a 404 naming the job when it does not exist with ?ex', async () => {
+                getJobWithExInfo.mockRejectedValue(backendNotFound());
+                get.mockRejectedValue(backendNotFound());
+
+                const response = await request('GET', '/v2/jobs/nope', { searchParams: { ex: '' } });
+
+                expect(response.statusCode).toEqual(404);
+                expect(response.body.message).toContain('Job "nope" was not found');
+                expect(get).toHaveBeenCalledWith('nope');
+            });
+
             it('should add the latest execution with only the fields in ?ex', async () => {
                 getJobWithExInfo.mockResolvedValue({
                     ...job, ex: { ex_id: 'ex-1', _status: 'running' }
@@ -803,12 +828,13 @@ describe('HTTP API v2', () => {
                 expect(response.body.message).toContain('Unrecognized key: "exe"');
             });
 
-            it('should keep the status of a storage error', async () => {
-                get.mockRejectedValue(new TSError('Not Found', { statusCode: 404 }));
+            it('should pass a non-404 storage error through unchanged', async () => {
+                get.mockRejectedValue(new TSError('Cluster unavailable', { statusCode: 503 }));
 
-                const response = await request('GET', '/v2/jobs/missing');
+                const response = await request('GET', '/v2/jobs/job-1');
 
-                expect(response.statusCode).toEqual(404);
+                expect(response.statusCode).toEqual(503);
+                expect(response.body.message).toContain('Cluster unavailable');
             });
         });
 
@@ -880,6 +906,47 @@ describe('HTTP API v2', () => {
 
             expect(response.statusCode).toEqual(400);
             expect(startJob).not.toHaveBeenCalled();
+        });
+
+        describe('when the job does not exist', () => {
+            beforeEach(() => {
+                get.mockRejectedValue(backendNotFound());
+            });
+
+            it.each([
+                ['PUT', '', updateJob, { json: { name: 'updated', operations: [{ _op: 'test-reader' }, { _op: 'noop' }] } }],
+                ['DELETE', '', softDeleteJob, {}],
+                ['POST', '/_start', startJob, {}],
+                ['POST', '/_active', setActiveState, {}],
+                ['POST', '/_inactive', setActiveState, {}],
+            ] as const)('%s /v2/jobs/:jobId%s should respond with a 404 naming the job', async (method, path, serviceFn, options) => {
+                serviceFn.mockRejectedValue(backendNotFound());
+
+                const response = await request(method, `/v2/jobs/nope${path}`, options);
+
+                expect(response.statusCode).toEqual(404);
+                expect(response.body.message).toContain('Job "nope" was not found');
+                expect(get).toHaveBeenCalledWith('nope');
+            });
+        });
+
+        it('should pass through a 404 that is not about the job when the job exists', async () => {
+            startJob.mockRejectedValue(
+                new TSError('Asset "missing-asset" was not found', { statusCode: 404 })
+            );
+
+            const response = await request('POST', '/v2/jobs/job-1/_start');
+
+            expect(response.statusCode).toEqual(404);
+            expect(response.body.message).toContain('Asset "missing-asset" was not found');
+            expect(response.body.message).not.toContain('Job "job-1"');
+            expect(get).toHaveBeenCalledWith('job-1');
+        });
+
+        it('should not look the job up when a job action succeeds', async () => {
+            await request('POST', '/v2/jobs/job-1/_start');
+
+            expect(get).not.toHaveBeenCalled();
         });
 
         it('should set the active state of a job', async () => {
@@ -974,7 +1041,7 @@ describe('HTTP API v2', () => {
             const response = await request(method, `/v2/jobs/job-1${path}`);
 
             expect(response.statusCode).toEqual(404);
-            expect(response.body.message).toContain('No executions were found for job: job-1');
+            expect(response.body.message).toContain('No execution was found for job job-1');
             expect(pauseExecution).not.toHaveBeenCalled();
             expect(stopExecution).not.toHaveBeenCalled();
             expect(getControllerStats).not.toHaveBeenCalled();
@@ -1167,9 +1234,11 @@ describe('HTTP API v2', () => {
         const getExecutionContext = jest.fn<(...args: any[]) => Promise<any>>();
         const recoverExecution = jest.fn<(...args: any[]) => Promise<any>>();
         const assertJobCanRun = jest.fn<(...args: any[]) => Promise<void>>();
+        const get = jest.fn<(...args: any[]) => Promise<any>>();
         const recoverFrom = { ex_id: 'ex-1', job_id: 'job-1' };
 
         beforeAll(() => {
+            context.stores.jobsStorage.get = get;
             context.services.jobsService.recoverJob = recoverJob;
             context.services.jobsService.assertJobCanRun = assertJobCanRun;
             context.services.executionService.getExecutionContext = getExecutionContext;
@@ -1178,6 +1247,7 @@ describe('HTTP API v2', () => {
 
         beforeEach(() => {
             recoverJob.mockReset().mockResolvedValue(newExecution);
+            get.mockReset().mockResolvedValue({ job_id: 'job-1' });
             assertJobCanRun.mockReset().mockResolvedValue(undefined);
             getExecutionContext.mockReset().mockResolvedValue(recoverFrom);
             recoverExecution.mockReset().mockResolvedValue(newExecution);
@@ -1247,6 +1317,29 @@ describe('HTTP API v2', () => {
 
             expect(response.statusCode).toEqual(409);
             expect(response.body.message).toContain('orphaned resources');
+        });
+
+        it('should respond with a 404 naming the job when it does not exist', async () => {
+            get.mockRejectedValue(backendNotFound());
+            recoverJob.mockRejectedValue(backendNotFound());
+
+            const response = await request('POST', '/v2/jobs/nope/_recover');
+
+            expect(response.statusCode).toEqual(404);
+            expect(response.body.message).toContain('Job "nope" was not found');
+            expect(get).toHaveBeenCalledWith('nope');
+        });
+
+        it('should respond with a 404 naming the execution when ex_id does not exist', async () => {
+            getExecutionContext.mockRejectedValue(backendNotFound());
+
+            const response = await request('POST', '/v2/jobs/job-1/_recover', {
+                searchParams: { ex_id: 'nope' }
+            });
+
+            expect(response.statusCode).toEqual(404);
+            expect(response.body.message).toContain('Execution "nope" was not found');
+            expect(recoverExecution).not.toHaveBeenCalled();
         });
 
         it('should respond with a 400 when the execution belongs to another job', async () => {
@@ -1373,6 +1466,26 @@ describe('HTTP API v2', () => {
                 expect(getExecutionContext).toHaveBeenCalledWith('ex-1');
             });
 
+            it('should respond with a 404 naming the execution when it does not exist', async () => {
+                getExecutionContext.mockRejectedValue(backendNotFound());
+
+                const response = await request('GET', '/v2/ex/nope');
+
+                expect(response.statusCode).toEqual(404);
+                expect(response.body.message).toContain('Execution "nope" was not found');
+            });
+
+            it('should pass a non-404 lookup error through unchanged', async () => {
+                getExecutionContext.mockRejectedValue(
+                    new TSError('Cluster unavailable', { statusCode: 503 })
+                );
+
+                const response = await request('GET', '/v2/ex/ex-1');
+
+                expect(response.statusCode).toEqual(503);
+                expect(response.body.message).toContain('Cluster unavailable');
+            });
+
             it('should respond with a 400 for any query param', async () => {
                 const response = await request('GET', '/v2/ex/ex-1', { searchParams: { ex: '_status' } });
 
@@ -1399,6 +1512,26 @@ describe('HTTP API v2', () => {
                     sort: '_updated:desc',
                 });
                 expect(getLatestExecutionId).not.toHaveBeenCalled();
+                expect(getExecutionContext).toHaveBeenCalledWith('ex-2');
+            });
+
+            it('should respond with a 404 rather than an empty page when the execution does not exist', async () => {
+                getExecutionContext.mockRejectedValue(backendNotFound());
+
+                const response = await request('GET', '/v2/ex/nope/errors');
+
+                expect(response.statusCode).toEqual(404);
+                expect(response.body.message).toContain('Execution "nope" was not found');
+                expect(stateSearchWithTotal).not.toHaveBeenCalled();
+            });
+
+            it('should return an empty page for an execution with no errors', async () => {
+                stateSearchWithTotal.mockResolvedValue(withTotal([]));
+
+                const response = await request('GET', '/v2/ex/ex-2/errors');
+
+                expect(response.statusCode).toEqual(200);
+                expect(response.body.data).toEqual([]);
             });
 
             it('should pass a total past 10,000 through', async () => {

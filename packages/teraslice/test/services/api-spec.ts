@@ -4,6 +4,7 @@ import got from 'got';
 import express from 'express';
 import http from 'node:http';
 import { TestContext } from '@terascope/job-components';
+import { TSError } from '@terascope/core-utils';
 import { findPort } from '../../src/lib/utils/port_utils.js';
 import { ApiService } from '../../src/lib/cluster/services/api/api.js';
 import { getPackageJSON } from '../../src/lib/utils/file_utils.js';
@@ -267,6 +268,58 @@ describe('HTTP API', () => {
             expect(response.body).toMatchObject({
                 message: expect.stringContaining('No client found by that id')
             });
+        });
+    });
+
+    // v2 names the missing job or execution; v1 keeps the backend's message
+    describe('v1 not-found responses', () => {
+        const jobsGet = jest.fn<(...args: any[]) => Promise<any>>();
+        const getExecutionContext = jest.fn<(...args: any[]) => Promise<any>>();
+        const stateSearch = jest.fn<(...args: any[]) => Promise<any>>();
+
+        function get(path: string) {
+            return got(`${baseUrl}/v1/${path}`, {
+                responseType: 'json',
+                throwHttpErrors: false
+            });
+        }
+
+        beforeAll(() => {
+            context.stores.jobsStorage.get = jobsGet;
+            context.stores.stateStorage.search = stateSearch;
+            context.services.executionService.getExecutionContext = getExecutionContext;
+        });
+
+        beforeEach(() => {
+            jobsGet.mockReset().mockRejectedValue(
+                new TSError('Response Error', { statusCode: 404 })
+            );
+            getExecutionContext.mockReset().mockRejectedValue(
+                new TSError('Response Error', { statusCode: 404 })
+            );
+            stateSearch.mockReset().mockResolvedValue([]);
+        });
+
+        it('should keep the backend message for a missing job', async () => {
+            const response = await get('jobs/nope');
+
+            expect(response.statusCode).toEqual(404);
+            expect(response.body).toMatchObject({ message: 'Response Error' });
+        });
+
+        it('should keep the backend message for a missing execution', async () => {
+            const response = await get('ex/nope');
+
+            expect(response.statusCode).toEqual(404);
+            expect(response.body).toMatchObject({ message: 'Response Error' });
+        });
+
+        it('should return an empty list of errors for an unknown execution', async () => {
+            const response = await get('ex/nope/errors');
+
+            expect(response.statusCode).toEqual(200);
+            expect(response.body).toEqual([]);
+            expect(getExecutionContext).not.toHaveBeenCalled();
         });
     });
 
