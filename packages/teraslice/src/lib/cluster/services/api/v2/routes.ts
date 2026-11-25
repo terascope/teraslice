@@ -1,6 +1,7 @@
 import { generateJobJSONSchema } from '@terascope/job-components';
 import {
-    parseList, TSError, logError, pDelay
+    parseList, TSError, logError,
+    pDelay, parseErrorInfo
 } from '@terascope/core-utils';
 import { type Logger, type ExecutionStatus, TerasliceApiV2 } from '@terascope/types';
 import type { ApiService } from '../api.js';
@@ -92,11 +93,64 @@ function withDeletedOn(columns: readonly string[], deleted: boolean): readonly s
 export function createV2Registry(api: ApiService): RouteRegistry {
     const registry = createRouteRegistry();
 
+    /*
+     * The storage backend passes OpenSearch's 404 through, with a message like
+     * "Response Error" that doesn't say what was missing. These helpers swap it
+     * for one naming the job or execution. They live here rather than in the
+     * storage classes so v1 responses don't change.
+     */
+
+    function isNotFound(err: unknown): boolean {
+        return parseErrorInfo(err).statusCode === 404;
+    }
+
+    async function getJob(jobId: string) {
+        try {
+            return await api.jobsStorage.get(jobId);
+        } catch (err) {
+            if (isNotFound(err)) {
+                throw new TSError(`Job "${jobId}" was not found`, { statusCode: 404 });
+            }
+            throw err;
+        }
+    }
+
+    async function getExecution(exId: string) {
+        try {
+            return await api.executionService.getExecutionContext(exId);
+        } catch (err) {
+            if (isNotFound(err)) {
+                throw new TSError(`Execution "${exId}" was not found`, { statusCode: 404 });
+            }
+            throw err;
+        }
+    }
+
+    /**
+     * Runs a JobsService call that looks the job up itself. On a 404, checks
+     * whether the job exists: if not, throws the "Job was not found" error;
+     * if it does, the 404 came from elsewhere (an asset lookup during
+     * validation, say), so the original error is rethrown. This only adds a
+     * lookup when the call has already failed.
+     */
+    async function withJob<T>(jobId: string, fn: () => Promise<T>): Promise<T> {
+        try {
+            return await fn();
+        } catch (err) {
+            if (isNotFound(err)) await getJob(jobId);
+            throw err;
+        }
+    }
+
+    /**
+     * The id of the job's latest execution. A 404 says whether the job is
+     * missing or only has no executions.
+     */
     async function getLatestExId(jobId: string): Promise<string> {
-        const exId = await api.jobsService.getLatestExecutionId(jobId);
+        const exId = await withJob(jobId, () => api.jobsService.getLatestExecutionId(jobId));
 
         if (!exId) {
-            throw new TSError(`No executions were found for job: ${jobId}`, {
+            throw new TSError(`No execution was found for job ${jobId}`, {
                 statusCode: 404
             });
         }
@@ -307,13 +361,13 @@ export function createV2Registry(api: ApiService): RouteRegistry {
         query: TerasliceApiV2.GetJobQuerySchema,
         response: TerasliceApiV2.JobWithExecutionSchema,
     }, async ({ params: { jobId }, query: { ex } }) => {
-        if (ex === undefined) return fromStorage(await api.jobsStorage.get(jobId));
+        if (ex === undefined) return fromStorage(await getJob(jobId));
 
         // `?ex=` (no fields) includes the whole execution
         const fields = parseList(ex);
-        const job = await api.jobsService.getJobWithExInfo(
+        const job = await withJob(jobId, () => api.jobsService.getJobWithExInfo(
             jobId, fields.length ? fields : undefined
-        );
+        ));
         return fromStorage(job);
     }, { errorMessage: 'Could not retrieve job' });
 
@@ -326,7 +380,7 @@ export function createV2Registry(api: ApiService): RouteRegistry {
         body: TerasliceApiV2.JobConfigBodySchema,
         response: TerasliceApiV2.UpdatedJobSchema,
     }, async ({ params, body }) => fromStorage(
-        await api.jobsService.updateJob(params.jobId, body)
+        await withJob(params.jobId, () => api.jobsService.updateJob(params.jobId, body))
     ), { errorMessage: 'Could not update job' });
 
     registry.delete('/jobs/:jobId', {
@@ -335,7 +389,9 @@ export function createV2Registry(api: ApiService): RouteRegistry {
         tags: ['Jobs'],
         params: TerasliceApiV2.JobIdParams,
         response: TerasliceApiV2.JobRecordSchema,
-    }, async ({ params }) => fromStorage(await api.jobsService.softDeleteJob(params.jobId)), {
+    }, async ({ params }) => fromStorage(
+        await withJob(params.jobId, () => api.jobsService.softDeleteJob(params.jobId))
+    ), {
         errorMessage: `Could not delete job`
     });
 
@@ -347,7 +403,7 @@ export function createV2Registry(api: ApiService): RouteRegistry {
         tags: ['Jobs'],
         params: TerasliceApiV2.JobIdParams,
         response: TerasliceApiV2.NewExecutionSchema,
-    }, ({ params }) => api.jobsService.startJob(params.jobId), {
+    }, ({ params }) => withJob(params.jobId, () => api.jobsService.startJob(params.jobId)), {
         errorMessage: ({ jobId }) => `Could not start job: ${jobId}`
     });
 
@@ -441,7 +497,7 @@ export function createV2Registry(api: ApiService): RouteRegistry {
         params: TerasliceApiV2.JobIdParams,
         response: TerasliceApiV2.UpdatedJobSchema,
     }, async ({ params }) => fromStorage(
-        await api.jobsService.setActiveState(params.jobId, true)
+        await withJob(params.jobId, () => api.jobsService.setActiveState(params.jobId, true))
     ), { errorMessage: ({ jobId }) => `Could not change active to 'true' for job: ${jobId}` });
 
     registry.post('/jobs/:jobId/_inactive', {
@@ -451,7 +507,7 @@ export function createV2Registry(api: ApiService): RouteRegistry {
         params: TerasliceApiV2.JobIdParams,
         response: TerasliceApiV2.UpdatedJobSchema,
     }, async ({ params }) => fromStorage(
-        await api.jobsService.setActiveState(params.jobId, false)
+        await withJob(params.jobId, () => api.jobsService.setActiveState(params.jobId, false))
     ), { errorMessage: ({ jobId }) => `Could not change active to 'false' for job: ${jobId}` });
 
     registry.post('/jobs/:jobId/_recover', {
@@ -463,10 +519,10 @@ export function createV2Registry(api: ApiService): RouteRegistry {
         response: TerasliceApiV2.NewExecutionSchema,
     }, async ({ params: { jobId }, query: { cleanup_type: cleanupType, ex_id: exId } }) => {
         if (!exId) {
-            return api.jobsService.recoverJob(jobId, cleanupType);
+            return withJob(jobId, () => api.jobsService.recoverJob(jobId, cleanupType));
         }
 
-        const execution = await api.executionService.getExecutionContext(exId);
+        const execution = await getExecution(exId);
         if (execution.job_id !== jobId) {
             throw new TSError(`Execution ${exId} does not belong to job ${jobId}`, {
                 statusCode: 400
@@ -482,7 +538,9 @@ export function createV2Registry(api: ApiService): RouteRegistry {
         tags: ['Jobs'],
         params: TerasliceApiV2.JobIdParams,
         response: TerasliceApiV2.ExecutionRecordSchema,
-    }, async ({ params }) => fromStorage(await api.jobsService.getLatestExecution(params.jobId)), {
+    }, async ({ params }) => fromStorage(
+        await withJob(params.jobId, () => api.jobsService.getLatestExecution(params.jobId))
+    ), {
         errorMessage: 'Could not retrieve the latest execution'
     });
 
@@ -543,9 +601,7 @@ export function createV2Registry(api: ApiService): RouteRegistry {
         tags: ['Executions'],
         params: TerasliceApiV2.ExIdParams,
         response: TerasliceApiV2.ExecutionRecordSchema,
-    }, async ({ params }) => fromStorage(
-        await api.executionService.getExecutionContext(params.exId)
-    ), { errorMessage: ({ exId }) => `Could not retrieve execution context ${exId}` });
+    }, async ({ params }) => fromStorage(await getExecution(params.exId)), { errorMessage: ({ exId }) => `Could not retrieve execution context ${exId}` });
 
     registry.get('/ex/:exId/errors', {
         operationId: 'getExecutionErrors',
@@ -554,9 +610,11 @@ export function createV2Registry(api: ApiService): RouteRegistry {
         params: TerasliceApiV2.ExIdParams,
         query: TerasliceApiV2.GetExecutionErrorsQuerySchema,
         response: TerasliceApiV2.SliceErrorPageSchema,
-    }, async ({ params, query }) => toPage(
-        await searchErrors(params.exId, query), query.from, query.size
-    ), {
+    }, async ({ params, query }) => {
+        // 404 for an unknown execution rather than an empty page
+        await getExecution(params.exId);
+        return toPage(await searchErrors(params.exId, query), query.from, query.size);
+    }, {
         errorMessage: 'Could not get errors for execution'
     });
 

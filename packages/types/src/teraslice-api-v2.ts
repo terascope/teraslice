@@ -40,17 +40,49 @@ export interface Page<T> {
 }
 
 /**
+ * `Number('')` is 0, so an empty or blank integer query param (`?size=`) is
+ * mapped to NaN, which fails the number check, instead of passing as 0.
+ * Typing `v` keeps the client input type `number`.
+ */
+function emptyToNaN(v: number) {
+    const value = v as unknown;
+    return typeof value === 'string' && value.trim() === '' ? NaN : v;
+}
+
+/**
+ * An integer query param of at least `min`, rejecting an empty value.
+ * toJSONSchema uses the inner schema.
+ */
+function intQuery(min: number) {
+    return z.preprocess(
+        emptyToNaN,
+        z.coerce.number<number>().int()
+            .min(min)
+    );
+}
+
+/**
+ * `intQuery` with a default. toJSONSchema only shows the inner default, and
+ * only the outer one keeps the param optional in the client input type, so
+ * it is set on both.
+ */
+function intQueryWithDefault(min: number, defaultValue: number) {
+    return z.preprocess(
+        emptyToNaN,
+        z.coerce.number<number>().int()
+            .min(min)
+            .default(defaultValue)
+    ).default(defaultValue);
+}
+
+/**
  * Paging for routes that page a list held in memory rather than a search.
  * There's no `sort` or `filter`, and no `max_result_window`.
  */
 const inMemoryPageQueryShape = {
-    size: z.coerce.number<number>().int()
-        .min(0)
-        .default(100)
+    size: intQueryWithDefault(0, 100)
         .meta({ description: 'Maximum number of items to return' }),
-    from: z.coerce.number<number>().int()
-        .min(0)
-        .default(0)
+    from: intQueryWithDefault(0, 0)
         .meta({ description: 'Number of items to skip, for paging' }),
 };
 
@@ -282,10 +314,12 @@ export const ConnectorListResponseSchema = z.object({
 
 /** Query of `GET /cluster/connectors` */
 export const GetClusterConnectorsQuerySchema = z.strictObject({
-    type: z.string().optional()
-        .meta({ description: 'Only return connectors of this type' }),
-    name: z.string().optional()
-        .meta({ description: 'Only return connections with this name' }),
+    type: z.string().min(1)
+        .optional()
+        .meta({ description: 'Only return connectors of this type. Cannot be empty.' }),
+    name: z.string().min(1)
+        .optional()
+        .meta({ description: 'Only return connections with this name. Cannot be empty.' }),
     groupBy: z.enum(['type']).optional()
         .meta({
             description: 'Return connection names grouped by connector type'
@@ -553,17 +587,13 @@ function sortQuery(defaultSort: string) {
  * Paging, sorting and filtering, shared by the list routes.
  */
 const searchQueryShape = {
-    size: z.coerce.number<number>().int()
-        .min(0)
-        .default(100)
+    size: intQueryWithDefault(0, 100)
         .meta({
             description: 'Maximum number of records to return. `from + size` is limited by '
                 + 'the index\'s `max_result_window` (10,000 unless the cluster changes it); '
                 + 'a request past it is rejected with a 400',
         }),
-    from: z.coerce.number<number>().int()
-        .min(0)
-        .default(0)
+    from: intQueryWithDefault(0, 0)
         .meta({ description: 'Number of matching records to skip, for paging' }),
     sort: sortQuery('_updated:desc'),
     filter: z.string().optional()
@@ -680,14 +710,8 @@ export type SliceErrorPage = z.output<typeof SliceErrorPageSchema>;
 export const GetJobTapQuerySchema = z.strictObject({
     size: z.union([
         z.literal('all'),
-        // `0` means the whole slice, so an empty `?size=` must not coerce to it:
-        // map `''` to NaN, which fails the number check. Typing `v` keeps the
-        // client input type `number`, and toJSONSchema uses the inner schema.
-        z.preprocess(
-            (v: number) => ((v as unknown) === '' ? NaN : v),
-            z.coerce.number<number>().int()
-                .min(0)
-        ),
+        // `0` means the whole slice, so an empty `?size=` must not coerce to it
+        intQuery(0),
     ], { error: 'Expected "all" or an integer >= 0' })
         .default(10)
         .meta({
@@ -833,8 +857,7 @@ export type SubmitJobResult = z.output<typeof SubmitJobResultSchema>;
 
 /** Query of `POST /jobs/:jobId/_stop` */
 export const StopJobQuerySchema = z.strictObject({
-    timeout: z.coerce.number<number>().int()
-        .min(0)
+    timeout: intQuery(0)
         .optional()
         .meta({
             description: 'Milliseconds. native only. Accepted for parity with v1, but '
@@ -876,8 +899,7 @@ export const ResumeJobResultSchema = z.object({ status: z.literal('running') })
 export type PauseJobResult = z.output<typeof PauseJobResultSchema>;
 export type ResumeJobResult = z.output<typeof ResumeJobResultSchema>;
 
-const workerCount = (min: number, description: string) => z.coerce.number<number>().int()
-    .min(min)
+const workerCount = (min: number, description: string) => intQuery(min)
     .optional()
     .meta({ description });
 
@@ -939,11 +961,12 @@ export const RecoverJobQuerySchema = z.strictObject({
                 + '`pending`: slices not completed or failed. If left out, failed slices '
                 + 'are retried and the execution resumes where it left off.',
         }),
-    ex_id: z.string().optional()
+    ex_id: z.string().min(1)
+        .optional()
         .meta({
             description: 'Execution to recover, with the config it ran with; must belong to '
                 + 'the job. If left out, recovers the latest execution with the job\'s '
-                + 'current config.',
+                + 'current config. Cannot be empty.',
         }),
 });
 
@@ -954,14 +977,16 @@ export type RecoverJobQuery = z.input<typeof RecoverJobQuerySchema>;
 /** Query of `GET /ex` */
 export const GetExecutionsQuerySchema = z.strictObject({
     ...searchQueryShape,
-    status: z.string().optional()
+    status: z.string().min(1)
+        .optional()
         .meta({
             description: 'Comma-separated execution statuses, e.g. `running,failed`; '
                 + 'returns executions in any status listed. Not validated: an unknown status '
-                + 'matches nothing.',
+                + 'matches nothing. Cannot be empty.',
         }),
-    job_id: z.string().optional()
-        .meta({ description: 'Only return executions of this job' }),
+    job_id: z.string().min(1)
+        .optional()
+        .meta({ description: 'Only return executions of this job. Cannot be empty.' }),
     deleted: deletedQuery,
 });
 

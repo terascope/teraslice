@@ -514,11 +514,7 @@ export class ExecutionService {
 
     async getExecutionContext(exId: string): Promise<ExecutionConfig> {
         try {
-            const record = this.executionStorage.get(exId);
-            if (!record) {
-                throw new Error(`Execution ${exId} was not found`);
-            }
-            return record;
+            return await this.executionStorage.get(exId);
         } catch (err) {
             logError(this.logger, err, `error getting execution context for ex: ${exId}`);
             throw err;

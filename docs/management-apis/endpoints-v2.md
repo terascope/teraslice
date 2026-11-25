@@ -46,8 +46,10 @@ Query params are received as strings. v2 reads them as follows:
 
 - **Booleans** accept `true`, `1`, `yes`, `on`, `y`, `enabled` and `false`, `0`, `no`, `off`, `n`,
   `disabled`, in any case. Anything else, including an empty value (`?deleted=`), is a 400.
-- **Numbers** must be integers. An empty value (`?size=`) means `0`, except for the tap's `size`,
-  where it's a 400.
+- **Numbers** must be integers. An empty value (`?size=`) is a 400, it doesn't mean `0`.
+- **Ids and filters** (`job_id`, `ex_id`, `status`, and the connectors' `type` and `name`) can't
+  be empty: an empty value is a 400 rather than matching everything. A few params treat empty
+  as a default instead, as their descriptions say: `sort`, `filter`, `ex` and `fields`.
 - **Lists** (`ex`, `status`) are comma-separated: `?status=running,failed`.
 
 ### Responses
@@ -60,6 +62,9 @@ Query params are received as strings. v2 reads them as follows:
   absent, not filled with its default. The latest execution (`GET /v2/jobs/{jobId}/ex`) has the
   resolved config with every default applied.
 - Job and execution records keep any fields the job was submitted with that are not listed in their response schemas.
+- A job or execution that doesn't exist is a **404** that names it: `Job "<jobId>" was not found`
+  or `Execution "<exId>" was not found`. A job action that needs an execution, on a job that
+  has none, is a 404 with `No execution was found for job <jobId>`.
 
 ### Paging
 
@@ -282,8 +287,8 @@ Used by `GET /v2/cluster/connectors`.
 
 | Field | Type | Default | Description |
 | ----- | ---- | ------- | ----------- |
-| `type` | string | | Only return connectors of this type |
-| `name` | string | | Only return connections with this name |
+| `type` | string | | Only return connectors of this type. Cannot be empty. |
+| `name` | string | | Only return connections with this name. Cannot be empty. |
 | `groupBy` | `"type"` | | Return connection names grouped by connector type |
 <!-- END GENERATED V2 SCHEMA GetClusterConnectorsQuery -->
 
@@ -395,7 +400,7 @@ Used by `POST /v2/jobs/{jobId}/_recover`.
 | Field | Type | Default | Description |
 | ----- | ---- | ------- | ----------- |
 | `cleanup_type` | `"all"` \| `"errors"` \| `"pending"` | | Reprocess only these slices, then finish instead of resuming: `all`: slices left in error or started; `errors`: slices in error; `pending`: slices not completed or failed. If left out, failed slices are retried and the execution resumes where it left off. |
-| `ex_id` | string | | Execution to recover, with the config it ran with; must belong to the job. If left out, recovers the latest execution with the job's current config. |
+| `ex_id` | string | | Execution to recover, with the config it ran with; must belong to the job. If left out, recovers the latest execution with the job's current config. Cannot be empty. |
 <!-- END GENERATED V2 SCHEMA RecoverJobQuery -->
 
 ### Job errors query
@@ -436,8 +441,8 @@ Used by `GET /v2/ex`.
 | `from` | integer | `0` | Number of matching records to skip, for paging |
 | `sort` | string | `"_updated:desc"` | Sort order as `field`, `field:asc` or `field:desc`, comma-separated for more than one; any other order is rejected. Empty uses the default |
 | `filter` | string | | Lucene query string, ANDed with the route's own query, e.g. `name:"my-job"` |
-| `status` | string | | Comma-separated execution statuses, e.g. `running,failed`; returns executions in any status listed. Not validated: an unknown status matches nothing. |
-| `job_id` | string | | Only return executions of this job |
+| `status` | string | | Comma-separated execution statuses, e.g. `running,failed`; returns executions in any status listed. Not validated: an unknown status matches nothing. Cannot be empty. |
+| `job_id` | string | | Only return executions of this job. Cannot be empty. |
 | `deleted` | boolean | `false` | `true` returns only soft-deleted records; `false` (the default) only records that aren't |
 <!-- END GENERATED V2 SCHEMA GetExecutionsQuery -->
 
@@ -530,8 +535,8 @@ Used by `GET /v2/txt/ex`.
 | `from` | integer | `0` | Number of matching records to skip, for paging |
 | `sort` | string | `"_updated:desc"` | Sort order as `field`, `field:asc` or `field:desc`, comma-separated for more than one; any other order is rejected. Empty uses the default |
 | `filter` | string | | Lucene query string, ANDed with the route's own query, e.g. `name:"my-job"` |
-| `status` | string | | Comma-separated execution statuses, e.g. `running,failed`; returns executions in any status listed. Not validated: an unknown status matches nothing. |
-| `job_id` | string | | Only return executions of this job |
+| `status` | string | | Comma-separated execution statuses, e.g. `running,failed`; returns executions in any status listed. Not validated: an unknown status matches nothing. Cannot be empty. |
+| `job_id` | string | | Only return executions of this job. Cannot be empty. |
 | `deleted` | boolean | `false` | `true` returns only soft-deleted records; `false` (the default) only records that aren't |
 | `fields` | string | | Comma-separated columns, in order: fields of ExecutionRecord. A dotted path reads a nested field, e.g. `ex._status` with `?ex`. An unknown field is rejected. Empty or left out uses the route's default columns |
 | `headers` | boolean | `true` | `false` leaves out the column names and the paging footer, so the response is only rows |
@@ -1089,7 +1094,8 @@ A plain-text table, one row per record, then a blank line and a footer: `Showing
 ### Routes not in v2
 
 On `/v2`, these paths respond with a **405**, except `GET /v2/ex/errors`. That one matches
-`GET /v2/ex/{exId}` and looks up an execution with the id `errors`.
+`GET /v2/ex/{exId}` and looks up an execution with the id `errors`, so it's a 404 with
+`Execution "errors" was not found`.
 
 | v1 route | In v2 |
 | -------- | ----- |
@@ -1130,11 +1136,13 @@ Requests that worked on v1 but behave differently on v2:
 | ------- | -- | -- |
 | Unknown query param, e.g. `?sizee=10` | ignored | 400 |
 | `?size=ten`, `?size=1.5` | `ten`: 500 on searches, an empty table on `/txt/workers`, `/txt/nodes` and `/txt/controllers`; `1.5`: truncated to `1` | 400 |
-| List `?size=` (empty) | default (100) | `0`: an empty list |
+| List `?size=` (empty) | default (100) | 400 |
 | List `from + size` past `max_result_window` | 400, OpenSearch's message pointing to the scroll API | 400, with the limit and `from + size` |
 | `GET /cluster/controllers`, `/txt/workers`, `/txt/nodes`, `/txt/controllers` order | workers and nodes in cluster state order, controllers in the order they connected | sorted (see [Paging](#paging)) |
 | `/txt/*?fields=` an unknown field | a column of `N/A` | 400, listing the valid fields |
+| `GET /ex?job_id=` | ignored: returns executions of every job | only that job's executions |
 | `/txt/ex?status=` / `?job_id=` | ignored | filters, as on `GET /v2/ex` |
+| `GET /cluster/stats` | `controllers`, plus `slicer`, a copy of it | `controllers` only |
 | `?deleted=` (empty) | deleted only | 400 |
 | `?deleted=yes` / `1` / `on` | 400 | `true` |
 | `?active=` or `?active=foo` | both active and inactive | 400 |
@@ -1154,7 +1162,11 @@ Requests that worked on v1 but behave differently on v2:
 | `POST /assets` without `?blocking` | `blocking=false`: a storage failure is logged, and the response is still a 201 | `blocking=true`: a storage failure is returned |
 | `POST /assets?blocking=` (empty) | `blocking=false` | 400 |
 | `POST /assets?blocking=foo` / `on` | `blocking=true` | `foo`: 400; `on`: `blocking=true` |
+| `POST /assets?blocking=off` / `n` / `disabled` | `blocking=true` | `blocking=false` |
 | `POST /assets` with `Content-Type: application/json; charset=utf-8` | forwarded, then 422 (not a zip) | 400 |
 | `DELETE /assets/{assetId}` with an id that isn't 40 characters | 400, as `{ "error": "<message>" }` | 400, in the usual error shape |
 | `GET /assets/{name}` or `/{version}` with a `"` in it | an invalid or different query | matched exactly |
 | `/txt/assets*`, a field the asset doesn't have (`description`, `platform`, …) | blank | `N/A` |
+| A job or execution id that doesn't exist, e.g. `GET /jobs/{jobId}`, `GET /ex/{exId}`, `PUT`, `DELETE`, `_start`, `_recover` | 404, with OpenSearch's message (`OpenSearch Error: Response Error`) | 404, `Job "<jobId>" was not found` or `Execution "<exId>" was not found` |
+| `GET /ex/{exId}/errors` with an execution id that doesn't exist | 200, an empty list | 404, `Execution "<exId>" was not found` |
+| A job action that needs an execution, on a job with none (`_stop`, `_pause`, `/errors`, `/tap`, …) | 404, `No executions were found for job: <jobId>` | 404, `No execution was found for job <jobId>` |
