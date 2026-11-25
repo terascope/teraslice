@@ -1,6 +1,5 @@
 import { Router, Express, ErrorRequestHandler } from 'express';
 import bodyParser from 'body-parser';
-import { pipeline as streamPipeline } from 'node:stream/promises';
 import got, { OptionsInit } from 'got';
 import { RecoveryCleanupType, TerasliceConfig, generateJobJSONSchema } from '@terascope/job-components';
 import {
@@ -9,20 +8,21 @@ import {
     isKey
 } from '@terascope/core-utils';
 import { ExecutionStatusEnum, ConnectorListResponse, JobSchemaResponse } from '@terascope/types';
-import { ClusterMasterContext, TerasliceRequest, TerasliceResponse } from '../../../interfaces.js';
-import { makeLogger } from '../../workers/helpers/terafoundation.js';
-import { ExecutionService, JobsService, ClusterServiceType } from '../services/index.js';
-import type { JobsStorage, ExecutionStorage, StateStorage } from '../../storage/index.js';
+import { createV2Router } from './v2/router.js';
+import { ClusterMasterContext, TerasliceRequest, TerasliceResponse } from '../../../../interfaces.js';
+import { makeLogger } from '../../../workers/helpers/terafoundation.js';
+import { ExecutionService, JobsService, ClusterServiceType } from '../index.js';
+import type { JobsStorage, ExecutionStorage, StateStorage } from '../../../storage/index.js';
 import {
     makeTable, sendError, handleTerasliceRequest,
     getSearchOptions, createJobActiveQuery, addDeletedToQuery,
     addFilterToQuery, buildConnectorList, getSliceTapOptions
-} from '../../utils/api_utils.js';
-import { getPackageJSON } from '../../utils/file_utils.js';
+} from '../../../utils/api_utils.js';
+import { getPackageJSON } from '../../../utils/file_utils.js';
 
 const terasliceVersion = getPackageJSON().version;
 
-function validateCleanupType(cleanupType: RecoveryCleanupType) {
+export function validateCleanupType(cleanupType: RecoveryCleanupType) {
     if (cleanupType && !RecoveryCleanupType[cleanupType]) {
         const types = Object.values(RecoveryCleanupType);
         throw new TSError(`cleanup_type must be empty or set to ${types.join(', ')}`, {
@@ -31,7 +31,7 @@ function validateCleanupType(cleanupType: RecoveryCleanupType) {
     }
 }
 
-function validateGetDeletedOption(deletedOption: string) {
+export function validateGetDeletedOption(deletedOption: string) {
     if (!['true', 'false', ''].includes(deletedOption)) {
         throw new TSError('deleted query option must true or false', {
             statusCode: 400
@@ -136,7 +136,10 @@ export class ApiService {
         throw error;
     }
 
-    private async _assetRedirect(req: TerasliceRequest, res: TerasliceResponse) {
+    /** Streams a request to the assets service at `path` and pipes back its response */
+    private async _assetRedirect(
+        req: TerasliceRequest, res: TerasliceResponse, path: string
+    ): Promise<void> {
         const options: OptionsInit & { isStream: true } = {
             prefixUrl: this.assetsUrl,
             headers: req.headers,
@@ -148,24 +151,43 @@ export class ApiService {
             isStream: true
         };
 
-        const uri = req.url.replace(/^\//, '');
+        const uri = path.replace(/^\//, '');
         const method = req.method.toLowerCase();
 
         try {
             if (!isKey(got.stream, method)) {
-                throw new Error(`${method} is not a valid gotStream method`);
+                throw new Error(`${method} is not a supported HTTP method`);
             }
-            const stream = got.stream[method](uri, options);
+            const upstream = got.stream[method](uri, options);
 
-            await streamPipeline(
-                req,
-                stream,
-                res,
-            );
+            // A got stream that fails destroys every response piped into it,
+            // and `stream.pipeline` destroys `req` and `res` on an error. Either
+            // closes the client's socket before `sendError` in the catch below
+            // can respond, so the client only sees a hang up. So `res` is piped
+            // only once the assets service responds: got copies the status and
+            // headers into it right after this `response` listener runs.
+            await new Promise<void>((resolve, reject) => {
+                upstream.on('error', reject);
+                req.on('error', reject);
+                upstream.once('response', () => upstream.pipe(res));
+                res.once('close', () => {
+                    // the client went away before the response was sent
+                    if (!res.writableFinished) upstream.destroy();
+                    resolve();
+                });
+                req.pipe(upstream);
+            });
         } catch (err) {
             const { statusCode, message } = parseErrorInfo(err, {
                 defaultErrorMsg: 'Asset Service error while processing request'
             });
+            if (res.headersSent) {
+                // Part of the response was sent; end the connection, so the
+                // client can tell it is cut short
+                req.logger.error(err, 'Asset Service error after the response started');
+                res.destroy();
+                return;
+            }
             sendError(res, statusCode, message, req.logger);
         }
     }
@@ -202,7 +224,11 @@ export class ApiService {
         this.jobsStorage = jobsStorage;
 
         const v1routes = Router();
-        const assetRedirect = this._assetRedirect.bind(this);
+        // v1 forwards `req.url`, which has the /v1 mount stripped, so it reaches
+        // the assets service's unversioned routes
+        const assetRedirect = (req: TerasliceRequest, res: TerasliceResponse) => (
+            this._assetRedirect(req, res, req.url)
+        );
 
         this.app.use(bodyParser.json({
             type(req) {
@@ -422,7 +448,11 @@ export class ApiService {
             const requestHandler = handleTerasliceRequest(req, res, 'Could not recover execution');
             requestHandler(async () => {
                 validateCleanupType(cleanupType as RecoveryCleanupType);
-                return executionService.recoverExecution(exId, cleanupType as RecoveryCleanupType);
+                const execution = await executionService.getExecutionContext(exId);
+                await jobsService.assertJobCanRun(execution.job_id);
+                return executionService.recoverExecution(
+                    execution, cleanupType as RecoveryCleanupType
+                );
             });
         });
 
@@ -536,7 +566,11 @@ export class ApiService {
             requestHandler(() => this._controllerStats());
         });
 
+        this.app.use('/v2', createV2Router(this, this._assetRedirect.bind(this)));
+
         // backwards compatibility for /v1 routes
+        // TODO: Teraslice v4 deletes /v1 and the unversioned mount
+        // https://github.com/terascope/teraslice/issues/4584#issuecomment-6636093239
         this.app.use(v1routes);
         this.app.use('/v1', v1routes);
 
@@ -557,7 +591,7 @@ export class ApiService {
             const requestHandler = handleTerasliceRequest(req, res, 'Could not get all workers');
             requestHandler(async () => {
                 const workers = await executionService.findAllWorkers() as Record<string, any>[];
-                return makeTable(req, defaults, workers.slice(from, size));
+                return makeTable(req, defaults, workers.slice(from, from + size));
             });
         });
 
@@ -570,7 +604,7 @@ export class ApiService {
                 const nodes = await clusterService.getClusterState();
 
                 const transform = Object.values(nodes)
-                    .slice(from, size)
+                    .slice(from, from + size)
                     .map((node: any) => Object.assign(
                         {},
                         node,
@@ -650,7 +684,7 @@ export class ApiService {
             const requestHandler = handleTerasliceRequest(req, res, 'Could not get all execution statistics');
             requestHandler(async () => {
                 const stats = await this._controllerStats();
-                return makeTable(req, defaults, stats.slice(from, size));
+                return makeTable(req, defaults, stats.slice(from, from + size));
             });
         });
 

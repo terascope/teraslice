@@ -4,6 +4,99 @@ import { debugLogger } from '@terascope/core-utils';
 import { TerasliceElasticsearchStorage } from '../../src/lib/storage/backends/elasticsearch_store.js';
 
 describe('TerasliceElasticsearchStorage', () => {
+    describe('->searchWithTotal', () => {
+        let store: TerasliceElasticsearchStorage;
+        let searchWithTotal: jest.Mock<(...args: any[]) => Promise<any>>;
+        let search: jest.Mock<(...args: any[]) => Promise<any>>;
+
+        beforeEach(() => {
+            const context = { sysconfig: { teraslice: {} } } as any;
+            store = new TerasliceElasticsearchStorage({
+                context,
+                indexName: 'test__jobs',
+                recordType: 'job',
+                idField: 'job_id',
+                storageName: 'jobs',
+                logger: debugLogger('elasticsearch-store-spec'),
+            });
+            searchWithTotal = jest.fn<(...args: any[]) => Promise<any>>();
+            search = jest.fn<(...args: any[]) => Promise<any>>();
+            store.api = { searchWithTotal, search } as any;
+        });
+
+        it('should ask for an exact total and return the records and total', async () => {
+            const records = [{ job_id: 'a' }, { job_id: 'b' }];
+            searchWithTotal.mockResolvedValue({ records, total: 57, relation: 'eq' });
+
+            await expect(store.searchWithTotal({
+                query: 'job_id:*', from: 10, size: 2, sort: '_created:desc', fields: ['job_id']
+            })).resolves.toEqual({ records, total: 57 });
+
+            expect(searchWithTotal).toHaveBeenCalledWith({
+                index: 'test__jobs',
+                from: 10,
+                size: 2,
+                sort: '_created:desc,job_id:asc',
+                q: 'job_id:*',
+                _source_includes: ['job_id'],
+                track_total_hits: true,
+            });
+        });
+
+        it('should build the same query as search(), plus track_total_hits', async () => {
+            searchWithTotal.mockResolvedValue({ records: [], total: 0, relation: 'eq' });
+            search.mockResolvedValue([]);
+            const body = { query: { match_all: {} } };
+
+            await store.searchWithTotal({ query: body, from: 0, size: 100, sort: 'job_id:asc' });
+            await store.search(body, 0, 100, 'job_id:asc');
+
+            expect(searchWithTotal.mock.calls[0][0]).toEqual({
+                ...search.mock.calls[0][0],
+                track_total_hits: true,
+            });
+        });
+
+        describe('sort', () => {
+            async function sortFor(sort: string | undefined) {
+                searchWithTotal.mockResolvedValue({ records: [], total: 0, relation: 'eq' });
+                await store.searchWithTotal({ query: '*', sort });
+                return searchWithTotal.mock.calls[0][0].sort;
+            }
+
+            it('should sort by the id field with no sort', async () => {
+                await expect(sortFor(undefined)).resolves.toBe('job_id:asc');
+                searchWithTotal.mockClear();
+                await expect(sortFor('')).resolves.toBe('job_id:asc');
+            });
+
+            it('should add the id field to the end of the sort', async () => {
+                await expect(sortFor('_updated:desc,name:asc'))
+                    .resolves.toBe('_updated:desc,name:asc,job_id:asc');
+            });
+
+            it('should keep a sort that already sorts by the id field', async () => {
+                await expect(sortFor('job_id:desc')).resolves.toBe('job_id:desc');
+                searchWithTotal.mockClear();
+                await expect(sortFor('_updated:desc, job_id')).resolves.toBe('_updated:desc, job_id');
+            });
+
+            it('should not match a field that only starts with the id field', async () => {
+                await expect(sortFor('job_id_old:asc')).resolves.toBe('job_id_old:asc,job_id:asc');
+            });
+        });
+
+        it('should check from, size and sort like search()', async () => {
+            await expect(store.searchWithTotal({ query: '*', from: 1.5 }))
+                .rejects.toThrow('from parameter must be a integer, got 1.5');
+            await expect(store.searchWithTotal({ query: '*', size: 'ten' as any }))
+                .rejects.toThrow('size parameter must be a integer, got ten');
+            await expect(store.searchWithTotal({ query: '*', sort: 5 as any }))
+                .rejects.toThrow('sort parameter must be a string, got 5');
+            expect(searchWithTotal).not.toHaveBeenCalled();
+        });
+    });
+
     describe('when shutdown is forced', () => {
         const timeout = 500;
         let store: TerasliceElasticsearchStorage;

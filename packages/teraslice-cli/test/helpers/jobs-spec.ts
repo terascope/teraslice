@@ -566,6 +566,67 @@ describe('Job helper class', () => {
             await expect(job.start()).rejects.toThrow();
         });
 
+        describe('when the job does not set workers', () => {
+            function setup(executionWorkers: number, currentWorkers: number) {
+                const [jobId] = makeJobIds(1);
+                const jobController = clusterControllers([jobId]);
+                const jobExecution = getJobExecution(jobId);
+                const jobConfig: Partial<ReturnType<typeof testJobConfig>> = testJobConfig(jobId);
+
+                // stored jobs have no defaults, so `workers` can be missing
+                delete jobConfig.workers;
+                jobExecution.workers = executionWorkers;
+                jobController[0].workers_active = currentWorkers;
+                jobController[0].workers_available = 0;
+                jobController[0].processed = 100;
+
+                tsClient
+                    .get(`/v1/jobs/${jobId}/ex`)
+                    .reply(200, { _status: 'stopped' })
+                    .get(`/v1/jobs/${jobId}`)
+                    .reply(200, jobConfig)
+                    .post(`/v1/jobs/${jobId}/_start`)
+                    .reply(200, () => Promise.resolve({ _status: 'initializing' }))
+                    .get(`/v1/jobs/${jobId}/ex`)
+                    .reply(200, () => Promise.resolve({ _status: 'running' }))
+                    .get(`/v1/jobs/${jobId}/controller`)
+                    .reply(200, () => Promise.resolve(jobController))
+                    // the watch check reads the resolved count from the execution
+                    .get(`/v1/jobs/${jobId}/ex`)
+                    .reply(200, () => Promise.resolve(jobExecution));
+
+                const config = buildCLIConfig(action, {
+                    'job-id': [jobId],
+                    jobId: [jobId],
+                    watch: 50,
+                    interval: 1000,
+                    timeout: 5000
+                });
+
+                return new Jobs(config);
+            }
+
+            it('should check workers against the execution worker count', async () => {
+                const job = setup(10, 10);
+
+                await job.initialize();
+
+                expect(job.jobs[0].config.workers).toBeUndefined();
+
+                await job.start();
+
+                expect(job.jobs[0].status).toBe('running');
+            });
+
+            it('should throw an error if less than the execution worker count', async () => {
+                const job = setup(10, 3);
+
+                await job.initialize();
+
+                await expect(job.start()).rejects.toThrow();
+            });
+        });
+
         it('should throw an error if failed slices', async () => {
             const [jobId] = makeJobIds(1);
             const jobController = clusterControllers([jobId]);
@@ -685,6 +746,44 @@ describe('Job helper class', () => {
             expect(batched[0].length).toBe(3);
             expect(batched[1].length).toBe(1);
             expect(batched[2].length).toBe(1);
+        });
+
+        it('should count a job with no workers set as 5 workers when batching', () => {
+            const jobIds = makeJobIds(3);
+
+            const jobs: { config: Partial<ReturnType<typeof testJobConfig>>; id: string }[] = (
+                jobIds.map((id) => ({ config: testJobConfig(id), id }))
+            );
+
+            // 48 + 5 goes over the default max of 50, so the third job is
+            // batched separately. Counting the missing value as 0 or NaN
+            // would put all three in one batch.
+            jobs[0].config.workers = 48;
+            delete jobs[1].config.workers;
+            jobs[2].config.workers = 10;
+
+            const config = buildCLIConfig(
+                action,
+                {
+                    'job-id': ['all'],
+                    jobId: ['all'],
+                    yes: true,
+                    y: true,
+                    interval: 1000,
+                    timeout: 5000
+                }
+            );
+
+            const job = new Jobs(config);
+
+            job.jobs = jobs as any;
+
+            const batched = job.batchJobsBeforeStart();
+
+            expect(batched.map((batch) => batch.map(({ id }) => id))).toEqual([
+                [jobIds[0], jobIds[1]],
+                [jobIds[2]]
+            ]);
         });
     });
 

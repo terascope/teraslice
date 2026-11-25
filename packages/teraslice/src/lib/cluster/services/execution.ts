@@ -8,12 +8,12 @@ import {
 import type { RecoveryCleanupType } from '@terascope/job-components';
 import { ClusterMaster } from '@terascope/teraslice-messaging';
 import {
-    ExecutionConfig, JobConfig, NodeState, SliceTapRequest
+    ExecutionConfig, ExecutionNodeWorker, JobConfig,
+    NodeState, SliceTapRequest
 } from '@terascope/types';
 import type { ExecutionStorage, StateStorage } from '../../storage/index.js';
 import type {
-    ClusterMasterContext, ExecutionNodeWorker, ControllerStats,
-    SerializedSliceTapResults
+    ClusterMasterContext, ControllerStats, SerializedSliceTapResults
 } from '../../../interfaces.js';
 import { makeLogger } from '../../workers/helpers/terafoundation.js';
 import type { ClusterServiceType } from './cluster/index.js';
@@ -408,9 +408,30 @@ export class ExecutionService {
         return { exId, level };
     }
 
+    /**
+     * Throws a 409 unless the execution is currently in one of the allowed
+     * statuses. Any other status would be overwritten while the execution
+     * controller is acting on it (e.g. "stopping").
+    */
+    private _assertExecutionStatus(
+        execution: ExecutionConfig,
+        allowed: readonly ('running' | 'failing' | 'paused')[],
+        action: 'paused' | 'resumed'
+    ) {
+        if (!(allowed as readonly string[]).includes(execution._status)) {
+            const allowedStr = allowed.map((s) => `"${s}"`).join(' or ');
+            throw new TSError(
+                `Execution ${execution.ex_id} is "${execution._status}", it can only be ${action} when ${allowedStr}`,
+                { statusCode: 409 }
+            );
+        }
+    }
+
     async pauseExecution(exId: string) {
         const status = 'paused';
         const execution = await this.executionStorage.getActiveExecution(exId);
+
+        this._assertExecutionStatus(execution, ['running', 'failing'], 'paused');
 
         if (!this.clusterMasterServer.isClientReady(execution.ex_id)) {
             throw new Error(`Execution ${execution.ex_id} is not available to pause`);
@@ -419,12 +440,14 @@ export class ExecutionService {
         await this.clusterMasterServer.sendExecutionPause(exId);
         await this.executionStorage.setStatus(exId, status);
 
-        return { status };
+        return { status } as const;
     }
 
     async resumeExecution(exId: string) {
         const status = 'running';
         const execution = await this.executionStorage.getActiveExecution(exId);
+
+        this._assertExecutionStatus(execution, ['paused'], 'resumed');
 
         if (!this.clusterMasterServer.isClientReady(execution.ex_id)) {
             throw new Error(`Execution ${execution.ex_id} is not available to resume`);
@@ -433,7 +456,7 @@ export class ExecutionService {
         await this.clusterMasterServer.sendExecutionResume(execution.ex_id);
         await this.executionStorage.setStatus(execution.ex_id, status);
 
-        return { status };
+        return { status } as const;
     }
 
     async getControllerStats(exId?: string): Promise<ControllerStats[]> {
@@ -459,7 +482,7 @@ export class ExecutionService {
 
         if (isEmpty(clients)) {
             if (specificId) {
-                throw new TSError(`Could not find active slicer for ex_id: ${specificId}`, {
+                throw new TSError(`Could not find active controller for ex_id: ${specificId}`, {
                     statusCode: 404
                 });
             }

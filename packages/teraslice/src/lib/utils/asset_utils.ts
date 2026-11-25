@@ -5,6 +5,30 @@ import {
 import { AssetRecord } from '@terascope/types';
 import * as semver from 'semver';
 
+/** Whether an asset's zip is in the S3 bucket */
+export type ExternalStorageStatus = 'available' | 'missing';
+
+/**
+ * Sets `external_storage` on each asset record: `available` if the S3 bucket
+ * has the asset's zip, `missing` if not. The S3 objects are named
+ * `<asset id>.zip`. Returns new records and leaves the inputs unchanged.
+ */
+export function addExternalStorageStatus<T extends { id: string }>(
+    s3List: { File: string }[],
+    records: T[]
+): (T & { external_storage: ExternalStorageStatus })[] {
+    const s3Ids = new Set(
+        s3List
+            .filter(({ File }) => File.endsWith('.zip'))
+            .map(({ File }) => File.slice(0, -'.zip'.length))
+    );
+
+    return records.map((record) => ({
+        ...record,
+        external_storage: s3Ids.has(record.id) ? 'available' : 'missing',
+    }));
+}
+
 export function findMatchingAsset(
     records: AssetRecord[],
     name: string,

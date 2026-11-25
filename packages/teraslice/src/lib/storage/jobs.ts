@@ -3,7 +3,10 @@ import { TSError, Logger, makeISODate } from '@terascope/core-utils';
 import { Context, ValidatedJobConfig, JobConfigParams } from '@terascope/job-components';
 import { JobConfig } from '@terascope/types';
 import { makeLogger } from '../workers/helpers/terafoundation.js';
-import { TerasliceElasticsearchStorage, TerasliceESStorageConfig } from './backends/elasticsearch_store.js';
+import {
+    TerasliceElasticsearchStorage, TerasliceESStorageConfig,
+    RecordsWithTotal, PageSearch
+} from './backends/elasticsearch_store.js';
 
 export class JobsStorage {
     private backend: TerasliceElasticsearchStorage;
@@ -52,6 +55,13 @@ export class JobsStorage {
     ): Promise<JobConfig[]> {
         const results = await this.backend.search(query, from, size, sort, fields);
         return results as JobConfig[];
+    }
+
+    /**
+     * Returns one page of jobs and how many jobs match in total.
+     */
+    async searchWithTotal(search: PageSearch): Promise<RecordsWithTotal<JobConfig>> {
+        return this.backend.searchWithTotal<JobConfig>(search);
     }
 
     async create(record: ValidatedJobConfig): Promise<JobConfig> {

@@ -9,6 +9,36 @@ const JOB_SCHEMA_ID = 'https://terascope.github.io/teraslice/schemas/teraslice-j
 type JSONSchemaNode = Record<string, any>;
 
 /**
+ * An object node built from a convict schema. Type aliases rather than
+ * interfaces throughout, so these are assignable to index-signature types
+ * (e.g. the output of a `z.looseObject` response schema).
+ */
+type ObjectSchemaNode = {
+    type: 'object';
+    description?: string;
+    properties: Record<string, JSONSchemaNode>;
+    /** Only set when at least one field is required */
+    required?: string[];
+    additionalProperties?: boolean;
+};
+
+/** The JSON Schema document returned by `generateJobJSONSchema` */
+export type JobJSONSchema = {
+    $schema: string;
+    $id: string;
+    title: string;
+    description: string;
+    type: 'object';
+    properties: Record<string, JSONSchemaNode>;
+    required: string[];
+    additionalProperties: boolean;
+    definitions: {
+        operation: ObjectSchemaNode;
+        api: ObjectSchemaNode;
+    };
+};
+
+/**
  * Maps the finite set of convict format *types* to JSON Schema. Job *fields*
  * are not listed here (they are read dynamically from the schema), so adding a
  * normal field needs no change here. This only grows if core-utils introduces a
@@ -109,7 +139,7 @@ interface ConvertOptions {
 function convictSchemaToJSONSchema(
     schema: Terafoundation.Schema<any>,
     options: ConvertOptions = {}
-): JSONSchemaNode {
+): ObjectSchemaNode {
     const { overrides = {}, extraRequired = [], additionalProperties } = options;
 
     const properties: Record<string, JSONSchemaNode> = {};
@@ -122,7 +152,7 @@ function convictSchemaToJSONSchema(
         }
     }
 
-    const node: JSONSchemaNode = { type: 'object', properties };
+    const node: ObjectSchemaNode = { type: 'object', properties };
 
     if (required.length > 0) {
         node.required = [...new Set(required)];
@@ -143,7 +173,7 @@ function convictSchemaToJSONSchema(
  * Operation- and API-specific options (what each asset adds) are not described
  * here; operations and apis allow additional properties.
  */
-export function generateJobJSONSchema(context: Context): JSONSchemaNode {
+export function generateJobJSONSchema(context: Context): JobJSONSchema {
     const job = jobSchema(context);
 
     // _connection is the union of every connection across all connector types.
@@ -244,7 +274,6 @@ export function generateJobJSONSchema(context: Context): JSONSchemaNode {
     const root = convictSchemaToJSONSchema(job, {
         overrides: jobOverrides,
         extraRequired: ['name', 'operations'],
-        additionalProperties: false,
     });
 
     root.properties.$schema = {
@@ -273,7 +302,10 @@ export function generateJobJSONSchema(context: Context): JSONSchemaNode {
         $id: JOB_SCHEMA_ID,
         title: 'Teraslice Job',
         description: 'Generated from the Teraslice job, operation, and api schemas.',
-        ...root,
+        type: root.type,
+        properties: root.properties,
+        required: root.required ?? [],
+        additionalProperties: false,
         definitions: {
             operation: operationDefinition,
             api: apiDefinition,

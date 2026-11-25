@@ -25,7 +25,8 @@
         "test:watch": "node ../scripts/bin/ts-scripts test --watch ../types --"
     },
     "dependencies": {
-        "prom-client": "catalog:"
+        "prom-client": "catalog:",
+        "zod": "catalog:"
     },
     "devDependencies": {
         "jest-extended": "catalog:"

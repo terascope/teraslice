@@ -86,6 +86,32 @@ describe('AssetsStorage using S3 backend', () => {
         }]);
     });
 
+    it('can search for a page of assets with the total, without the blob', async () => {
+        const { records, total } = await storage.searchWithTotal({
+            query: 'name:"ex1"',
+            sort: '_created:desc',
+        });
+
+        expect(total).toBe(1);
+        expect(records).toEqual([expect.objectContaining({
+            id: 'caf0e5ce7cf1edc864f306b1d9edbad0f7060545',
+            name: 'ex1',
+        })]);
+        expect(records[0]).not.toHaveProperty('blob');
+    });
+
+    it('sets external_storage from the S3 bucket', async () => {
+        const records = await storage.withExternalStorage([
+            { id: 'caf0e5ce7cf1edc864f306b1d9edbad0f7060545' },
+            { id: 'not-in-the-bucket' },
+        ]);
+
+        expect(records).toEqual([
+            { id: 'caf0e5ce7cf1edc864f306b1d9edbad0f7060545', external_storage: 'available' },
+            { id: 'not-in-the-bucket', external_storage: 'missing' },
+        ]);
+    });
+
     it('can get an asset from S3', async () => {
         /// create a buffer copy of example_asset_1.zip to test if it equals what s3 sends back
         const filePath = 'e2e/test/fixtures/assets/example_asset_1.zip';
@@ -284,6 +310,59 @@ describe('AssetsStorage using ES backend', () => {
 
         await storage.remove(assetId);
         await expect(storage.remove(assetId)).rejects.toMatchObject({ statusCode: 404 });
+    });
+
+    describe('when searching', () => {
+        // example_asset_1 is ex1 0.0.1, example_asset_1updated is ex1 0.1.1
+        const assetIds: string[] = [];
+
+        beforeAll(async () => {
+            for (const file of ['example_asset_1.zip', 'example_asset_1updated.zip']) {
+                const buffer = fs.readFileSync(path.join('e2e/test/fixtures/assets', file));
+                const { assetId: id } = await storage.save(buffer);
+                assetIds.push(id);
+            }
+        });
+
+        afterAll(async () => {
+            for (const id of assetIds) {
+                await storage.remove(id).catch(() => {});
+            }
+        });
+
+        it('returns one page of records with the total, without the blob', async () => {
+            const page = await storage.searchWithTotal({
+                query: 'name:"ex1"', size: 1, sort: 'version:asc',
+            });
+
+            expect(page.total).toBe(2);
+            expect(page.records).toBeArrayOfSize(1);
+            expect(page.records[0]).not.toHaveProperty('blob');
+            expect(page.records[0].id).toBe(assetIds[0]);
+
+            const next = await storage.searchWithTotal({
+                query: 'name:"ex1"', from: 1, size: 1, sort: 'version:asc',
+            });
+
+            expect(next.total).toBe(2);
+            expect(next.records.map((r) => r.id)).toEqual([assetIds[1]]);
+        });
+
+        it('returns only the given fields', async () => {
+            const { records } = await storage.searchWithTotal({
+                query: 'name:"ex1"', fields: ['id', 'version'], sort: 'version:asc',
+            });
+
+            expect(records).toEqual([
+                { id: assetIds[0], version: '0.0.1' },
+                { id: assetIds[1], version: '0.1.1' },
+            ]);
+        });
+
+        it('leaves the records unchanged in withExternalStorage', async () => {
+            const records = [{ id: assetIds[0] }];
+            expect(await storage.withExternalStorage(records)).toBe(records);
+        });
     });
 
     describe('when removing a partially deleted asset', () => {

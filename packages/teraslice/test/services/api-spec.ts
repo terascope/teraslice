@@ -5,7 +5,7 @@ import express from 'express';
 import http from 'node:http';
 import { TestContext } from '@terascope/job-components';
 import { findPort } from '../../src/lib/utils/port_utils.js';
-import { ApiService } from '../../src/lib/cluster/services/api.js';
+import { ApiService } from '../../src/lib/cluster/services/api/api.js';
 import { getPackageJSON } from '../../src/lib/utils/file_utils.js';
 
 describe('HTTP API', () => {
@@ -266,6 +266,59 @@ describe('HTTP API', () => {
             expect(response.statusCode).toEqual(500);
             expect(response.body).toMatchObject({
                 message: expect.stringContaining('No client found by that id')
+            });
+        });
+    });
+
+    describe('GET /txt routes', () => {
+        const ids = ['a', 'b', 'c', 'd', 'e', 'f', 'g'];
+
+        /** The table rows, without headers, trimmed */
+        async function getRows(path: string, searchParams: Record<string, string>) {
+            const response = await got(`${baseUrl}${path}`, {
+                searchParams: { ...searchParams, headers: 'false' },
+                throwHttpErrors: true
+            });
+            return response.body.split('\n').map((line) => line.trim())
+                .filter(Boolean);
+        }
+
+        beforeAll(() => {
+            context.services.executionService.findAllWorkers = async () => ids.map(
+                (id) => ({ ex_id: id })
+            );
+            context.services.clusterService.getClusterState = async () => Object.fromEntries(
+                ids.map((id) => [id, { node_id: id, active: [] }])
+            );
+            context.services.executionService.getControllerStats = async () => ids.map(
+                (id) => ({ ex_id: id })
+            );
+        });
+
+        describe.each([
+            ['/txt/workers', 'ex_id'],
+            ['/txt/nodes', 'node_id'],
+            ['/txt/slicers', 'ex_id'],
+            ['/txt/controllers', 'ex_id'],
+        ])('GET %s', (path, field) => {
+            it('should return the first page', async () => {
+                const rows = await getRows(path, { fields: field, size: '3' });
+                expect(rows).toEqual(['a', 'b', 'c']);
+            });
+
+            it('should return a page starting at from', async () => {
+                const rows = await getRows(path, { fields: field, from: '2', size: '3' });
+                expect(rows).toEqual(['c', 'd', 'e']);
+            });
+
+            it('should return size records when from is more than size', async () => {
+                const rows = await getRows(path, { fields: field, from: '4', size: '2' });
+                expect(rows).toEqual(['e', 'f']);
+            });
+
+            it('should return a partial last page', async () => {
+                const rows = await getRows(path, { fields: field, from: '5', size: '3' });
+                expect(rows).toEqual(['f', 'g']);
             });
         });
     });

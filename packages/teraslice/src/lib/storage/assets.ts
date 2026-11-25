@@ -7,15 +7,35 @@ import {
 } from '@terascope/core-utils';
 import { Context } from '@terascope/job-components';
 import { ClientResponse, AssetRecord } from '@terascope/types';
-import { TerasliceElasticsearchStorage, TerasliceESStorageConfig } from './backends/elasticsearch_store.js';
+import {
+    TerasliceElasticsearchStorage, TerasliceESStorageConfig,
+    RecordsWithTotal, PageSearch
+} from './backends/elasticsearch_store.js';
 import { S3Store, TerasliceS3StorageConfig } from './backends/s3_store.js';
+import { assetDataTypeConfig } from './backends/mappings/asset.js';
 import { makeLogger } from '../workers/helpers/terafoundation.js';
 import { saveAsset, AssetMetadata, isZipFile, deleteDir } from '../utils/file_utils.js';
 import {
     findMatchingAsset, findSimilarAssets, toVersionQuery,
-    getInCompatibilityReason
+    getInCompatibilityReason, addExternalStorageStatus, ExternalStorageStatus
 } from '../utils/asset_utils.js';
 import { HTTP_RESPONSE_MARGIN } from '../utils/api_utils.js';
+
+/**
+ * The stored fields of an asset record, from the index mapping, without the
+ * zip's `blob`. `external_storage` isn't stored: `withExternalStorage()` adds
+ * it from the S3 bucket.
+ */
+export const ASSET_RECORD_FIELDS = Object.keys(assetDataTypeConfig.fields)
+    .filter((field) => field !== 'blob');
+
+/**
+ * An asset record as `searchWithTotal()` returns it with the default
+ * fields: no `blob`, and `_created` as the ISO string stored in the index.
+ */
+export type StoredAssetRecord = Omit<AssetRecord, 'blob' | '_created' | 'external_storage'> & {
+    _created: string;
+};
 
 function _metaIsUnique(backend: TerasliceElasticsearchStorage) {
     return async function checkMeta(meta: AssetMetadata): Promise<AssetMetadata> {
@@ -280,7 +300,9 @@ export class AssetsStorage {
     */
     async save(data: Buffer, blocking = true) {
         if (!isZipFile(data)) {
-            throw new Error('Failed to save asset. File type not recognized as zip.');
+            throw new TSError('Failed to save asset. File type not recognized as zip.', {
+                statusCode: 422
+            });
         }
         const esData = data.toString('base64');
         const id = crypto.createHash('sha1').update(esData)
@@ -333,12 +355,43 @@ export class AssetsStorage {
         ) as unknown as ClientResponse.SearchResponse<AssetRecord>;
     }
 
+    /**
+     * Returns one page of asset records and how many match in total. Returns
+     * `ASSET_RECORD_FIELDS` unless `fields` is given, so the `blob` isn't
+     * sent back by default.
+     */
+    async searchWithTotal(search: PageSearch): Promise<RecordsWithTotal<StoredAssetRecord>> {
+        return this.esBackend.searchWithTotal<StoredAssetRecord>({
+            ...search,
+            fields: search.fields ?? ASSET_RECORD_FIELDS,
+        });
+    }
+
+    /**
+     * Whether asset zips are stored in S3, so `withExternalStorage()` sets
+     * `external_storage` on records.
+     */
+    get hasExternalStorage(): boolean {
+        return this.s3Backend != null;
+    }
+
+    /**
+     * When assets are stored in S3, sets `external_storage` on each record to
+     * whether the bucket has its zip. Returns the records unchanged otherwise.
+     */
+    async withExternalStorage<T extends { id: string }>(
+        records: T[]
+    ): Promise<(T & { external_storage?: ExternalStorageStatus })[]> {
+        if (!this.hasExternalStorage) return records;
+        return addExternalStorageStatus(await this.grabS3Info(), records);
+    }
+
     /*
      * Get all the asset records out of the S3 bucket
-     * Returns an array of Records containing: { File: any, Size: any }
+     * Returns an array of Records containing: { File: string, Size: number }
     */
-    async grabS3Info(): Promise<Record<string, any>[]> {
-        return await this.s3Backend?.list() as Record<string, any>[];
+    async grabS3Info(): Promise<{ File: string; Size: number }[]> {
+        return await this.s3Backend?.list() as { File: string; Size: number }[];
     }
 
     // this should be a SearchResponse as full_response is set to true in backendConfig
